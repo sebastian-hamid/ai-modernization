@@ -9,6 +9,7 @@ Windows 11 + WSL2 Ubuntu development environment, local Jenkins and a preserved 
 - [Running application, runtime recovery and integration tests](notes/legacy-runtime.md)
 - [Passing Jenkins baseline pipeline](notes/jenkins-baseline.md)
 - [Setup review and versioning](notes/setup-review-2026-10-26.md)
+- [Reusable legacy Java baseline skill](notes/skills.md)
 - Jenkins job: http://localhost:8080/job/ai-modernization-baseline/
 - Application: http://localhost:8081/cargo-tracker/
 - Jenkins: http://localhost:8080/

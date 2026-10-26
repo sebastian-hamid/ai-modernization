@@ -1,0 +1,4 @@
+interface:
+  display_name: "Legacy Java Baseline"
+  short_description: "Recover and verify a legacy Java baseline"
+  default_prompt: "Use $legacy-java-baseline to establish a reproducible build, runtime, and behavior baseline for this legacy Java project."
