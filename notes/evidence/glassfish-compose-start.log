@@ -1,0 +1,60 @@
+ Image ai-modernization-glassfish:4.1-validator-fix Building 
+#1 [internal] load local bake definitions
+#1 reading from stdin 647B done
+#1 DONE 0.0s
+
+#2 [internal] load build definition from Dockerfile
+#2 transferring dockerfile: 539B done
+#2 DONE 0.0s
+
+#3 [internal] load metadata for docker.io/library/maven@sha256:b9fac8295f9d342af5d815888dca1334b12833a84c870c260b88f31285c1ef3d
+#3 DONE 0.0s
+
+#4 [internal] load .dockerignore
+#4 transferring context: 2B done
+#4 DONE 0.0s
+
+#5 [1/6] FROM docker.io/library/maven@sha256:b9fac8295f9d342af5d815888dca1334b12833a84c870c260b88f31285c1ef3d
+#5 resolve docker.io/library/maven@sha256:b9fac8295f9d342af5d815888dca1334b12833a84c870c260b88f31285c1ef3d 0.0s done
+#5 DONE 0.0s
+
+#6 [internal] load build context
+#6 transferring context: 131.75MB 1.4s done
+#6 DONE 1.4s
+
+#7 [3/6] COPY patches/bean-validator.jar /opt/glassfish4/glassfish/modules/bean-validator.jar
+#7 CACHED
+
+#8 [4/6] COPY cargo-tracker.war /opt/cargo-tracker.war
+#8 CACHED
+
+#9 [5/6] COPY start.sh /opt/start.sh
+#9 CACHED
+
+#10 [2/6] COPY unpacked/glassfish4 /opt/glassfish4
+#10 CACHED
+
+#11 [6/6] RUN chmod +x /opt/glassfish4/bin/* /opt/glassfish4/glassfish/bin/* /opt/start.sh && chown -R 1000:1000 /opt/glassfish4 /opt/cargo-tracker.war
+#11 CACHED
+
+#12 exporting to image
+#12 exporting layers 0.0s done
+#12 exporting manifest sha256:9111d47a063eb5e84fae1e9e07985652676e4ada8052adeb77200a9d37fde806 0.0s done
+#12 exporting config sha256:a6da02a2f3b91e286a89698ca40fdfeb85a1a406c1f89982230d84498e475e95 0.0s done
+#12 exporting attestation manifest sha256:250cd93c7631f5f18bf7ada6821b662f16a47ab6f805b34f20f98a771a4bb04a 0.0s done
+#12 exporting manifest list sha256:899f3ae0a00cc80fd9e8dd49d9104da4baf4aad81167754ac51c8c3b7a160e84 0.0s done
+#12 naming to docker.io/library/ai-modernization-glassfish:4.1-validator-fix done
+#12 unpacking to docker.io/library/ai-modernization-glassfish:4.1-validator-fix 0.0s done
+#12 DONE 0.3s
+
+#13 resolving provenance for metadata file
+#13 DONE 0.0s
+ Image ai-modernization-glassfish:4.1-validator-fix Built 
+ Network ai-modernization-legacy_default Creating 
+ Network ai-modernization-legacy_default Creating 
+ Network ai-modernization-legacy_default Created 
+ Network ai-modernization-legacy_default Created 
+ Container ai-modernization-cargotracker Creating 
+ Container ai-modernization-cargotracker Created 
+ Container ai-modernization-cargotracker Starting 
+ Container ai-modernization-cargotracker Started 

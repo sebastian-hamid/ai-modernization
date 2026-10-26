@@ -1,0 +1,51 @@
+[INFO] Scanning for projects...
+[INFO] 
+[INFO] -----------------------< net.java:cargo-tracker >-----------------------
+[INFO] Building cargo-tracker 1.0-SNAPSHOT
+[INFO]   from pom.xml
+[INFO] --------------------------------[ war ]---------------------------------
+[WARNING] org.eclipse.persistence:org.eclipse.persistence.antlr:pom:2.3.2 was downloaded from https://download.eclipse.org/rt/eclipselink/maven.repo/ while a cached not-found from a previous attempt suppresses re-checking https://repo.maven.apache.org/maven2/; expiring the cached not-found so that repository is checked again on the next resolution
+[WARNING] org.eclipse.persistence:org.eclipse.persistence.moxy:pom:2.5.0-M13 was downloaded from https://download.eclipse.org/rt/eclipselink/maven.repo/ while a cached not-found from a previous attempt suppresses re-checking https://repo.maven.apache.org/maven2/; expiring the cached not-found so that repository is checked again on the next resolution
+[WARNING] org.eclipse.persistence:org.eclipse.persistence.core:pom:2.5.0-M13 was downloaded from https://download.eclipse.org/rt/eclipselink/maven.repo/ while a cached not-found from a previous attempt suppresses re-checking https://repo.maven.apache.org/maven2/; expiring the cached not-found so that repository is checked again on the next resolution
+[WARNING] org.eclipse.persistence:org.eclipse.persistence.antlr:pom:2.5.0-M13 was downloaded from https://download.eclipse.org/rt/eclipselink/maven.repo/ while a cached not-found from a previous attempt suppresses re-checking https://repo.maven.apache.org/maven2/; expiring the cached not-found so that repository is checked again on the next resolution
+[WARNING] org.eclipse.persistence:org.eclipse.persistence.asm:pom:2.5.0-M13 was downloaded from https://download.eclipse.org/rt/eclipselink/maven.repo/ while a cached not-found from a previous attempt suppresses re-checking https://repo.maven.apache.org/maven2/; expiring the cached not-found so that repository is checked again on the next resolution
+[WARNING] org.eclipse.persistence:org.eclipse.persistence.moxy:jar:2.5.0-M13 was downloaded from https://download.eclipse.org/rt/eclipselink/maven.repo/ while a cached not-found from a previous attempt suppresses re-checking https://repo.maven.apache.org/maven2/; expiring the cached not-found so that repository is checked again on the next resolution
+[WARNING] org.eclipse.persistence:org.eclipse.persistence.antlr:jar:2.3.2 was downloaded from https://download.eclipse.org/rt/eclipselink/maven.repo/ while a cached not-found from a previous attempt suppresses re-checking https://repo.maven.apache.org/maven2/; expiring the cached not-found so that repository is checked again on the next resolution
+[WARNING] org.eclipse.persistence:org.eclipse.persistence.core:jar:2.5.0-M13 was downloaded from https://download.eclipse.org/rt/eclipselink/maven.repo/ while a cached not-found from a previous attempt suppresses re-checking https://repo.maven.apache.org/maven2/; expiring the cached not-found so that repository is checked again on the next resolution
+[WARNING] org.eclipse.persistence:org.eclipse.persistence.asm:jar:2.5.0-M13 was downloaded from https://download.eclipse.org/rt/eclipselink/maven.repo/ while a cached not-found from a previous attempt suppresses re-checking https://repo.maven.apache.org/maven2/; expiring the cached not-found so that repository is checked again on the next resolution
+[INFO] 
+[INFO] --- resources:3.5.0:resources (default-resources) @ cargo-tracker ---
+[INFO] Copying 4 resources from src/main/resources to target/classes
+[INFO] 
+[INFO] --- compiler:3.3:compile (default-compile) @ cargo-tracker ---
+[WARNING] Ignoring checksum policy 'ignore' contributed by repository apache-snapshots (http://people.apache.org/repo/m2-snapshot-repository) declared by a remote artifact descriptor: it would downgrade the checksum policy 'warn' of the mirror serving it; set aether.remoteRepositoryManager.rawRepositoryChecksumPolicyDowngrade=true to restore the legacy weakest-wins merge
+[WARNING]  Parameter 'compilerArguments' is deprecated: use {@link #compilerArgs} instead.
+[INFO] Changes detected - recompiling the module!
+[INFO] Compiling 97 source files to /work/baseline/source/target/classes
+[INFO] /work/baseline/source/src/main/java/net/java/cargotracker/domain/model/voyage/SampleVoyages.java: /work/baseline/source/src/main/java/net/java/cargotracker/domain/model/voyage/SampleVoyages.java uses unchecked or unsafe operations.
+[INFO] /work/baseline/source/src/main/java/net/java/cargotracker/domain/model/voyage/SampleVoyages.java: Recompile with -Xlint:unchecked for details.
+[INFO] 
+[INFO] --- resources:3.5.0:testResources (default-testResources) @ cargo-tracker ---
+[INFO] Copying 3 resources from src/test/resources to target/test-classes
+[INFO] 
+[INFO] --- compiler:3.3:testCompile (default-testCompile) @ cargo-tracker ---
+[WARNING]  Parameter 'compilerArguments' is deprecated: use {@link #compilerArgs} instead.
+[INFO] Changes detected - recompiling the module!
+[INFO] Compiling 11 source files to /work/baseline/source/target/test-classes
+[INFO] 
+[INFO] --- surefire:2.18.1:test (default-test) @ cargo-tracker ---
+[INFO] Tests are skipped.
+[INFO] 
+[INFO] --- war:2.6:war (default-war) @ cargo-tracker ---
+[INFO] Packaging webapp
+[INFO] Assembling webapp [cargo-tracker] in [/work/baseline/source/target/cargo-tracker]
+[INFO] Processing war project
+[INFO] Copying webapp resources [/work/baseline/source/src/main/webapp]
+[INFO] Webapp assembled in [169 msecs]
+[INFO] Building war: /work/baseline/source/target/cargo-tracker.war
+[INFO] ------------------------------------------------------------------------
+[INFO] BUILD SUCCESS
+[INFO] ------------------------------------------------------------------------
+[INFO] Total time:  12.119 s
+[INFO] Finished at: 2026-10-23T05:28:16Z
+[INFO] ------------------------------------------------------------------------

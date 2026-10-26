@@ -1,0 +1,18 @@
+{
+  "Jenkinsfile": "4e7c383ad511191472a17e4f5ed756169d60f126384450ebe568482cd3c26475",
+  "infrastructure/check-legacy-baseline.sh": "a0463c6aa2f574ab3cc75dc43ceec0b2e35a3d98ce5a7e868dd5aec58e6afcf5",
+  "infrastructure/test-legacy-integration.sh": "007b9213b43ec60e65c63c9975e0be600a7582338ea941e9df6e1058631b943c",
+  "infrastructure/legacy-maven-settings.xml": "5bcd52bad26972e02c8559292a687b4b2b785bb132d796f288c1129c7f370e08",
+  "infrastructure/record-legacy-provenance.py": "3a572604f57e9f4fe90c42ae28874e754c2f0e5e098770e7aad25b828375d541",
+  "infrastructure/prepare-legacy-runtime.py": "a85d50e322a008a62a59f336bd33fcb80b1e87f04fa2a846f6359b22e6453e57",
+  "infrastructure/compose.ci.yaml": "b80f4f74d2468ce2b0eca60158617f430d39a16495684fa22ac937d8876f7075",
+  "infrastructure/smoke-legacy-runtime.py": "49f5029005c9258a4d948607367fadd39fad21648ee740bdf09160dadb2ad2ca",
+  "infrastructure/recover-legacy-baseline.sh": "88bd8f7b62b5a9639a01846c5cd8b224336f46988eec49cf63d8ddc42789a2ad",
+  "infrastructure/compose.yaml": "d30bb411a5679f43ef3c7fb0cc2fceb8e888f7c463d617f7d1efa01e3fc53241",
+  "infrastructure/compose.legacy.yaml": "304ede3c3f48e1e6a2bd41ad4870cb2d850505aa82c9c1bb5c1e2ae63c9cdd70",
+  "ci/baseline.py": "248911927d8743cb12c2c59e5ff9453593b3a9da6b9befa32d7ae2d5e8e838d0",
+  "infrastructure/jenkins-agent/Dockerfile": "90814cbc1ca6d1f89161499a2c0cf2613de310cbfba71cd715162da747f10150",
+  "infrastructure/jenkins-agent/start.sh": "87298f28c9cc830998d1a486404010d756010228933b319ffe077add1e5dc472",
+  "infrastructure/glassfish/Dockerfile": "b9fb6ff14469cb7c7b3d8da06c6c3d1e63cc75dd66a097e8f14d595295892e5d",
+  "infrastructure/glassfish/start.sh": "b7ab0ee50c9b562d75fb8e437f171b26b9fdd5aa0cf9192f3bc7ec485ec756eb"
+}

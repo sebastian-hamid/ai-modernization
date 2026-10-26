@@ -1,0 +1,12 @@
+{
+  "glassfish_url": "https://download.oracle.com/glassfish/4.1/release/glassfish-4.1.zip",
+  "glassfish_zip_sha256": "3edc5fc72b8be241a53eae83c22f274479d70e15bdfba7ba2302da5260f23e9d",
+  "container_base": "maven@sha256:b9fac8295f9d342af5d815888dca1334b12833a84c870c260b88f31285c1ef3d",
+  "runtime_correction": "HK2-277: remove two false CDI package exports from bean-validator.jar manifest; all other entry bytes verified unchanged",
+  "issue": "https://github.com/javaee/hk2/issues/277",
+  "validator_original_sha256": "b8cb9845175f5cd3bf7ec032eb35d566b85d9a83e9e2d7b2f34d46b54891ee34",
+  "validator_corrected_sha256": "e307be620f6208bcfa73300df7c4416e227405feafa7f76b2bdff244e2925a50",
+  "war_sha256": "0d0b70c6659466e023912c9d12bd215b15fbd44677b74ca6e57265bd7e067fae",
+  "build_evidence": "notes/evidence/recovered-baseline-20261023-073040.G1UReI/dependency-provenance.json",
+  "built_image_id": "sha256:899f3ae0a00cc80fd9e8dd49d9104da4baf4aad81167754ac51c8c3b7a160e84"
+}

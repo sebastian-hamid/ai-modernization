@@ -1,0 +1,94 @@
+{
+  "application_repository": "https://github.com/javaee/cargotracker",
+  "application_commit": "57fc7b32d2597e43b5e0d454e707e0146de5258a",
+  "container": "maven@sha256:b9fac8295f9d342af5d815888dca1334b12833a84c870c260b88f31285c1ef3d",
+  "war_path": "/home/yasinrdp/projects/ai-modernization/.work/recovered-baseline.FAQ49L/source/target/cargo-tracker.war",
+  "war_sha256": "0d0b70c6659466e023912c9d12bd215b15fbd44677b74ca6e57265bd7e067fae",
+  "domain_test_results": {
+    "tests": 24,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0
+  },
+  "known_empty_test": "ItineraryTest.testNextExpectedEvent",
+  "artifacts": [
+    {
+      "artifact": "org/eclipse/persistence/org.eclipse.persistence.antlr/2.3.2/org.eclipse.persistence.antlr-2.3.2.jar",
+      "origin": "https://download.eclipse.org/rt/eclipselink/maven.repo/org/eclipse/persistence/org.eclipse.persistence.antlr/2.3.2/org.eclipse.persistence.antlr-2.3.2.jar",
+      "sha256": "526de410ea9f76a93ebad1a44884449f951980e508e7d85960d23531f3b984ae",
+      "recovery": "downloaded; version unchanged",
+      "previously_recorded_origin": "https://repo.maven.apache.org/maven2/org/eclipse/persistence/org.eclipse.persistence.antlr/2.3.2/org.eclipse.persistence.antlr-2.3.2.jar"
+    },
+    {
+      "artifact": "org/eclipse/persistence/org.eclipse.persistence.antlr/2.3.2/org.eclipse.persistence.antlr-2.3.2.pom",
+      "origin": "https://download.eclipse.org/rt/eclipselink/maven.repo/org/eclipse/persistence/org.eclipse.persistence.antlr/2.3.2/org.eclipse.persistence.antlr-2.3.2.pom",
+      "sha256": "12cce800e5d782f9beca3c43610982696a7520e47cb5b2c99541813920ad4107",
+      "recovery": "downloaded; version unchanged",
+      "previously_recorded_origin": "https://repo.maven.apache.org/maven2/org/eclipse/persistence/org.eclipse.persistence.antlr/2.3.2/org.eclipse.persistence.antlr-2.3.2.pom"
+    },
+    {
+      "artifact": "org/eclipse/persistence/org.eclipse.persistence.antlr/2.5.0-M13/org.eclipse.persistence.antlr-2.5.0-M13.pom",
+      "origin": "https://download.eclipse.org/rt/eclipselink/maven.repo/org/eclipse/persistence/org.eclipse.persistence.antlr/2.5.0-M13/org.eclipse.persistence.antlr-2.5.0-M13.pom",
+      "sha256": "e8c23a6d25ed9fca7148e0a045e15ab21ec7f1ee9e045034eb791bf204b90736",
+      "recovery": "downloaded; version unchanged",
+      "previously_recorded_origin": "https://repo.maven.apache.org/maven2/org/eclipse/persistence/org.eclipse.persistence.antlr/2.5.0-M13/org.eclipse.persistence.antlr-2.5.0-M13.pom"
+    },
+    {
+      "artifact": "org/eclipse/persistence/org.eclipse.persistence.asm/2.5.0-M13/org.eclipse.persistence.asm-2.5.0-M13.jar",
+      "origin": "https://download.eclipse.org/rt/eclipselink/maven.repo/org/eclipse/persistence/org.eclipse.persistence.asm/2.5.0-M13/org.eclipse.persistence.asm-2.5.0-M13.jar",
+      "sha256": "551776267153212635323599bd304ac7dcbccf656a538ec3402cd93d560b93f4",
+      "recovery": "downloaded; version unchanged",
+      "previously_recorded_origin": "https://repo.maven.apache.org/maven2/org/eclipse/persistence/org.eclipse.persistence.asm/2.5.0-M13/org.eclipse.persistence.asm-2.5.0-M13.jar"
+    },
+    {
+      "artifact": "org/eclipse/persistence/org.eclipse.persistence.asm/2.5.0-M13/org.eclipse.persistence.asm-2.5.0-M13.pom",
+      "origin": "https://download.eclipse.org/rt/eclipselink/maven.repo/org/eclipse/persistence/org.eclipse.persistence.asm/2.5.0-M13/org.eclipse.persistence.asm-2.5.0-M13.pom",
+      "sha256": "a907fc59e674a13d398860ba717dad6b47bd111ccb33b5d1d6ebb85af028e875",
+      "recovery": "downloaded; version unchanged",
+      "previously_recorded_origin": "https://repo.maven.apache.org/maven2/org/eclipse/persistence/org.eclipse.persistence.asm/2.5.0-M13/org.eclipse.persistence.asm-2.5.0-M13.pom"
+    },
+    {
+      "artifact": "org/eclipse/persistence/org.eclipse.persistence.core/2.5.0-M13/org.eclipse.persistence.core-2.5.0-M13.jar",
+      "origin": "https://download.eclipse.org/rt/eclipselink/maven.repo/org/eclipse/persistence/org.eclipse.persistence.core/2.5.0-M13/org.eclipse.persistence.core-2.5.0-M13.jar",
+      "sha256": "9c01937ee3170b08fe527b0bc84602d408878ccc847956db9fc5fe6dbce2c5cd",
+      "recovery": "downloaded; version unchanged",
+      "previously_recorded_origin": "https://repo.maven.apache.org/maven2/org/eclipse/persistence/org.eclipse.persistence.core/2.5.0-M13/org.eclipse.persistence.core-2.5.0-M13.jar"
+    },
+    {
+      "artifact": "org/eclipse/persistence/org.eclipse.persistence.core/2.5.0-M13/org.eclipse.persistence.core-2.5.0-M13.pom",
+      "origin": "https://download.eclipse.org/rt/eclipselink/maven.repo/org/eclipse/persistence/org.eclipse.persistence.core/2.5.0-M13/org.eclipse.persistence.core-2.5.0-M13.pom",
+      "sha256": "82b4869d56c63aadd4fad7eb54d7ce482080e90f4ef499f05ac11302f77b8a32",
+      "recovery": "downloaded; version unchanged",
+      "previously_recorded_origin": "https://repo.maven.apache.org/maven2/org/eclipse/persistence/org.eclipse.persistence.core/2.5.0-M13/org.eclipse.persistence.core-2.5.0-M13.pom"
+    },
+    {
+      "artifact": "org/eclipse/persistence/org.eclipse.persistence.moxy/2.5.0-M13/org.eclipse.persistence.moxy-2.5.0-M13.jar",
+      "origin": "https://download.eclipse.org/rt/eclipselink/maven.repo/org/eclipse/persistence/org.eclipse.persistence.moxy/2.5.0-M13/org.eclipse.persistence.moxy-2.5.0-M13.jar",
+      "sha256": "6728885061359e11962d2ecd365317929aad222889f2ba6796b7c2aa2bea267a",
+      "recovery": "downloaded; version unchanged",
+      "previously_recorded_origin": "https://repo.maven.apache.org/maven2/org/eclipse/persistence/org.eclipse.persistence.moxy/2.5.0-M13/org.eclipse.persistence.moxy-2.5.0-M13.jar"
+    },
+    {
+      "artifact": "org/eclipse/persistence/org.eclipse.persistence.moxy/2.5.0-M13/org.eclipse.persistence.moxy-2.5.0-M13.pom",
+      "origin": "https://download.eclipse.org/rt/eclipselink/maven.repo/org/eclipse/persistence/org.eclipse.persistence.moxy/2.5.0-M13/org.eclipse.persistence.moxy-2.5.0-M13.pom",
+      "sha256": "49b7c51b85a5dacd764e3f5141d5f2bfa972aa5a5555ed85244a2fa3461af2e5",
+      "recovery": "downloaded; version unchanged",
+      "previously_recorded_origin": "https://repo.maven.apache.org/maven2/org/eclipse/persistence/org.eclipse.persistence.moxy/2.5.0-M13/org.eclipse.persistence.moxy-2.5.0-M13.pom"
+    },
+    {
+      "artifact": "org/primefaces/maven-jsf-plugin/1.3.0/maven-jsf-plugin-1.3.0.jar",
+      "source_repository": "https://github.com/primefaces/maven-jsf-plugin",
+      "source_commit": "60774367fba1287c2a838ac78799b32c563c0acf",
+      "sha256": "fad5048e3d9cd16f102ffa55bd0aae44903efd45a38ff327bd610d4bbbd514c7",
+      "recovery": "rebuilt from unmodified official release tag; published-binary equality unverified"
+    },
+    {
+      "artifact": "org/primefaces/themes/ui-lightness/1.0.10/ui-lightness-1.0.10.jar",
+      "source_repository": "https://github.com/primefaces/themes",
+      "source_commit": "db6195c272cd7b2567c60b4ed786e44bbecf5db0",
+      "sha256": "14072a9dd381afd074cb7b3c82987adc3d96c1daa915e40b2cd4497213a093ab",
+      "recovery": "rebuilt from unmodified official release tag; published-binary equality unverified"
+    }
+  ],
+  "metadata_review": "2026-10-26: corrected Maven Resolver repository-ID context suffix handling; artifact hashes unchanged; original Jenkins archives preserved"
+}

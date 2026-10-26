@@ -1,0 +1,21 @@
+services:
+  baseline-agent:
+    build: ./jenkins-agent
+    image: ai-modernization-jenkins-agent:baseline
+    container_name: ai-modernization-baseline-agent
+    init: true
+    restart: unless-stopped
+    volumes:
+      - agent_work:/home/jenkins/agent
+      - ../.work/jenkins-ci/source:/lab-source:ro
+      - ../.work/jenkins-ci/secrets/agent-secret:/run/secrets/jenkins-agent:ro
+    networks:
+      - controller
+
+volumes:
+  agent_work:
+
+networks:
+  controller:
+    external: true
+    name: infrastructure_default

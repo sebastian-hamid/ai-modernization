@@ -1,0 +1,22 @@
+{
+  "job_url": "http://localhost:8080/job/ai-modernization-baseline/",
+  "build_url": "http://localhost:8080/job/ai-modernization-baseline/1/",
+  "build_result": "SUCCESS",
+  "duration_ms": 99495,
+  "junit_reported_cases": 28,
+  "known_empty_test": "ItineraryTest.testNextExpectedEvent",
+  "controller_executors": 0,
+  "agent_user": "1000:1000",
+  "agent_image_id": "sha256:7bc3d43f3c81582988d8a45b9fd5b888b47edc9aedf4f32d8a503c7c6292e3c0",
+  "agent_privileged": false,
+  "agent_bind_mount_targets": [
+    "/lab-source",
+    "/run/secrets/jenkins-agent"
+  ],
+  "agent_published_ports": {},
+  "source_mode": "local readonly snapshot; project changes uncommitted; no SCM trigger",
+  "domain_tests": 24,
+  "booking_integration_tests": 4,
+  "workflow_smoke": "tracking, routing and asynchronous handling passed",
+  "temporary_runtime_cleanup": "stop-domain completed in pipeline"
+}

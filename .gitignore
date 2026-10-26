@@ -1,0 +1,14 @@
+experiments/
+.work/
+**/target/
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+__pycache__/
+*.pyc
+/ci-results/
+/notes/evidence/**/server.log
+/notes/evidence/glassfish-stock-deployment.log
+/notes/evidence/glassfish-manual-verified.log

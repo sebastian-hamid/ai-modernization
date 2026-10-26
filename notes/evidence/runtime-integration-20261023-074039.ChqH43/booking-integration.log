@@ -1,0 +1,45 @@
+[INFO] Scanning for projects...
+[INFO] 
+[INFO] -----------------------< net.java:cargo-tracker >-----------------------
+[INFO] Building cargo-tracker 1.0-SNAPSHOT
+[INFO]   from integration-tests-pom.xml
+[INFO] --------------------------------[ war ]---------------------------------
+[INFO] 
+[INFO] --- resources:3.5.0:resources (default-resources) @ cargo-tracker ---
+[INFO] Copying 4 resources from src/main/resources to target/classes
+[INFO] 
+[INFO] --- compiler:3.3:compile (default-compile) @ cargo-tracker ---
+[WARNING] Ignoring checksum policy 'ignore' contributed by repository apache-snapshots (http://people.apache.org/repo/m2-snapshot-repository) declared by a remote artifact descriptor: it would downgrade the checksum policy 'warn' of the mirror serving it; set aether.remoteRepositoryManager.rawRepositoryChecksumPolicyDowngrade=true to restore the legacy weakest-wins merge
+[WARNING]  Parameter 'compilerArguments' is deprecated: use {@link #compilerArgs} instead.
+[INFO] Changes detected - recompiling the module!
+[INFO] Compiling 97 source files to /work/runtime-tests.4JVP8s/target/classes
+[INFO] /work/runtime-tests.4JVP8s/src/main/java/net/java/cargotracker/domain/model/voyage/SampleVoyages.java: /work/runtime-tests.4JVP8s/src/main/java/net/java/cargotracker/domain/model/voyage/SampleVoyages.java uses unchecked or unsafe operations.
+[INFO] /work/runtime-tests.4JVP8s/src/main/java/net/java/cargotracker/domain/model/voyage/SampleVoyages.java: Recompile with -Xlint:unchecked for details.
+[INFO] 
+[INFO] --- resources:3.5.0:testResources (default-testResources) @ cargo-tracker ---
+[INFO] Copying 3 resources from src/test/resources to target/test-classes
+[INFO] 
+[INFO] --- compiler:3.3:testCompile (default-testCompile) @ cargo-tracker ---
+[WARNING]  Parameter 'compilerArguments' is deprecated: use {@link #compilerArgs} instead.
+[INFO] Changes detected - recompiling the module!
+[INFO] Compiling 11 source files to /work/runtime-tests.4JVP8s/target/test-classes
+[INFO] 
+[INFO] --- surefire:2.18.1:test (default-test) @ cargo-tracker ---
+[INFO] Surefire report directory: /work/runtime-tests.4JVP8s/target/surefire-reports
+
+-------------------------------------------------------
+ T E S T S
+-------------------------------------------------------
+Running net.java.cargotracker.application.BookingServiceTest
+Tests run: 4, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 8.416 sec - in net.java.cargotracker.application.BookingServiceTest
+
+Results :
+
+Tests run: 4, Failures: 0, Errors: 0, Skipped: 0
+
+[INFO] ------------------------------------------------------------------------
+[INFO] BUILD SUCCESS
+[INFO] ------------------------------------------------------------------------
+[INFO] Total time:  11.337 s
+[INFO] Finished at: 2026-10-23T05:40:53Z
+[INFO] ------------------------------------------------------------------------

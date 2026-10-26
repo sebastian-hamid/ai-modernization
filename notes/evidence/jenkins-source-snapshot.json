@@ -1,0 +1,22 @@
+{
+  "Jenkinsfile": "53ad3022aa44b0c5f5434bfc8e5d3b540025a55196f7c186be8fa84b2a596406",
+  "VERSION": "e9dd8507f4bf0c6f42458e41aea833ad0bd3f6127272335eee9bf4d58541ed67",
+  "ci/baseline.py": "f984a0f7871f02f25105bc4859d61257215a5a9a26fb4ff5e26882c2abeaef5a",
+  "ci/update-local-snapshot.py": "c1ba9ed3190bb5deb110993b64d5abf5f01eef729964af3b87557cd741c2e6a0",
+  "infrastructure/check-legacy-baseline.sh": "a0463c6aa2f574ab3cc75dc43ceec0b2e35a3d98ce5a7e868dd5aec58e6afcf5",
+  "infrastructure/compose.ci.yaml": "b80f4f74d2468ce2b0eca60158617f430d39a16495684fa22ac937d8876f7075",
+  "infrastructure/compose.legacy.yaml": "304ede3c3f48e1e6a2bd41ad4870cb2d850505aa82c9c1bb5c1e2ae63c9cdd70",
+  "infrastructure/compose.yaml": "d30bb411a5679f43ef3c7fb0cc2fceb8e888f7c463d617f7d1efa01e3fc53241",
+  "infrastructure/glassfish/Dockerfile": "b9fb6ff14469cb7c7b3d8da06c6c3d1e63cc75dd66a097e8f14d595295892e5d",
+  "infrastructure/glassfish/start.sh": "b7ab0ee50c9b562d75fb8e437f171b26b9fdd5aa0cf9192f3bc7ec485ec756eb",
+  "infrastructure/jenkins-agent/Dockerfile": "90814cbc1ca6d1f89161499a2c0cf2613de310cbfba71cd715162da747f10150",
+  "infrastructure/jenkins-agent/register.groovy": "052a076f992e8ed48214f95e72affc04d24c06d9881b2e306f5b51a8d261f296",
+  "infrastructure/jenkins-agent/start.sh": "87298f28c9cc830998d1a486404010d756010228933b319ffe077add1e5dc472",
+  "infrastructure/legacy-maven-settings.xml": "5bcd52bad26972e02c8559292a687b4b2b785bb132d796f288c1129c7f370e08",
+  "infrastructure/prepare-legacy-runtime.py": "ab0af1ca0e1d23a72f8fa57601828c622e4c6e6292bbe8a80b798eac8effdf5f",
+  "infrastructure/record-legacy-provenance.py": "bae7ebf46c8ed3e480d21807ebe093eeb637a6a685a1b722914cb061b49aad41",
+  "infrastructure/recover-legacy-baseline.sh": "88bd8f7b62b5a9639a01846c5cd8b224336f46988eec49cf63d8ddc42789a2ad",
+  "infrastructure/smoke-legacy-runtime.py": "f332d6ff16bca60328b17154e0b9ea2719f117bc38171e7363b2e17945f62c96",
+  "infrastructure/test-legacy-integration.sh": "007b9213b43ec60e65c63c9975e0be600a7582338ea941e9df6e1058631b943c",
+  "tests/test_setup_tools.py": "58e8e323425b5047408e3f9622efdcbdce4661df8549888fce9367320333d405"
+}

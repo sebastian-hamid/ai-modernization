@@ -1,0 +1,104 @@
+{
+  "verified_at": "2026-10-23T07:38:38.564229",
+  "base_url": "http://127.0.0.1:8081/cargo-tracker/",
+  "seeded_cargos": {
+    "ABC123": {
+      "trackingId": "ABC123",
+      "routingStatus": "ROUTED",
+      "misdirected": false,
+      "transportStatus": "IN_PORT",
+      "atDestination": false,
+      "origin": "CNHKG",
+      "lastKnownLocation": "USNYC"
+    },
+    "JKL567": {
+      "trackingId": "JKL567",
+      "routingStatus": "ROUTED",
+      "misdirected": true,
+      "transportStatus": "ONBOARD_CARRIER",
+      "atDestination": false,
+      "origin": "CNHGH",
+      "lastKnownLocation": "USNYC"
+    },
+    "MNO456": {
+      "trackingId": "MNO456",
+      "routingStatus": "MISROUTED",
+      "misdirected": false,
+      "transportStatus": "CLAIMED",
+      "atDestination": false,
+      "origin": "USNYC",
+      "lastKnownLocation": "USDAL"
+    },
+    "DEF789": {
+      "trackingId": "DEF789",
+      "routingStatus": "NOT_ROUTED",
+      "misdirected": false,
+      "transportStatus": "NOT_RECEIVED",
+      "atDestination": false,
+      "origin": "CNHKG",
+      "lastKnownLocation": "Unknown"
+    }
+  },
+  "checks": [
+    {
+      "check": "page",
+      "path": "",
+      "status": 200
+    },
+    {
+      "check": "page",
+      "path": "public/track.xhtml",
+      "status": 200
+    },
+    {
+      "check": "page",
+      "path": "admin/dashboard.xhtml",
+      "status": 200
+    },
+    {
+      "check": "page",
+      "path": "mobile.xhtml",
+      "status": 200
+    },
+    {
+      "check": "public_tracking_form",
+      "trackingId": "ABC123",
+      "status": "passed"
+    },
+    {
+      "check": "route_graph",
+      "candidate_count": 5,
+      "status": "passed",
+      "note": "Random routes/dates; asserted structural invariants only"
+    },
+    {
+      "check": "asynchronous_handling",
+      "input": {
+        "completionTime": "2026-10-22 10:00",
+        "trackingId": "DEF789",
+        "eventType": "RECEIVE",
+        "unLocode": "CNHKG"
+      },
+      "accepted_http": 204,
+      "before": {
+        "trackingId": "DEF789",
+        "routingStatus": "NOT_ROUTED",
+        "misdirected": false,
+        "transportStatus": "NOT_RECEIVED",
+        "atDestination": false,
+        "origin": "CNHKG",
+        "lastKnownLocation": "Unknown"
+      },
+      "after": {
+        "trackingId": "DEF789",
+        "routingStatus": "MISROUTED",
+        "misdirected": false,
+        "transportStatus": "IN_PORT",
+        "atDestination": false,
+        "origin": "CNHKG",
+        "lastKnownLocation": "CNHKG"
+      },
+      "status": "passed"
+    }
+  ]
+}

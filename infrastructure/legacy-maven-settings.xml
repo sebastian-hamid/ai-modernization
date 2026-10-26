@@ -1,0 +1,6 @@
+<settings xmlns="http://maven.apache.org/SETTINGS/1.0.0">
+  <mirrors>
+    <mirror><id>eclipselink-https</id><mirrorOf>eclipselink.repository</mirrorOf><url>https://download.eclipse.org/rt/eclipselink/maven.repo/</url></mirror>
+    <mirror><id>central-https</id><mirrorOf>external:*,!eclipselink.repository</mirrorOf><url>https://repo.maven.apache.org/maven2/</url></mirror>
+  </mirrors>
+</settings>

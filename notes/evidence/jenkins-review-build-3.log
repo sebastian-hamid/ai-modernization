@@ -1,0 +1,96 @@
+Started
+[Pipeline] Start of Pipeline
+[Pipeline] node
+Running on ai-modernization-baseline in /home/jenkins/agent/workspace/ai-modernization-baseline
+[Pipeline] {
+[Pipeline] timeout
+Timeout set to expire in 30 min
+[Pipeline] {
+[Pipeline] stage
+[Pipeline] { (Load local source snapshot)
+[Pipeline] deleteDir
+[Pipeline] sh
++ cp -a /lab-source/. .
+[Pipeline] }
+[Pipeline] // stage
+[Pipeline] stage
+[Pipeline] { (Setup tooling checks)
+[Pipeline] sh
++ python3 -m unittest discover -s tests -v
+test_failed_domain_run_preserves_junit_report (test_setup_tools.SetupToolTests.test_failed_domain_run_preserves_junit_report) ... ok
+test_optimized_python_rejects_corrupt_runtime_archive (test_setup_tools.SetupToolTests.test_optimized_python_rejects_corrupt_runtime_archive) ... ok
+test_optimized_python_still_rejects_external_smoke_target_before_network (test_setup_tools.SetupToolTests.test_optimized_python_still_rejects_external_smoke_target_before_network) ... ok
+test_provenance_recognizes_maven_repository_context_hash (test_setup_tools.SetupToolTests.test_provenance_recognizes_maven_repository_context_hash) ... ok
+test_provenance_refuses_to_invent_unknown_download_origin (test_setup_tools.SetupToolTests.test_provenance_refuses_to_invent_unknown_download_origin) ... ok
+test_snapshot_rejects_source_symlink (test_setup_tools.SetupToolTests.test_snapshot_rejects_source_symlink) ... ok
+test_snapshot_rejects_target_symlink_without_touching_its_destination (test_setup_tools.SetupToolTests.test_snapshot_rejects_target_symlink_without_touching_its_destination) ... ok
+test_snapshot_removes_deleted_inputs_without_replacing_bind_directory (test_setup_tools.SetupToolTests.test_snapshot_removes_deleted_inputs_without_replacing_bind_directory) ... ok
+
+----------------------------------------------------------------------
+Ran 8 tests in 1.368s
+
+OK
+[Pipeline] }
+[Pipeline] // stage
+[Pipeline] stage
+[Pipeline] { (Recover pinned sources)
+[Pipeline] sh
++ python3 ci/baseline.py sources
+Running: java -version
+Running: /opt/java21/bin/java -version
+Running: mvn -version
+Running: git clone --quiet --no-checkout https://github.com/javaee/cargotracker.git /home/jenkins/agent/workspace/ai-modernization-baseline/.work/ci/source
+Running: git checkout --quiet 57fc7b32d2597e43b5e0d454e707e0146de5258a
+Running: git clone --quiet --no-checkout https://github.com/primefaces/maven-jsf-plugin.git /home/jenkins/agent/workspace/ai-modernization-baseline/.work/ci/plugin
+Running: git checkout --quiet 60774367fba1287c2a838ac78799b32c563c0acf
+Running: git clone --quiet --no-checkout https://github.com/primefaces/themes.git /home/jenkins/agent/workspace/ai-modernization-baseline/.work/ci/themes
+Running: git checkout --quiet db6195c272cd7b2567c60b4ed786e44bbecf5db0
+[Pipeline] }
+[Pipeline] // stage
+[Pipeline] stage
+[Pipeline] { (Recover dependencies and package)
+[Pipeline] sh
++ python3 ci/baseline.py package
+Running: mvn -B -ntp -s /home/jenkins/agent/workspace/ai-modernization-baseline/infrastructure/legacy-maven-settings.xml -Dmaven.repo.local=/home/jenkins/agent/workspace/ai-modernization-baseline/.work/m2 -Dorg.apache.maven.user-settings=/home/jenkins/agent/workspace/ai-modernization-baseline/infrastructure/legacy-maven-settings.xml -DskipTests install
+Running: mvn -B -ntp -s /home/jenkins/agent/workspace/ai-modernization-baseline/infrastructure/legacy-maven-settings.xml -Dmaven.repo.local=/home/jenkins/agent/workspace/ai-modernization-baseline/.work/m2 -Dorg.apache.maven.user-settings=/home/jenkins/agent/workspace/ai-modernization-baseline/infrastructure/legacy-maven-settings.xml -DskipTests -pl ui-lightness -am install
+Running: mvn -B -ntp -s /home/jenkins/agent/workspace/ai-modernization-baseline/infrastructure/legacy-maven-settings.xml -Dmaven.repo.local=/home/jenkins/agent/workspace/ai-modernization-baseline/.work/m2 -Dorg.apache.maven.user-settings=/home/jenkins/agent/workspace/ai-modernization-baseline/infrastructure/legacy-maven-settings.xml package
+[Pipeline] }
+[Pipeline] // stage
+[Pipeline] stage
+[Pipeline] { (Domain tests)
+[Pipeline] sh
++ python3 ci/baseline.py domain
+Running: mvn -B -ntp -s /home/jenkins/agent/workspace/ai-modernization-baseline/infrastructure/legacy-maven-settings.xml -Dmaven.repo.local=/home/jenkins/agent/workspace/ai-modernization-baseline/.work/m2 -Dorg.apache.maven.user-settings=/home/jenkins/agent/workspace/ai-modernization-baseline/infrastructure/legacy-maven-settings.xml -f domain-tests-pom.xml -Dtest=CargoTest,ItineraryTest,RouteSpecificationTest,HandlingEventTest,HandlingHistoryTest test
+Verified test results: {'tests': 24, 'failures': 0, 'errors': 0, 'skipped': 0}
+Running: python3 /home/jenkins/agent/workspace/ai-modernization-baseline/infrastructure/record-legacy-provenance.py /home/jenkins/agent/workspace/ai-modernization-baseline /home/jenkins/agent/workspace/ai-modernization-baseline/.work/ci /home/jenkins/agent/workspace/ai-modernization-baseline/notes/evidence/recovered-baseline-ci
+[Pipeline] }
+[Pipeline] // stage
+[Pipeline] stage
+[Pipeline] { (GlassFish integration and workflow checks)
+[Pipeline] sh
++ python3 ci/baseline.py runtime
+Running: python3 /home/jenkins/agent/workspace/ai-modernization-baseline/infrastructure/prepare-legacy-runtime.py
+Running: /home/jenkins/agent/workspace/ai-modernization-baseline/.work/glassfish-runtime/unpacked/glassfish4/bin/asadmin start-domain domain1
+Running: /home/jenkins/agent/workspace/ai-modernization-baseline/.work/glassfish-runtime/unpacked/glassfish4/bin/asadmin deploy --name cargo-tracker --contextroot cargo-tracker /home/jenkins/agent/workspace/ai-modernization-baseline/.work/glassfish-runtime/cargo-tracker.war
+Running: mvn -B -ntp -s /home/jenkins/agent/workspace/ai-modernization-baseline/infrastructure/legacy-maven-settings.xml -Dmaven.repo.local=/home/jenkins/agent/workspace/ai-modernization-baseline/.work/m2 -Dorg.apache.maven.user-settings=/home/jenkins/agent/workspace/ai-modernization-baseline/infrastructure/legacy-maven-settings.xml -f integration-tests-pom.xml -Dtest=BookingServiceTest test
+Verified test results: {'tests': 4, 'failures': 0, 'errors': 0, 'skipped': 0}
+Running: python3 /home/jenkins/agent/workspace/ai-modernization-baseline/infrastructure/smoke-legacy-runtime.py --base-url http://127.0.0.1:8080/cargo-tracker/ --exercise-handling
+Running: /home/jenkins/agent/workspace/ai-modernization-baseline/.work/glassfish-runtime/unpacked/glassfish4/bin/asadmin stop-domain domain1
+[Pipeline] }
+[Pipeline] // stage
+[Pipeline] stage
+[Pipeline] { (Declarative: Post Actions)
+[Pipeline] junit
+Recording test results
+[Checks API] No suitable checks publisher found.
+[Pipeline] archiveArtifacts
+Archiving artifacts
+Recording fingerprints
+[Pipeline] }
+[Pipeline] // stage
+[Pipeline] }
+[Pipeline] // timeout
+[Pipeline] }
+[Pipeline] // node
+[Pipeline] End of Pipeline
+Finished: SUCCESS

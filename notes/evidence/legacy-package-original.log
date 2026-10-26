@@ -1,0 +1,30 @@
+[INFO] Scanning for projects...
+[INFO] Loaded 24205 auto-discovered prefixes for remote repository central (prefixes-central.txt)
+[INFO] 
+[INFO] -----------------------< net.java:cargo-tracker >-----------------------
+[INFO] Building cargo-tracker 1.0-SNAPSHOT
+[INFO]   from pom.xml
+[INFO] --------------------------------[ war ]---------------------------------
+[WARNING] Could not transfer metadata /.meta/prefixes.txt from/to release.maven.java.net (https://maven.java.net/content/groups/public): PKIX path building failed: sun.security.provider.certpath.SunCertPathBuilderException: unable to find valid certification path to requested target
+[WARNING] Could not transfer metadata /.meta/prefixes.txt from/to jvnet-nexus-snapshots (https://maven.java.net/content/repositories/snapshots): PKIX path building failed: sun.security.provider.certpath.SunCertPathBuilderException: unable to find valid certification path to requested target
+[WARNING] /.meta/prefixes.txt failed to transfer from https://maven.java.net/content/repositories/snapshots during a previous attempt. This failure was cached in the local repository and resolution will not be reattempted until the update interval of jvnet-nexus-snapshots has elapsed or updates are forced. Original error: Could not transfer metadata /.meta/prefixes.txt from/to jvnet-nexus-snapshots (https://maven.java.net/content/repositories/snapshots): PKIX path building failed: sun.security.provider.certpath.SunCertPathBuilderException: unable to find valid certification path to requested target
+[INFO] ------------------------------------------------------------------------
+[ERROR] BUILD FAILURE
+[INFO] ------------------------------------------------------------------------
+[INFO] Total time:  5.131 s
+[INFO] Finished at: 2026-10-23T05:22:13Z
+[INFO] ------------------------------------------------------------------------
+[ERROR] Failed to execute goal on project cargo-tracker: Could not collect dependencies for project net.java:cargo-tracker:war:1.0-SNAPSHOT
+[ERROR] Failed to read artifact descriptor for org.primefaces.themes:ui-lightness:jar:1.0.10
+[ERROR] 	Caused by: The following artifacts could not be resolved: org.primefaces.themes:ui-lightness:pom:1.0.10 (absent): Could not transfer artifact org.primefaces.themes:ui-lightness:pom:1.0.10 from/to maven-default-http-blocker (http://0.0.0.0/): Blocked mirror for repositories: [primefaces (http://repository.primefaces.org, default, releases+snapshots)]
+[ERROR] Failed to read artifact descriptor for org.eclipse.persistence:org.eclipse.persistence.antlr:jar:2.3.2
+[ERROR] 	Caused by: The following artifacts could not be resolved: org.eclipse.persistence:org.eclipse.persistence.antlr:pom:2.3.2 (absent): Could not transfer artifact org.eclipse.persistence:org.eclipse.persistence.antlr:pom:2.3.2 from/to maven-default-http-blocker (http://0.0.0.0/): Blocked mirror for repositories: [primefaces (http://repository.primefaces.org, default, releases+snapshots), eclipselink.repository (http://download.eclipse.org/rt/eclipselink/maven.repo, default, releases+snapshots)]
+[ERROR] Failed to read artifact descriptor for org.eclipse.persistence:org.eclipse.persistence.moxy:jar:2.5.0-M13
+[ERROR] 	Caused by: The following artifacts could not be resolved: org.eclipse.persistence:org.eclipse.persistence.moxy:pom:2.5.0-M13 (absent): Could not transfer artifact org.eclipse.persistence:org.eclipse.persistence.moxy:pom:2.5.0-M13 from/to maven-default-http-blocker (http://0.0.0.0/): Blocked mirror for repositories: [primefaces (http://repository.primefaces.org, default, releases+snapshots), eclipselink.repository (http://download.eclipse.org/rt/eclipselink/maven.repo, default, releases+snapshots)]
+[ERROR] -> [Help 1]
+[ERROR] 
+[ERROR] To see the full stack trace of the errors, re-run Maven with the -e switch.
+[ERROR] Re-run Maven using the -X switch to enable full debug logging.
+[ERROR] 
+[ERROR] For more information about the errors and possible solutions, please read the following articles:
+[ERROR] [Help 1] http://cwiki.apache.org/confluence/display/MAVEN/DependencyResolutionException

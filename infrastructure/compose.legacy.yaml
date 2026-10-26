@@ -1,0 +1,16 @@
+services:
+  cargo-tracker:
+    image: ai-modernization-glassfish:4.1-validator-fix
+    build:
+      context: ../.work/glassfish-runtime
+    container_name: ai-modernization-cargotracker
+    init: true
+    ports:
+      - "127.0.0.1:8081:8080"
+    stop_grace_period: 40s
+    healthcheck:
+      test: ["CMD", "curl", "-fsS", "http://localhost:8080/cargo-tracker/rest/cargo"]
+      interval: 10s
+      timeout: 5s
+      start_period: 90s
+      retries: 3

@@ -1,0 +1,21 @@
+{
+  "review_date": "2026-10-26",
+  "setup_version": "0.1.0",
+  "local_tag": "baseline-v0.1.0",
+  "build_url": "http://localhost:8080/job/ai-modernization-baseline/3/",
+  "result": "SUCCESS",
+  "duration_ms": 153108,
+  "setup_tooling_checks": 8,
+  "application_tests": {
+    "reported": 28,
+    "failures": 0
+  },
+  "domain_tests": 24,
+  "booking_integration_tests": 4,
+  "known_empty_test": "ItineraryTest.testNextExpectedEvent",
+  "workflow_smoke": "passed",
+  "runtime_cleanup": "passed",
+  "tested_snapshot_matches_reviewed_source": true,
+  "historical_provenance_correction": "Maven repository context suffix handled; current run verified actual Eclipse origins",
+  "version_control_scope": "local commit and annotated tag only; no push"
+}

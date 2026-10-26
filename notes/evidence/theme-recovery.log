@@ -1,0 +1,176 @@
+[INFO] Scanning for projects...
+[WARNING] 
+[WARNING] Some problems were encountered while building the effective model for org.primefaces.themes:afterdark:jar:1.0.10
+[WARNING] The expression ${version} is deprecated. Please use ${project.version} instead.
+[WARNING] 
+[WARNING] Some problems were encountered while building the effective model for org.primefaces.themes:afternoon:jar:1.0.10
+[WARNING] The expression ${version} is deprecated. Please use ${project.version} instead.
+[WARNING] 
+[WARNING] Some problems were encountered while building the effective model for org.primefaces.themes:afterwork:jar:1.0.10
+[WARNING] The expression ${version} is deprecated. Please use ${project.version} instead.
+[WARNING] 
+[WARNING] Some problems were encountered while building the effective model for org.primefaces.themes:black-tie:jar:1.0.10
+[WARNING] The expression ${version} is deprecated. Please use ${project.version} instead.
+[WARNING] 
+[WARNING] Some problems were encountered while building the effective model for org.primefaces.themes:blitzer:jar:1.0.10
+[WARNING] The expression ${version} is deprecated. Please use ${project.version} instead.
+[WARNING] 
+[WARNING] Some problems were encountered while building the effective model for org.primefaces.themes:bluesky:jar:1.0.10
+[WARNING] The expression ${version} is deprecated. Please use ${project.version} instead.
+[WARNING] 
+[WARNING] Some problems were encountered while building the effective model for org.primefaces.themes:bootstrap:jar:1.0.10
+[WARNING] The expression ${version} is deprecated. Please use ${project.version} instead.
+[WARNING] 
+[WARNING] Some problems were encountered while building the effective model for org.primefaces.themes:casablanca:jar:1.0.10
+[WARNING] The expression ${version} is deprecated. Please use ${project.version} instead.
+[WARNING] 
+[WARNING] Some problems were encountered while building the effective model for org.primefaces.themes:cruze:jar:1.0.10
+[WARNING] The expression ${version} is deprecated. Please use ${project.version} instead.
+[WARNING] 
+[WARNING] Some problems were encountered while building the effective model for org.primefaces.themes:cupertino:jar:1.0.10
+[WARNING] The expression ${version} is deprecated. Please use ${project.version} instead.
+[WARNING] 
+[WARNING] Some problems were encountered while building the effective model for org.primefaces.themes:dark-hive:jar:1.0.10
+[WARNING] The expression ${version} is deprecated. Please use ${project.version} instead.
+[WARNING] 
+[WARNING] Some problems were encountered while building the effective model for org.primefaces.themes:delta:jar:1.0.10
+[WARNING] The expression ${version} is deprecated. Please use ${project.version} instead.
+[WARNING] 
+[WARNING] Some problems were encountered while building the effective model for org.primefaces.themes:dot-luv:jar:1.0.10
+[WARNING] The expression ${version} is deprecated. Please use ${project.version} instead.
+[WARNING] 
+[WARNING] Some problems were encountered while building the effective model for org.primefaces.themes:eggplant:jar:1.0.10
+[WARNING] The expression ${version} is deprecated. Please use ${project.version} instead.
+[WARNING] 
+[WARNING] Some problems were encountered while building the effective model for org.primefaces.themes:excite-bike:jar:1.0.10
+[WARNING] The expression ${version} is deprecated. Please use ${project.version} instead.
+[WARNING] 
+[WARNING] Some problems were encountered while building the effective model for org.primefaces.themes:flick:jar:1.0.10
+[WARNING] The expression ${version} is deprecated. Please use ${project.version} instead.
+[WARNING] 
+[WARNING] Some problems were encountered while building the effective model for org.primefaces.themes:glass-x:jar:1.0.10
+[WARNING] The expression ${version} is deprecated. Please use ${project.version} instead.
+[WARNING] 
+[WARNING] Some problems were encountered while building the effective model for org.primefaces.themes:home:jar:1.0.10
+[WARNING] The expression ${version} is deprecated. Please use ${project.version} instead.
+[WARNING] 
+[WARNING] Some problems were encountered while building the effective model for org.primefaces.themes:hot-sneaks:jar:1.0.10
+[WARNING] The expression ${version} is deprecated. Please use ${project.version} instead.
+[WARNING] 
+[WARNING] Some problems were encountered while building the effective model for org.primefaces.themes:humanity:jar:1.0.10
+[WARNING] The expression ${version} is deprecated. Please use ${project.version} instead.
+[WARNING] 
+[WARNING] Some problems were encountered while building the effective model for org.primefaces.themes:le-frog:jar:1.0.10
+[WARNING] The expression ${version} is deprecated. Please use ${project.version} instead.
+[WARNING] 
+[WARNING] Some problems were encountered while building the effective model for org.primefaces.themes:midnight:jar:1.0.10
+[WARNING] The expression ${version} is deprecated. Please use ${project.version} instead.
+[WARNING] 
+[WARNING] Some problems were encountered while building the effective model for org.primefaces.themes:mint-choc:jar:1.0.10
+[WARNING] The expression ${version} is deprecated. Please use ${project.version} instead.
+[WARNING] 
+[WARNING] Some problems were encountered while building the effective model for org.primefaces.themes:overcast:jar:1.0.10
+[WARNING] The expression ${version} is deprecated. Please use ${project.version} instead.
+[WARNING] 
+[WARNING] Some problems were encountered while building the effective model for org.primefaces.themes:pepper-grinder:jar:1.0.10
+[WARNING] The expression ${version} is deprecated. Please use ${project.version} instead.
+[WARNING] 
+[WARNING] Some problems were encountered while building the effective model for org.primefaces.themes:redmond:jar:1.0.10
+[WARNING] The expression ${version} is deprecated. Please use ${project.version} instead.
+[WARNING] 
+[WARNING] Some problems were encountered while building the effective model for org.primefaces.themes:rocket:jar:1.0.10
+[WARNING] The expression ${version} is deprecated. Please use ${project.version} instead.
+[WARNING] 
+[WARNING] Some problems were encountered while building the effective model for org.primefaces.themes:sam:jar:1.0.10
+[WARNING] The expression ${version} is deprecated. Please use ${project.version} instead.
+[WARNING] 
+[WARNING] Some problems were encountered while building the effective model for org.primefaces.themes:smoothness:jar:1.0.10
+[WARNING] The expression ${version} is deprecated. Please use ${project.version} instead.
+[WARNING] 
+[WARNING] Some problems were encountered while building the effective model for org.primefaces.themes:south-street:jar:1.0.10
+[WARNING] The expression ${version} is deprecated. Please use ${project.version} instead.
+[WARNING] 
+[WARNING] Some problems were encountered while building the effective model for org.primefaces.themes:start:jar:1.0.10
+[WARNING] The expression ${version} is deprecated. Please use ${project.version} instead.
+[WARNING] 
+[WARNING] Some problems were encountered while building the effective model for org.primefaces.themes:sunny:jar:1.0.10
+[WARNING] The expression ${version} is deprecated. Please use ${project.version} instead.
+[WARNING] 
+[WARNING] Some problems were encountered while building the effective model for org.primefaces.themes:swanky-purse:jar:1.0.10
+[WARNING] The expression ${version} is deprecated. Please use ${project.version} instead.
+[WARNING] 
+[WARNING] Some problems were encountered while building the effective model for org.primefaces.themes:trontastic:jar:1.0.10
+[WARNING] The expression ${version} is deprecated. Please use ${project.version} instead.
+[WARNING] 
+[WARNING] Some problems were encountered while building the effective model for org.primefaces.themes:ui-darkness:jar:1.0.10
+[WARNING] The expression ${version} is deprecated. Please use ${project.version} instead.
+[WARNING] 
+[WARNING] Some problems were encountered while building the effective model for org.primefaces.themes:ui-lightness:jar:1.0.10
+[WARNING] The expression ${version} is deprecated. Please use ${project.version} instead.
+[WARNING] 
+[WARNING] Some problems were encountered while building the effective model for org.primefaces.themes:vader:jar:1.0.10
+[WARNING] The expression ${version} is deprecated. Please use ${project.version} instead.
+[WARNING] 
+[WARNING] Some problems were encountered while building the effective model for org.primefaces.themes:all-themes:jar:1.0.10
+[WARNING] 'build.plugins.plugin.version' for org.apache.maven.plugins:maven-assembly-plugin is missing. @ line 24, column 21
+[WARNING] 
+[WARNING] It is highly recommended to fix these problems because they threaten the stability of your build.
+[WARNING] 
+[WARNING] For this reason, future Maven versions might no longer support building such malformed projects.
+[WARNING] 
+[INFO] ------------------------------------------------------------------------
+[INFO] Reactor Build Order:
+[INFO] 
+[INFO] primefaces themes                                                  [pom]
+[INFO] PrimeFaces UI-Lightness Theme                                      [jar]
+[INFO] 
+[INFO] ----------------< org.primefaces.themes:themes-project >----------------
+[INFO] Building primefaces themes 1.0.10                                  [1/2]
+[INFO]   from pom.xml
+[INFO] --------------------------------[ pom ]---------------------------------
+[INFO] 
+[INFO] --- jsf:1.3.0:compress-css (css-compressor) @ themes-project ---
+[INFO] 
+[INFO] --- install:3.2.0:install (default-install) @ themes-project ---
+[INFO] Installing /work/primefaces-themes/pom.xml to /work/m2/org/primefaces/themes/themes-project/1.0.10/themes-project-1.0.10.pom
+[INFO] 
+[INFO] -----------------< org.primefaces.themes:ui-lightness >-----------------
+[INFO] Building PrimeFaces UI-Lightness Theme 1.0.10                      [2/2]
+[INFO]   from ui-lightness/pom.xml
+[INFO] --------------------------------[ jar ]---------------------------------
+[INFO] 
+[INFO] --- resources:3.5.0:resources (default-resources) @ ui-lightness ---
+[INFO] Copying 15 resources from src/main/resources to target/classes
+[INFO] 
+[INFO] --- jsf:1.3.0:compress-css (css-compressor) @ ui-lightness ---
+[INFO] Compressing:theme.css
+[INFO] 
+[INFO] --- compiler:3.16.0:compile (default-compile) @ ui-lightness ---
+[INFO] No sources to compile
+[INFO] 
+[INFO] --- resources:3.5.0:testResources (default-testResources) @ ui-lightness ---
+[INFO] skip non existing resourceDirectory /work/primefaces-themes/ui-lightness/src/test/resources
+[INFO] 
+[INFO] --- compiler:3.16.0:testCompile (default-testCompile) @ ui-lightness ---
+[INFO] No sources to compile
+[INFO] 
+[INFO] --- surefire:3.6.0:test (default-test) @ ui-lightness ---
+[INFO] Tests are skipped.
+[INFO] 
+[INFO] --- jar:3.5.1:jar (default-jar) @ ui-lightness ---
+[INFO] Building jar: /work/primefaces-themes/ui-lightness/target/primefaces-ui-lightness-1.0.10.jar
+[INFO] 
+[INFO] --- install:3.2.0:install (default-install) @ ui-lightness ---
+[INFO] Installing /work/primefaces-themes/ui-lightness/pom.xml to /work/m2/org/primefaces/themes/ui-lightness/1.0.10/ui-lightness-1.0.10.pom
+[INFO] Installing /work/primefaces-themes/ui-lightness/target/primefaces-ui-lightness-1.0.10.jar to /work/m2/org/primefaces/themes/ui-lightness/1.0.10/ui-lightness-1.0.10.jar
+[INFO] ------------------------------------------------------------------------
+[INFO] Reactor Summary for primefaces themes 1.0.10:
+[INFO] 
+[INFO] primefaces themes .................................. SUCCESS [  0.234 s]
+[INFO] PrimeFaces UI-Lightness Theme ...................... SUCCESS [  1.818 s]
+[INFO] ------------------------------------------------------------------------
+[INFO] BUILD SUCCESS
+[INFO] ------------------------------------------------------------------------
+[INFO] Total time:  2.534 s
+[INFO] Finished at: 2026-10-23T05:27:49Z
+[INFO] ------------------------------------------------------------------------

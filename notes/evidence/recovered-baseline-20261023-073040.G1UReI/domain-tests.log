@@ -1,0 +1,49 @@
+[INFO] Scanning for projects...
+[INFO] 
+[INFO] -----------------------< net.java:cargo-tracker >-----------------------
+[INFO] Building cargo-tracker 1.0-SNAPSHOT
+[INFO]   from domain-tests-pom.xml
+[INFO] --------------------------------[ war ]---------------------------------
+[INFO] 
+[INFO] --- resources:3.5.0:resources (default-resources) @ cargo-tracker ---
+[INFO] Copying 4 resources from src/main/resources to target/classes
+[INFO] 
+[INFO] --- compiler:3.3:compile (default-compile) @ cargo-tracker ---
+[WARNING] Ignoring checksum policy 'ignore' contributed by repository apache-snapshots (http://people.apache.org/repo/m2-snapshot-repository) declared by a remote artifact descriptor: it would downgrade the checksum policy 'warn' of the mirror serving it; set aether.remoteRepositoryManager.rawRepositoryChecksumPolicyDowngrade=true to restore the legacy weakest-wins merge
+[WARNING]  Parameter 'compilerArguments' is deprecated: use {@link #compilerArgs} instead.
+[INFO] Nothing to compile - all classes are up to date
+[INFO] 
+[INFO] --- resources:3.5.0:testResources (default-testResources) @ cargo-tracker ---
+[INFO] Copying 3 resources from src/test/resources to target/test-classes
+[INFO] 
+[INFO] --- compiler:3.3:testCompile (default-testCompile) @ cargo-tracker ---
+[WARNING]  Parameter 'compilerArguments' is deprecated: use {@link #compilerArgs} instead.
+[INFO] Nothing to compile - all classes are up to date
+[INFO] 
+[INFO] --- surefire:2.18.1:test (default-test) @ cargo-tracker ---
+[INFO] Surefire report directory: /work/source/target/surefire-reports
+
+-------------------------------------------------------
+ T E S T S
+-------------------------------------------------------
+Running net.java.cargotracker.domain.model.handling.HandlingHistoryTest
+Tests run: 2, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.025 sec - in net.java.cargotracker.domain.model.handling.HandlingHistoryTest
+Running net.java.cargotracker.domain.model.handling.HandlingEventTest
+Tests run: 6, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.009 sec - in net.java.cargotracker.domain.model.handling.HandlingEventTest
+Running net.java.cargotracker.domain.model.cargo.RouteSpecificationTest
+Tests run: 4, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.003 sec - in net.java.cargotracker.domain.model.cargo.RouteSpecificationTest
+Running net.java.cargotracker.domain.model.cargo.ItineraryTest
+Tests run: 3, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.005 sec - in net.java.cargotracker.domain.model.cargo.ItineraryTest
+Running net.java.cargotracker.domain.model.cargo.CargoTest
+Tests run: 9, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.006 sec - in net.java.cargotracker.domain.model.cargo.CargoTest
+
+Results :
+
+Tests run: 24, Failures: 0, Errors: 0, Skipped: 0
+
+[INFO] ------------------------------------------------------------------------
+[INFO] BUILD SUCCESS
+[INFO] ------------------------------------------------------------------------
+[INFO] Total time:  1.570 s
+[INFO] Finished at: 2026-10-23T05:31:00Z
+[INFO] ------------------------------------------------------------------------
