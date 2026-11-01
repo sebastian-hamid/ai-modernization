@@ -1,0 +1,9 @@
+test_container_removal_failure_still_removes_private_files (test_harness.CleanupTests.test_container_removal_failure_still_removes_private_files) ... ok
+test_log_failure_still_removes_container_and_private_files (test_harness.CleanupTests.test_log_failure_still_removes_container_and_private_files) ... ok
+test_partial_private_initialization_is_removed (test_harness.CleanupTests.test_partial_private_initialization_is_removed) ... ok
+test_partial_routing_credential_write_is_removed (test_harness.CleanupTests.test_partial_routing_credential_write_is_removed) ... ok
+
+----------------------------------------------------------------------
+Ran 4 tests in 0.008s
+
+OK

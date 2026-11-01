@@ -139,3 +139,9 @@
 ## 1 November 2026 — KAN-17 endpoint session security
 
 Implemented authenticated/origin-allowlisted session-bound sockets, logout and HTTP-idle closure, and safe send failure isolation. Actual89 browser/47 application/35 domain PASS (one inherited empty TODO). Independent reviewer /root/review_kan17_socket approved code/docs/evidence, verified255 hashes; no remaining material findings. Map UI remains disabled; malformed/abrupt variants source-review only. Task runtime/network/private files removed; original services preserved. Published under standing authorization; full candidate/KAN-14 acceptance remains open. Human effort/cost unavailable.
+
+## 1 November 2026 — KAN-19 live tracking UI
+
+Restored authenticated live cargo plot/table with local assets, real inspection updates, marker/detail links, connection state and DOM clearing on logout/idle expiry. Preserved original socket name fields with added explicit codes; generation/abort/time ordering guards prevent stale snapshot replacement. Final107 browser/47 application/35 domain PASS (one inherited empty TODO); seven mocked cleanup regressions PASS. Actual all-role UI updates/marker movement, delayed snapshot, post-revocation empty views and authorized post-expiry event verified. Historical services/source preserved; task resources removed. Independent review/recheck approved publication with no remaining material findings;261 hashes verified and seven mocked cleanup tests independently rerun. Unique final NewYork event confirms post-expiry delivery. KAN-19 mobile logger remains open; KAN-14 independent absence still unverified. No savings/cost/time claims.
+
+Publication: standing authorization applied after reviewer approval;261 staged reviewed hashes checked, no runtime redeployment/full CI rerun. KAN-19 continues with mobile logger; prior pending statements are historical.

@@ -41,3 +41,8 @@ Tests include native routing account success, wrong-password/human-Basic/malform
 These are bounded functional/security results. Independent denied-write database/queue/business-audit absence, exhaustive candidate adapters, broker/filesystem controls, production identity operations, restart and concurrency remain open. KAN-14's502 definitions are still BLOCKED; no full security acceptance is inferred.
 
 References: [WildFly42 Elytron](https://docs.wildfly.org/42/WildFly_Elytron_Security.html), [RESTEasy7 client redirects](https://docs.resteasy.dev/7.0/userguide/).
+
+
+## Subsequent live UI increment
+
+The authenticated [live tracking view](live-tracking-ui.md) now provides actual rows/markers and session-end clearing. Earlier disabled-map/live-UI statements are historical; the raw legacy map client remains blocked. KAN-19 still requires the mobile event logger. KAN-17 endpoint work is Done in Jira.

@@ -161,7 +161,10 @@ function check(name,ok){stage=name;checks.push({name,passed:!!ok});if(!ok)throw 
   const wsHeaders={"Upgrade":"websocket","Connection":"Upgrade","Sec-WebSocket-Version":"13","Sec-WebSocket-Key":Buffer.from("0123456789abcdef").toString("base64"),"Origin":new URL(base).origin};
   let denied=await ap.request.get(base+"tracking?connection="+require("crypto").randomUUID(),{headers:wsHeaders});
   check("Anonymous upgrade is HTTP401",denied.status()===401);
-  const sockets={};
+  const sockets={};const livePages={};
+  let snapshotReadyResolve,releaseSnapshot;
+  const snapshotReady=new Promise(resolve=>snapshotReadyResolve=resolve);
+  const snapshotRelease=new Promise(resolve=>releaseSnapshot=resolve);
   for(const who of ["reader","operator","admin"]){
    sockets[who]=await login(who);
    const bad=await sockets[who].context.request.get(base+"tracking?connection="+require("crypto").randomUUID(),{headers:{...wsHeaders,Origin:"https://untrusted.example"}});
@@ -174,22 +177,43 @@ function check(name,ok){stage=name;checks.push({name,passed:!!ok});if(!ok)throw 
    },base.replace("http:","ws:")+"tracking?connection="+require("crypto").randomUUID());
    await sockets[who].page.waitForFunction(()=>window.liveSocket.readyState===WebSocket.OPEN);
    check("Authorized upgrade "+who,true);
+   livePages[who]=await sockets[who].context.newPage();
+   livePages[who].on("pageerror",()=>failures.push("live-pageerror:"+who));
+   livePages[who].on("response",r=>{if(r.status()>=400 && new URL(r.url()).pathname.includes("/resources/"))failures.push(new URL(r.url()).pathname);});
+   if(who==="reader")await livePages[who].route(base+"rest/cargo",async route=>{
+    const response=await route.fetch();snapshotReadyResolve();await snapshotRelease;await route.fulfill({response});
+   });
+   await livePages[who].goto(base+"admin/live.xhtml");
+   if(who==="reader"){await snapshotReady;continue;}
+   await livePages[who].locator("#live-status").getByText("Live",{exact:true}).waitFor();
+   check("Live UI snapshot "+who,await livePages[who].locator('tr[data-tracking-id="DEF789"]').count()===1);
+   check("Live UI has geographic marker "+who,await livePages[who].locator('#live-markers a[aria-label^="ABC123 "]').count()===1);
   }
   async function trigger(sequence){
    const csrf=(await (await sockets.admin.context.request.get(base+"session")).json()).csrf;
-   const response=await sockets.admin.context.request.post(base+"rest/handling/reports",{headers:{"X-CSRF-Token":csrf},data:{trackingId:"DEF789",eventType:"CUSTOMS",unLocode:"FIHEL",completionTime:"2031-01-"+String(sequence).padStart(2,"0")+" 10:00"}});
+   const response=await sockets.admin.context.request.post(base+"rest/handling/reports",{headers:{"X-CSRF-Token":csrf},data:{trackingId:"DEF789",eventType:"CUSTOMS",unLocode:sequence===8?"USNYC":sequence%2===1?"SESTO":"FIHEL",completionTime:"2031-01-"+String(sequence).padStart(2,"0")+" 10:00"}});
    check("Actual handling trigger "+sequence,response.status()===204);
   }
   await trigger(1);
   for(const who of ["reader","operator","admin"]){
    await sockets[who].page.waitForFunction(()=>window.framesReceived.some(e=>e.trackingId==="DEF789"));
    check("Actual authorized data frame "+who,true);
+   check("Legacy socket fields remain names "+who,await sockets[who].page.evaluate(()=>window.framesReceived.find(e=>e.trackingId==="DEF789").origin==="Hong Kong"));
+   await livePages[who].locator('tr[data-tracking-id="DEF789"]').getByText("Stockholm",{exact:true}).waitFor();
+   check("Actual live UI update "+who,true);
+   check("Actual live marker moves "+who,await livePages[who].locator('#live-markers a[aria-label="DEF789 at SESTO"] circle').getAttribute("cx")==="396");
+   if(who==="reader"){
+    releaseSnapshot();await livePages.reader.locator("#live-status").getByText("Live",{exact:true}).waitFor();
+    check("Delayed old snapshot cannot undo live update",await livePages.reader.locator('tr[data-tracking-id="DEF789"]').getByText("Stockholm",{exact:true}).count()===1);
+   }
   }
   let csrf=(await (await sockets.reader.context.request.get(base+"session")).json()).csrf;
   check("Socket owner logout", (await sockets.reader.context.request.post(base+"logout",{headers:{"X-CSRF-Token":csrf},data:""})).status()===204);
   await sockets.reader.page.waitForFunction(()=>window.socketClosed);
   const readerCount=await sockets.reader.page.evaluate(()=>window.framesReceived.length);
   check("Logout closes existing socket",true);
+  await livePages.reader.locator("#live-status").getByText("Session ended. Sign in again.",{exact:true}).waitFor();
+  check("Logout clears UI cargo data",await livePages.reader.locator("#live-cargos tbody tr").count()===0 && await livePages.reader.locator("#live-markers a").count()===0);
   await trigger(2);
   await sockets.admin.page.waitForFunction(()=>window.framesReceived.length>=2);
   check("No new data after logout",await sockets.reader.page.evaluate(()=>window.framesReceived.length)===readerCount);
@@ -198,8 +222,12 @@ function check(name,ok){stage=name;checks.push({name,passed:!!ok});if(!ok)throw 
   await sockets.operator.page.waitForFunction(()=>window.socketClosed);
   const expiredCount=await sockets.operator.page.evaluate(()=>window.framesReceived.length);
   check("HTTP idle expiry closes active socket",true);
+  await livePages.operator.locator("#live-status").getByText("Session ended. Sign in again.",{exact:true}).waitFor();
+  check("Idle expiry clears UI cargo data",await livePages.operator.locator("#live-cargos tbody tr").count()===0 && await livePages.operator.locator("#live-markers a").count()===0);
   await trigger(8);
-  await sockets.admin.page.waitForTimeout(1000);
+  await livePages.admin.locator('tr[data-tracking-id="DEF789"]').getByText("New York",{exact:true}).waitFor();
+  check("Post-expiry event reaches authorized UI",true);
+  check("Revoked UI remains empty",await livePages.reader.locator("#live-cargos tbody tr").count()===0 && await livePages.operator.locator("#live-cargos tbody tr").count()===0);
   check("No new data after idle expiry",await sockets.operator.page.evaluate(()=>window.framesReceived.length)===expiredCount);
   check("No page or asset errors",failures.length===0);
  } catch(error){checks.push({name:stage+" failed ("+error.name+")",outcome:"FAIL",passed:false});process.exitCode=1;}

@@ -1,0 +1,24 @@
+{
+  "task": "KAN-19 live UI",
+  "reviewer": "/root/review_kan19_live",
+  "base": "83d8d45f67914173aa3e594b6d3dac2347e78801",
+  "verdict": "Approved/reaffirmed; no remaining material findings",
+  "input_hashes_verified": 261,
+  "browser": 107,
+  "application": 47,
+  "domain": 35,
+  "mocked_cleanup_tests_independently_rerun": 7,
+  "live_runtime_rerun_by_reviewer": false,
+  "corrections": [
+    "Preserve socket name contract; add code fields",
+    "Prioritize socket data on timestamp ties",
+    "Delayed snapshot/marker movement/error listeners",
+    "Unique post-expiry NewYork event proof"
+  ],
+  "limits": [
+    "Millisecond event ordering not total",
+    "No push on every booking/route mutation; reconnect refreshes snapshot",
+    "Mobile logger remains outstanding",
+    "Full candidate/KAN-14 effects acceptance not closed"
+  ]
+}

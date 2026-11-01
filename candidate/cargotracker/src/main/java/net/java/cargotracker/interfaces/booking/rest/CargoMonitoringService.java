@@ -31,23 +31,7 @@ public class CargoMonitoringService {
 
         JsonArrayBuilder builder = Json.createArrayBuilder();
 
-        for (Cargo cargo : cargos) {
-            builder.add(Json.createObjectBuilder()
-                    .add("trackingId", cargo.getTrackingId().getIdString())
-                    .add("routingStatus", cargo.getDelivery()
-                            .getRoutingStatus().toString())
-                    .add("misdirected", cargo.getDelivery().isMisdirected())
-                    .add("transportStatus", cargo.getDelivery()
-                            .getTransportStatus().toString())
-                    .add("atDestination", cargo.getDelivery()
-                            .isUnloadedAtDestination())
-                    .add("origin", cargo.getOrigin().getUnLocode().getIdString())
-                    .add("lastKnownLocation",
-                            cargo.getDelivery().getLastKnownLocation().getUnLocode().getIdString().equals("XXXXX")
-                                    ? "Unknown"
-                                    : cargo.getDelivery().getLastKnownLocation().getUnLocode().getIdString())
-            );
-        }
+        for(Cargo cargo:cargos)builder.add(CargoSnapshot.of(cargo));
 
         return builder.build();
     }

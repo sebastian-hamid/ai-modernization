@@ -39,3 +39,8 @@ Initial booking/destination increment final run:30 real browser assertions pass;
 The browser validates actual new cargo creation and destination readback in another authenticated session. Denied mutation checks establish HTTP denial; independent database/queue/business-audit absence remains unverified. Full KAN-14 results are not silently converted to PASS. Historical GlassFish/Jenkins/source and synced references remain unchanged.
 
 References checked: [Faces4.1 metadata placement](https://jakarta.ee/specifications/faces/4.1/vdldoc/f/metadata.html), [Playwright Docker](https://playwright.dev/docs/docker).
+
+
+## Subsequent live UI increment
+
+The authenticated [live tracking view](live-tracking-ui.md) now provides actual rows/markers and session-end clearing. Earlier disabled-map/live-UI statements are historical; the raw legacy map client remains blocked. KAN-19 still requires the mobile event logger. KAN-17 endpoint work is Done in Jira.

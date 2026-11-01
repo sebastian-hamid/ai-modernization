@@ -1,0 +1,251 @@
+{
+  "task": "KAN-18/KAN-15",
+  "scope": "Real Cargo Tracker candidate: monitoring/handling/session plus Faces list/booking/details/destination routes",
+  "checks": [
+    {
+      "name": "Pinned runtime fixture builds",
+      "passed": true
+    },
+    {
+      "name": "Disposable image refuses absent opt-in",
+      "passed": true
+    },
+    {
+      "name": "35 candidate domain tests execute",
+      "passed": true
+    },
+    {
+      "name": "Anonymous monitoring denied",
+      "passed": true
+    },
+    {
+      "name": "Anonymous handling denied",
+      "passed": true
+    },
+    {
+      "name": "Anonymous operational page navigates to login",
+      "passed": true
+    },
+    {
+      "name": "Anonymous tracking endpoint denied",
+      "passed": true
+    },
+    {
+      "name": "Private source note denied",
+      "passed": true
+    },
+    {
+      "name": "Login form with token: reader",
+      "passed": true
+    },
+    {
+      "name": "Container login succeeds: reader",
+      "passed": true
+    },
+    {
+      "name": "Session ID rotates: reader",
+      "passed": true
+    },
+    {
+      "name": "Server principal and role: reader",
+      "passed": true
+    },
+    {
+      "name": "Login form with token: operator",
+      "passed": true
+    },
+    {
+      "name": "Container login succeeds: operator",
+      "passed": true
+    },
+    {
+      "name": "Session ID rotates: operator",
+      "passed": true
+    },
+    {
+      "name": "Server principal and role: operator",
+      "passed": true
+    },
+    {
+      "name": "Login form with token: admin",
+      "passed": true
+    },
+    {
+      "name": "Container login succeeds: admin",
+      "passed": true
+    },
+    {
+      "name": "Session ID rotates: admin",
+      "passed": true
+    },
+    {
+      "name": "Server principal and role: admin",
+      "passed": true
+    },
+    {
+      "name": "Anonymous routing API denied",
+      "passed": true
+    },
+    {
+      "name": "Reader routing API denied",
+      "passed": true
+    },
+    {
+      "name": "Operator routing API allowed",
+      "passed": true
+    },
+    {
+      "name": "Administrator routing API allowed",
+      "passed": true
+    },
+    {
+      "name": "Native scoped routing account allowed",
+      "passed": true
+    },
+    {
+      "name": "Routing Basic retains no usable session",
+      "passed": true
+    },
+    {
+      "name": "Wrong routing service password denied",
+      "passed": true
+    },
+    {
+      "name": "Human Basic credentials cannot impersonate service",
+      "passed": true
+    },
+    {
+      "name": "Malformed Basic rejected",
+      "passed": true
+    },
+    {
+      "name": "Routing identity cannot use monitoring API",
+      "passed": true
+    },
+    {
+      "name": "Invalid route locations controlled",
+      "passed": true
+    },
+    {
+      "name": "Invalid route deadline controlled",
+      "passed": true
+    },
+    {
+      "name": "Authenticated monitoring",
+      "passed": true
+    },
+    {
+      "name": "Authenticated monitoring",
+      "passed": true
+    },
+    {
+      "name": "Authenticated monitoring",
+      "passed": true
+    },
+    {
+      "name": "Original four seeded cargos",
+      "passed": true
+    },
+    {
+      "name": "Reader handling denied",
+      "passed": true
+    },
+    {
+      "name": "Operator handling requires CSRF",
+      "passed": true
+    },
+    {
+      "name": "Authenticated monitoring",
+      "passed": true
+    },
+    {
+      "name": "Denied report leaves monitor unchanged",
+      "passed": true
+    },
+    {
+      "name": "Operator report accepted",
+      "passed": true
+    },
+    {
+      "name": "Real JPA/JMS handling changes cargo",
+      "passed": true
+    },
+    {
+      "name": "Administrator fixture starts away from FIHEL",
+      "passed": true
+    },
+    {
+      "name": "Administrator report accepted",
+      "passed": true
+    },
+    {
+      "name": "Administrator real asynchronous handling effect",
+      "passed": true
+    },
+    {
+      "name": "Logout succeeds",
+      "passed": true
+    },
+    {
+      "name": "Old authenticated cookie revoked",
+      "passed": true
+    }
+  ],
+  "status": "PASS",
+  "image_id": "sha256:034283d80e13a4c03e6a947b19f08755f65b4c04ae82ac3cb8121240fbea8362",
+  "domain_tests": {
+    "tests": 35,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0,
+    "empty_legacy_todo_retained": true
+  },
+  "denied_write_absence_verified": false,
+  "cargo_before": {
+    "trackingId": "DEF789",
+    "routingStatus": "NOT_ROUTED",
+    "misdirected": false,
+    "transportStatus": "NOT_RECEIVED",
+    "atDestination": false,
+    "origin": "CNHKG",
+    "originName": "Hong Kong",
+    "originCode": "CNHKG",
+    "destination": "AUMEL",
+    "destinationName": "Melbourne",
+    "destinationCode": "AUMEL",
+    "lastKnownLocation": "Unknown",
+    "lastKnownLocationName": "Unknown location",
+    "lastKnownLocationCode": "Unknown",
+    "updatedAt": 1793551893662
+  },
+  "cargo_after": {
+    "trackingId": "DEF789",
+    "routingStatus": "NOT_ROUTED",
+    "misdirected": false,
+    "transportStatus": "IN_PORT",
+    "atDestination": false,
+    "origin": "CNHKG",
+    "originName": "Hong Kong",
+    "originCode": "CNHKG",
+    "destination": "AUMEL",
+    "destinationName": "Melbourne",
+    "destinationCode": "AUMEL",
+    "lastKnownLocation": "FIHEL",
+    "lastKnownLocationName": "Helsinki",
+    "lastKnownLocationCode": "FIHEL",
+    "updatedAt": 1793551897059
+  },
+  "browser_checks": {
+    "count": 107,
+    "passed": true
+  },
+  "browser_cleanup": {
+    "container_removed": true,
+    "network_removed": true,
+    "errors": []
+  },
+  "owned_container_removed": true,
+  "private_files_removed": true,
+  "cleanup_errors": [],
+  "count": 47
+}

@@ -46,21 +46,6 @@ public class RealtimeCargoTrackingService {
     }
 
     public void onCargoInspected(@Observes @CargoInspected Cargo cargo) {
-        Writer writer = new StringWriter();
-
-        try (JsonGenerator generator = Json.createGenerator(writer)) {
-            generator
-                    .writeStartObject()
-                    .write("trackingId", cargo.getTrackingId().getIdString())
-                    .write("origin", cargo.getOrigin().getName())
-                    .write("destination", cargo.getRouteSpecification().getDestination().getName())
-                    .write("lastKnownLocation", cargo.getDelivery().getLastKnownLocation().getName())
-                    .write("transportStatus", cargo.getDelivery().getTransportStatus().toString())
-                    .writeEnd();
-        }
-
-        String jsonValue = writer.toString();
-
-        sessions.publish(jsonValue);
+        sessions.publish(net.java.cargotracker.interfaces.booking.rest.CargoSnapshot.forSocket(cargo).toString());
     }
 }

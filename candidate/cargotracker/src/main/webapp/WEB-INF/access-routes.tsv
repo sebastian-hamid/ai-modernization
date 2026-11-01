@@ -21,3 +21,5 @@
 /admin/route.xhtml	Operator,Administrator
 /rest/graph-traversal/shortest-path	Operator,Administrator,RoutingService
 /tracking	Reader,Operator,Administrator
+/admin/live.xhtml	Reader,Operator,Administrator
+/resources/js/live-tracking.js	PUBLIC

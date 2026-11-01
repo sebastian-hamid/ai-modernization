@@ -50,3 +50,8 @@ The current harness checks35 domain cases (bootstrap evidence originally had34) 
 Complete remaining page/action/browser workflows, controlled batch/worker ACLs, live WebSocket logout/expiry behavior and independent side-effect observers. Expand real candidate adapters, then execute KAN-14 desired cases. Keep the two synthetic fixture results separate from this application's evidence. Both KAN-15 and KAN-18 stay open until their full acceptance is verified.
 
 References: [WildFly 42 developer guide](https://docs.wildfly.org/42/Developer_Guide.html), [PrimeFaces 16 migration](https://github.com/primefaces/primefaces/blob/master/docs/migrationguide/16_0_0.md), [official artifact metadata](https://repo.maven.apache.org/maven2/org/primefaces/primefaces/maven-metadata.xml).
+
+
+## Subsequent live UI increment
+
+The authenticated [live tracking view](../../docs/candidate/live-tracking-ui.md) now provides actual rows/markers and session-end clearing. Earlier disabled-map/live-UI statements are historical; the raw legacy map client remains blocked. KAN-19 still requires the mobile event logger. KAN-17 endpoint work is Done in Jira.

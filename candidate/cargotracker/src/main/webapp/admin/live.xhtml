@@ -1,0 +1,9 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml" xmlns:ui="jakarta.faces.facelets" xmlns:h="jakarta.faces.html" template="/WEB-INF/templates/candidate.xhtml">
+<ui:define name="title">Live cargo tracking</ui:define><ui:define name="content">
+<h1>Live cargo tracking</h1><p id="live-status" role="status" aria-live="polite">Connecting…</p>
+<button id="live-reconnect" type="button">Reconnect</button> <h:link id="live-login" outcome="/login" value="Sign in again"/>
+<p>Approximate port locations. Unreceived cargo uses its origin; unknown locations have no marker. Markers at the same port overlap; the cargo table lists every shipment.</p>
+<svg id="live-map" viewBox="0 0 720 360" role="img" aria-label="Cargo port locations by longitude and latitude" style="width:100%;background:#e7eef8;border:1px solid #789;border-radius:8px"><title>Approximate cargo port locations</title><path d="M0 180H720 M360 0V360 M0 90H720 M0 270H720 M180 0V360 M540 0V360" stroke="#bbc8db" fill="none"/><g id="live-markers"/></svg>
+<div style="overflow-x:auto"><table id="live-cargos"><thead><tr><th>Tracking ID</th><th>Origin</th><th>Destination</th><th>Last known location</th><th>Routing</th><th>Transport</th></tr></thead><tbody/></table></div>
+<script src="#{request.contextPath}/resources/js/live-tracking.js" defer="defer"></script>
+</ui:define></ui:composition>

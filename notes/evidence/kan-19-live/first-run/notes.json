@@ -1,0 +1,1 @@
+{"observed":"Live page did not reach Live state in first browser run","corrections":"Use getRandomValues UUID generation on lab HTTP hostnames; preserve original WebSocket name fields; monitor live-page script errors; prefer socket data for equal timestamp snapshot ties"}

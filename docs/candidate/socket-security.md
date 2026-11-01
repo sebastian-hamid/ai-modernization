@@ -13,3 +13,8 @@ Reproduce with python3 tests/browser-workflows/run_browser.py. Final evidence: n
 Missing/duplicate Origin, malformed correlation parameters and abrupt-disconnect recovery were reviewed in source but not separately exercised at runtime. Full independent database/queue/audit absence and complete KAN-14 adapters remain unverified. KAN-14 stays502BLOCKED; this ticket does not close KAN-15/KAN-18/KAN-19 or prove full production security.
 
 The old admin/mapFrame.html constructs a socket without the new correlation query and stays blocked by the route manifest. Its migration is a subsequent UI task.
+
+
+## Subsequent live UI increment
+
+The authenticated [live tracking view](live-tracking-ui.md) now provides actual rows/markers and session-end clearing. Earlier disabled-map/live-UI statements are historical; the raw legacy map client remains blocked. KAN-19 still requires the mobile event logger. KAN-17 endpoint work is Done in Jira.

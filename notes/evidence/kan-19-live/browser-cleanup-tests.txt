@@ -1,0 +1,8 @@
+test_browser_assertion_failure_cleans_owned_resources (test_browser_harness.BrowserCleanupTests.test_browser_assertion_failure_cleans_owned_resources) ... ok
+test_browser_timeout_cleans_owned_resources (test_browser_harness.BrowserCleanupTests.test_browser_timeout_cleans_owned_resources) ... ok
+test_removal_failure_is_not_a_cleanup_pass (test_browser_harness.BrowserCleanupTests.test_removal_failure_is_not_a_cleanup_pass) ... ok
+
+----------------------------------------------------------------------
+Ran 3 tests in 0.004s
+
+OK

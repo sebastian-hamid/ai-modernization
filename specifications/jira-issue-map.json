@@ -107,7 +107,9 @@
       "key": "KAN-17",
       "type": "Task",
       "title": "[BUG-02] Restrict tracking WebSocket access and permitted origins",
-      "parent": "KAN-5"
+      "parent": "KAN-5",
+      "last_verified_status": "Done",
+      "evidence": "notes/evidence/kan-17-socket/validation.json"
     },
     "PLAT-02": {
       "key": "KAN-18",
@@ -124,8 +126,8 @@
       "title": "[PLAT-03] Modernize Faces/PrimeFaces and verify browser workflows",
       "parent": "KAN-6",
       "last_verified_status": "In Progress",
-      "evidence": "notes/evidence/kan-19-routing/validation.json",
-      "remaining_blocker": "Live tracking/WebSocket lifecycle, legacy mobile logger and full candidate security/independent effects observers"
+      "evidence": "notes/evidence/kan-19-live/validation.json",
+      "remaining_blocker": "Mobile event logger and full candidate/security acceptance"
     },
     "BUG-03": {
       "key": "KAN-20",
