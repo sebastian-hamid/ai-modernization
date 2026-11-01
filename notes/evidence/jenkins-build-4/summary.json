@@ -1,0 +1,13 @@
+{
+  "build": 4,
+  "result": "SUCCESS",
+  "duration_seconds": 114.001,
+  "application_tests": 53,
+  "domain_tests": 34,
+  "booking_tests": 4,
+  "handling_tests": 15,
+  "tooling_checks": 10,
+  "known_empty_test": "ItineraryTest.testNextExpectedEvent",
+  "source_mode": "local snapshot",
+  "snapshot_note": "The captured snapshot contains an experimental Docker start.sh change, unused by this native GlassFish CI job. That unrelated change was reverted; all executed test and CI inputs match the final working tree."
+}

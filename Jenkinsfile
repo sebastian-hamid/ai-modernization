@@ -31,7 +31,7 @@ pipeline {
     }
     post {
         always {
-            junit testResults: 'ci-results/domain/TEST-*.xml,ci-results/integration/TEST-*.xml', allowEmptyResults: true
+            junit testResults: 'ci-results/domain/TEST-*.xml,ci-results/integration/TEST-*.xml,ci-results/handling/TEST-*.xml,ci-results/entrypoints/TEST-*.xml', allowEmptyResults: true
             archiveArtifacts artifacts: 'ci-results/**,notes/evidence/**', allowEmptyArchive: true, fingerprint: true
         }
     }

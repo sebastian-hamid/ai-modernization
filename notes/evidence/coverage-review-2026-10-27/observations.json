@@ -1,0 +1,831 @@
+{
+  "base_url": "http://127.0.0.1:8084/cargo-tracker/",
+  "requests": [
+    {
+      "path": "rest/cargo",
+      "method": "GET",
+      "status": 200,
+      "anonymous": true,
+      "content_type": "application/json",
+      "location": null,
+      "body_sha256": "3dd310812d4e9968b88d1cb80b4f542060c3156de102881b02cc661425c0485d"
+    },
+    {
+      "path": "admin/show.xhtml?trackingId=ABC123",
+      "method": "GET",
+      "status": 200,
+      "anonymous": true,
+      "content_type": "text/html;charset=UTF-8",
+      "location": null,
+      "body_sha256": "723e9fddd559d1308cc98087ab9d873491ad2af4579450952456b736e482f439"
+    },
+    {
+      "path": "rest/cargo",
+      "method": "GET",
+      "status": 200,
+      "anonymous": true,
+      "content_type": "application/json",
+      "location": null,
+      "body_sha256": "3dd310812d4e9968b88d1cb80b4f542060c3156de102881b02cc661425c0485d"
+    },
+    {
+      "path": "rest/graph-traversal/shortest-path?",
+      "method": "GET",
+      "status": 400,
+      "anonymous": true,
+      "content_type": "application/json",
+      "location": null,
+      "body_sha256": "f16cfd7822ab955844e1ca1ee5935e83f8225e65997a5277a8a51d1e04ce21ca"
+    },
+    {
+      "path": "rest/graph-traversal/shortest-path?origin=CNHKG",
+      "method": "GET",
+      "status": 400,
+      "anonymous": true,
+      "content_type": "application/json",
+      "location": null,
+      "body_sha256": "1e68b025816c2985ecfe159e9f5e4fbca13a363abc777e8ded5d429c850828d8"
+    },
+    {
+      "path": "rest/graph-traversal/shortest-path?destination=FIHEL",
+      "method": "GET",
+      "status": 400,
+      "anonymous": true,
+      "content_type": "application/json",
+      "location": null,
+      "body_sha256": "b2a90d901afe9d3a4ae6b2ad944fc221fddef84bbf0012895888ee4b10a410a3"
+    },
+    {
+      "path": "rest/graph-traversal/shortest-path?origin=BAD&destination=FIHEL",
+      "method": "GET",
+      "status": 400,
+      "anonymous": true,
+      "content_type": "application/json",
+      "location": null,
+      "body_sha256": "5f0f14b9a1ac76decb37f7b7ca2ffcac96383fc3d27b508b2884914210077a3b"
+    },
+    {
+      "path": "rest/graph-traversal/shortest-path?origin=CNHKG&destination=",
+      "method": "GET",
+      "status": 400,
+      "anonymous": true,
+      "content_type": "application/json",
+      "location": null,
+      "body_sha256": "78d60d13f677a47f564e9fb4adb8e7ef71cc9c8bcdb4ebca2265feec71b9f5f7"
+    },
+    {
+      "path": "rest/graph-traversal/shortest-path?origin=CNHKGX&destination=FIHEL",
+      "method": "GET",
+      "status": 400,
+      "anonymous": true,
+      "content_type": "application/json",
+      "location": null,
+      "body_sha256": "89be896df200a0c49d6405a761a8e87416be3179b2d4ea7ef412ed970cb7483c"
+    },
+    {
+      "path": "rest/handling/reports",
+      "method": "POST",
+      "status": 400,
+      "anonymous": true,
+      "content_type": "text/html",
+      "location": null,
+      "body_sha256": "191b1ab66f72e208f98a56418edf2c577ce10619425e52ef5ffd3d159f97bb78"
+    },
+    {
+      "path": "admin/listRouted.xhtml",
+      "method": "GET",
+      "status": 200,
+      "anonymous": true,
+      "content_type": "text/html;charset=UTF-8",
+      "location": null,
+      "body_sha256": "9b026fe1c148da9bf23bdb03dbd998bbfc2b0c13c1ed5e0d393bf8dab1d65123"
+    },
+    {
+      "path": "admin/route.xhtml?trackingId=DEF789",
+      "method": "GET",
+      "status": 200,
+      "anonymous": true,
+      "content_type": "text/html;charset=UTF-8",
+      "location": null,
+      "body_sha256": "870fbcf11dfe7adf5362d2bd58f562e94a92686138421ea17255297eb899a1b2"
+    },
+    {
+      "path": "admin/changeDestination.xhtml?trackingId=ABC123",
+      "method": "GET",
+      "status": 200,
+      "anonymous": true,
+      "content_type": "text/html;charset=UTF-8",
+      "location": null,
+      "body_sha256": "eef557fd84ea9b4f1f89d5c2822f817295df8bd4f85db8940bb54dccb9c9e1f1"
+    },
+    {
+      "path": "eventLogger/eventLogger.xhtml",
+      "method": "GET",
+      "status": 500,
+      "anonymous": true,
+      "content_type": "text/html;charset=UTF-8",
+      "location": null,
+      "body_sha256": "5d2d7aef1b4c6c12f2dcd65ff838bdf965d903514031bb2a7e41f0379a46ceef"
+    },
+    {
+      "path": "rest/handling/reports",
+      "method": "POST",
+      "status": 400,
+      "anonymous": true,
+      "content_type": "text/html",
+      "location": null,
+      "body_sha256": "191b1ab66f72e208f98a56418edf2c577ce10619425e52ef5ffd3d159f97bb78"
+    },
+    {
+      "path": "rest/handling/reports",
+      "method": "POST",
+      "status": 400,
+      "anonymous": true,
+      "content_type": "application/json",
+      "location": null,
+      "body_sha256": "e03f169f8e491342dd02ded532d208720b9b1fe09bdc5f610aa4a10102c56ed8"
+    },
+    {
+      "path": "rest/handling/reports",
+      "method": "POST",
+      "status": 400,
+      "anonymous": true,
+      "content_type": "application/json",
+      "location": null,
+      "body_sha256": "44032e1d2c4fb06b16b2bbc9ad5458702bf4806723753653585369fb8d3a54e1"
+    },
+    {
+      "path": "rest/handling/reports",
+      "method": "POST",
+      "status": 400,
+      "anonymous": true,
+      "content_type": "application/json",
+      "location": null,
+      "body_sha256": "e595da5e091aa0f376249db6fb22a05570fab089c5053f89c5aebdeb4e3ace85"
+    },
+    {
+      "path": "rest/handling/reports",
+      "method": "POST",
+      "status": 400,
+      "anonymous": true,
+      "content_type": "application/json",
+      "location": null,
+      "body_sha256": "eaaf761151b9a489b7c7b7f29606b85a9180671f106939f7ccb6c01358a7c345"
+    },
+    {
+      "path": "rest/handling/reports",
+      "method": "POST",
+      "status": 400,
+      "anonymous": true,
+      "content_type": "application/json",
+      "location": null,
+      "body_sha256": "d5499037ce108d662cbf401262d49d7263c7455b521b1e8b3034ff05f2026ff0"
+    },
+    {
+      "path": "WEB-INF/web.xml",
+      "method": "GET",
+      "status": 404,
+      "anonymous": true,
+      "content_type": "text/html",
+      "location": null,
+      "body_sha256": "9fc14dc7a8a345586479b5e9f79d94be8f015ccd9b1c14826dc171c0f6a35bc1"
+    },
+    {
+      "path": "WEB-INF/templates/common/admin.xhtml",
+      "method": "GET",
+      "status": 404,
+      "anonymous": true,
+      "content_type": "text/html",
+      "location": null,
+      "body_sha256": "9fc14dc7a8a345586479b5e9f79d94be8f015ccd9b1c14826dc171c0f6a35bc1"
+    },
+    {
+      "path": "META-INF/MANIFEST.MF",
+      "method": "GET",
+      "status": 404,
+      "anonymous": true,
+      "content_type": "text/html",
+      "location": null,
+      "body_sha256": "9fc14dc7a8a345586479b5e9f79d94be8f015ccd9b1c14826dc171c0f6a35bc1"
+    },
+    {
+      "path": "no-such-page.xhtml",
+      "method": "GET",
+      "status": 404,
+      "anonymous": true,
+      "content_type": "text/html",
+      "location": null,
+      "body_sha256": "576db9be57a3833e2ea44efb7e7900dac12c7efa8b04868cbd2a84095861e256"
+    },
+    {
+      "path": "rest/no-such-resource",
+      "method": "GET",
+      "status": 404,
+      "anonymous": true,
+      "content_type": "text/html",
+      "location": null,
+      "body_sha256": "9fc14dc7a8a345586479b5e9f79d94be8f015ccd9b1c14826dc171c0f6a35bc1"
+    },
+    {
+      "path": "rest/cargo/ABC123",
+      "method": "GET",
+      "status": 404,
+      "anonymous": true,
+      "content_type": "text/html",
+      "location": null,
+      "body_sha256": "9fc14dc7a8a345586479b5e9f79d94be8f015ccd9b1c14826dc171c0f6a35bc1"
+    },
+    {
+      "path": "admin/show.xhtml",
+      "method": "GET",
+      "status": 500,
+      "anonymous": true,
+      "content_type": "text/html;charset=UTF-8",
+      "location": null,
+      "body_sha256": "3835c736a9c9e07920e213282c68c2ac0e1ecd550d7764ad0ce518394ab8c40e"
+    },
+    {
+      "path": "admin/show.xhtml?trackingId=UNKNOWN",
+      "method": "GET",
+      "status": 500,
+      "anonymous": true,
+      "content_type": "text/html;charset=UTF-8",
+      "location": null,
+      "body_sha256": "c177c83a433af9fff87ecead5c1af38fd00bc4013965ea1c3cf734ae90c977af"
+    },
+    {
+      "path": "admin/selectItinerary.xhtml?trackingId=UNKNOWN",
+      "method": "GET",
+      "status": 500,
+      "anonymous": true,
+      "content_type": "text/html;charset=UTF-8",
+      "location": null,
+      "body_sha256": "243244ed3bc5a7a77bd9a2b2016b647049140fd019f78a06b59c85972515d492"
+    },
+    {
+      "path": "admin/changeDestination.xhtml?trackingId=UNKNOWN",
+      "method": "GET",
+      "status": 500,
+      "anonymous": true,
+      "content_type": "text/html;charset=UTF-8",
+      "location": null,
+      "body_sha256": "afe91dfcfe27dc40b0a725778913a032097d7a3845b4c10bb9dd5e3ed70b7836"
+    },
+    {
+      "path": "rest/handling/reports",
+      "method": "POST",
+      "status": 500,
+      "anonymous": true,
+      "content_type": "text/html",
+      "location": null,
+      "body_sha256": "93f7c0ddbe2a39c8b36882753a735f1ab736ad3f86494da995b56f9e79d8b074"
+    },
+    {
+      "path": "rest/handling/reports",
+      "method": "POST",
+      "status": 400,
+      "anonymous": true,
+      "content_type": "application/json",
+      "location": null,
+      "body_sha256": "3adc558eec2d7e065346eb96e566aac2f38bbe0698557f95f76660518f2cef2b"
+    },
+    {
+      "path": "rest/handling/reports",
+      "method": "POST",
+      "status": 400,
+      "anonymous": true,
+      "content_type": "text/html",
+      "location": null,
+      "body_sha256": "191b1ab66f72e208f98a56418edf2c577ce10619425e52ef5ffd3d159f97bb78"
+    },
+    {
+      "path": "rest/handling/reports",
+      "method": "POST",
+      "status": 400,
+      "anonymous": true,
+      "content_type": "application/json",
+      "location": null,
+      "body_sha256": "dee3913ef2243c93f8888b4f8f4bb79e3e7c03bca903a23ebaee5b98c1f7ec86"
+    },
+    {
+      "path": "rest/handling/reports",
+      "method": "POST",
+      "status": 400,
+      "anonymous": true,
+      "content_type": "application/json",
+      "location": null,
+      "body_sha256": "3aa7d889da352018ff363acd273281d3cce7644f04c29ad32e7676902b3f3a3f"
+    },
+    {
+      "path": "rest/handling/reports",
+      "method": "POST",
+      "status": 400,
+      "anonymous": true,
+      "content_type": "application/json",
+      "location": null,
+      "body_sha256": "acb36645bfb90aab0c658bc176bf5b03283582ca91aec0ac74fa59fd02b2663a"
+    },
+    {
+      "path": "rest/handling/reports",
+      "method": "POST",
+      "status": 400,
+      "anonymous": true,
+      "content_type": "application/json",
+      "location": null,
+      "body_sha256": "f49a80cebe69d8e1c0a2c4d39144ed6504ed9f33db8cb2afdaa48624202b2197"
+    },
+    {
+      "path": "rest/handling/reports",
+      "method": "POST",
+      "status": 400,
+      "anonymous": true,
+      "content_type": "application/json",
+      "location": null,
+      "body_sha256": "be49e59bc2248830979f06e37c0be536b476e772df0431300e8a63586fc19cf5"
+    },
+    {
+      "path": "rest/handling/reports",
+      "method": "POST",
+      "status": 400,
+      "anonymous": true,
+      "content_type": "application/json",
+      "location": null,
+      "body_sha256": "fd07c7e8455f3be0e9581d0384cb75a7d7bc7894bfc010e8d0c00e41617a3ada"
+    },
+    {
+      "path": "rest/handling/reports",
+      "method": "POST",
+      "status": 500,
+      "anonymous": true,
+      "content_type": "text/html",
+      "location": null,
+      "body_sha256": "f64a1c7a04116f751af7dbdde93aeb499dc475ba3f8b1dd504f6794f88aebe63"
+    },
+    {
+      "path": "rest/handling/reports",
+      "method": "POST",
+      "status": 400,
+      "anonymous": true,
+      "content_type": "application/json",
+      "location": null,
+      "body_sha256": "5db592d902c9a3faa45d4c73ba7ff9d2ebc3045aa8ee17d4cacd48a6328fa406"
+    },
+    {
+      "path": "rest/handling/reports",
+      "method": "POST",
+      "status": 400,
+      "anonymous": true,
+      "content_type": "application/json",
+      "location": null,
+      "body_sha256": "f9452b20bba39cd9cd8e9a866eb895da8c8aeff4ecf505b8ccc01d8d52c8b79d"
+    },
+    {
+      "path": "rest/handling/reports",
+      "method": "POST",
+      "status": 400,
+      "anonymous": true,
+      "content_type": "application/json",
+      "location": null,
+      "body_sha256": "61c62b85f56d7046ad5f67fa90e533c22abe04a2b74e5fc038b13e53719a2d4d"
+    },
+    {
+      "path": "rest/handling/reports",
+      "method": "POST",
+      "status": 400,
+      "anonymous": true,
+      "content_type": "application/json",
+      "location": null,
+      "body_sha256": "9244394b8403bbe2ed57d6a9f6a2c22cf66159d0a5154c651c2d7017c4663804"
+    },
+    {
+      "path": "mobile.xhtml",
+      "method": "GET",
+      "status": 302,
+      "anonymous": true,
+      "content_type": "text/html;charset=ISO-8859-1",
+      "location": "http://127.0.0.1:8084/cargo-tracker/eventLogger/eventLogger.xhtml;jsessionid=REDACTED?jfwid=c27077e96a69583db43e6f41031d:0",
+      "body_sha256": "c4f35c01ee8112a312f5742e48ac965d9276cd75b47bf89cac79d2fbb5d9cd52"
+    },
+    {
+      "path": "rest/cargo",
+      "method": "DELETE",
+      "status": 405,
+      "anonymous": true,
+      "content_type": "text/html",
+      "location": null,
+      "body_sha256": "616f5131861287b5039dc0ec4ec71e8376743e7142a4234763903b48543544df"
+    },
+    {
+      "path": "rest/cargo",
+      "method": "PATCH",
+      "status": 405,
+      "anonymous": true,
+      "content_type": "text/html",
+      "location": null,
+      "body_sha256": "616f5131861287b5039dc0ec4ec71e8376743e7142a4234763903b48543544df"
+    },
+    {
+      "path": "rest/cargo",
+      "method": "POST",
+      "status": 405,
+      "anonymous": true,
+      "content_type": "text/html",
+      "location": null,
+      "body_sha256": "616f5131861287b5039dc0ec4ec71e8376743e7142a4234763903b48543544df"
+    },
+    {
+      "path": "rest/cargo",
+      "method": "PUT",
+      "status": 405,
+      "anonymous": true,
+      "content_type": "text/html",
+      "location": null,
+      "body_sha256": "616f5131861287b5039dc0ec4ec71e8376743e7142a4234763903b48543544df"
+    },
+    {
+      "path": "rest/cargo",
+      "method": "HEAD",
+      "status": 200,
+      "anonymous": true,
+      "content_type": "application/json",
+      "location": null,
+      "body_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "rest/cargo",
+      "method": "GET",
+      "status": 200,
+      "anonymous": true,
+      "content_type": "application/json",
+      "location": null,
+      "body_sha256": "3dd310812d4e9968b88d1cb80b4f542060c3156de102881b02cc661425c0485d"
+    },
+    {
+      "path": "rest/handling/reports",
+      "method": "POST",
+      "status": 400,
+      "anonymous": true,
+      "content_type": "application/json",
+      "location": null,
+      "body_sha256": "5db592d902c9a3faa45d4c73ba7ff9d2ebc3045aa8ee17d4cacd48a6328fa406"
+    },
+    {
+      "path": "rest/handling/reports",
+      "method": "POST",
+      "status": 400,
+      "anonymous": true,
+      "content_type": "application/json",
+      "location": null,
+      "body_sha256": "f9452b20bba39cd9cd8e9a866eb895da8c8aeff4ecf505b8ccc01d8d52c8b79d"
+    },
+    {
+      "path": "rest/handling/reports",
+      "method": "POST",
+      "status": 400,
+      "anonymous": true,
+      "content_type": "application/json",
+      "location": null,
+      "body_sha256": "61c62b85f56d7046ad5f67fa90e533c22abe04a2b74e5fc038b13e53719a2d4d"
+    },
+    {
+      "path": "rest/handling/reports",
+      "method": "POST",
+      "status": 400,
+      "anonymous": true,
+      "content_type": "application/json",
+      "location": null,
+      "body_sha256": "9244394b8403bbe2ed57d6a9f6a2c22cf66159d0a5154c651c2d7017c4663804"
+    },
+    {
+      "path": "rest/handling/reports",
+      "method": "POST",
+      "status": 400,
+      "anonymous": true,
+      "content_type": "application/json",
+      "location": null,
+      "body_sha256": "eaaf761151b9a489b7c7b7f29606b85a9180671f106939f7ccb6c01358a7c345"
+    },
+    {
+      "path": "index.xhtml",
+      "method": "GET",
+      "status": 200,
+      "anonymous": true,
+      "content_type": "text/html;charset=UTF-8",
+      "location": null,
+      "body_sha256": "48172d75a54499b3352a4a977adceb69cd703c80e5ef52d3d3f1dfb098100884"
+    },
+    {
+      "path": "public/about.xhtml",
+      "method": "GET",
+      "status": 200,
+      "anonymous": true,
+      "content_type": "text/html;charset=UTF-8",
+      "location": null,
+      "body_sha256": "5a4902090b549ad948052be4dd5c26b45cbae8288734529705a5428fdb02451a"
+    },
+    {
+      "path": "public/track.xhtml",
+      "method": "GET",
+      "status": 200,
+      "anonymous": true,
+      "content_type": "text/html;charset=UTF-8",
+      "location": null,
+      "body_sha256": "d8d67333eca8a04a23815c677c7708d5144162a1bc204c0af28df115e9762d3c"
+    },
+    {
+      "path": "mobile.xhtml",
+      "method": "GET",
+      "status": 302,
+      "anonymous": true,
+      "content_type": "text/html;charset=ISO-8859-1",
+      "location": "http://127.0.0.1:8084/cargo-tracker/eventLogger/eventLogger.xhtml;jsessionid=REDACTED?jfwid=c27098419d5d4b6b2c42829463f5:0",
+      "body_sha256": "d6c2a58e96a15581621d6f3f3da9e9de7c32938887c604546b9d85a31ae814b5"
+    },
+    {
+      "path": "admin/dashboard.xhtml",
+      "method": "GET",
+      "status": 200,
+      "anonymous": true,
+      "content_type": "text/html;charset=UTF-8",
+      "location": null,
+      "body_sha256": "2676f4ca1aa0babcbc12c47da148d70d62c96d177d1b11faadae779d751f92cb"
+    },
+    {
+      "path": "admin/listNotRouted.xhtml",
+      "method": "GET",
+      "status": 200,
+      "anonymous": true,
+      "content_type": "text/html;charset=UTF-8",
+      "location": null,
+      "body_sha256": "13d2a98639c9ebf2672718f049621b0cb97f05e2b06b3e7140df5ca72bca5888"
+    },
+    {
+      "path": "admin/listClaimed.xhtml",
+      "method": "GET",
+      "status": 200,
+      "anonymous": true,
+      "content_type": "text/html;charset=UTF-8",
+      "location": null,
+      "body_sha256": "2fba13d415cd31e79e78f19886bb8d3625573d5efbc00bb2665a2e215b50219b"
+    },
+    {
+      "path": "admin/map.xhtml",
+      "method": "GET",
+      "status": 200,
+      "anonymous": true,
+      "content_type": "text/html;charset=UTF-8",
+      "location": null,
+      "body_sha256": "5b65888de58de7e2eedcd05d020f57f1c2d91660a11a43accd732b65718d37e9"
+    },
+    {
+      "path": "admin/about.xhtml",
+      "method": "GET",
+      "status": 200,
+      "anonymous": true,
+      "content_type": "text/html;charset=UTF-8",
+      "location": null,
+      "body_sha256": "19cfde66641fab08f7a610ac18ba15336d155a2b26c93c7e3f331cb085ea90e1"
+    },
+    {
+      "path": "admin/show.xhtml?trackingId=ABC123",
+      "method": "GET",
+      "status": 200,
+      "anonymous": true,
+      "content_type": "text/html;charset=UTF-8",
+      "location": null,
+      "body_sha256": "e7c866e504b9c7bdb415a844558d3efb5f8869cc3c6a2f65ddf7d98883834b8e"
+    },
+    {
+      "path": "admin/track.xhtml?trackingId=ABC123",
+      "method": "GET",
+      "status": 500,
+      "anonymous": true,
+      "content_type": "text/html;charset=UTF-8",
+      "location": null,
+      "body_sha256": "dd5f24b6aa9136d11255eabccc3414a67a4ff67dfe1238064dfb9a043f21fdb7"
+    },
+    {
+      "path": "admin/selectItinerary.xhtml?trackingId=DEF789",
+      "method": "GET",
+      "status": 200,
+      "anonymous": true,
+      "content_type": "text/html;charset=UTF-8",
+      "location": null,
+      "body_sha256": "2dfc9c4e264cfdb492e1a1890cdd9301c21497dd011d581137683305e29ef64a"
+    },
+    {
+      "path": "rest/handling/reports",
+      "method": "DELETE",
+      "status": 405,
+      "anonymous": true,
+      "content_type": "text/html",
+      "location": null,
+      "body_sha256": "616f5131861287b5039dc0ec4ec71e8376743e7142a4234763903b48543544df"
+    },
+    {
+      "path": "rest/handling/reports",
+      "method": "GET",
+      "status": 405,
+      "anonymous": true,
+      "content_type": "text/html",
+      "location": null,
+      "body_sha256": "616f5131861287b5039dc0ec4ec71e8376743e7142a4234763903b48543544df"
+    },
+    {
+      "path": "rest/handling/reports",
+      "method": "PUT",
+      "status": 405,
+      "anonymous": true,
+      "content_type": "text/html",
+      "location": null,
+      "body_sha256": "616f5131861287b5039dc0ec4ec71e8376743e7142a4234763903b48543544df"
+    },
+    {
+      "path": "rest/graph-traversal/shortest-path?origin=CNHKG&destination=FIHEL&deadline=2027-12-31",
+      "method": "GET",
+      "status": 200,
+      "anonymous": true,
+      "content_type": "application/json",
+      "location": null,
+      "body_sha256": "ed5ccf1e6565a8e4417677831978b8872e4d1a78f2b9f008402e571736cd8da1"
+    },
+    {
+      "path": "rest/graph-traversal/shortest-path?origin=USCHI&destination=SESTO&deadline=2027-12-31",
+      "method": "GET",
+      "status": 200,
+      "anonymous": true,
+      "content_type": "application/json",
+      "location": null,
+      "body_sha256": "d086ae930a34a98cba0b92c1dc816ff9fd6420e32c835577fe73259fe05c3095"
+    },
+    {
+      "path": "rest/handling/reports",
+      "method": "POST",
+      "status": 400,
+      "anonymous": true,
+      "content_type": "application/json",
+      "location": null,
+      "body_sha256": "8ef6a3254fcf225026725169fa625a90f1c62d395cda4cfca7ceb260b89f67ad"
+    },
+    {
+      "path": "rest/handling/reports",
+      "method": "POST",
+      "status": 400,
+      "anonymous": true,
+      "content_type": "application/json",
+      "location": null,
+      "body_sha256": "6a6b820a3d472dd6e509ec7f73985de45a8f5fe0dc44e0adccbd883674dbfd16"
+    },
+    {
+      "path": "rest/handling/reports",
+      "method": "POST",
+      "status": 400,
+      "anonymous": true,
+      "content_type": "application/json",
+      "location": null,
+      "body_sha256": "54719a790b7967dd5608b879f3279f8ded7cfb901543c8c77c17dc7b18173481"
+    },
+    {
+      "path": "rest/handling/reports",
+      "method": "POST",
+      "status": 400,
+      "anonymous": true,
+      "content_type": "application/json",
+      "location": null,
+      "body_sha256": "82023ed4dd38ac96056ba195aa355a5bcd37fc729776d78853505fe7f7b3a104"
+    },
+    {
+      "path": "rest/handling/reports",
+      "method": "POST",
+      "status": 415,
+      "anonymous": true,
+      "content_type": "text/html",
+      "location": null,
+      "body_sha256": "541455a9f5d728b7f309272086791acbd1f9988e4bf289186b502083f288d0aa"
+    },
+    {
+      "path": "rest/cargo",
+      "method": "GET",
+      "status": 406,
+      "anonymous": true,
+      "content_type": "text/html",
+      "location": null,
+      "body_sha256": "f887e879abb3a6ce88a145e60bc4ba1b351f323128f5a05644f45c2509e10734"
+    },
+    {
+      "path": "rest/cargo",
+      "method": "GET",
+      "status": 200,
+      "anonymous": true,
+      "content_type": "application/json",
+      "location": null,
+      "body_sha256": "3dd310812d4e9968b88d1cb80b4f542060c3156de102881b02cc661425c0485d"
+    },
+    {
+      "path": "rest/handling/reports",
+      "method": "POST",
+      "status": 204,
+      "anonymous": true,
+      "content_type": null,
+      "location": null,
+      "body_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "rest/cargo",
+      "method": "GET",
+      "status": 200,
+      "anonymous": true,
+      "content_type": "application/json",
+      "location": null,
+      "body_sha256": "3dd310812d4e9968b88d1cb80b4f542060c3156de102881b02cc661425c0485d"
+    },
+    {
+      "path": "rest/cargo",
+      "method": "GET",
+      "status": 200,
+      "anonymous": true,
+      "content_type": "application/json",
+      "location": null,
+      "body_sha256": "e0da2ae2ddbccf72d0f36213ef3efd47f064600360d1e3a4d0c2267fd305790d"
+    },
+    {
+      "path": "rest/handling/reports",
+      "method": "POST",
+      "status": 415,
+      "anonymous": true,
+      "content_type": "text/html",
+      "location": null,
+      "body_sha256": "541455a9f5d728b7f309272086791acbd1f9988e4bf289186b502083f288d0aa"
+    }
+  ],
+  "security_findings": [
+    {
+      "surface": "rest/cargo",
+      "anonymous_status": 200,
+      "finding": "Anonymous access allowed"
+    },
+    {
+      "surface": "admin/listRouted.xhtml",
+      "anonymous_status": 200,
+      "finding": "Anonymous access allowed"
+    },
+    {
+      "surface": "admin/route.xhtml?trackingId=DEF789",
+      "anonymous_status": 200,
+      "finding": "Anonymous access allowed"
+    },
+    {
+      "surface": "admin/changeDestination.xhtml?trackingId=ABC123",
+      "anonymous_status": 200,
+      "finding": "Anonymous access allowed"
+    },
+    {
+      "surface": "admin/dashboard.xhtml",
+      "anonymous_status": 200,
+      "finding": "Anonymous access allowed"
+    },
+    {
+      "surface": "admin/listNotRouted.xhtml",
+      "anonymous_status": 200,
+      "finding": "Anonymous access allowed"
+    },
+    {
+      "surface": "admin/listClaimed.xhtml",
+      "anonymous_status": 200,
+      "finding": "Anonymous access allowed"
+    },
+    {
+      "surface": "admin/map.xhtml",
+      "anonymous_status": 200,
+      "finding": "Anonymous access allowed"
+    },
+    {
+      "surface": "admin/about.xhtml",
+      "anonymous_status": 200,
+      "finding": "Anonymous access allowed"
+    },
+    {
+      "surface": "admin/show.xhtml?trackingId=ABC123",
+      "anonymous_status": 200,
+      "finding": "Anonymous access allowed"
+    },
+    {
+      "surface": "admin/selectItinerary.xhtml?trackingId=DEF789",
+      "anonymous_status": 200,
+      "finding": "Anonymous access allowed"
+    },
+    {
+      "surface": "handling report write",
+      "anonymous_status": 204,
+      "state_change_verified": true,
+      "finding": "Unauthenticated mutation"
+    },
+    {
+      "surface": "tracking WebSocket",
+      "anonymous_status": 101,
+      "untrusted_origin_accepted": true,
+      "finding": "Anonymous cross-origin handshake accepted; message delivery not covered"
+    }
+  ],
+  "security_assessment": "FAIL: anonymous operational access observed"
+}

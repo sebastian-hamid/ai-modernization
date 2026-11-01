@@ -1,0 +1,7 @@
+{
+  "build": 5,
+  "result": "FAILURE",
+  "failure": "CUSTOMS event used 2018, older than existing DEF789 smoke event in 2026; latest cargo state correctly did not change.",
+  "correction": "Use fixed 2030 event date, after all preceding fixture events; require different prior location and observable state change.",
+  "production_source_changed": false
+}

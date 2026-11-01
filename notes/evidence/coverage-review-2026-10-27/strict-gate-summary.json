@@ -1,0 +1,8 @@
+{
+  "contract_cases": 81,
+  "contract_failures": 0,
+  "access_control_gate": "FAIL",
+  "exit_code": 1,
+  "anonymous_operational_surfaces": 13,
+  "note": "Known insecure behavior is characterized; passing baseline contracts do not certify security."
+}

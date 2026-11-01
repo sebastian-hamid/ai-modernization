@@ -73,14 +73,16 @@ def package():
     mvn("source",EVIDENCE/"package.log","package")
     shutil.copy2(WORK/"source/target/cargo-tracker.war",RESULTS/"cargo-tracker.war")
 def domain():
+    # Add test-only sources to the exported checkout after the untouched WAR build.
+    shutil.copytree(ROOT/"tests/java",WORK/"source/src/test/java",dirs_exist_ok=True)
     overlay("domain-tests-pom.xml")
     try:
-        mvn("source",EVIDENCE/"domain-tests.log","-f","domain-tests-pom.xml","-Dtest=CargoTest,ItineraryTest,RouteSpecificationTest,HandlingEventTest,HandlingHistoryTest","test")
+        mvn("source",EVIDENCE/"domain-tests.log","-f","domain-tests-pom.xml","-Dtest=CargoTest,ItineraryTest,RouteSpecificationTest,HandlingEventTest,HandlingHistoryTest,HandlingFactoryCharacterizationTest","test")
     finally:
         reports(RESULTS/"domain","TEST-*.xml")
-    assert_reports(RESULTS/"domain",24)
+    assert_reports(RESULTS/"domain",34)
     reports(EVIDENCE/"surefire-reports","TEST-*.xml")
-    run(["python3",ROOT/"infrastructure/record-legacy-provenance.py",ROOT,WORK,EVIDENCE],RESULTS/"provenance.log")
+    run(["python3",ROOT/"infrastructure/record-legacy-provenance.py",ROOT,WORK,EVIDENCE,"--expected-tests","34","--test-overlay-root",ROOT/"tests/java"],RESULTS/"provenance.log")
 def runtime():
     run(["python3",ROOT/"infrastructure/prepare-legacy-runtime.py"],RESULTS/"runtime/prepare.log")
     runtime_root=ROOT/".work/glassfish-runtime"
@@ -100,6 +102,15 @@ def runtime():
             reports(RESULTS/"integration","TEST-*BookingServiceTest.xml")
         assert_reports(RESULTS/"integration",4)
         run(["python3",ROOT/"infrastructure/smoke-legacy-runtime.py","--base-url","http://127.0.0.1:8080/cargo-tracker/","--exercise-handling"],RESULTS/"runtime/workflow-smoke.log",timeout=120)
+        run(["python3",ROOT/"tests/runtime/handling_workflow.py","--base-url","http://127.0.0.1:8080/cargo-tracker/",
+             "--server-log",gf/"glassfish/domains/domain1/logs/server.log",
+             "--report-dir",RESULTS/"handling","--allow-mutation"],
+             RESULTS/"runtime/handling-characterization.log",timeout=180)
+        assert_reports(RESULTS/"handling",15)
+        run(["python3",ROOT/"tests/runtime/entrypoint_contracts.py","--base-url","http://127.0.0.1:8080/cargo-tracker/",
+             "--report-dir",RESULTS/"entrypoints","--allow-mutation"],
+             RESULTS/"runtime/entrypoint-contracts.log",timeout=180)
+        assert_reports(RESULTS/"entrypoints",81)
     finally:
         try:
             run([admin,"stop-domain","domain1"],RESULTS/"runtime/stop.log",timeout=60)

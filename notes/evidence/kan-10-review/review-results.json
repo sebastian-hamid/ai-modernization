@@ -1,0 +1,43 @@
+{
+  "issue": "KAN-10",
+  "reviewed_on": "2026-10-28",
+  "review_type": "AI technical source/evidence review (28 October); user documentation acceptance (1 November 2026)",
+  "technical_review": "completed with corrections",
+  "application_tests_executed_this_review": false,
+  "source_commit": "57fc7b32d2597e43b5e0d454e707e0146de5258a",
+  "source_checkout_clean": true,
+  "original_manifest_preserved": "notes/evidence/kan-10-review/verification-before.json",
+  "cited_source_files_verified": 39,
+  "local_links_verified": 35,
+  "archived_ci_case_groups": [
+    34,
+    4,
+    15,
+    81
+  ],
+  "archived_application_cases": 134,
+  "archived_tooling_checks": 10,
+  "access_requirement": "FAIL in recorded standalone gate, not remedied by documentation review",
+  "corrected_findings": [
+    "direct repository/event interface paths",
+    "generated UUID-prefix IDs versus fixed seeds",
+    "tracking trim/not-found/autocomplete source behavior",
+    "embedded itinerary versus entity association",
+    "batch exception and file-filtering limits"
+  ],
+  "remaining_limits": [
+    "full browser/mobile and CSV execution",
+    "actual WebSocket delivery",
+    "physical schema/index export",
+    "final JMS retries/rejection",
+    "durable restart/backup/restore/rollback",
+    "target compatibility and performance",
+    "external HTTP citation fetch and visual diagram rendering"
+  ],
+  "stakeholder_acceptance": {
+    "status": "approved",
+    "date": "2026-11-01",
+    "commit_and_push_authorized": true,
+    "scope": "Documentation with its stated verification gaps; not new runtime/security verification"
+  }
+}

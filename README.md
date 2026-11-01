@@ -4,7 +4,11 @@ Setup baseline **0.1.0**, reviewed 26 October 2026. Local release tag: baseline-
 
 Windows 11 + WSL2 Ubuntu development environment, local Jenkins and a preserved legacy Cargo Tracker checkout.
 
+- [Modernization proposal: objectives, target and migration plan](specifications/modernization-proposal.md)
+- [Legacy functional, architecture and technical documentation](docs/baseline/README.md)
+- [Prepared Jira backlog](specifications/jira-backlog.md)
 - [Verified setup and remaining checks](notes/setup-status.md)
+- [Test coverage review and access-control findings](notes/test-coverage-review.md)
 - [Legacy baseline findings and next steps](notes/legacy-baseline.md)
 - [Running application, runtime recovery and integration tests](notes/legacy-runtime.md)
 - [Passing Jenkins baseline pipeline](notes/jenkins-baseline.md)
@@ -22,5 +26,9 @@ Reproduce dependency recovery, packaging and domain tests from Ubuntu:
     bash infrastructure/recover-legacy-baseline.sh
 
 The earlier infrastructure/check-legacy-baseline.sh preserves the initial unrecovered-build experiment.
+
+Current test coverage and security findings are recorded in [the coverage review](notes/test-coverage-review.md). The expanded suite contains 134 reported application cases and 10 tooling checks; one original domain test is an empty TODO. The earlier 24-domain-test recovery command above preserves the original baseline.
+
+Anonymous access to operational data, handling writes and the tracking WebSocket is confirmed. Passing characterization tests record this behavior; the separate access-control requirement currently fails. Authentication/authorization and full browser workflows remain open work.
 
 Keep credentials and Jenkins home data out of Git.

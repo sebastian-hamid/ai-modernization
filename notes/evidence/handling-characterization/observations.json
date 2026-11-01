@@ -1,0 +1,470 @@
+{
+  "verified_at": "2026-10-26T19:26:36.425717+00:00",
+  "base_url": "http://127.0.0.1:8082/cargo-tracker/",
+  "fixture": "seeded application; ordered 2017 completion dates; unchanged application source",
+  "observations": {
+    "__main__.HandlingWorkflowTests.test_01_receive_load_unload_and_claim_along_seeded_route": [
+      {
+        "request": {
+          "trackingId": "ABC123",
+          "unLocode": "CNHKG",
+          "completionTime": "2017-01-01 10:00",
+          "eventType": "RECEIVE"
+        },
+        "http_status": 204
+      },
+      {
+        "trackingId": "ABC123",
+        "expected": {
+          "transportStatus": "IN_PORT",
+          "lastKnownLocation": "CNHKG",
+          "routingStatus": "ROUTED",
+          "misdirected": false,
+          "atDestination": false
+        },
+        "observed": {
+          "trackingId": "ABC123",
+          "routingStatus": "ROUTED",
+          "misdirected": false,
+          "transportStatus": "IN_PORT",
+          "atDestination": false,
+          "origin": "CNHKG",
+          "lastKnownLocation": "CNHKG"
+        }
+      },
+      {
+        "request": {
+          "trackingId": "ABC123",
+          "unLocode": "CNHKG",
+          "completionTime": "2017-01-02 10:00",
+          "eventType": "LOAD",
+          "voyageNumber": "0100S"
+        },
+        "http_status": 204
+      },
+      {
+        "trackingId": "ABC123",
+        "expected": {
+          "transportStatus": "ONBOARD_CARRIER",
+          "lastKnownLocation": "CNHKG",
+          "routingStatus": "ROUTED",
+          "misdirected": false,
+          "atDestination": false
+        },
+        "observed": {
+          "trackingId": "ABC123",
+          "routingStatus": "ROUTED",
+          "misdirected": false,
+          "transportStatus": "ONBOARD_CARRIER",
+          "atDestination": false,
+          "origin": "CNHKG",
+          "lastKnownLocation": "CNHKG"
+        }
+      },
+      {
+        "request": {
+          "trackingId": "ABC123",
+          "unLocode": "USNYC",
+          "completionTime": "2017-01-03 10:00",
+          "eventType": "UNLOAD",
+          "voyageNumber": "0100S"
+        },
+        "http_status": 204
+      },
+      {
+        "trackingId": "ABC123",
+        "expected": {
+          "transportStatus": "IN_PORT",
+          "lastKnownLocation": "USNYC",
+          "routingStatus": "ROUTED",
+          "misdirected": false,
+          "atDestination": false
+        },
+        "observed": {
+          "trackingId": "ABC123",
+          "routingStatus": "ROUTED",
+          "misdirected": false,
+          "transportStatus": "IN_PORT",
+          "atDestination": false,
+          "origin": "CNHKG",
+          "lastKnownLocation": "USNYC"
+        }
+      },
+      {
+        "request": {
+          "trackingId": "ABC123",
+          "unLocode": "USNYC",
+          "completionTime": "2017-01-04 10:00",
+          "eventType": "LOAD",
+          "voyageNumber": "0200T"
+        },
+        "http_status": 204
+      },
+      {
+        "trackingId": "ABC123",
+        "expected": {
+          "transportStatus": "ONBOARD_CARRIER",
+          "lastKnownLocation": "USNYC",
+          "routingStatus": "ROUTED",
+          "misdirected": false,
+          "atDestination": false
+        },
+        "observed": {
+          "trackingId": "ABC123",
+          "routingStatus": "ROUTED",
+          "misdirected": false,
+          "transportStatus": "ONBOARD_CARRIER",
+          "atDestination": false,
+          "origin": "CNHKG",
+          "lastKnownLocation": "USNYC"
+        }
+      },
+      {
+        "request": {
+          "trackingId": "ABC123",
+          "unLocode": "USDAL",
+          "completionTime": "2017-01-05 10:00",
+          "eventType": "UNLOAD",
+          "voyageNumber": "0200T"
+        },
+        "http_status": 204
+      },
+      {
+        "trackingId": "ABC123",
+        "expected": {
+          "transportStatus": "IN_PORT",
+          "lastKnownLocation": "USDAL",
+          "routingStatus": "ROUTED",
+          "misdirected": false,
+          "atDestination": false
+        },
+        "observed": {
+          "trackingId": "ABC123",
+          "routingStatus": "ROUTED",
+          "misdirected": false,
+          "transportStatus": "IN_PORT",
+          "atDestination": false,
+          "origin": "CNHKG",
+          "lastKnownLocation": "USDAL"
+        }
+      },
+      {
+        "request": {
+          "trackingId": "ABC123",
+          "unLocode": "USDAL",
+          "completionTime": "2017-01-06 10:00",
+          "eventType": "LOAD",
+          "voyageNumber": "0300A"
+        },
+        "http_status": 204
+      },
+      {
+        "trackingId": "ABC123",
+        "expected": {
+          "transportStatus": "ONBOARD_CARRIER",
+          "lastKnownLocation": "USDAL",
+          "routingStatus": "ROUTED",
+          "misdirected": false,
+          "atDestination": false
+        },
+        "observed": {
+          "trackingId": "ABC123",
+          "routingStatus": "ROUTED",
+          "misdirected": false,
+          "transportStatus": "ONBOARD_CARRIER",
+          "atDestination": false,
+          "origin": "CNHKG",
+          "lastKnownLocation": "USDAL"
+        }
+      },
+      {
+        "request": {
+          "trackingId": "ABC123",
+          "unLocode": "FIHEL",
+          "completionTime": "2017-01-07 10:00",
+          "eventType": "UNLOAD",
+          "voyageNumber": "0300A"
+        },
+        "http_status": 204
+      },
+      {
+        "trackingId": "ABC123",
+        "expected": {
+          "transportStatus": "IN_PORT",
+          "lastKnownLocation": "FIHEL",
+          "routingStatus": "ROUTED",
+          "misdirected": false,
+          "atDestination": true
+        },
+        "observed": {
+          "trackingId": "ABC123",
+          "routingStatus": "ROUTED",
+          "misdirected": false,
+          "transportStatus": "IN_PORT",
+          "atDestination": true,
+          "origin": "CNHKG",
+          "lastKnownLocation": "FIHEL"
+        }
+      },
+      {
+        "request": {
+          "trackingId": "ABC123",
+          "unLocode": "FIHEL",
+          "completionTime": "2017-01-08 10:00",
+          "eventType": "CLAIM"
+        },
+        "http_status": 204
+      },
+      {
+        "trackingId": "ABC123",
+        "expected": {
+          "transportStatus": "CLAIMED",
+          "lastKnownLocation": "FIHEL",
+          "routingStatus": "ROUTED",
+          "misdirected": false,
+          "atDestination": false
+        },
+        "observed": {
+          "trackingId": "ABC123",
+          "routingStatus": "ROUTED",
+          "misdirected": false,
+          "transportStatus": "CLAIMED",
+          "atDestination": false,
+          "origin": "CNHKG",
+          "lastKnownLocation": "FIHEL"
+        }
+      }
+    ],
+    "__main__.HandlingWorkflowTests.test_02_missing_tracking_id_is_http_400": [
+      {
+        "request": {
+          "unLocode": "CNHKG",
+          "completionTime": "2017-01-20 10:00",
+          "eventType": "RECEIVE"
+        },
+        "http_status": 400
+      }
+    ],
+    "__main__.HandlingWorkflowTests.test_03_short_tracking_id_is_http_400": [
+      {
+        "request": {
+          "trackingId": "BAD",
+          "unLocode": "CNHKG",
+          "completionTime": "2017-01-20 10:00",
+          "eventType": "RECEIVE"
+        },
+        "http_status": 400
+      }
+    ],
+    "__main__.HandlingWorkflowTests.test_04_missing_completion_time_is_http_400": [
+      {
+        "request": {
+          "trackingId": "ABC123",
+          "unLocode": "CNHKG",
+          "eventType": "RECEIVE"
+        },
+        "http_status": 400
+      }
+    ],
+    "__main__.HandlingWorkflowTests.test_05_invalid_location_length_is_http_400": [
+      {
+        "request": {
+          "trackingId": "ABC123",
+          "unLocode": "BAD",
+          "completionTime": "2017-01-20 10:00",
+          "eventType": "RECEIVE"
+        },
+        "http_status": 400
+      }
+    ],
+    "__main__.HandlingWorkflowTests.test_06_invalid_voyage_length_is_http_400": [
+      {
+        "request": {
+          "trackingId": "ABC123",
+          "unLocode": "CNHKG",
+          "completionTime": "2017-01-20 10:00",
+          "eventType": "RECEIVE",
+          "voyageNumber": "BAD"
+        },
+        "http_status": 400
+      }
+    ],
+    "__main__.HandlingWorkflowTests.test_07_unknown_event_type_currently_returns_http_500": [
+      {
+        "request": {
+          "trackingId": "ABC123",
+          "unLocode": "CNHKG",
+          "completionTime": "2017-01-20 10:00",
+          "eventType": "BROKEN"
+        },
+        "http_status": 500
+      }
+    ],
+    "__main__.HandlingWorkflowTests.test_08_unparsable_completion_time_currently_returns_http_500": [
+      {
+        "request": {
+          "trackingId": "ABC123",
+          "unLocode": "CNHKG",
+          "completionTime": "not-a-real-date!",
+          "eventType": "RECEIVE"
+        },
+        "http_status": 500
+      }
+    ],
+    "__main__.HandlingWorkflowTests.test_09_unknown_cargo_is_queued_then_fails_lookup": [
+      {
+        "request": {
+          "trackingId": "UNKNOWN",
+          "unLocode": "CNHKG",
+          "completionTime": "2017-01-20 10:00",
+          "eventType": "RECEIVE"
+        },
+        "http_status": 204
+      },
+      {
+        "handler_failure_confirmed": "UnknownCargoException"
+      },
+      {
+        "cargo_monitor_unchanged_for_seconds": 1,
+        "dead_letter_state": "not inspected"
+      }
+    ],
+    "__main__.HandlingWorkflowTests.test_10_unknown_location_is_queued_then_fails_lookup": [
+      {
+        "request": {
+          "trackingId": "ABC123",
+          "unLocode": "ZZZZZ",
+          "completionTime": "2017-01-20 10:00",
+          "eventType": "RECEIVE"
+        },
+        "http_status": 204
+      },
+      {
+        "handler_failure_confirmed": [
+          "NoResultException",
+          "JpaLocationRepository.find"
+        ]
+      },
+      {
+        "cargo_monitor_unchanged_for_seconds": 1,
+        "dead_letter_state": "not inspected"
+      }
+    ],
+    "__main__.HandlingWorkflowTests.test_11_unknown_voyage_is_queued_then_fails_lookup": [
+      {
+        "request": {
+          "trackingId": "ABC123",
+          "unLocode": "CNHKG",
+          "completionTime": "2017-01-20 10:00",
+          "eventType": "LOAD",
+          "voyageNumber": "9999X"
+        },
+        "http_status": 204
+      },
+      {
+        "handler_failure_confirmed": [
+          "NoResultException",
+          "JpaVoyageRepository.find"
+        ]
+      },
+      {
+        "cargo_monitor_unchanged_for_seconds": 1,
+        "dead_letter_state": "not inspected"
+      }
+    ],
+    "__main__.HandlingWorkflowTests.test_12_load_without_voyage_is_queued_then_rejected": [
+      {
+        "request": {
+          "trackingId": "ABC123",
+          "unLocode": "CNHKG",
+          "completionTime": "2017-01-20 10:00",
+          "eventType": "LOAD"
+        },
+        "http_status": 204
+      },
+      {
+        "handler_failure_confirmed": "Voyage is required for event type LOAD"
+      },
+      {
+        "cargo_monitor_unchanged_for_seconds": 1,
+        "dead_letter_state": "not inspected"
+      }
+    ],
+    "__main__.HandlingWorkflowTests.test_13_receive_with_voyage_is_queued_then_rejected": [
+      {
+        "request": {
+          "trackingId": "ABC123",
+          "unLocode": "CNHKG",
+          "completionTime": "2017-01-20 10:00",
+          "eventType": "RECEIVE",
+          "voyageNumber": "0100S"
+        },
+        "http_status": 204
+      },
+      {
+        "handler_failure_confirmed": "Voyage is not allowed with event type RECEIVE"
+      },
+      {
+        "cargo_monitor_unchanged_for_seconds": 1,
+        "dead_letter_state": "not inspected"
+      }
+    ],
+    "__main__.HandlingWorkflowTests.test_14_invalid_calendar_date_is_currently_accepted": [
+      {
+        "request": {
+          "trackingId": "JKL567",
+          "unLocode": "CNHKG",
+          "completionTime": "2017-02-30 10:00",
+          "eventType": "RECEIVE"
+        },
+        "http_status": 204
+      },
+      {
+        "trackingId": "JKL567",
+        "expected": {
+          "transportStatus": "IN_PORT",
+          "lastKnownLocation": "CNHKG",
+          "misdirected": true
+        },
+        "observed": {
+          "trackingId": "JKL567",
+          "routingStatus": "ROUTED",
+          "misdirected": true,
+          "transportStatus": "IN_PORT",
+          "atDestination": false,
+          "origin": "CNHGH",
+          "lastKnownLocation": "CNHKG"
+        }
+      }
+    ],
+    "__main__.HandlingWorkflowTests.test_15_existing_off_route_voyage_is_accepted_and_flagged": [
+      {
+        "request": {
+          "trackingId": "ABC123",
+          "unLocode": "FIHEL",
+          "completionTime": "2017-01-09 10:00",
+          "eventType": "LOAD",
+          "voyageNumber": "0100S"
+        },
+        "http_status": 204
+      },
+      {
+        "trackingId": "ABC123",
+        "expected": {
+          "transportStatus": "ONBOARD_CARRIER",
+          "lastKnownLocation": "FIHEL",
+          "misdirected": true
+        },
+        "observed": {
+          "trackingId": "ABC123",
+          "routingStatus": "ROUTED",
+          "misdirected": true,
+          "transportStatus": "ONBOARD_CARRIER",
+          "atDestination": false,
+          "origin": "CNHKG",
+          "lastKnownLocation": "FIHEL"
+        }
+      }
+    ]
+  }
+}

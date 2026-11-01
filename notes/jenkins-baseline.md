@@ -73,8 +73,11 @@ This setup procedure changes only this lab's named job/node and sets controller 
 ## Remaining work
 - The setup is now reviewed and versioned locally as baseline-v0.1.0. Initial setup was uncommitted; the reviewed baseline-v0.1.0 release is now versioned locally. It has not been pushed.
 - Once the scripts are in the desired GitHub branch, change the job to Pipeline script from SCM and add an explicit trigger if wanted.
-- Expand characterization tests for meaningful cargo workflows, date/randomness behavior and negative handling inputs before modernization.
+- Handling lifecycle and negative-input characterization is expanded; see [handling-characterization.md](handling-characterization.md). Broader route randomness and final JMS retry/dead-letter behavior remain follow-ups.
 
 Official references:
 - [Jenkins node guidance](https://www.jenkins.io/doc/book/managing/nodes/)
 - [Jenkins agent image and connection guidance](https://github.com/jenkinsci/docker-agents/blob/master/README_inbound-agent.md)
+
+## Entrypoint and access review (27 October 2026)
+The pipeline now includes 81 entrypoint contracts and archives ci-results/entrypoints/ observations and security findings. Expected overall count is 134 application cases, plus 10 tooling checks. A baseline pass is not security approval: the standalone --require-access-control gate currently fails on anonymous operational access. See [coverage review](test-coverage-review.md).

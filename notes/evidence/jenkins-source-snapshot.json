@@ -1,7 +1,7 @@
 {
-  "Jenkinsfile": "53ad3022aa44b0c5f5434bfc8e5d3b540025a55196f7c186be8fa84b2a596406",
+  "Jenkinsfile": "84e4d56f86e22dcdc3af186261cb715a809658b419710e7e74b4a5d2924248f7",
   "VERSION": "e9dd8507f4bf0c6f42458e41aea833ad0bd3f6127272335eee9bf4d58541ed67",
-  "ci/baseline.py": "f984a0f7871f02f25105bc4859d61257215a5a9a26fb4ff5e26882c2abeaef5a",
+  "ci/baseline.py": "c405b19859449688afa94afec1aaca1123cc2cda70060e25d1434064e237e28a",
   "ci/update-local-snapshot.py": "c1ba9ed3190bb5deb110993b64d5abf5f01eef729964af3b87557cd741c2e6a0",
   "infrastructure/check-legacy-baseline.sh": "a0463c6aa2f574ab3cc75dc43ceec0b2e35a3d98ce5a7e868dd5aec58e6afcf5",
   "infrastructure/compose.ci.yaml": "b80f4f74d2468ce2b0eca60158617f430d39a16495684fa22ac937d8876f7075",
@@ -14,9 +14,13 @@
   "infrastructure/jenkins-agent/start.sh": "87298f28c9cc830998d1a486404010d756010228933b319ffe077add1e5dc472",
   "infrastructure/legacy-maven-settings.xml": "5bcd52bad26972e02c8559292a687b4b2b785bb132d796f288c1129c7f370e08",
   "infrastructure/prepare-legacy-runtime.py": "ab0af1ca0e1d23a72f8fa57601828c622e4c6e6292bbe8a80b798eac8effdf5f",
-  "infrastructure/record-legacy-provenance.py": "bae7ebf46c8ed3e480d21807ebe093eeb637a6a685a1b722914cb061b49aad41",
+  "infrastructure/record-legacy-provenance.py": "7ccaea698fb313b56b3f930f64b4033e2da56b4ca393f3dbc150cd3ba9cb2e7a",
   "infrastructure/recover-legacy-baseline.sh": "88bd8f7b62b5a9639a01846c5cd8b224336f46988eec49cf63d8ddc42789a2ad",
   "infrastructure/smoke-legacy-runtime.py": "f332d6ff16bca60328b17154e0b9ea2719f117bc38171e7363b2e17945f62c96",
   "infrastructure/test-legacy-integration.sh": "007b9213b43ec60e65c63c9975e0be600a7582338ea941e9df6e1058631b943c",
+  "tests/java/net/java/cargotracker/characterization/HandlingFactoryCharacterizationTest.java": "1c8cfbd13bd2631aabc2ff0f91d68e972bf8cfdcfef492eec9bb60b437582eab",
+  "tests/runtime/entrypoint_contracts.py": "e44e3ef8bbf8d6e553986d4b37e063f22bea0a045465ab137d5cd4a771a4ed5c",
+  "tests/runtime/handling_workflow.py": "b9cc9769fee155ad0324f19b2c78927fc85616e76e892b68cf979a08f7c288b4",
+  "tests/test_runtime_reports.py": "b9cdbb2ff7ae13d942f97bb73b6e186c7553d875b30ba5e9e0808ee40c402f93",
   "tests/test_setup_tools.py": "58e8e323425b5047408e3f9622efdcbdce4661df8549888fce9367320333d405"
 }

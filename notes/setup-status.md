@@ -53,3 +53,14 @@ The application is healthy at http://localhost:8081/cargo-tracker/. Four booking
 
 ## Jenkins milestone completed
 Build 1 of ai-modernization-baseline finished SUCCESS in 99.495 seconds. It published 28 reported tests (24 domain + four booking; one empty TODO), passed HTTP workflow checks and archived the WAR/provenance. A separate non-root Java 21/Java 8 agent runs all builds; controller executors are zero. Source mode remains a local snapshot. The reviewed setup is versioned locally as baseline-v0.1.0; publication and SCM integration remain pending. See [jenkins-baseline.md](jenkins-baseline.md).
+
+## Expanded handling coverage (26 October 2026)
+See [handling-characterization.md](handling-characterization.md) for added factory and live workflow coverage, observed legacy defects, test counts and fixture limits. Jenkins restart and agent reconnection have now been exercised; interactive administrator login remains unverified.
+
+Jenkins build 4: SUCCESS; 53 application cases and 10 tooling checks passed. See [build evidence](evidence/jenkins-build-4/summary.json). Remaining blockers include interactive Jenkins login verification, GitHub publication/SCM wiring, final JMS retry disposition, and disposable GlassFish restart recovery.
+
+## Coverage/access review (27 October 2026)
+Jenkins build 6 passed: 134 application cases and 10 tooling checks, including 81 new entrypoint contracts. The separate access-control requirement FAILED: anonymous data reads, handling writes and cross-origin WebSocket access are confirmed. See [coverage matrix, findings and remaining gaps](test-coverage-review.md). Production source and shared demo were preserved.
+
+## Baseline documentation (28 October 2026)
+Functional, architecture and technical baseline documents are available in [docs/baseline](../docs/baseline/README.md). This pass verified source references and archived evidence, not current service health or target compatibility.

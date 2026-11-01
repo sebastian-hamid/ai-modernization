@@ -1,0 +1,15 @@
+{
+  "build": 6,
+  "result": "SUCCESS",
+  "duration_seconds": 111.879,
+  "application_cases": 134,
+  "tooling_checks": 10,
+  "entrypoint_cases": 81,
+  "entrypoint_failures": 0,
+  "entrypoint_errors": 0,
+  "entrypoint_skipped": 0,
+  "anonymous_operational_surfaces": 13,
+  "access_control_requirement": "FAIL (confirmed separately with standalone --require-access-control exit 1)",
+  "known_empty_domain_case": "ItineraryTest.testNextExpectedEvent",
+  "source_hashes_match_working_tree": true
+}

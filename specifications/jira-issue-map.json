@@ -1,0 +1,177 @@
+{
+  "site": "https://ai-modernization.atlassian.net",
+  "cloud_id": "81c63615-715f-4856-81c8-07f8219fd972",
+  "project_key": "KAN",
+  "project_name": "AI Team",
+  "created_on": "2026-10-28",
+  "source_backlog": "specifications/jira-backlog.md",
+  "verified_count": 27,
+  "epics": 6,
+  "work_items": 21,
+  "issue_type_mapping": {
+    "Bug": "Task + bug label",
+    "Spike": "Task + spike label"
+  },
+  "workflow_note": "All imported items initially To Do and unassigned; existing KAN-1 through KAN-3 preserved.",
+  "issues": {
+    "EP-DOC": {
+      "key": "KAN-4",
+      "type": "Epic",
+      "title": "AI modernization: Documentation"
+    },
+    "EP-SEC": {
+      "key": "KAN-5",
+      "type": "Epic",
+      "title": "AI modernization: Security"
+    },
+    "EP-PLAT": {
+      "key": "KAN-6",
+      "type": "Epic",
+      "title": "AI modernization: Platform and UI"
+    },
+    "EP-DB": {
+      "key": "KAN-7",
+      "type": "Epic",
+      "title": "AI modernization: PostgreSQL and Flyway"
+    },
+    "EP-QA": {
+      "key": "KAN-8",
+      "type": "Epic",
+      "title": "AI modernization: Resilience and verification"
+    },
+    "EP-OPS": {
+      "key": "KAN-9",
+      "type": "Epic",
+      "title": "AI modernization: Delivery and handoff"
+    },
+    "DOC-01": {
+      "key": "KAN-10",
+      "type": "Task",
+      "title": "[DOC-01] Review and accept legacy baseline documentation",
+      "parent": "KAN-4",
+      "last_verified_status": "Done",
+      "review_evidence": "docs/baseline/review-KAN-10.md",
+      "accepted_on": "2026-11-01"
+    },
+    "DOC-02": {
+      "key": "KAN-11",
+      "type": "Task",
+      "title": "[DOC-02] Maintain candidate documentation and AI task evidence",
+      "parent": "KAN-4"
+    },
+    "SEC-01": {
+      "key": "KAN-12",
+      "type": "Task",
+      "title": "[SEC-01] Map every entrypoint and action to the approved access policy",
+      "parent": "KAN-5"
+    },
+    "PLAT-01": {
+      "key": "KAN-13",
+      "type": "Task",
+      "title": "[PLAT-01] Verify minimal Java 25 / Jakarta EE 11 / standard WildFly compatibility",
+      "parent": "KAN-6"
+    },
+    "SEC-02": {
+      "key": "KAN-14",
+      "type": "Task",
+      "title": "[SEC-02] Define desired-access tests for anonymous, role and session cases",
+      "parent": "KAN-5"
+    },
+    "SEC-03": {
+      "key": "KAN-15",
+      "type": "Story",
+      "title": "[SEC-03] Implement local identities and authorization on candidate surfaces",
+      "parent": "KAN-5"
+    },
+    "BUG-01": {
+      "key": "KAN-16",
+      "type": "Task",
+      "title": "[BUG-01] Close confirmed anonymous operational reads and writes",
+      "parent": "KAN-5"
+    },
+    "BUG-02": {
+      "key": "KAN-17",
+      "type": "Task",
+      "title": "[BUG-02] Restrict tracking WebSocket access and permitted origins",
+      "parent": "KAN-5"
+    },
+    "PLAT-02": {
+      "key": "KAN-18",
+      "type": "Story",
+      "title": "[PLAT-02] Modernize the application platform and dependencies",
+      "parent": "KAN-6"
+    },
+    "PLAT-03": {
+      "key": "KAN-19",
+      "type": "Story",
+      "title": "[PLAT-03] Modernize Faces/PrimeFaces and verify browser workflows",
+      "parent": "KAN-6"
+    },
+    "BUG-03": {
+      "key": "KAN-20",
+      "type": "Task",
+      "title": "[BUG-03] Fix broken tracking view and uncontrolled direct-link errors",
+      "parent": "KAN-6"
+    },
+    "DB-01": {
+      "key": "KAN-21",
+      "type": "Task",
+      "title": "[DB-01] Inventory legacy schema and define PostgreSQL mapping",
+      "parent": "KAN-7"
+    },
+    "DB-02": {
+      "key": "KAN-22",
+      "type": "Story",
+      "title": "[DB-02] Introduce PostgreSQL and versioned Flyway migrations",
+      "parent": "KAN-7"
+    },
+    "QA-01": {
+      "key": "KAN-23",
+      "type": "Task",
+      "title": "[QA-01] Close domain, booking, handling and CSV coverage gaps",
+      "parent": "KAN-8"
+    },
+    "BUG-04": {
+      "key": "KAN-24",
+      "type": "Task",
+      "title": "[BUG-04] Correct agreed input-validation and error-response defects",
+      "parent": "KAN-8"
+    },
+    "QA-02": {
+      "key": "KAN-25",
+      "type": "Task",
+      "title": "[QA-02] Verify messaging failure, retry and expiration behavior",
+      "parent": "KAN-8"
+    },
+    "BUG-05": {
+      "key": "KAN-26",
+      "type": "Task",
+      "title": "[BUG-05] Reproduce and fix abrupt WebSocket disconnect failures",
+      "parent": "KAN-8"
+    },
+    "QA-03": {
+      "key": "KAN-27",
+      "type": "Task",
+      "title": "[QA-03] Measure performance and agree regression thresholds",
+      "parent": "KAN-8"
+    },
+    "OPS-01": {
+      "key": "KAN-28",
+      "type": "Story",
+      "title": "[OPS-01] Verify durable restart, backup/restore and rollback",
+      "parent": "KAN-9"
+    },
+    "CI-01": {
+      "key": "KAN-29",
+      "type": "Task",
+      "title": "[CI-01] Connect reviewed source to Jenkins SCM execution",
+      "parent": "KAN-9"
+    },
+    "OPS-02": {
+      "key": "KAN-30",
+      "type": "Task",
+      "title": "[OPS-02] Complete acceptance review and reusable agent instructions",
+      "parent": "KAN-9"
+    }
+  }
+}
