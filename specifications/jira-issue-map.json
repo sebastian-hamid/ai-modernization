@@ -73,7 +73,11 @@
       "key": "KAN-13",
       "type": "Task",
       "title": "[PLAT-01] Verify minimal Java 25 / Jakarta EE 11 / standard WildFly compatibility",
-      "parent": "KAN-6"
+      "parent": "KAN-6",
+      "last_verified_status": "Done",
+      "completed_on": "2026-11-01",
+      "review_evidence": "notes/agent-reviews/2026-11-01-kan-13-runtime-review.md",
+      "runtime_evidence": "notes/evidence/kan-13-runtime/results.json"
     },
     "SEC-02": {
       "key": "KAN-14",

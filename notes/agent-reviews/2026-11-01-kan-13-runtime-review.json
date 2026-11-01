@@ -1,0 +1,26 @@
+{
+  "issue": "KAN-13",
+  "reviewed_on": "2026-11-01",
+  "author": "/root",
+  "reviewer": "/root/review_kan13_runtime",
+  "fresh_context": true,
+  "parent_head": "51296bd4c52a11000b7e10ecdc32d25f2f3fc0ea",
+  "final_verdict": "no remaining findings",
+  "resolved_note": "Native realm initialization moved under cleanup guard; partial-write regression passes and fresh capability rerun passes19",
+  "reviewed_sha256": {
+    "spikes/kan13-runtime/run_spike.py": "1a79bbddee20b8492a34daa085e0d9f2700c97eb38c9eccd5e94320b1ec46bec",
+    "spikes/kan13-runtime/test_harness.py": "542e4b4991a1be1e824f737e1e62ec9897d6a54df7d9e852c7e46050d8ea9d3f",
+    "spikes/kan13-runtime/README.md": "91d3cf510c14b733bc2b49451eb15248d5a917ea547320a37e8f9d210e1e7314",
+    "notes/evidence/kan-13-runtime/results.json": "e7e036a8258be6216499d62a00574aa8e23097f89e85c3e54f977980949dbaf0",
+    "notes/evidence/kan-13-runtime/TEST-kan13-runtime.xml": "12d24fc03d329768b975e4326d032e6e5e7922041ec3dbe8da75b4f2e2cfc20f",
+    "notes/evidence/kan-13-runtime/harness-regression.json": "3d53d107429edff8d6122ca627a377d825f92d069a3c0bc87e070b5f03300b8a",
+    "notes/evidence/kan-13-runtime/toolchain.txt": "da343db399cb0f0b5af077014aafe0a24148f368ced7b2577a04e9ec3df12b41",
+    "notes/evidence/kan-13-runtime/startup-summary.log": "343c162173f21b008fd785c24beafa9d8c7fc563b21c00fb3ef90a4248516306"
+  },
+  "reviewer_execution": "Read-only source/evidence inspection, no new runtime/test execution",
+  "limits": [
+    "Minimal capability WAR only",
+    "Custom JDK/server assembly; no Java25 EE11 certification claim",
+    "No full CargoTracker/PrimeFaces/PostgreSQL/Flyway/security implementation acceptance"
+  ]
+}

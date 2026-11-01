@@ -213,3 +213,6 @@ Source inventory and desired-policy mapping are available in [access-policy-map.
 
 ## Separate-agent review decision (1 November 2026)
 The user approved [separate-agent review as standard workflow](../docs/agent-review-workflow.md) for substantive code and documentation changes. Authoring, fresh-context review, correction/recheck and recorded evidence are distinct; user decisions remain required for business/access/scope changes and accepted material limitations. Minor non-semantic edits use a lighter documented check. This is a workflow requirement, not a claim that CI enforcement or historical independent reviews exist.
+
+## KAN-13 minimal runtime verification (1 November 2026)
+The [isolated compatibility spike](../spikes/kan13-runtime/README.md) passed 19 runtime capability checks plus one separate harness regression, with independent review and recheck complete. [ADR0001](../docs/architecture-decisions/0001-kan13-runtime-foundation.md) records the pinned standard WildFly42/Java25.0.5 assembly and explicit limits. This supports continuing the candidate foundation; full application migration and access-control acceptance remain unverified.

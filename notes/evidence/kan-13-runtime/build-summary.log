@@ -1,0 +1,13 @@
+#11 0.322 openjdk version "25.0.5" 2026-10-20 LTS
+#11 0.322 OpenJDK Runtime Environment Temurin-25.0.5+8 (build 25.0.5+8-LTS)
+#11 0.323 OpenJDK 64-Bit Server VM Temurin-25.0.5+8 (build 25.0.5+8-LTS, mixed mode, sharing)
+#11 0.866 Apache Maven 3.10.0 (c43a36b8d67be7e0805a411bc0898af1a51f5472)
+#11 0.866 Java version: 25.0.5, vendor: Eclipse Adoptium, runtime: /opt/java/openjdk
+#11 6.090 [INFO] --- compiler:3.16.0:compile (default-compile) @ kan13-runtime ---
+#11 6.717 [INFO] Compiling 7 source files with javac [debug release 25] to target/classes
+#11 7.399 [INFO] --- compiler:3.16.0:testCompile (default-testCompile) @ kan13-runtime ---
+#11 7.989 [INFO] --- war:3.5.1:war (default-war) @ kan13-runtime ---
+#11 9.861 [INFO] BUILD SUCCESS
+#15 0.269 openjdk version "25.0.5" 2026-10-20 LTS
+#15 0.269 OpenJDK Runtime Environment Temurin-25.0.5+8 (build 25.0.5+8-LTS)
+#15 0.269 OpenJDK 64-Bit Server VM Temurin-25.0.5+8 (build 25.0.5+8-LTS, mixed mode, sharing)

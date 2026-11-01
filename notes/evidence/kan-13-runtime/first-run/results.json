@@ -1,0 +1,75 @@
+{
+  "verified_at": "2026-11-01T09:00:33.454394+00:00",
+  "base_url": "http://127.0.0.1:8085/kan13-runtime/",
+  "scope": "Isolated minimal capability WAR, not migrated Cargo Tracker or full access policy",
+  "checks": [
+    {
+      "name": "Non-root runtime",
+      "passed": true,
+      "detail": null
+    },
+    {
+      "name": "Anonymous API denied",
+      "passed": true,
+      "detail": null
+    },
+    {
+      "name": "Wrong password denied",
+      "passed": true,
+      "detail": null
+    },
+    {
+      "name": "reader permitted read on Java 25",
+      "passed": true,
+      "detail": {
+        "javaFeature": 25,
+        "javaVersion": "25.0.5+8-LTS",
+        "api": "Jakarta EE 11",
+        "records": 0
+      }
+    },
+    {
+      "name": "operator permitted read on Java 25",
+      "passed": true,
+      "detail": {
+        "javaFeature": 25,
+        "javaVersion": "25.0.5+8-LTS",
+        "api": "Jakarta EE 11",
+        "records": 0
+      }
+    },
+    {
+      "name": "admin permitted read on Java 25",
+      "passed": true,
+      "detail": {
+        "javaFeature": 25,
+        "javaVersion": "25.0.5+8-LTS",
+        "api": "Jakarta EE 11",
+        "records": 0
+      }
+    },
+    {
+      "name": "Anonymous Faces denied",
+      "passed": true,
+      "detail": null
+    },
+    {
+      "name": "Faces/CDI expression rendered",
+      "passed": true,
+      "detail": {
+        "http_status": 200
+      }
+    },
+    {
+      "name": "Reader mutation denied",
+      "passed": false,
+      "detail": null
+    }
+  ],
+  "outcome": "FAIL",
+  "image_id": "sha256:ab8a2ad433b9b59ec7808f95e408234b2dff99b1898e2a0b149d6efb82f12dd3",
+  "runtime_java": "openjdk version \"25.0.5\" 2026-10-20 LTS\nOpenJDK Runtime Environment Temurin-25.0.5+8 (build 25.0.5+8-LTS)\nOpenJDK 64-Bit Server VM Temurin-25.0.5+8 (build 25.0.5+8-LTS, mixed mode, sharing)",
+  "runtime_uid": "1000",
+  "failure": "Check failed: Reader mutation denied",
+  "cleanup": "Task-owned container removed; temporary realm files deleted; historical services untouched"
+}

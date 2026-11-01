@@ -322,3 +322,9 @@ Entrypoint/action mapping and source census completed; KAN-12 is In Review. See 
 
 ## KAN-12 acceptance and publication (1 November 2026)
 User approval and separate-agent review are complete. One P2 navigation-role inconsistency was corrected and rechecked; no material findings remain. KAN-12 is Done for the policy inventory/design task. The map, generator and validation evidence are included in this publication checkpoint, together with the standard review workflow and review records. Earlier In Review/uncommitted entries above are historical snapshots. No runtime security remediation is claimed.
+
+## KAN-13 compatibility spike (1 November 2026)
+KAN-13 is Done: minimal standard WildFly42/Java25.0.5/JakartaEE11 WAR passed19 capability checks and one cleanup regression, with separate-agent review/recheck complete. See [spike](../spikes/kan13-runtime/README.md) and [ADR](../docs/architecture-decisions/0001-kan13-runtime-foundation.md). Full CargoTracker migration/security/PrimeFaces/PostgreSQL/Flyway remain unproven. New spike artifacts remain local and uncommitted; no publication was performed in this task.
+
+## KAN-13 publication checkpoint (1 November 2026)
+The user authorized commit/push of the independently reviewed spike and evidence. Included artifacts are listed in the KAN-13 README/ADR; earlier local/uncommitted statements above are historical. The published commit reference is recorded on KAN-13.

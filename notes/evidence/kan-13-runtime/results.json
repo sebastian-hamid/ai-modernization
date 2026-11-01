@@ -1,0 +1,346 @@
+{
+  "verified_at": "2026-11-01T09:07:07.791737+00:00",
+  "base_url": "http://127.0.0.1:8085/kan13-runtime/",
+  "scope": "Isolated minimal capability WAR, not migrated Cargo Tracker or full access policy",
+  "checks": [
+    {
+      "name": "Non-root runtime",
+      "passed": true,
+      "detail": null
+    },
+    {
+      "name": "Anonymous API denied",
+      "passed": true,
+      "detail": null
+    },
+    {
+      "name": "Wrong password denied",
+      "passed": true,
+      "detail": null
+    },
+    {
+      "name": "reader permitted read on Java 25",
+      "passed": true,
+      "detail": {
+        "javaFeature": 25,
+        "javaVersion": "25.0.5+8-LTS",
+        "api": "Jakarta EE 11",
+        "records": 0
+      }
+    },
+    {
+      "name": "operator permitted read on Java 25",
+      "passed": true,
+      "detail": {
+        "javaFeature": 25,
+        "javaVersion": "25.0.5+8-LTS",
+        "api": "Jakarta EE 11",
+        "records": 0
+      }
+    },
+    {
+      "name": "admin permitted read on Java 25",
+      "passed": true,
+      "detail": {
+        "javaFeature": 25,
+        "javaVersion": "25.0.5+8-LTS",
+        "api": "Jakarta EE 11",
+        "records": 0
+      }
+    },
+    {
+      "name": "Anonymous Faces denied",
+      "passed": true,
+      "detail": null
+    },
+    {
+      "name": "Faces/CDI expression rendered",
+      "passed": true,
+      "detail": {
+        "http_status": 200
+      }
+    },
+    {
+      "name": "Reader mutation denied",
+      "passed": true,
+      "detail": null
+    },
+    {
+      "name": "Anonymous mutation denied",
+      "passed": true,
+      "detail": null
+    },
+    {
+      "name": "Denied requests did not create records",
+      "passed": true,
+      "detail": null
+    },
+    {
+      "name": "operator allowed submit",
+      "passed": true,
+      "detail": {
+        "http_status": 202
+      }
+    },
+    {
+      "name": "operator JPA/JMS/batch complete",
+      "passed": true,
+      "detail": {
+        "record": {
+          "id": "ad7cdb3f-3f4b-46c5-b87d-858d9b15a55b",
+          "jpa": true,
+          "messageSeen": true,
+          "batchSeen": true
+        },
+        "batch_status": "COMPLETED"
+      }
+    },
+    {
+      "name": "admin allowed submit",
+      "passed": true,
+      "detail": {
+        "http_status": 202
+      }
+    },
+    {
+      "name": "admin JPA/JMS/batch complete",
+      "passed": true,
+      "detail": {
+        "record": {
+          "id": "c8218a57-7f62-4f21-a943-756e881e579a",
+          "jpa": true,
+          "messageSeen": true,
+          "batchSeen": true
+        },
+        "batch_status": "COMPLETED"
+      }
+    },
+    {
+      "name": "Exactly two authorized records",
+      "passed": true,
+      "detail": null
+    },
+    {
+      "name": "Missing record returns 404",
+      "passed": true,
+      "detail": null
+    },
+    {
+      "name": "Unsupported method rejected",
+      "passed": true,
+      "detail": null
+    },
+    {
+      "name": "Compiled Java 25 bytecode",
+      "passed": true,
+      "detail": {
+        "class_major": 69
+      }
+    }
+  ],
+  "http_observations": [
+    {
+      "path": "api/status",
+      "method": "GET",
+      "identity": "anonymous",
+      "bad_password": false,
+      "status": 401
+    },
+    {
+      "path": "api/status",
+      "method": "GET",
+      "identity": "anonymous",
+      "bad_password": false,
+      "status": 401
+    },
+    {
+      "path": "api/status",
+      "method": "GET",
+      "identity": "reader",
+      "bad_password": true,
+      "status": 401
+    },
+    {
+      "path": "api/status",
+      "method": "GET",
+      "identity": "reader",
+      "bad_password": false,
+      "status": 200
+    },
+    {
+      "path": "api/status",
+      "method": "GET",
+      "identity": "operator",
+      "bad_password": false,
+      "status": 200
+    },
+    {
+      "path": "api/status",
+      "method": "GET",
+      "identity": "admin",
+      "bad_password": false,
+      "status": 200
+    },
+    {
+      "path": "faces.xhtml",
+      "method": "GET",
+      "identity": "anonymous",
+      "bad_password": false,
+      "status": 401
+    },
+    {
+      "path": "faces.xhtml",
+      "method": "GET",
+      "identity": "reader",
+      "bad_password": false,
+      "status": 200
+    },
+    {
+      "path": "api/status",
+      "method": "GET",
+      "identity": "reader",
+      "bad_password": false,
+      "status": 200
+    },
+    {
+      "path": "api/probe",
+      "method": "POST",
+      "identity": "reader",
+      "bad_password": false,
+      "status": 403
+    },
+    {
+      "path": "api/probe",
+      "method": "POST",
+      "identity": "anonymous",
+      "bad_password": false,
+      "status": 401
+    },
+    {
+      "path": "api/status",
+      "method": "GET",
+      "identity": "reader",
+      "bad_password": false,
+      "status": 200
+    },
+    {
+      "path": "api/probe",
+      "method": "POST",
+      "identity": "operator",
+      "bad_password": false,
+      "status": 202
+    },
+    {
+      "path": "api/probe/ad7cdb3f-3f4b-46c5-b87d-858d9b15a55b",
+      "method": "GET",
+      "identity": "reader",
+      "bad_password": false,
+      "status": 200
+    },
+    {
+      "path": "api/batch/1",
+      "method": "GET",
+      "identity": "reader",
+      "bad_password": false,
+      "status": 200
+    },
+    {
+      "path": "api/probe/ad7cdb3f-3f4b-46c5-b87d-858d9b15a55b",
+      "method": "GET",
+      "identity": "reader",
+      "bad_password": false,
+      "status": 200
+    },
+    {
+      "path": "api/batch/1",
+      "method": "GET",
+      "identity": "reader",
+      "bad_password": false,
+      "status": 200
+    },
+    {
+      "path": "api/probe",
+      "method": "POST",
+      "identity": "admin",
+      "bad_password": false,
+      "status": 202
+    },
+    {
+      "path": "api/probe/c8218a57-7f62-4f21-a943-756e881e579a",
+      "method": "GET",
+      "identity": "reader",
+      "bad_password": false,
+      "status": 200
+    },
+    {
+      "path": "api/batch/2",
+      "method": "GET",
+      "identity": "reader",
+      "bad_password": false,
+      "status": 200
+    },
+    {
+      "path": "api/probe/c8218a57-7f62-4f21-a943-756e881e579a",
+      "method": "GET",
+      "identity": "reader",
+      "bad_password": false,
+      "status": 200
+    },
+    {
+      "path": "api/batch/2",
+      "method": "GET",
+      "identity": "reader",
+      "bad_password": false,
+      "status": 200
+    },
+    {
+      "path": "api/status",
+      "method": "GET",
+      "identity": "reader",
+      "bad_password": false,
+      "status": 200
+    },
+    {
+      "path": "api/probe/not-present",
+      "method": "GET",
+      "identity": "reader",
+      "bad_password": false,
+      "status": 404
+    },
+    {
+      "path": "api/status",
+      "method": "DELETE",
+      "identity": "reader",
+      "bad_password": false,
+      "status": 405
+    }
+  ],
+  "outcome": "PASS",
+  "image_id": "sha256:45419ff2b1528e2b339341a9539046a4ef44d385c5acce9800793b1a90144b45",
+  "runtime_java": "openjdk version \"25.0.5\" 2026-10-20 LTS\nOpenJDK Runtime Environment Temurin-25.0.5+8 (build 25.0.5+8-LTS)\nOpenJDK 64-Bit Server VM Temurin-25.0.5+8 (build 25.0.5+8-LTS, mixed mode, sharing)",
+  "runtime_uid": "1000",
+  "war_sha256": "e5c36dc19eb3b256b7dc4c6db8a2b1e71fc2fbe87b828c98e8aa2d699606e9a7",
+  "build_inputs_sha256": {
+    "Dockerfile": "490f913d4442de5e989a103881905b2a72013889e0d2ceff95a923c501384c97",
+    "pom.xml": "dc06f31bbc59f3aa1cb9489d79081f1a56e49ca892f4b5af71d11c43a3d23f87",
+    "src/main/java/lab/spike/FacesProbe.java": "ac73a3665c624a9f785706ecf91f76cb2ea3c8bca37b9a0bfdfa847af922ce88",
+    "src/main/java/lab/spike/ProbeBatchlet.java": "81274c4bffde79900d61481a002f02a8ff3f45e220b3279e86a82ee6ac2fcf8b",
+    "src/main/java/lab/spike/ProbeConsumer.java": "b2935fe143c5ab0d9954106d216555b1498b1d096e389f0149dfd843e239cb3f",
+    "src/main/java/lab/spike/ProbeRecord.java": "1f8a4eb79fcdede723f0db333369ba27e273c477ffc242a7e1c96c4bb1865831",
+    "src/main/java/lab/spike/ProbeResource.java": "3944b5609fe72b9fc0634f2635f7d26d0455c01b6118f0c33f9220ec6180cb9d",
+    "src/main/java/lab/spike/ProbeService.java": "10bea3792f3bda74199e49eb45ae8e9c315cf71b6bc51d6abf717685d7bed61b",
+    "src/main/java/lab/spike/RestApplication.java": "6609aaa41a58d63942288c835ed3e714d8cddea676bbd212b88d74db27fd8011",
+    "src/main/resources/META-INF/batch-jobs/capability.xml": "d8ddb01da25eab2ca8117b8008ee6bccf1ef651e87f0bda6be773fba6e5aa7dd",
+    "src/main/resources/META-INF/persistence.xml": "61b1976240caa3577b490541922f1ba197b2463032a0d404857bae29d40dfe49",
+    "src/main/webapp/WEB-INF/beans.xml": "feab2392bea6fc9e57d820f54e4b7b149812482eb8ed6ddbb72e5c31c65d28d6",
+    "src/main/webapp/WEB-INF/jboss-web.xml": "7458179be7887a7ea08e21ba9abd47781ad73e786e00adf4e541564bb2867b19",
+    "src/main/webapp/WEB-INF/web.xml": "9c3011ff8e53824307e77c53fd69a5169b908bb587c041e81cc87afc5dc9a1d8",
+    "src/main/webapp/faces.xhtml": "d2019cf68fe433427d72620fae5a5a43728bff88ae237108ad22583445aa35b8",
+    "start.sh": "c47dc6a2f916fdb34976c51b7b9d649744f5760fa2061624bc899bec4bc3d1e6"
+  },
+  "cleanup": {
+    "status": "PASS",
+    "errors": [],
+    "scope": "Only task-owned container and temporary realm files; historical services untouched"
+  }
+}

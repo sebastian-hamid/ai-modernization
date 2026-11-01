@@ -1,0 +1,10 @@
+{
+  "test": "test_partial_realm_initialization_is_cleaned_and_reported",
+  "result": "PASS",
+  "tests": 1,
+  "fault": "Second realm-file write raises OSError after the first private file was created",
+  "expected_outcome": "Exit 1, partial credentials removed, cleanup PASS and failing JSON/JUnit report",
+  "docker": "mocked; no runtime created",
+  "harness_sha256": "1a79bbddee20b8492a34daa085e0d9f2700c97eb38c9eccd5e94320b1ec46bec",
+  "test_sha256": "542e4b4991a1be1e824f737e1e62ec9897d6a54df7d9e852c7e46050d8ea9d3f"
+}

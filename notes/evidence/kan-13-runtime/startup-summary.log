@@ -1,0 +1,4 @@
+09:07:12,475 INFO  [org.jboss.as] (MSC service thread 1-2) WFLYSRV0049: WildFly 42.0.0.Final (WildFly Core 34.0.0.Final) starting
+09:07:15,335 INFO  [org.apache.activemq.artemis.core.server] (ServerService Thread Pool -- 86) AMQ221001: Apache Artemis Message Broker version 2.57.0 [default, nodeID=a1322661-d5d3-11f1-8b53-be302d001769] 
+09:07:18,933 INFO  [org.jboss.as.server] (ServerService Thread Pool -- 48) WFLYSRV0010: Deployed "kan13-runtime.war" (runtime-name : "kan13-runtime.war")
+09:07:18,986 INFO  [org.jboss.as] (Controller Boot Thread) WFLYSRV0025: WildFly 42.0.0.Final (WildFly Core 34.0.0.Final) started in 7619ms - Started 532 of 722 services (389 services are lazy, passive or on-demand) - Server configuration file in use: standalone-full.xml - Minimum feature stability level: community

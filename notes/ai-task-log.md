@@ -56,3 +56,19 @@
 - Verified deterministic output, exact reviewed hashes, complete source census, local links, clean historical checkout, whitespace and credential-pattern scan (no matches). No new full application/CI/runtime security test was needed for this source/design publication.
 - Recorded separate review evidence and user approval; KAN-12 moved Done. Included previously independently reviewed workflow policy and AGENTS.md in the authorized publication checkpoint.
 - Human review/rework time, attributable cost and exact elapsed time unavailable; no savings claim.
+
+## 1 November 2026 — KAN-13 runtime compatibility spike
+
+- Created isolated minimal WAR/container probes with pinned standard WildFly 42 and Maven/JDK digests, stable compiler/API/WAR versions. Official WildFly image included older JDK25.0.4.1; assembled current Temurin25.0.5 from the pinned build image and verified actual runtime/bytecode. No silent fallback or formal TCK claim.
+- Executed actual JPA/H2, JMS consumer, Faces/CDI, batch COMPLETED and basic local role checks. First run exposed uncontrolled REST response from an EJB role denial; added HTTP POST role constraint, retaining EJB checks. Preserved first failed result; corrected fresh runs pass19.
+- Separate reviewer /root/review_kan13_runtime found no material compatibility issue and a non-material pre-cleanup initialization edge case. Fixed it, added one Docker-mocked fault-injection regression, reran19 and obtained focused recheck: no remaining findings. Review hashes/evidence recorded.
+- Temporary container/realm files removed; existing legacy app stays healthy, controller/agent unchanged, original source clean. Full application migration/security/PrimeFaces/PostgreSQL/Flyway/restart/performance remain future work. Files are local, not pushed during this task.
+- Actual runtime/startup/toolchain observations and task review records saved; human review/rework time, exact elapsed effort and attributable cost unavailable. No invented savings.
+
+## 1 November 2026 — KAN-13 publication
+
+- User explicitly authorized commit/push. Rechecked separate-review hashes, all runtime build-input identities, 19 passing recorded checks, private-file cleanup and historical source cleanliness. The focused harness regression passed again; credential-pattern scan found no matches.
+- Included spike source, pinned container/build configuration, bounded ADR, independent review records, preserved first failure and sanitized final evidence. No new application deployment or full CI run was performed for publication.
+- Earlier local/uncommitted notes describe the pre-publication state; this checkpoint publishes the reviewed artifacts. Exact commit/remote verification reference is recorded in Jira. Publication bookkeeping is non-semantic and does not alter reviewed build inputs.
+
+- Publication whitespace check found only extra blank lines at EOF in several reviewed spike inputs. Preserved their exact tested bytes and checked other whitespace errors with the blank-at-EOF cosmetic warning excluded for this check only; no repository-wide setting changed.
