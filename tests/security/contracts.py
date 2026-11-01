@@ -5,7 +5,7 @@ def evaluate(case,observation):
     if not observation.get("supported",False):return "BLOCKED","Required candidate adapter/observer is unavailable"
     status=observation.get("status")
     if case["expected"]=="deny":
-        if case["channel"]=="private":valid=status in {403,404}
+        if case["channel"]=="private" or (case["channel"]=="page" and case.get("classification")=="internal-template"):valid=status in {403,404}
         elif case["channel"]=="socket":valid=status in {401,403} and observation.get("upgraded") is False
         elif case["channel"] in {"api","session"} and case.get("original_channel",case["channel"]) in {"api","socket"}:
             valid=status==(401 if case["actor"]=="anonymous" or case["channel"]=="session" else 403)

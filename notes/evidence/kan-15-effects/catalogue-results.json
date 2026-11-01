@@ -1,0 +1,2520 @@
+{
+  "task": "KAN-14",
+  "adapter": "fresh live handling-denial subset",
+  "counts": {
+    "BLOCKED": 498,
+    "PASS": 4
+  },
+  "results": [
+    {
+      "case": "PAGE-01::anonymous::active",
+      "outcome": "BLOCKED",
+      "reason": "Required candidate adapter is unavailable"
+    },
+    {
+      "case": "PAGE-01::Reader::active",
+      "outcome": "BLOCKED",
+      "reason": "Required candidate adapter is unavailable"
+    },
+    {
+      "case": "PAGE-01::Operator::active",
+      "outcome": "BLOCKED",
+      "reason": "Required candidate adapter is unavailable"
+    },
+    {
+      "case": "PAGE-01::Administrator::active",
+      "outcome": "BLOCKED",
+      "reason": "Required candidate adapter is unavailable"
+    },
+    {
+      "case": "PAGE-02::anonymous::active",
+      "outcome": "BLOCKED",
+      "reason": "Required candidate adapter is unavailable"
+    },
+    {
+      "case": "PAGE-02::Reader::active",
+      "outcome": "BLOCKED",
+      "reason": "Required candidate adapter is unavailable"
+    },
+    {
+      "case": "PAGE-02::Operator::active",
+      "outcome": "BLOCKED",
+      "reason": "Required candidate adapter is unavailable"
+    },
+    {
+      "case": "PAGE-02::Administrator::active",
+      "outcome": "BLOCKED",
+      "reason": "Required candidate adapter is unavailable"
+    },
+    {
+      "case": "PAGE-03::anonymous::active",
+      "outcome": "BLOCKED",
+      "reason": "Required candidate adapter is unavailable"
+    },
+    {
+      "case": "PAGE-03::Reader::active",
+      "outcome": "BLOCKED",
+      "reason": "Required candidate adapter is unavailable"
+    },
+    {
+      "case": "PAGE-03::Operator::active",
+      "outcome": "BLOCKED",
+      "reason": "Required candidate adapter is unavailable"
+    },
+    {
+      "case": "PAGE-03::Administrator::active",
+      "outcome": "BLOCKED",
+      "reason": "Required candidate adapter is unavailable"
+    },
+    {
+      "case": "PAGE-03::Reader::logged_out",
+      "outcome": "BLOCKED",
+      "reason": "Required candidate adapter is unavailable"
+    },
+    {
+      "case": "PAGE-03::Reader::expired",
+      "outcome": "BLOCKED",
+      "reason": "Required candidate adapter is unavailable"
+    },
+    {
+      "case": "PAGE-03::Operator::logged_out",
+      "outcome": "BLOCKED",
+      "reason": "Required candidate adapter is unavailable"
+    },
+    {
+      "case": "PAGE-03::Operator::expired",
+      "outcome": "BLOCKED",
+      "reason": "Required candidate adapter is unavailable"
+    },
+    {
+      "case": "PAGE-03::Administrator::logged_out",
+      "outcome": "BLOCKED",
+      "reason": "Required candidate adapter is unavailable"
+    },
+    {
+      "case": "PAGE-03::Administrator::expired",
+      "outcome": "BLOCKED",
+      "reason": "Required candidate adapter is unavailable"
+    },
+    {
+      "case": "PAGE-04::anonymous::active",
+      "outcome": "BLOCKED",
+      "reason": "Required candidate adapter is unavailable"
+    },
+    {
+      "case": "PAGE-04::Reader::active",
+      "outcome": "BLOCKED",
+      "reason": "Required candidate adapter is unavailable"
+    },
+    {
+      "case": "PAGE-04::Operator::active",
+      "outcome": "BLOCKED",
+      "reason": "Required candidate adapter is unavailable"
+    },
+    {
+      "case": "PAGE-04::Administrator::active",
+      "outcome": "BLOCKED",
+      "reason": "Required candidate adapter is unavailable"
+    },
+    {
+      "case": "PAGE-04::Operator::logged_out",
+      "outcome": "BLOCKED",
+      "reason": "Required candidate adapter is unavailable"
+    },
+    {
+      "case": "PAGE-04::Operator::expired",
+      "outcome": "BLOCKED",
+      "reason": "Required candidate adapter is unavailable"
+    },
+    {
+      "case": "PAGE-04::Administrator::logged_out",
+      "outcome": "BLOCKED",
+      "reason": "Required candidate adapter is unavailable"
+    },
+    {
+      "case": "PAGE-04::Administrator::expired",
+      "outcome": "BLOCKED",
+      "reason": "Required candidate adapter is unavailable"
+    },
+    {
+      "case": "PAGE-05::anonymous::active",
+      "outcome": "BLOCKED",
+      "reason": "Required candidate adapter is unavailable"
+    },
+    {
+      "case": "PAGE-05::Reader::active",
+      "outcome": "BLOCKED",
+      "reason": "Required candidate adapter is unavailable"
+    },
+    {
+      "case": "PAGE-05::Operator::active",
+      "outcome": "BLOCKED",
+      "reason": "Required candidate adapter is unavailable"
+    },
+    {
+      "case": "PAGE-05::Administrator::active",
+      "outcome": "BLOCKED",
+      "reason": "Required candidate adapter is unavailable"
+    },
+    {
+      "case": "PAGE-05::Reader::logged_out",
+      "outcome": "BLOCKED",
+      "reason": "Required candidate adapter is unavailable"
+    },
+    {
+      "case": "PAGE-05::Reader::expired",
+      "outcome": "BLOCKED",
+      "reason": "Required candidate adapter is unavailable"
+    },
+    {
+      "case": "PAGE-05::Operator::logged_out",
+      "outcome": "BLOCKED",
+      "reason": "Required candidate adapter is unavailable"
+    },
+    {
+      "case": "PAGE-05::Operator::expired",
+      "outcome": "BLOCKED",
+      "reason": "Required candidate adapter is unavailable"
+    },
+    {
+      "case": "PAGE-05::Administrator::logged_out",
+      "outcome": "BLOCKED",
+      "reason": "Required candidate adapter is unavailable"
+    },
+    {
+      "case": "PAGE-05::Administrator::expired",
+      "outcome": "BLOCKED",
+      "reason": "Required candidate adapter is unavailable"
+    },
+    {
+      "case": "PAGE-06::anonymous::active",
+      "outcome": "BLOCKED",
+      "reason": "Required candidate adapter is unavailable"
+    },
+    {
+      "case": "PAGE-06::Reader::active",
+      "outcome": "BLOCKED",
+      "reason": "Required candidate adapter is unavailable"
+    },
+    {
+      "case": "PAGE-06::Operator::active",
+      "outcome": "BLOCKED",
+      "reason": "Required candidate adapter is unavailable"
+    },
+    {
+      "case": "PAGE-06::Administrator::active",
+      "outcome": "BLOCKED",
+      "reason": "Required candidate adapter is unavailable"
+    },
+    {
+      "case": "PAGE-06::Reader::logged_out",
+      "outcome": "BLOCKED",
+      "reason": "Required candidate adapter is unavailable"
+    },
+    {
+      "case": "PAGE-06::Reader::expired",
+      "outcome": "BLOCKED",
+      "reason": "Required candidate adapter is unavailable"
+    },
+    {
+      "case": "PAGE-06::Operator::logged_out",
+      "outcome": "BLOCKED",
+      "reason": "Required candidate adapter is unavailable"
+    },
+    {
+      "case": "PAGE-06::Operator::expired",
+      "outcome": "BLOCKED",
+      "reason": "Required candidate adapter is unavailable"
+    },
+    {
+      "case": "PAGE-06::Administrator::logged_out",
+      "outcome": "BLOCKED",
+      "reason": "Required candidate adapter is unavailable"
+    },
+    {
+      "case": "PAGE-06::Administrator::expired",
+      "outcome": "BLOCKED",
+      "reason": "Required candidate adapter is unavailable"
+    },
+    {
+      "case": "PAGE-07::anonymous::active",
+      "outcome": "BLOCKED",
+      "reason": "Required candidate adapter is unavailable"
+    },
+    {
+      "case": "PAGE-07::Reader::active",
+      "outcome": "BLOCKED",
+      "reason": "Required candidate adapter is unavailable"
+    },
+    {
+      "case": "PAGE-07::Operator::active",
+      "outcome": "BLOCKED",
+      "reason": "Required candidate adapter is unavailable"
+    },
+    {
+      "case": "PAGE-07::Administrator::active",
+      "outcome": "BLOCKED",
+      "reason": "Required candidate adapter is unavailable"
+    },
+    {
+      "case": "PAGE-07::Reader::logged_out",
+      "outcome": "BLOCKED",
+      "reason": "Required candidate adapter is unavailable"
+    },
+    {
+      "case": "PAGE-07::Reader::expired",
+      "outcome": "BLOCKED",
+      "reason": "Required candidate adapter is unavailable"
+    },
+    {
+      "case": "PAGE-07::Operator::logged_out",
+      "outcome": "BLOCKED",
+      "reason": "Required candidate adapter is unavailable"
+    },
+    {
+      "case": "PAGE-07::Operator::expired",
+      "outcome": "BLOCKED",
+      "reason": "Required candidate adapter is unavailable"
+    },
+    {
+      "case": "PAGE-07::Administrator::logged_out",
+      "outcome": "BLOCKED",
+      "reason": "Required candidate adapter is unavailable"
+    },
+    {
+      "case": "PAGE-07::Administrator::expired",
+      "outcome": "BLOCKED",
+      "reason": "Required candidate adapter is unavailable"
+    },
+    {
+      "case": "PAGE-08::anonymous::active",
+      "outcome": "BLOCKED",
+      "reason": "Required candidate adapter is unavailable"
+    },
+    {
+      "case": "PAGE-08::Reader::active",
+      "outcome": "BLOCKED",
+      "reason": "Required candidate adapter is unavailable"
+    },
+    {
+      "case": "PAGE-08::Operator::active",
+      "outcome": "BLOCKED",
+      "reason": "Required candidate adapter is unavailable"
+    },
+    {
+      "case": "PAGE-08::Administrator::active",
+      "outcome": "BLOCKED",
+      "reason": "Required candidate adapter is unavailable"
+    },
+    {
+      "case": "PAGE-08::Reader::logged_out",
+      "outcome": "BLOCKED",
+      "reason": "Required candidate adapter is unavailable"
+    },
+    {
+      "case": "PAGE-08::Reader::expired",
+      "outcome": "BLOCKED",
+      "reason": "Required candidate adapter is unavailable"
+    },
+    {
+      "case": "PAGE-08::Operator::logged_out",
+      "outcome": "BLOCKED",
+      "reason": "Required candidate adapter is unavailable"
+    },
+    {
+      "case": "PAGE-08::Operator::expired",
+      "outcome": "BLOCKED",
+      "reason": "Required candidate adapter is unavailable"
+    },
+    {
+      "case": "PAGE-08::Administrator::logged_out",
+      "outcome": "BLOCKED",
+      "reason": "Required candidate adapter is unavailable"
+    },
+    {
+      "case": "PAGE-08::Administrator::expired",
+      "outcome": "BLOCKED",
+      "reason": "Required candidate adapter is unavailable"
+    },
+    {
+      "case": "PAGE-09::anonymous::active",
+      "outcome": "BLOCKED",
+      "reason": "Required candidate adapter is unavailable"
+    },
+    {
+      "case": "PAGE-09::Reader::active",
+      "outcome": "BLOCKED",
+      "reason": "Required candidate adapter is unavailable"
+    },
+    {
+      "case": "PAGE-09::Operator::active",
+      "outcome": "BLOCKED",
+      "reason": "Required candidate adapter is unavailable"
+    },
+    {
+      "case": "PAGE-09::Administrator::active",
+      "outcome": "BLOCKED",
+      "reason": "Required candidate adapter is unavailable"
+    },
+    {
+      "case": "PAGE-09::Reader::logged_out",
+      "outcome": "BLOCKED",
+      "reason": "Required candidate adapter is unavailable"
+    },
+    {
+      "case": "PAGE-09::Reader::expired",
+      "outcome": "BLOCKED",
+      "reason": "Required candidate adapter is unavailable"
+    },
+    {
+      "case": "PAGE-09::Operator::logged_out",
+      "outcome": "BLOCKED",
+      "reason": "Required candidate adapter is unavailable"
+    },
+    {
+      "case": "PAGE-09::Operator::expired",
+      "outcome": "BLOCKED",
+      "reason": "Required candidate adapter is unavailable"
+    },
+    {
+      "case": "PAGE-09::Administrator::logged_out",
+      "outcome": "BLOCKED",
+      "reason": "Required candidate adapter is unavailable"
+    },
+    {
+      "case": "PAGE-09::Administrator::expired",
+      "outcome": "BLOCKED",
+      "reason": "Required candidate adapter is unavailable"
+    },
+    {
+      "case": "PAGE-10::anonymous::active",
+      "outcome": "BLOCKED",
+      "reason": "Required candidate adapter is unavailable"
+    },
+    {
+      "case": "PAGE-10::Reader::active",
+      "outcome": "BLOCKED",
+      "reason": "Required candidate adapter is unavailable"
+    },
+    {
+      "case": "PAGE-10::Operator::active",
+      "outcome": "BLOCKED",
+      "reason": "Required candidate adapter is unavailable"
+    },
+    {
+      "case": "PAGE-10::Administrator::active",
+      "outcome": "BLOCKED",
+      "reason": "Required candidate adapter is unavailable"
+    },
+    {
+      "case": "PAGE-10::Reader::logged_out",
+      "outcome": "BLOCKED",
+      "reason": "Required candidate adapter is unavailable"
+    },
+    {
+      "case": "PAGE-10::Reader::expired",
+      "outcome": "BLOCKED",
+      "reason": "Required candidate adapter is unavailable"
+    },
+    {
+      "case": "PAGE-10::Operator::logged_out",
+      "outcome": "BLOCKED",
+      "reason": "Required candidate adapter is unavailable"
+    },
+    {
+      "case": "PAGE-10::Operator::expired",
+      "outcome": "BLOCKED",
+      "reason": "Required candidate adapter is unavailable"
+    },
+    {
+      "case": "PAGE-10::Administrator::logged_out",
+      "outcome": "BLOCKED",
+      "reason": "Required candidate adapter is unavailable"
+    },
+    {
+      "case": "PAGE-10::Administrator::expired",
+      "outcome": "BLOCKED",
+      "reason": "Required candidate adapter is unavailable"
+    },
+    {
+      "case": "PAGE-11::anonymous::active",
+      "outcome": "BLOCKED",
+      "reason": "Required candidate adapter is unavailable"
+    },
+    {
+      "case": "PAGE-11::Reader::active",
+      "outcome": "BLOCKED",
+      "reason": "Required candidate adapter is unavailable"
+    },
+    {
+      "case": "PAGE-11::Operator::active",
+      "outcome": "BLOCKED",
+      "reason": "Required candidate adapter is unavailable"
+    },
+    {
+      "case": "PAGE-11::Administrator::active",
+      "outcome": "BLOCKED",
+      "reason": "Required candidate adapter is unavailable"
+    },
+    {
+      "case": "PAGE-11::Operator::logged_out",
+      "outcome": "BLOCKED",
+      "reason": "Required candidate adapter is unavailable"
+    },
+    {
+      "case": "PAGE-11::Operator::expired",
+      "outcome": "BLOCKED",
+      "reason": "Required candidate adapter is unavailable"
+    },
+    {
+      "case": "PAGE-11::Administrator::logged_out",
+      "outcome": "BLOCKED",
+      "reason": "Required candidate adapter is unavailable"
+    },
+    {
+      "case": "PAGE-11::Administrator::expired",
+      "outcome": "BLOCKED",
+      "reason": "Required candidate adapter is unavailable"
+    },
+    {
+      "case": "PAGE-12::anonymous::active",
+      "outcome": "BLOCKED",
+      "reason": "Required candidate adapter is unavailable"
+    },
+    {
+      "case": "PAGE-12::Reader::active",
+      "outcome": "BLOCKED",
+      "reason": "Required candidate adapter is unavailable"
+    },
+    {
+      "case": "PAGE-12::Operator::active",
+      "outcome": "BLOCKED",
+      "reason": "Required candidate adapter is unavailable"
+    },
+    {
+      "case": "PAGE-12::Administrator::active",
+      "outcome": "BLOCKED",
+      "reason": "Required candidate adapter is unavailable"
+    },
+    {
+      "case": "PAGE-12::Operator::logged_out",
+      "outcome": "BLOCKED",
+      "reason": "Required candidate adapter is unavailable"
+    },
+    {
+      "case": "PAGE-12::Operator::expired",
+      "outcome": "BLOCKED",
+      "reason": "Required candidate adapter is unavailable"
+    },
+    {
+      "case": "PAGE-12::Administrator::logged_out",
+      "outcome": "BLOCKED",
+      "reason": "Required candidate adapter is unavailable"
+    },
+    {
+      "case": "PAGE-12::Administrator::expired",
+      "outcome": "BLOCKED",
+      "reason": "Required candidate adapter is unavailable"
+    },
+    {
+      "case": "PAGE-13::anonymous::active",
+      "outcome": "BLOCKED",
+      "reason": "Required candidate adapter is unavailable"
+    },
+    {
+      "case": "PAGE-13::Reader::active",
+      "outcome": "BLOCKED",
+      "reason": "Required candidate adapter is unavailable"
+    },
+    {
+      "case": "PAGE-13::Operator::active",
+      "outcome": "BLOCKED",
+      "reason": "Required candidate adapter is unavailable"
+    },
+    {
+      "case": "PAGE-13::Administrator::active",
+      "outcome": "BLOCKED",
+      "reason": "Required candidate adapter is unavailable"
+    },
+    {
+      "case": "PAGE-13::Reader::logged_out",
+      "outcome": "BLOCKED",
+      "reason": "Required candidate adapter is unavailable"
+    },
+    {
+      "case": "PAGE-13::Reader::expired",
+      "outcome": "BLOCKED",
+      "reason": "Required candidate adapter is unavailable"
+    },
+    {
+      "case": "PAGE-13::Operator::logged_out",
+      "outcome": "BLOCKED",
+      "reason": "Required candidate adapter is unavailable"
+    },
+    {
+      "case": "PAGE-13::Operator::expired",
+      "outcome": "BLOCKED",
+      "reason": "Required candidate adapter is unavailable"
+    },
+    {
+      "case": "PAGE-13::Administrator::logged_out",
+      "outcome": "BLOCKED",
+      "reason": "Required candidate adapter is unavailable"
+    },
+    {
+      "case": "PAGE-13::Administrator::expired",
+      "outcome": "BLOCKED",
+      "reason": "Required candidate adapter is unavailable"
+    },
+    {
+      "case": "PAGE-14::anonymous::active",
+      "outcome": "BLOCKED",
+      "reason": "Required candidate adapter is unavailable"
+    },
+    {
+      "case": "PAGE-14::Reader::active",
+      "outcome": "BLOCKED",
+      "reason": "Required candidate adapter is unavailable"
+    },
+    {
+      "case": "PAGE-14::Operator::active",
+      "outcome": "BLOCKED",
+      "reason": "Required candidate adapter is unavailable"
+    },
+    {
+      "case": "PAGE-14::Administrator::active",
+      "outcome": "BLOCKED",
+      "reason": "Required candidate adapter is unavailable"
+    },
+    {
+      "case": "PAGE-14::Reader::logged_out",
+      "outcome": "BLOCKED",
+      "reason": "Required candidate adapter is unavailable"
+    },
+    {
+      "case": "PAGE-14::Reader::expired",
+      "outcome": "BLOCKED",
+      "reason": "Required candidate adapter is unavailable"
+    },
+    {
+      "case": "PAGE-14::Operator::logged_out",
+      "outcome": "BLOCKED",
+      "reason": "Required candidate adapter is unavailable"
+    },
+    {
+      "case": "PAGE-14::Operator::expired",
+      "outcome": "BLOCKED",
+      "reason": "Required candidate adapter is unavailable"
+    },
+    {
+      "case": "PAGE-14::Administrator::logged_out",
+      "outcome": "BLOCKED",
+      "reason": "Required candidate adapter is unavailable"
+    },
+    {
+      "case": "PAGE-14::Administrator::expired",
+      "outcome": "BLOCKED",
+      "reason": "Required candidate adapter is unavailable"
+    },
+    {
+      "case": "PAGE-15::anonymous::active",
+      "outcome": "BLOCKED",
+      "reason": "Required candidate adapter is unavailable"
+    },
+    {
+      "case": "PAGE-15::Reader::active",
+      "outcome": "BLOCKED",
+      "reason": "Required candidate adapter is unavailable"
+    },
+    {
+      "case": "PAGE-15::Operator::active",
+      "outcome": "BLOCKED",
+      "reason": "Required candidate adapter is unavailable"
+    },
+    {
+      "case": "PAGE-15::Administrator::active",
+      "outcome": "BLOCKED",
+      "reason": "Required candidate adapter is unavailable"
+    },
+    {
+      "case": "PAGE-15::Operator::logged_out",
+      "outcome": "BLOCKED",
+      "reason": "Required candidate adapter is unavailable"
+    },
+    {
+      "case": "PAGE-15::Operator::expired",
+      "outcome": "BLOCKED",
+      "reason": "Required candidate adapter is unavailable"
+    },
+    {
+      "case": "PAGE-15::Administrator::logged_out",
+      "outcome": "BLOCKED",
+      "reason": "Required candidate adapter is unavailable"
+    },
+    {
+      "case": "PAGE-15::Administrator::expired",
+      "outcome": "BLOCKED",
+      "reason": "Required candidate adapter is unavailable"
+    },
+    {
+      "case": "PAGE-16::anonymous::active",
+      "outcome": "BLOCKED",
+      "reason": "Required candidate adapter is unavailable"
+    },
+    {
+      "case": "PAGE-16::Reader::active",
+      "outcome": "BLOCKED",
+      "reason": "Required candidate adapter is unavailable"
+    },
+    {
+      "case": "PAGE-16::Operator::active",
+      "outcome": "BLOCKED",
+      "reason": "Required candidate adapter is unavailable"
+    },
+    {
+      "case": "PAGE-16::Administrator::active",
+      "outcome": "BLOCKED",
+      "reason": "Required candidate adapter is unavailable"
+    },
+    {
+      "case": "PAGE-16::Operator::logged_out",
+      "outcome": "BLOCKED",
+      "reason": "Required candidate adapter is unavailable"
+    },
+    {
+      "case": "PAGE-16::Operator::expired",
+      "outcome": "BLOCKED",
+      "reason": "Required candidate adapter is unavailable"
+    },
+    {
+      "case": "PAGE-16::Administrator::logged_out",
+      "outcome": "BLOCKED",
+      "reason": "Required candidate adapter is unavailable"
+    },
+    {
+      "case": "PAGE-16::Administrator::expired",
+      "outcome": "BLOCKED",
+      "reason": "Required candidate adapter is unavailable"
+    },
+    {
+      "case": "PAGE-17::anonymous::active",
+      "outcome": "BLOCKED",
+      "reason": "Required candidate adapter is unavailable"
+    },
+    {
+      "case": "PAGE-17::Reader::active",
+      "outcome": "BLOCKED",
+      "reason": "Required candidate adapter is unavailable"
+    },
+    {
+      "case": "PAGE-17::Operator::active",
+      "outcome": "BLOCKED",
+      "reason": "Required candidate adapter is unavailable"
+    },
+    {
+      "case": "PAGE-17::Administrator::active",
+      "outcome": "BLOCKED",
+      "reason": "Required candidate adapter is unavailable"
+    },
+    {
+      "case": "PAGE-17::Operator::logged_out",
+      "outcome": "BLOCKED",
+      "reason": "Required candidate adapter is unavailable"
+    },
+    {
+      "case": "PAGE-17::Operator::expired",
+      "outcome": "BLOCKED",
+      "reason": "Required candidate adapter is unavailable"
+    },
+    {
+      "case": "PAGE-17::Administrator::logged_out",
+      "outcome": "BLOCKED",
+      "reason": "Required candidate adapter is unavailable"
+    },
+    {
+      "case": "PAGE-17::Administrator::expired",
+      "outcome": "BLOCKED",
+      "reason": "Required candidate adapter is unavailable"
+    },
+    {
+      "case": "PAGE-18::anonymous::active",
+      "outcome": "BLOCKED",
+      "reason": "Required candidate adapter is unavailable"
+    },
+    {
+      "case": "PAGE-18::Reader::active",
+      "outcome": "BLOCKED",
+      "reason": "Required candidate adapter is unavailable"
+    },
+    {
+      "case": "PAGE-18::Operator::active",
+      "outcome": "BLOCKED",
+      "reason": "Required candidate adapter is unavailable"
+    },
+    {
+      "case": "PAGE-18::Administrator::active",
+      "outcome": "BLOCKED",
+      "reason": "Required candidate adapter is unavailable"
+    },
+    {
+      "case": "PAGE-19::anonymous::active",
+      "outcome": "BLOCKED",
+      "reason": "Required candidate adapter is unavailable"
+    },
+    {
+      "case": "PAGE-19::Reader::active",
+      "outcome": "BLOCKED",
+      "reason": "Required candidate adapter is unavailable"
+    },
+    {
+      "case": "PAGE-19::Operator::active",
+      "outcome": "BLOCKED",
+      "reason": "Required candidate adapter is unavailable"
+    },
+    {
+      "case": "PAGE-19::Administrator::active",
+      "outcome": "BLOCKED",
+      "reason": "Required candidate adapter is unavailable"
+    },
+    {
+      "case": "PAGE-20::anonymous::active",
+      "outcome": "BLOCKED",
+      "reason": "Required candidate adapter is unavailable"
+    },
+    {
+      "case": "PAGE-20::Reader::active",
+      "outcome": "BLOCKED",
+      "reason": "Required candidate adapter is unavailable"
+    },
+    {
+      "case": "PAGE-20::Operator::active",
+      "outcome": "BLOCKED",
+      "reason": "Required candidate adapter is unavailable"
+    },
+    {
+      "case": "PAGE-20::Administrator::active",
+      "outcome": "BLOCKED",
+      "reason": "Required candidate adapter is unavailable"
+    },
+    {
+      "case": "PAGE-20::Operator::logged_out",
+      "outcome": "BLOCKED",
+      "reason": "Required candidate adapter is unavailable"
+    },
+    {
+      "case": "PAGE-20::Operator::expired",
+      "outcome": "BLOCKED",
+      "reason": "Required candidate adapter is unavailable"
+    },
+    {
+      "case": "PAGE-20::Administrator::logged_out",
+      "outcome": "BLOCKED",
+      "reason": "Required candidate adapter is unavailable"
+    },
+    {
+      "case": "PAGE-20::Administrator::expired",
+      "outcome": "BLOCKED",
+      "reason": "Required candidate adapter is unavailable"
+    },
+    {
+      "case": "PAGE-21::anonymous::active",
+      "outcome": "BLOCKED",
+      "reason": "Required candidate adapter is unavailable"
+    },
+    {
+      "case": "PAGE-21::Reader::active",
+      "outcome": "BLOCKED",
+      "reason": "Required candidate adapter is unavailable"
+    },
+    {
+      "case": "PAGE-21::Operator::active",
+      "outcome": "BLOCKED",
+      "reason": "Required candidate adapter is unavailable"
+    },
+    {
+      "case": "PAGE-21::Administrator::active",
+      "outcome": "BLOCKED",
+      "reason": "Required candidate adapter is unavailable"
+    },
+    {
+      "case": "PAGE-21::Operator::logged_out",
+      "outcome": "BLOCKED",
+      "reason": "Required candidate adapter is unavailable"
+    },
+    {
+      "case": "PAGE-21::Operator::expired",
+      "outcome": "BLOCKED",
+      "reason": "Required candidate adapter is unavailable"
+    },
+    {
+      "case": "PAGE-21::Administrator::logged_out",
+      "outcome": "BLOCKED",
+      "reason": "Required candidate adapter is unavailable"
+    },
+    {
+      "case": "PAGE-21::Administrator::expired",
+      "outcome": "BLOCKED",
+      "reason": "Required candidate adapter is unavailable"
+    },
+    {
+      "case": "PAGE-22::anonymous::active",
+      "outcome": "BLOCKED",
+      "reason": "Required candidate adapter is unavailable"
+    },
+    {
+      "case": "PAGE-22::Reader::active",
+      "outcome": "BLOCKED",
+      "reason": "Required candidate adapter is unavailable"
+    },
+    {
+      "case": "PAGE-22::Operator::active",
+      "outcome": "BLOCKED",
+      "reason": "Required candidate adapter is unavailable"
+    },
+    {
+      "case": "PAGE-22::Administrator::active",
+      "outcome": "BLOCKED",
+      "reason": "Required candidate adapter is unavailable"
+    },
+    {
+      "case": "PAGE-23::anonymous::active",
+      "outcome": "BLOCKED",
+      "reason": "Required candidate adapter is unavailable"
+    },
+    {
+      "case": "PAGE-23::Reader::active",
+      "outcome": "BLOCKED",
+      "reason": "Required candidate adapter is unavailable"
+    },
+    {
+      "case": "PAGE-23::Operator::active",
+      "outcome": "BLOCKED",
+      "reason": "Required candidate adapter is unavailable"
+    },
+    {
+      "case": "PAGE-23::Administrator::active",
+      "outcome": "BLOCKED",
+      "reason": "Required candidate adapter is unavailable"
+    },
+    {
+      "case": "PAGE-23::Operator::logged_out",
+      "outcome": "BLOCKED",
+      "reason": "Required candidate adapter is unavailable"
+    },
+    {
+      "case": "PAGE-23::Operator::expired",
+      "outcome": "BLOCKED",
+      "reason": "Required candidate adapter is unavailable"
+    },
+    {
+      "case": "PAGE-23::Administrator::logged_out",
+      "outcome": "BLOCKED",
+      "reason": "Required candidate adapter is unavailable"
+    },
+    {
+      "case": "PAGE-23::Administrator::expired",
+      "outcome": "BLOCKED",
+      "reason": "Required candidate adapter is unavailable"
+    },
+    {
+      "case": "PAGE-24::anonymous::active",
+      "outcome": "BLOCKED",
+      "reason": "Required candidate adapter is unavailable"
+    },
+    {
+      "case": "PAGE-24::Reader::active",
+      "outcome": "BLOCKED",
+      "reason": "Required candidate adapter is unavailable"
+    },
+    {
+      "case": "PAGE-24::Operator::active",
+      "outcome": "BLOCKED",
+      "reason": "Required candidate adapter is unavailable"
+    },
+    {
+      "case": "PAGE-24::Administrator::active",
+      "outcome": "BLOCKED",
+      "reason": "Required candidate adapter is unavailable"
+    },
+    {
+      "case": "PAGE-25::anonymous::active",
+      "outcome": "BLOCKED",
+      "reason": "Required candidate adapter is unavailable"
+    },
+    {
+      "case": "PAGE-25::Reader::active",
+      "outcome": "BLOCKED",
+      "reason": "Required candidate adapter is unavailable"
+    },
+    {
+      "case": "PAGE-25::Operator::active",
+      "outcome": "BLOCKED",
+      "reason": "Required candidate adapter is unavailable"
+    },
+    {
+      "case": "PAGE-25::Administrator::active",
+      "outcome": "BLOCKED",
+      "reason": "Required candidate adapter is unavailable"
+    },
+    {
+      "case": "PAGE-25::Reader::logged_out",
+      "outcome": "BLOCKED",
+      "reason": "Required candidate adapter is unavailable"
+    },
+    {
+      "case": "PAGE-25::Reader::expired",
+      "outcome": "BLOCKED",
+      "reason": "Required candidate adapter is unavailable"
+    },
+    {
+      "case": "PAGE-25::Operator::logged_out",
+      "outcome": "BLOCKED",
+      "reason": "Required candidate adapter is unavailable"
+    },
+    {
+      "case": "PAGE-25::Operator::expired",
+      "outcome": "BLOCKED",
+      "reason": "Required candidate adapter is unavailable"
+    },
+    {
+      "case": "PAGE-25::Administrator::logged_out",
+      "outcome": "BLOCKED",
+      "reason": "Required candidate adapter is unavailable"
+    },
+    {
+      "case": "PAGE-25::Administrator::expired",
+      "outcome": "BLOCKED",
+      "reason": "Required candidate adapter is unavailable"
+    },
+    {
+      "case": "ACTION-01::anonymous::active",
+      "outcome": "BLOCKED",
+      "reason": "Required candidate adapter is unavailable"
+    },
+    {
+      "case": "ACTION-01::Reader::active",
+      "outcome": "BLOCKED",
+      "reason": "Required candidate adapter is unavailable"
+    },
+    {
+      "case": "ACTION-01::Operator::active",
+      "outcome": "BLOCKED",
+      "reason": "Required candidate adapter is unavailable"
+    },
+    {
+      "case": "ACTION-01::Administrator::active",
+      "outcome": "BLOCKED",
+      "reason": "Required candidate adapter is unavailable"
+    },
+    {
+      "case": "ACTION-02::anonymous::active",
+      "outcome": "BLOCKED",
+      "reason": "Required candidate adapter is unavailable"
+    },
+    {
+      "case": "ACTION-02::Reader::active",
+      "outcome": "BLOCKED",
+      "reason": "Required candidate adapter is unavailable"
+    },
+    {
+      "case": "ACTION-02::Operator::active",
+      "outcome": "BLOCKED",
+      "reason": "Required candidate adapter is unavailable"
+    },
+    {
+      "case": "ACTION-02::Administrator::active",
+      "outcome": "BLOCKED",
+      "reason": "Required candidate adapter is unavailable"
+    },
+    {
+      "case": "ACTION-03::anonymous::active",
+      "outcome": "BLOCKED",
+      "reason": "Required candidate adapter is unavailable"
+    },
+    {
+      "case": "ACTION-03::Reader::active",
+      "outcome": "BLOCKED",
+      "reason": "Required candidate adapter is unavailable"
+    },
+    {
+      "case": "ACTION-03::Operator::active",
+      "outcome": "BLOCKED",
+      "reason": "Required candidate adapter is unavailable"
+    },
+    {
+      "case": "ACTION-03::Administrator::active",
+      "outcome": "BLOCKED",
+      "reason": "Required candidate adapter is unavailable"
+    },
+    {
+      "case": "ACTION-04::anonymous::active",
+      "outcome": "BLOCKED",
+      "reason": "Required candidate adapter is unavailable"
+    },
+    {
+      "case": "ACTION-04::Reader::active",
+      "outcome": "BLOCKED",
+      "reason": "Required candidate adapter is unavailable"
+    },
+    {
+      "case": "ACTION-04::Operator::active",
+      "outcome": "BLOCKED",
+      "reason": "Required candidate adapter is unavailable"
+    },
+    {
+      "case": "ACTION-04::Administrator::active",
+      "outcome": "BLOCKED",
+      "reason": "Required candidate adapter is unavailable"
+    },
+    {
+      "case": "ACTION-05::anonymous::active",
+      "outcome": "BLOCKED",
+      "reason": "Required candidate adapter is unavailable"
+    },
+    {
+      "case": "ACTION-05::Reader::active",
+      "outcome": "BLOCKED",
+      "reason": "Required candidate adapter is unavailable"
+    },
+    {
+      "case": "ACTION-05::Operator::active",
+      "outcome": "BLOCKED",
+      "reason": "Required candidate adapter is unavailable"
+    },
+    {
+      "case": "ACTION-05::Administrator::active",
+      "outcome": "BLOCKED",
+      "reason": "Required candidate adapter is unavailable"
+    },
+    {
+      "case": "ACTION-06::anonymous::active",
+      "outcome": "BLOCKED",
+      "reason": "Required candidate adapter is unavailable"
+    },
+    {
+      "case": "ACTION-06::Reader::active",
+      "outcome": "BLOCKED",
+      "reason": "Required candidate adapter is unavailable"
+    },
+    {
+      "case": "ACTION-06::Operator::active",
+      "outcome": "BLOCKED",
+      "reason": "Required candidate adapter is unavailable"
+    },
+    {
+      "case": "ACTION-06::Administrator::active",
+      "outcome": "BLOCKED",
+      "reason": "Required candidate adapter is unavailable"
+    },
+    {
+      "case": "ACTION-07::anonymous::active",
+      "outcome": "BLOCKED",
+      "reason": "Required candidate adapter is unavailable"
+    },
+    {
+      "case": "ACTION-07::Reader::active",
+      "outcome": "BLOCKED",
+      "reason": "Required candidate adapter is unavailable"
+    },
+    {
+      "case": "ACTION-07::Operator::active",
+      "outcome": "BLOCKED",
+      "reason": "Required candidate adapter is unavailable"
+    },
+    {
+      "case": "ACTION-07::Administrator::active",
+      "outcome": "BLOCKED",
+      "reason": "Required candidate adapter is unavailable"
+    },
+    {
+      "case": "ACTION-08::anonymous::active",
+      "outcome": "BLOCKED",
+      "reason": "Required candidate adapter is unavailable"
+    },
+    {
+      "case": "ACTION-08::Reader::active",
+      "outcome": "BLOCKED",
+      "reason": "Required candidate adapter is unavailable"
+    },
+    {
+      "case": "ACTION-08::Operator::active",
+      "outcome": "BLOCKED",
+      "reason": "Required candidate adapter is unavailable"
+    },
+    {
+      "case": "ACTION-08::Administrator::active",
+      "outcome": "BLOCKED",
+      "reason": "Required candidate adapter is unavailable"
+    },
+    {
+      "case": "ACTION-09::anonymous::active",
+      "outcome": "BLOCKED",
+      "reason": "Required candidate adapter is unavailable"
+    },
+    {
+      "case": "ACTION-09::Reader::active",
+      "outcome": "BLOCKED",
+      "reason": "Required candidate adapter is unavailable"
+    },
+    {
+      "case": "ACTION-09::Operator::active",
+      "outcome": "BLOCKED",
+      "reason": "Required candidate adapter is unavailable"
+    },
+    {
+      "case": "ACTION-09::Administrator::active",
+      "outcome": "BLOCKED",
+      "reason": "Required candidate adapter is unavailable"
+    },
+    {
+      "case": "ACTION-09::Operator::logged_out",
+      "outcome": "BLOCKED",
+      "reason": "Required candidate adapter is unavailable"
+    },
+    {
+      "case": "ACTION-09::Operator::expired",
+      "outcome": "BLOCKED",
+      "reason": "Required candidate adapter is unavailable"
+    },
+    {
+      "case": "ACTION-09::Administrator::logged_out",
+      "outcome": "BLOCKED",
+      "reason": "Required candidate adapter is unavailable"
+    },
+    {
+      "case": "ACTION-09::Administrator::expired",
+      "outcome": "BLOCKED",
+      "reason": "Required candidate adapter is unavailable"
+    },
+    {
+      "case": "ACTION-10::anonymous::active",
+      "outcome": "BLOCKED",
+      "reason": "Required candidate adapter is unavailable"
+    },
+    {
+      "case": "ACTION-10::Reader::active",
+      "outcome": "BLOCKED",
+      "reason": "Required candidate adapter is unavailable"
+    },
+    {
+      "case": "ACTION-10::Operator::active",
+      "outcome": "BLOCKED",
+      "reason": "Required candidate adapter is unavailable"
+    },
+    {
+      "case": "ACTION-10::Administrator::active",
+      "outcome": "BLOCKED",
+      "reason": "Required candidate adapter is unavailable"
+    },
+    {
+      "case": "ACTION-11::anonymous::active",
+      "outcome": "BLOCKED",
+      "reason": "Required candidate adapter is unavailable"
+    },
+    {
+      "case": "ACTION-11::Reader::active",
+      "outcome": "BLOCKED",
+      "reason": "Required candidate adapter is unavailable"
+    },
+    {
+      "case": "ACTION-11::Operator::active",
+      "outcome": "BLOCKED",
+      "reason": "Required candidate adapter is unavailable"
+    },
+    {
+      "case": "ACTION-11::Administrator::active",
+      "outcome": "BLOCKED",
+      "reason": "Required candidate adapter is unavailable"
+    },
+    {
+      "case": "ACTION-12::anonymous::active",
+      "outcome": "BLOCKED",
+      "reason": "Required candidate adapter is unavailable"
+    },
+    {
+      "case": "ACTION-12::Reader::active",
+      "outcome": "BLOCKED",
+      "reason": "Required candidate adapter is unavailable"
+    },
+    {
+      "case": "ACTION-12::Operator::active",
+      "outcome": "BLOCKED",
+      "reason": "Required candidate adapter is unavailable"
+    },
+    {
+      "case": "ACTION-12::Administrator::active",
+      "outcome": "BLOCKED",
+      "reason": "Required candidate adapter is unavailable"
+    },
+    {
+      "case": "ACTION-13::anonymous::active",
+      "outcome": "BLOCKED",
+      "reason": "Required candidate adapter is unavailable"
+    },
+    {
+      "case": "ACTION-13::Reader::active",
+      "outcome": "BLOCKED",
+      "reason": "Required candidate adapter is unavailable"
+    },
+    {
+      "case": "ACTION-13::Operator::active",
+      "outcome": "BLOCKED",
+      "reason": "Required candidate adapter is unavailable"
+    },
+    {
+      "case": "ACTION-13::Administrator::active",
+      "outcome": "BLOCKED",
+      "reason": "Required candidate adapter is unavailable"
+    },
+    {
+      "case": "ACTION-14::anonymous::active",
+      "outcome": "BLOCKED",
+      "reason": "Required candidate adapter is unavailable"
+    },
+    {
+      "case": "ACTION-14::Reader::active",
+      "outcome": "BLOCKED",
+      "reason": "Required candidate adapter is unavailable"
+    },
+    {
+      "case": "ACTION-14::Operator::active",
+      "outcome": "BLOCKED",
+      "reason": "Required candidate adapter is unavailable"
+    },
+    {
+      "case": "ACTION-14::Administrator::active",
+      "outcome": "BLOCKED",
+      "reason": "Required candidate adapter is unavailable"
+    },
+    {
+      "case": "ACTION-15::anonymous::active",
+      "outcome": "BLOCKED",
+      "reason": "Required candidate adapter is unavailable"
+    },
+    {
+      "case": "ACTION-15::Reader::active",
+      "outcome": "BLOCKED",
+      "reason": "Required candidate adapter is unavailable"
+    },
+    {
+      "case": "ACTION-15::Operator::active",
+      "outcome": "BLOCKED",
+      "reason": "Required candidate adapter is unavailable"
+    },
+    {
+      "case": "ACTION-15::Administrator::active",
+      "outcome": "BLOCKED",
+      "reason": "Required candidate adapter is unavailable"
+    },
+    {
+      "case": "ACTION-16::anonymous::active",
+      "outcome": "BLOCKED",
+      "reason": "Required candidate adapter is unavailable"
+    },
+    {
+      "case": "ACTION-16::Reader::active",
+      "outcome": "BLOCKED",
+      "reason": "Required candidate adapter is unavailable"
+    },
+    {
+      "case": "ACTION-16::Operator::active",
+      "outcome": "BLOCKED",
+      "reason": "Required candidate adapter is unavailable"
+    },
+    {
+      "case": "ACTION-16::Administrator::active",
+      "outcome": "BLOCKED",
+      "reason": "Required candidate adapter is unavailable"
+    },
+    {
+      "case": "ACTION-17::anonymous::active",
+      "outcome": "BLOCKED",
+      "reason": "Required candidate adapter is unavailable"
+    },
+    {
+      "case": "ACTION-17::Reader::active",
+      "outcome": "BLOCKED",
+      "reason": "Required candidate adapter is unavailable"
+    },
+    {
+      "case": "ACTION-17::Operator::active",
+      "outcome": "BLOCKED",
+      "reason": "Required candidate adapter is unavailable"
+    },
+    {
+      "case": "ACTION-17::Administrator::active",
+      "outcome": "BLOCKED",
+      "reason": "Required candidate adapter is unavailable"
+    },
+    {
+      "case": "ACTION-17::Operator::logged_out",
+      "outcome": "BLOCKED",
+      "reason": "Required candidate adapter is unavailable"
+    },
+    {
+      "case": "ACTION-17::Operator::expired",
+      "outcome": "BLOCKED",
+      "reason": "Required candidate adapter is unavailable"
+    },
+    {
+      "case": "ACTION-17::Administrator::logged_out",
+      "outcome": "BLOCKED",
+      "reason": "Required candidate adapter is unavailable"
+    },
+    {
+      "case": "ACTION-17::Administrator::expired",
+      "outcome": "BLOCKED",
+      "reason": "Required candidate adapter is unavailable"
+    },
+    {
+      "case": "ACTION-18::anonymous::active",
+      "outcome": "BLOCKED",
+      "reason": "Required candidate adapter is unavailable"
+    },
+    {
+      "case": "ACTION-18::Reader::active",
+      "outcome": "BLOCKED",
+      "reason": "Required candidate adapter is unavailable"
+    },
+    {
+      "case": "ACTION-18::Operator::active",
+      "outcome": "BLOCKED",
+      "reason": "Required candidate adapter is unavailable"
+    },
+    {
+      "case": "ACTION-18::Administrator::active",
+      "outcome": "BLOCKED",
+      "reason": "Required candidate adapter is unavailable"
+    },
+    {
+      "case": "ACTION-19::anonymous::active",
+      "outcome": "BLOCKED",
+      "reason": "Required candidate adapter is unavailable"
+    },
+    {
+      "case": "ACTION-19::Reader::active",
+      "outcome": "BLOCKED",
+      "reason": "Required candidate adapter is unavailable"
+    },
+    {
+      "case": "ACTION-19::Operator::active",
+      "outcome": "BLOCKED",
+      "reason": "Required candidate adapter is unavailable"
+    },
+    {
+      "case": "ACTION-19::Administrator::active",
+      "outcome": "BLOCKED",
+      "reason": "Required candidate adapter is unavailable"
+    },
+    {
+      "case": "ACTION-19::Operator::logged_out",
+      "outcome": "BLOCKED",
+      "reason": "Required candidate adapter is unavailable"
+    },
+    {
+      "case": "ACTION-19::Operator::expired",
+      "outcome": "BLOCKED",
+      "reason": "Required candidate adapter is unavailable"
+    },
+    {
+      "case": "ACTION-19::Administrator::logged_out",
+      "outcome": "BLOCKED",
+      "reason": "Required candidate adapter is unavailable"
+    },
+    {
+      "case": "ACTION-19::Administrator::expired",
+      "outcome": "BLOCKED",
+      "reason": "Required candidate adapter is unavailable"
+    },
+    {
+      "case": "ACTION-20::anonymous::active",
+      "outcome": "BLOCKED",
+      "reason": "Required candidate adapter is unavailable"
+    },
+    {
+      "case": "ACTION-20::Reader::active",
+      "outcome": "BLOCKED",
+      "reason": "Required candidate adapter is unavailable"
+    },
+    {
+      "case": "ACTION-20::Operator::active",
+      "outcome": "BLOCKED",
+      "reason": "Required candidate adapter is unavailable"
+    },
+    {
+      "case": "ACTION-20::Administrator::active",
+      "outcome": "BLOCKED",
+      "reason": "Required candidate adapter is unavailable"
+    },
+    {
+      "case": "ACTION-21::anonymous::active",
+      "outcome": "BLOCKED",
+      "reason": "Required candidate adapter is unavailable"
+    },
+    {
+      "case": "ACTION-21::Reader::active",
+      "outcome": "BLOCKED",
+      "reason": "Required candidate adapter is unavailable"
+    },
+    {
+      "case": "ACTION-21::Operator::active",
+      "outcome": "BLOCKED",
+      "reason": "Required candidate adapter is unavailable"
+    },
+    {
+      "case": "ACTION-21::Administrator::active",
+      "outcome": "BLOCKED",
+      "reason": "Required candidate adapter is unavailable"
+    },
+    {
+      "case": "ACTION-22::anonymous::active",
+      "outcome": "BLOCKED",
+      "reason": "Required candidate adapter is unavailable"
+    },
+    {
+      "case": "ACTION-22::Reader::active",
+      "outcome": "BLOCKED",
+      "reason": "Required candidate adapter is unavailable"
+    },
+    {
+      "case": "ACTION-22::Operator::active",
+      "outcome": "BLOCKED",
+      "reason": "Required candidate adapter is unavailable"
+    },
+    {
+      "case": "ACTION-22::Administrator::active",
+      "outcome": "BLOCKED",
+      "reason": "Required candidate adapter is unavailable"
+    },
+    {
+      "case": "ACTION-23::anonymous::active",
+      "outcome": "BLOCKED",
+      "reason": "Required candidate adapter is unavailable"
+    },
+    {
+      "case": "ACTION-23::Reader::active",
+      "outcome": "BLOCKED",
+      "reason": "Required candidate adapter is unavailable"
+    },
+    {
+      "case": "ACTION-23::Operator::active",
+      "outcome": "BLOCKED",
+      "reason": "Required candidate adapter is unavailable"
+    },
+    {
+      "case": "ACTION-23::Administrator::active",
+      "outcome": "BLOCKED",
+      "reason": "Required candidate adapter is unavailable"
+    },
+    {
+      "case": "ACTION-24::anonymous::active",
+      "outcome": "BLOCKED",
+      "reason": "Required candidate adapter is unavailable"
+    },
+    {
+      "case": "ACTION-24::Reader::active",
+      "outcome": "BLOCKED",
+      "reason": "Required candidate adapter is unavailable"
+    },
+    {
+      "case": "ACTION-24::Operator::active",
+      "outcome": "BLOCKED",
+      "reason": "Required candidate adapter is unavailable"
+    },
+    {
+      "case": "ACTION-24::Administrator::active",
+      "outcome": "BLOCKED",
+      "reason": "Required candidate adapter is unavailable"
+    },
+    {
+      "case": "ACTION-25::anonymous::active",
+      "outcome": "BLOCKED",
+      "reason": "Required candidate adapter is unavailable"
+    },
+    {
+      "case": "ACTION-25::Reader::active",
+      "outcome": "BLOCKED",
+      "reason": "Required candidate adapter is unavailable"
+    },
+    {
+      "case": "ACTION-25::Operator::active",
+      "outcome": "BLOCKED",
+      "reason": "Required candidate adapter is unavailable"
+    },
+    {
+      "case": "ACTION-25::Administrator::active",
+      "outcome": "BLOCKED",
+      "reason": "Required candidate adapter is unavailable"
+    },
+    {
+      "case": "ACTION-26::anonymous::active",
+      "outcome": "BLOCKED",
+      "reason": "Required candidate adapter is unavailable"
+    },
+    {
+      "case": "ACTION-26::Reader::active",
+      "outcome": "BLOCKED",
+      "reason": "Required candidate adapter is unavailable"
+    },
+    {
+      "case": "ACTION-26::Operator::active",
+      "outcome": "BLOCKED",
+      "reason": "Required candidate adapter is unavailable"
+    },
+    {
+      "case": "ACTION-26::Administrator::active",
+      "outcome": "BLOCKED",
+      "reason": "Required candidate adapter is unavailable"
+    },
+    {
+      "case": "ACTION-27::anonymous::active",
+      "outcome": "BLOCKED",
+      "reason": "Required candidate adapter is unavailable"
+    },
+    {
+      "case": "ACTION-27::Reader::active",
+      "outcome": "BLOCKED",
+      "reason": "Required candidate adapter is unavailable"
+    },
+    {
+      "case": "ACTION-27::Operator::active",
+      "outcome": "BLOCKED",
+      "reason": "Required candidate adapter is unavailable"
+    },
+    {
+      "case": "ACTION-27::Administrator::active",
+      "outcome": "BLOCKED",
+      "reason": "Required candidate adapter is unavailable"
+    },
+    {
+      "case": "ACTION-28::anonymous::active",
+      "outcome": "BLOCKED",
+      "reason": "Required candidate adapter is unavailable"
+    },
+    {
+      "case": "ACTION-28::Reader::active",
+      "outcome": "BLOCKED",
+      "reason": "Required candidate adapter is unavailable"
+    },
+    {
+      "case": "ACTION-28::Operator::active",
+      "outcome": "BLOCKED",
+      "reason": "Required candidate adapter is unavailable"
+    },
+    {
+      "case": "ACTION-28::Administrator::active",
+      "outcome": "BLOCKED",
+      "reason": "Required candidate adapter is unavailable"
+    },
+    {
+      "case": "ACTION-29::anonymous::active",
+      "outcome": "BLOCKED",
+      "reason": "Required candidate adapter is unavailable"
+    },
+    {
+      "case": "ACTION-29::Reader::active",
+      "outcome": "BLOCKED",
+      "reason": "Required candidate adapter is unavailable"
+    },
+    {
+      "case": "ACTION-29::Operator::active",
+      "outcome": "BLOCKED",
+      "reason": "Required candidate adapter is unavailable"
+    },
+    {
+      "case": "ACTION-29::Administrator::active",
+      "outcome": "BLOCKED",
+      "reason": "Required candidate adapter is unavailable"
+    },
+    {
+      "case": "ACTION-29::Operator::logged_out",
+      "outcome": "BLOCKED",
+      "reason": "Required candidate adapter is unavailable"
+    },
+    {
+      "case": "ACTION-29::Operator::expired",
+      "outcome": "BLOCKED",
+      "reason": "Required candidate adapter is unavailable"
+    },
+    {
+      "case": "ACTION-29::Administrator::logged_out",
+      "outcome": "BLOCKED",
+      "reason": "Required candidate adapter is unavailable"
+    },
+    {
+      "case": "ACTION-29::Administrator::expired",
+      "outcome": "BLOCKED",
+      "reason": "Required candidate adapter is unavailable"
+    },
+    {
+      "case": "ACTION-30::anonymous::active",
+      "outcome": "BLOCKED",
+      "reason": "Required candidate adapter is unavailable"
+    },
+    {
+      "case": "ACTION-30::Reader::active",
+      "outcome": "BLOCKED",
+      "reason": "Required candidate adapter is unavailable"
+    },
+    {
+      "case": "ACTION-30::Operator::active",
+      "outcome": "BLOCKED",
+      "reason": "Required candidate adapter is unavailable"
+    },
+    {
+      "case": "ACTION-30::Administrator::active",
+      "outcome": "BLOCKED",
+      "reason": "Required candidate adapter is unavailable"
+    },
+    {
+      "case": "ACTION-31::anonymous::active",
+      "outcome": "BLOCKED",
+      "reason": "Required candidate adapter is unavailable"
+    },
+    {
+      "case": "ACTION-31::Reader::active",
+      "outcome": "BLOCKED",
+      "reason": "Required candidate adapter is unavailable"
+    },
+    {
+      "case": "ACTION-31::Operator::active",
+      "outcome": "BLOCKED",
+      "reason": "Required candidate adapter is unavailable"
+    },
+    {
+      "case": "ACTION-31::Administrator::active",
+      "outcome": "BLOCKED",
+      "reason": "Required candidate adapter is unavailable"
+    },
+    {
+      "case": "ACTION-32::anonymous::active",
+      "outcome": "BLOCKED",
+      "reason": "Required candidate adapter is unavailable"
+    },
+    {
+      "case": "ACTION-32::Reader::active",
+      "outcome": "BLOCKED",
+      "reason": "Required candidate adapter is unavailable"
+    },
+    {
+      "case": "ACTION-32::Operator::active",
+      "outcome": "BLOCKED",
+      "reason": "Required candidate adapter is unavailable"
+    },
+    {
+      "case": "ACTION-32::Administrator::active",
+      "outcome": "BLOCKED",
+      "reason": "Required candidate adapter is unavailable"
+    },
+    {
+      "case": "ACTION-33::anonymous::active",
+      "outcome": "BLOCKED",
+      "reason": "Required candidate adapter is unavailable"
+    },
+    {
+      "case": "ACTION-33::Reader::active",
+      "outcome": "BLOCKED",
+      "reason": "Required candidate adapter is unavailable"
+    },
+    {
+      "case": "ACTION-33::Operator::active",
+      "outcome": "BLOCKED",
+      "reason": "Required candidate adapter is unavailable"
+    },
+    {
+      "case": "ACTION-33::Administrator::active",
+      "outcome": "BLOCKED",
+      "reason": "Required candidate adapter is unavailable"
+    },
+    {
+      "case": "ACTION-34::anonymous::active",
+      "outcome": "BLOCKED",
+      "reason": "Required candidate adapter is unavailable"
+    },
+    {
+      "case": "ACTION-34::Reader::active",
+      "outcome": "BLOCKED",
+      "reason": "Required candidate adapter is unavailable"
+    },
+    {
+      "case": "ACTION-34::Operator::active",
+      "outcome": "BLOCKED",
+      "reason": "Required candidate adapter is unavailable"
+    },
+    {
+      "case": "ACTION-34::Administrator::active",
+      "outcome": "BLOCKED",
+      "reason": "Required candidate adapter is unavailable"
+    },
+    {
+      "case": "ACTION-35::anonymous::active",
+      "outcome": "BLOCKED",
+      "reason": "Required candidate adapter is unavailable"
+    },
+    {
+      "case": "ACTION-35::Reader::active",
+      "outcome": "BLOCKED",
+      "reason": "Required candidate adapter is unavailable"
+    },
+    {
+      "case": "ACTION-35::Operator::active",
+      "outcome": "BLOCKED",
+      "reason": "Required candidate adapter is unavailable"
+    },
+    {
+      "case": "ACTION-35::Administrator::active",
+      "outcome": "BLOCKED",
+      "reason": "Required candidate adapter is unavailable"
+    },
+    {
+      "case": "ACTION-36::anonymous::active",
+      "outcome": "BLOCKED",
+      "reason": "Required candidate adapter is unavailable"
+    },
+    {
+      "case": "ACTION-36::Reader::active",
+      "outcome": "BLOCKED",
+      "reason": "Required candidate adapter is unavailable"
+    },
+    {
+      "case": "ACTION-36::Operator::active",
+      "outcome": "BLOCKED",
+      "reason": "Required candidate adapter is unavailable"
+    },
+    {
+      "case": "ACTION-36::Administrator::active",
+      "outcome": "BLOCKED",
+      "reason": "Required candidate adapter is unavailable"
+    },
+    {
+      "case": "ACTION-37::anonymous::active",
+      "outcome": "BLOCKED",
+      "reason": "Required candidate adapter is unavailable"
+    },
+    {
+      "case": "ACTION-37::Reader::active",
+      "outcome": "BLOCKED",
+      "reason": "Required candidate adapter is unavailable"
+    },
+    {
+      "case": "ACTION-37::Operator::active",
+      "outcome": "BLOCKED",
+      "reason": "Required candidate adapter is unavailable"
+    },
+    {
+      "case": "ACTION-37::Administrator::active",
+      "outcome": "BLOCKED",
+      "reason": "Required candidate adapter is unavailable"
+    },
+    {
+      "case": "ACTION-38::anonymous::active",
+      "outcome": "BLOCKED",
+      "reason": "Required candidate adapter is unavailable"
+    },
+    {
+      "case": "ACTION-38::Reader::active",
+      "outcome": "BLOCKED",
+      "reason": "Required candidate adapter is unavailable"
+    },
+    {
+      "case": "ACTION-38::Operator::active",
+      "outcome": "BLOCKED",
+      "reason": "Required candidate adapter is unavailable"
+    },
+    {
+      "case": "ACTION-38::Administrator::active",
+      "outcome": "BLOCKED",
+      "reason": "Required candidate adapter is unavailable"
+    },
+    {
+      "case": "ACTION-39::anonymous::active",
+      "outcome": "BLOCKED",
+      "reason": "Required candidate adapter is unavailable"
+    },
+    {
+      "case": "ACTION-39::Reader::active",
+      "outcome": "BLOCKED",
+      "reason": "Required candidate adapter is unavailable"
+    },
+    {
+      "case": "ACTION-39::Operator::active",
+      "outcome": "BLOCKED",
+      "reason": "Required candidate adapter is unavailable"
+    },
+    {
+      "case": "ACTION-39::Administrator::active",
+      "outcome": "BLOCKED",
+      "reason": "Required candidate adapter is unavailable"
+    },
+    {
+      "case": "ACTION-40::anonymous::active",
+      "outcome": "BLOCKED",
+      "reason": "Required candidate adapter is unavailable"
+    },
+    {
+      "case": "ACTION-40::Reader::active",
+      "outcome": "BLOCKED",
+      "reason": "Required candidate adapter is unavailable"
+    },
+    {
+      "case": "ACTION-40::Operator::active",
+      "outcome": "BLOCKED",
+      "reason": "Required candidate adapter is unavailable"
+    },
+    {
+      "case": "ACTION-40::Administrator::active",
+      "outcome": "BLOCKED",
+      "reason": "Required candidate adapter is unavailable"
+    },
+    {
+      "case": "ACTION-41::anonymous::active",
+      "outcome": "BLOCKED",
+      "reason": "Required candidate adapter is unavailable"
+    },
+    {
+      "case": "ACTION-41::Reader::active",
+      "outcome": "BLOCKED",
+      "reason": "Required candidate adapter is unavailable"
+    },
+    {
+      "case": "ACTION-41::Operator::active",
+      "outcome": "BLOCKED",
+      "reason": "Required candidate adapter is unavailable"
+    },
+    {
+      "case": "ACTION-41::Administrator::active",
+      "outcome": "BLOCKED",
+      "reason": "Required candidate adapter is unavailable"
+    },
+    {
+      "case": "ACTION-41::Operator::logged_out",
+      "outcome": "BLOCKED",
+      "reason": "Required candidate adapter is unavailable"
+    },
+    {
+      "case": "ACTION-41::Operator::expired",
+      "outcome": "BLOCKED",
+      "reason": "Required candidate adapter is unavailable"
+    },
+    {
+      "case": "ACTION-41::Administrator::logged_out",
+      "outcome": "BLOCKED",
+      "reason": "Required candidate adapter is unavailable"
+    },
+    {
+      "case": "ACTION-41::Administrator::expired",
+      "outcome": "BLOCKED",
+      "reason": "Required candidate adapter is unavailable"
+    },
+    {
+      "case": "ACTION-42::anonymous::active",
+      "outcome": "BLOCKED",
+      "reason": "Required candidate adapter is unavailable"
+    },
+    {
+      "case": "ACTION-42::Reader::active",
+      "outcome": "BLOCKED",
+      "reason": "Required candidate adapter is unavailable"
+    },
+    {
+      "case": "ACTION-42::Operator::active",
+      "outcome": "BLOCKED",
+      "reason": "Required candidate adapter is unavailable"
+    },
+    {
+      "case": "ACTION-42::Administrator::active",
+      "outcome": "BLOCKED",
+      "reason": "Required candidate adapter is unavailable"
+    },
+    {
+      "case": "ACTION-43::anonymous::active",
+      "outcome": "BLOCKED",
+      "reason": "Required candidate adapter is unavailable"
+    },
+    {
+      "case": "ACTION-43::Reader::active",
+      "outcome": "BLOCKED",
+      "reason": "Required candidate adapter is unavailable"
+    },
+    {
+      "case": "ACTION-43::Operator::active",
+      "outcome": "BLOCKED",
+      "reason": "Required candidate adapter is unavailable"
+    },
+    {
+      "case": "ACTION-43::Administrator::active",
+      "outcome": "BLOCKED",
+      "reason": "Required candidate adapter is unavailable"
+    },
+    {
+      "case": "ACTION-44::anonymous::active",
+      "outcome": "BLOCKED",
+      "reason": "Required candidate adapter is unavailable"
+    },
+    {
+      "case": "ACTION-44::Reader::active",
+      "outcome": "BLOCKED",
+      "reason": "Required candidate adapter is unavailable"
+    },
+    {
+      "case": "ACTION-44::Operator::active",
+      "outcome": "BLOCKED",
+      "reason": "Required candidate adapter is unavailable"
+    },
+    {
+      "case": "ACTION-44::Administrator::active",
+      "outcome": "BLOCKED",
+      "reason": "Required candidate adapter is unavailable"
+    },
+    {
+      "case": "ACTION-45::anonymous::active",
+      "outcome": "BLOCKED",
+      "reason": "Required candidate adapter is unavailable"
+    },
+    {
+      "case": "ACTION-45::Reader::active",
+      "outcome": "BLOCKED",
+      "reason": "Required candidate adapter is unavailable"
+    },
+    {
+      "case": "ACTION-45::Operator::active",
+      "outcome": "BLOCKED",
+      "reason": "Required candidate adapter is unavailable"
+    },
+    {
+      "case": "ACTION-45::Administrator::active",
+      "outcome": "BLOCKED",
+      "reason": "Required candidate adapter is unavailable"
+    },
+    {
+      "case": "API-01::anonymous::active",
+      "outcome": "BLOCKED",
+      "reason": "Required candidate adapter is unavailable"
+    },
+    {
+      "case": "API-01::Reader::active",
+      "outcome": "BLOCKED",
+      "reason": "Required candidate adapter is unavailable"
+    },
+    {
+      "case": "API-01::Operator::active",
+      "outcome": "BLOCKED",
+      "reason": "Required candidate adapter is unavailable"
+    },
+    {
+      "case": "API-01::Administrator::active",
+      "outcome": "BLOCKED",
+      "reason": "Required candidate adapter is unavailable"
+    },
+    {
+      "case": "API-01::Reader::logged_out",
+      "outcome": "BLOCKED",
+      "reason": "Required candidate adapter is unavailable"
+    },
+    {
+      "case": "API-01::Reader::expired",
+      "outcome": "BLOCKED",
+      "reason": "Required candidate adapter is unavailable"
+    },
+    {
+      "case": "API-01::Operator::logged_out",
+      "outcome": "BLOCKED",
+      "reason": "Required candidate adapter is unavailable"
+    },
+    {
+      "case": "API-01::Operator::expired",
+      "outcome": "BLOCKED",
+      "reason": "Required candidate adapter is unavailable"
+    },
+    {
+      "case": "API-01::Administrator::logged_out",
+      "outcome": "BLOCKED",
+      "reason": "Required candidate adapter is unavailable"
+    },
+    {
+      "case": "API-01::Administrator::expired",
+      "outcome": "BLOCKED",
+      "reason": "Required candidate adapter is unavailable"
+    },
+    {
+      "case": "API-02::anonymous::active",
+      "outcome": "PASS",
+      "reason": "Desired denial observed with required evidence"
+    },
+    {
+      "case": "API-02::Reader::active",
+      "outcome": "PASS",
+      "reason": "Desired denial observed with required evidence"
+    },
+    {
+      "case": "API-02::Operator::active",
+      "outcome": "BLOCKED",
+      "reason": "Required candidate adapter is unavailable"
+    },
+    {
+      "case": "API-02::Administrator::active",
+      "outcome": "BLOCKED",
+      "reason": "Required candidate adapter is unavailable"
+    },
+    {
+      "case": "API-02::Operator::logged_out",
+      "outcome": "PASS",
+      "reason": "Desired denial observed with required evidence"
+    },
+    {
+      "case": "API-02::Operator::expired",
+      "outcome": "PASS",
+      "reason": "Desired denial observed with required evidence"
+    },
+    {
+      "case": "API-02::Administrator::logged_out",
+      "outcome": "BLOCKED",
+      "reason": "Required candidate adapter is unavailable"
+    },
+    {
+      "case": "API-02::Administrator::expired",
+      "outcome": "BLOCKED",
+      "reason": "Required candidate adapter is unavailable"
+    },
+    {
+      "case": "API-03::anonymous::active",
+      "outcome": "BLOCKED",
+      "reason": "Required candidate adapter is unavailable"
+    },
+    {
+      "case": "API-03::Reader::active",
+      "outcome": "BLOCKED",
+      "reason": "Required candidate adapter is unavailable"
+    },
+    {
+      "case": "API-03::Operator::active",
+      "outcome": "BLOCKED",
+      "reason": "Required candidate adapter is unavailable"
+    },
+    {
+      "case": "API-03::Administrator::active",
+      "outcome": "BLOCKED",
+      "reason": "Required candidate adapter is unavailable"
+    },
+    {
+      "case": "API-03::Operator::logged_out",
+      "outcome": "BLOCKED",
+      "reason": "Required candidate adapter is unavailable"
+    },
+    {
+      "case": "API-03::Operator::expired",
+      "outcome": "BLOCKED",
+      "reason": "Required candidate adapter is unavailable"
+    },
+    {
+      "case": "API-03::Administrator::logged_out",
+      "outcome": "BLOCKED",
+      "reason": "Required candidate adapter is unavailable"
+    },
+    {
+      "case": "API-03::Administrator::expired",
+      "outcome": "BLOCKED",
+      "reason": "Required candidate adapter is unavailable"
+    },
+    {
+      "case": "WS-01::anonymous::active",
+      "outcome": "BLOCKED",
+      "reason": "Required candidate adapter is unavailable"
+    },
+    {
+      "case": "WS-01::Reader::active",
+      "outcome": "BLOCKED",
+      "reason": "Required candidate adapter is unavailable"
+    },
+    {
+      "case": "WS-01::Operator::active",
+      "outcome": "BLOCKED",
+      "reason": "Required candidate adapter is unavailable"
+    },
+    {
+      "case": "WS-01::Administrator::active",
+      "outcome": "BLOCKED",
+      "reason": "Required candidate adapter is unavailable"
+    },
+    {
+      "case": "WS-01::Reader::logged_out",
+      "outcome": "BLOCKED",
+      "reason": "Required candidate adapter is unavailable"
+    },
+    {
+      "case": "WS-01::Reader::expired",
+      "outcome": "BLOCKED",
+      "reason": "Required candidate adapter is unavailable"
+    },
+    {
+      "case": "WS-01::Operator::logged_out",
+      "outcome": "BLOCKED",
+      "reason": "Required candidate adapter is unavailable"
+    },
+    {
+      "case": "WS-01::Operator::expired",
+      "outcome": "BLOCKED",
+      "reason": "Required candidate adapter is unavailable"
+    },
+    {
+      "case": "WS-01::Administrator::logged_out",
+      "outcome": "BLOCKED",
+      "reason": "Required candidate adapter is unavailable"
+    },
+    {
+      "case": "WS-01::Administrator::expired",
+      "outcome": "BLOCKED",
+      "reason": "Required candidate adapter is unavailable"
+    },
+    {
+      "case": "BG-01::anonymous::active",
+      "outcome": "BLOCKED",
+      "reason": "Required candidate adapter is unavailable"
+    },
+    {
+      "case": "BG-01::Reader::active",
+      "outcome": "BLOCKED",
+      "reason": "Required candidate adapter is unavailable"
+    },
+    {
+      "case": "BG-01::Operator::active",
+      "outcome": "BLOCKED",
+      "reason": "Required candidate adapter is unavailable"
+    },
+    {
+      "case": "BG-01::Administrator::active",
+      "outcome": "BLOCKED",
+      "reason": "Required candidate adapter is unavailable"
+    },
+    {
+      "case": "BG-02::anonymous::active",
+      "outcome": "BLOCKED",
+      "reason": "Required candidate adapter is unavailable"
+    },
+    {
+      "case": "BG-02::Reader::active",
+      "outcome": "BLOCKED",
+      "reason": "Required candidate adapter is unavailable"
+    },
+    {
+      "case": "BG-02::Operator::active",
+      "outcome": "BLOCKED",
+      "reason": "Required candidate adapter is unavailable"
+    },
+    {
+      "case": "BG-02::Administrator::active",
+      "outcome": "BLOCKED",
+      "reason": "Required candidate adapter is unavailable"
+    },
+    {
+      "case": "BG-03::anonymous::active",
+      "outcome": "BLOCKED",
+      "reason": "Required candidate adapter is unavailable"
+    },
+    {
+      "case": "BG-03::Reader::active",
+      "outcome": "BLOCKED",
+      "reason": "Required candidate adapter is unavailable"
+    },
+    {
+      "case": "BG-03::Operator::active",
+      "outcome": "BLOCKED",
+      "reason": "Required candidate adapter is unavailable"
+    },
+    {
+      "case": "BG-03::Administrator::active",
+      "outcome": "BLOCKED",
+      "reason": "Required candidate adapter is unavailable"
+    },
+    {
+      "case": "BG-04::anonymous::active",
+      "outcome": "BLOCKED",
+      "reason": "Required candidate adapter is unavailable"
+    },
+    {
+      "case": "BG-04::Reader::active",
+      "outcome": "BLOCKED",
+      "reason": "Required candidate adapter is unavailable"
+    },
+    {
+      "case": "BG-04::Operator::active",
+      "outcome": "BLOCKED",
+      "reason": "Required candidate adapter is unavailable"
+    },
+    {
+      "case": "BG-04::Administrator::active",
+      "outcome": "BLOCKED",
+      "reason": "Required candidate adapter is unavailable"
+    },
+    {
+      "case": "BG-05::anonymous::active",
+      "outcome": "BLOCKED",
+      "reason": "Required candidate adapter is unavailable"
+    },
+    {
+      "case": "BG-05::Reader::active",
+      "outcome": "BLOCKED",
+      "reason": "Required candidate adapter is unavailable"
+    },
+    {
+      "case": "BG-05::Operator::active",
+      "outcome": "BLOCKED",
+      "reason": "Required candidate adapter is unavailable"
+    },
+    {
+      "case": "BG-05::Administrator::active",
+      "outcome": "BLOCKED",
+      "reason": "Required candidate adapter is unavailable"
+    },
+    {
+      "case": "BG-06::anonymous::active",
+      "outcome": "BLOCKED",
+      "reason": "Required candidate adapter is unavailable"
+    },
+    {
+      "case": "BG-06::Reader::active",
+      "outcome": "BLOCKED",
+      "reason": "Required candidate adapter is unavailable"
+    },
+    {
+      "case": "BG-06::Operator::active",
+      "outcome": "BLOCKED",
+      "reason": "Required candidate adapter is unavailable"
+    },
+    {
+      "case": "BG-06::Administrator::active",
+      "outcome": "BLOCKED",
+      "reason": "Required candidate adapter is unavailable"
+    },
+    {
+      "case": "SERVICE-01::anonymous::active",
+      "outcome": "BLOCKED",
+      "reason": "Required candidate adapter is unavailable"
+    },
+    {
+      "case": "SERVICE-01::Reader::active",
+      "outcome": "BLOCKED",
+      "reason": "Required candidate adapter is unavailable"
+    },
+    {
+      "case": "SERVICE-01::Operator::active",
+      "outcome": "BLOCKED",
+      "reason": "Required candidate adapter is unavailable"
+    },
+    {
+      "case": "SERVICE-01::Administrator::active",
+      "outcome": "BLOCKED",
+      "reason": "Required candidate adapter is unavailable"
+    },
+    {
+      "case": "SERVICE-02::anonymous::active",
+      "outcome": "BLOCKED",
+      "reason": "Required candidate adapter is unavailable"
+    },
+    {
+      "case": "SERVICE-02::Reader::active",
+      "outcome": "BLOCKED",
+      "reason": "Required candidate adapter is unavailable"
+    },
+    {
+      "case": "SERVICE-02::Operator::active",
+      "outcome": "BLOCKED",
+      "reason": "Required candidate adapter is unavailable"
+    },
+    {
+      "case": "SERVICE-02::Administrator::active",
+      "outcome": "BLOCKED",
+      "reason": "Required candidate adapter is unavailable"
+    },
+    {
+      "case": "SERVICE-03::anonymous::active",
+      "outcome": "BLOCKED",
+      "reason": "Required candidate adapter is unavailable"
+    },
+    {
+      "case": "SERVICE-03::Reader::active",
+      "outcome": "BLOCKED",
+      "reason": "Required candidate adapter is unavailable"
+    },
+    {
+      "case": "SERVICE-03::Operator::active",
+      "outcome": "BLOCKED",
+      "reason": "Required candidate adapter is unavailable"
+    },
+    {
+      "case": "SERVICE-03::Administrator::active",
+      "outcome": "BLOCKED",
+      "reason": "Required candidate adapter is unavailable"
+    },
+    {
+      "case": "SERVICE-04::anonymous::active",
+      "outcome": "BLOCKED",
+      "reason": "Required candidate adapter is unavailable"
+    },
+    {
+      "case": "SERVICE-04::Reader::active",
+      "outcome": "BLOCKED",
+      "reason": "Required candidate adapter is unavailable"
+    },
+    {
+      "case": "SERVICE-04::Operator::active",
+      "outcome": "BLOCKED",
+      "reason": "Required candidate adapter is unavailable"
+    },
+    {
+      "case": "SERVICE-04::Administrator::active",
+      "outcome": "BLOCKED",
+      "reason": "Required candidate adapter is unavailable"
+    },
+    {
+      "case": "PRIVATE-01::anonymous::active",
+      "outcome": "BLOCKED",
+      "reason": "Required candidate adapter is unavailable"
+    },
+    {
+      "case": "PRIVATE-01::Reader::active",
+      "outcome": "BLOCKED",
+      "reason": "Required candidate adapter is unavailable"
+    },
+    {
+      "case": "PRIVATE-01::Operator::active",
+      "outcome": "BLOCKED",
+      "reason": "Required candidate adapter is unavailable"
+    },
+    {
+      "case": "PRIVATE-01::Administrator::active",
+      "outcome": "BLOCKED",
+      "reason": "Required candidate adapter is unavailable"
+    },
+    {
+      "case": "PRIVATE-02::anonymous::active",
+      "outcome": "BLOCKED",
+      "reason": "Required candidate adapter is unavailable"
+    },
+    {
+      "case": "PRIVATE-02::Reader::active",
+      "outcome": "BLOCKED",
+      "reason": "Required candidate adapter is unavailable"
+    },
+    {
+      "case": "PRIVATE-02::Operator::active",
+      "outcome": "BLOCKED",
+      "reason": "Required candidate adapter is unavailable"
+    },
+    {
+      "case": "PRIVATE-02::Administrator::active",
+      "outcome": "BLOCKED",
+      "reason": "Required candidate adapter is unavailable"
+    },
+    {
+      "case": "PRIVATE-03::anonymous::active",
+      "outcome": "BLOCKED",
+      "reason": "Required candidate adapter is unavailable"
+    },
+    {
+      "case": "PRIVATE-03::Reader::active",
+      "outcome": "BLOCKED",
+      "reason": "Required candidate adapter is unavailable"
+    },
+    {
+      "case": "PRIVATE-03::Operator::active",
+      "outcome": "BLOCKED",
+      "reason": "Required candidate adapter is unavailable"
+    },
+    {
+      "case": "PRIVATE-03::Administrator::active",
+      "outcome": "BLOCKED",
+      "reason": "Required candidate adapter is unavailable"
+    },
+    {
+      "case": "PRIVATE-04::anonymous::active",
+      "outcome": "BLOCKED",
+      "reason": "Required candidate adapter is unavailable"
+    },
+    {
+      "case": "PRIVATE-04::Reader::active",
+      "outcome": "BLOCKED",
+      "reason": "Required candidate adapter is unavailable"
+    },
+    {
+      "case": "PRIVATE-04::Operator::active",
+      "outcome": "BLOCKED",
+      "reason": "Required candidate adapter is unavailable"
+    },
+    {
+      "case": "PRIVATE-04::Administrator::active",
+      "outcome": "BLOCKED",
+      "reason": "Required candidate adapter is unavailable"
+    },
+    {
+      "case": "PRIVATE-05::anonymous::active",
+      "outcome": "BLOCKED",
+      "reason": "Required candidate adapter is unavailable"
+    },
+    {
+      "case": "PRIVATE-05::Reader::active",
+      "outcome": "BLOCKED",
+      "reason": "Required candidate adapter is unavailable"
+    },
+    {
+      "case": "PRIVATE-05::Operator::active",
+      "outcome": "BLOCKED",
+      "reason": "Required candidate adapter is unavailable"
+    },
+    {
+      "case": "PRIVATE-05::Administrator::active",
+      "outcome": "BLOCKED",
+      "reason": "Required candidate adapter is unavailable"
+    },
+    {
+      "case": "WS-ORIGIN::Reader::active",
+      "outcome": "BLOCKED",
+      "reason": "Required candidate adapter is unavailable"
+    },
+    {
+      "case": "WS-ORIGIN::Operator::active",
+      "outcome": "BLOCKED",
+      "reason": "Required candidate adapter is unavailable"
+    },
+    {
+      "case": "WS-ORIGIN::Administrator::active",
+      "outcome": "BLOCKED",
+      "reason": "Required candidate adapter is unavailable"
+    },
+    {
+      "case": "BG-01-MACHINE::worker-BG-01::active",
+      "outcome": "BLOCKED",
+      "reason": "Required candidate adapter is unavailable"
+    },
+    {
+      "case": "BG-02-MACHINE::worker-BG-02::active",
+      "outcome": "BLOCKED",
+      "reason": "Required candidate adapter is unavailable"
+    },
+    {
+      "case": "BG-03-MACHINE::worker-BG-03::active",
+      "outcome": "BLOCKED",
+      "reason": "Required candidate adapter is unavailable"
+    },
+    {
+      "case": "BG-04-MACHINE::worker-BG-04::active",
+      "outcome": "BLOCKED",
+      "reason": "Required candidate adapter is unavailable"
+    },
+    {
+      "case": "BG-05-MACHINE::worker-BG-05::active",
+      "outcome": "BLOCKED",
+      "reason": "Required candidate adapter is unavailable"
+    },
+    {
+      "case": "BG-06-MACHINE::deployment-migration::active",
+      "outcome": "BLOCKED",
+      "reason": "Required candidate adapter is unavailable"
+    },
+    {
+      "case": "API-03-SCOPED::routing-service::active",
+      "outcome": "BLOCKED",
+      "reason": "Required candidate adapter is unavailable"
+    }
+  ]
+}

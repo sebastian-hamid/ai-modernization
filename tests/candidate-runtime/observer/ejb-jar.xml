@@ -1,0 +1,1 @@
+<ejb-jar xmlns="https://jakarta.ee/xml/ns/jakartaee" version="4.0"><interceptors><interceptor><interceptor-class>lab.fixture.InvocationAudit</interceptor-class></interceptor></interceptors><assembly-descriptor><interceptor-binding><ejb-name>*</ejb-name><interceptor-class>lab.fixture.InvocationAudit</interceptor-class></interceptor-binding></assembly-descriptor></ejb-jar>

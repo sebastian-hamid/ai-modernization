@@ -1,0 +1,40 @@
+{
+  "task": "KAN-15 bounded independent-effects/live-adapter increment",
+  "reviewer": "/root/review_kan15_effects",
+  "base": "e467875e2cab63da6c71c9bf0d503958c862a71c",
+  "verdict": "Approved bounded publication; no remaining material findings. Full KAN-15 acceptance incomplete.",
+  "input_hashes_verified": 280,
+  "manifest_sha256": "9df75c04a0f96d014de6525bc8b12001b1380a4224189da1cd26567296e3327c",
+  "independently_executed_unit_tests": 33,
+  "browser": 210,
+  "application": 80,
+  "domain": 35,
+  "catalogue": {
+    "PASS": 4,
+    "BLOCKED": 498,
+    "native_exit": 2
+  },
+  "reviewer_live_execution": false,
+  "resolved_non_material_notes": [
+    "Explicitly assert both actual MDB invocation increments",
+    "Correct SQL/queue snapshot ordering description and bounded loop budget",
+    "Disclose forged cross-role ViewState, timer and delayed-effect limits"
+  ],
+  "remaining_findings": [],
+  "limits": [
+    "Inherited empty domain TODO",
+    "Chromium only; H2 fixture",
+    "498 catalogue bindings and full platform/security acceptance incomplete",
+    "Invocation telemetry is not production audit; timers not instrumented"
+  ],
+  "evidence_sha256": {
+    "application-results.json": "1809482ac98066f7df1f79e6cba710d1b596b2aa9df4530be27b19a026ddc138",
+    "browser-results.json": "1f55eb518ee99fb487c4b60709f32838a0f3aa823c877148cacbaeeb2d495287",
+    "catalogue-exit.json": "cfc1a53871aa959ab6a814bbde3bbd496ac8431529fa2a0dc45addc27bcf8f00",
+    "catalogue-results.json": "6718293199e917f201a39b98921b6f00e3497f0da479869617f7e2075cfb4ed8",
+    "initial-build-failure.json": "725eb55671386efafec8f503e141b3b92bb5f396aab52c6ebfa4a6d9bdf9b4ef",
+    "initial-jvm-discovery-failure.json": "8e3671e9b76ce1cd5ad980be71296ddc64a674bd5c31d309e29d9e5fcd94ef94",
+    "live-subset-runtime-results.json": "2dc396f61757788376e859896a1ebaaddbb93c1c6ea0d0f3e00e94fab13c7684",
+    "validation.json": "9df75c04a0f96d014de6525bc8b12001b1380a4224189da1cd26567296e3327c"
+  }
+}

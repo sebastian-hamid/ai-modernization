@@ -64,3 +64,11 @@ Jenkins build 6 passed: 134 application cases and 10 tooling checks, including 8
 
 ## Baseline documentation (28 October 2026)
 Functional, architecture and technical baseline documents are available in [docs/baseline](../docs/baseline/README.md). This pass verified source references and archived evidence, not current service health or target compatibility.
+
+## Candidate checkpoint — 1 November 2026
+
+The earlier publication-pending entries above are historical. Repository main has been published to GitHub; KAN-20 was independently reviewed and pushed as e467875. The shared historical app currently returns HTTP200 at localhost8081; Jenkins and its build agent are preserved.
+
+The separate disposable candidate uses pinned Java25/JakartaEE11/WildFly42, not the Ubuntu host's baseline Java21 configuration. Current browser/runtime evidence is under notes/evidence/kan-20-navigation and notes/evidence/kan-15-effects. The candidate fixture is removed after verification; this is not an always-running or production deployment.
+
+KAN-15 now has a bounded independent SQL/broker/invocation observer and fresh handling-denial/revocation catalogue adapter; see ../docs/candidate/independent-effects.md. Full security/platform acceptance and PostgreSQL/Flyway migration remain incomplete. Interactive Jenkins administrator login is still not newly verified by these candidate tests.

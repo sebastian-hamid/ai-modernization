@@ -1,0 +1,15 @@
+{
+  "task": "KAN-18/KAN-15",
+  "scope": "Real Cargo Tracker candidate: monitoring/handling/session plus Faces list/booking/details/destination routes",
+  "checks": [
+    {
+      "name": "Pinned runtime fixture builds",
+      "passed": false
+    }
+  ],
+  "status": "FAIL",
+  "error_type": "AssertionError",
+  "private_files_removed": true,
+  "cleanup_errors": [],
+  "count": 1
+}

@@ -1,0 +1,5 @@
+{
+  "exit_code": 2,
+  "expected": 2,
+  "meaning": "Full gate remains incomplete; four live bindings only"
+}

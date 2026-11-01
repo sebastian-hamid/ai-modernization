@@ -1,0 +1,164 @@
+{
+  "task": "KAN-18/KAN-15",
+  "scope": "Real Cargo Tracker candidate: monitoring/handling/session plus Faces list/booking/details/destination routes",
+  "checks": [
+    {
+      "name": "Pinned runtime fixture builds",
+      "passed": true
+    },
+    {
+      "name": "Disposable image refuses absent opt-in",
+      "passed": true
+    },
+    {
+      "name": "35 candidate domain tests execute",
+      "passed": true
+    },
+    {
+      "name": "Anonymous monitoring denied",
+      "passed": true
+    },
+    {
+      "name": "Anonymous handling denied",
+      "passed": true
+    },
+    {
+      "name": "Anonymous operational page navigates to login",
+      "passed": true
+    },
+    {
+      "name": "Anonymous tracking endpoint denied",
+      "passed": true
+    },
+    {
+      "name": "Private source note denied",
+      "passed": true
+    },
+    {
+      "name": "Login form with token: reader",
+      "passed": true
+    },
+    {
+      "name": "Container login succeeds: reader",
+      "passed": true
+    },
+    {
+      "name": "Session ID rotates: reader",
+      "passed": true
+    },
+    {
+      "name": "Server principal and role: reader",
+      "passed": true
+    },
+    {
+      "name": "Login form with token: operator",
+      "passed": true
+    },
+    {
+      "name": "Container login succeeds: operator",
+      "passed": true
+    },
+    {
+      "name": "Session ID rotates: operator",
+      "passed": true
+    },
+    {
+      "name": "Server principal and role: operator",
+      "passed": true
+    },
+    {
+      "name": "Login form with token: admin",
+      "passed": true
+    },
+    {
+      "name": "Container login succeeds: admin",
+      "passed": true
+    },
+    {
+      "name": "Session ID rotates: admin",
+      "passed": true
+    },
+    {
+      "name": "Server principal and role: admin",
+      "passed": true
+    },
+    {
+      "name": "Anonymous routing API denied",
+      "passed": true
+    },
+    {
+      "name": "Reader routing API denied",
+      "passed": true
+    },
+    {
+      "name": "Operator routing API allowed",
+      "passed": true
+    },
+    {
+      "name": "Administrator routing API allowed",
+      "passed": true
+    },
+    {
+      "name": "Native scoped routing account allowed",
+      "passed": true
+    },
+    {
+      "name": "Routing Basic retains no usable session",
+      "passed": true
+    },
+    {
+      "name": "Wrong routing service password denied",
+      "passed": true
+    },
+    {
+      "name": "Human Basic credentials cannot impersonate service",
+      "passed": true
+    },
+    {
+      "name": "Malformed Basic rejected",
+      "passed": true
+    },
+    {
+      "name": "Routing identity cannot use monitoring API",
+      "passed": true
+    },
+    {
+      "name": "Invalid route locations controlled",
+      "passed": true
+    },
+    {
+      "name": "Invalid route deadline controlled",
+      "passed": true
+    },
+    {
+      "name": "Authenticated monitoring",
+      "passed": true
+    },
+    {
+      "name": "Authenticated monitoring",
+      "passed": true
+    },
+    {
+      "name": "Authenticated monitoring",
+      "passed": true
+    },
+    {
+      "name": "Original four seeded cargos",
+      "passed": true
+    }
+  ],
+  "status": "FAIL",
+  "image_id": "sha256:ffb5e6f9e842b4eed5cd06c5b163ab3fd2ca0be970b0dc0274c21e47e7b864b9",
+  "domain_tests": {
+    "tests": 35,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0,
+    "empty_legacy_todo_retained": true
+  },
+  "error_type": "RuntimeError",
+  "owned_container_removed": true,
+  "private_files_removed": true,
+  "cleanup_errors": [],
+  "count": 36
+}

@@ -94,8 +94,8 @@
       "title": "[SEC-03] Implement local identities and authorization on candidate surfaces",
       "parent": "KAN-5",
       "last_verified_status": "In Progress",
-      "evidence": "notes/evidence/kan-19-routing/validation.json",
-      "remaining_blocker": "Scoped native routing identity verified; remaining live/session/worker/machine controls and independent effects observers"
+      "evidence": "notes/evidence/kan-15-effects/validation.json",
+      "remaining_blocker": "Four live catalogue denials/revocations only; remaining498 adapters plus full machine/worker/retry acceptance"
     },
     "BUG-01": {
       "key": "KAN-16",
@@ -134,10 +134,10 @@
       "type": "Task",
       "title": "[BUG-03] Fix broken tracking view and uncontrolled direct-link errors",
       "parent": "KAN-6",
-      "last_verified_status": "In Progress",
+      "last_verified_status": "Done",
       "evidence": "notes/evidence/kan-20-navigation/validation.json",
       "review": "notes/agent-reviews/2026-11-01-kan20-navigation-review.json",
-      "remaining_blocker": "Reviewed and verified; publication/Jira closure pending"
+      "remaining_blocker": null
     },
     "DB-01": {
       "key": "KAN-21",
