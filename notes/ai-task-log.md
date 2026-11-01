@@ -167,3 +167,13 @@ Independent reviewer /root/review_kan15_effects approved this bounded increment 
 ## 1 November 2026 — KAN-15 monitoring/private bindings
 
 Added parsed seeded monitoring GET and actual HEAD status/empty-body checks for every actor, plus exact privateWEB-INF template denials. Independent reviewer /root/review_kan15_reads identified missingHEAD coverage in initial groupedGET/HEAD PASS; corrected, reran actualfixture and retained rejectedGET-only result. Final96 application/35domain PASS (one emptyTODO),22securityunit tests PASS; freshcatalogue16PASS/486BLOCKED, nativeexit2. Prior210browser result is historical, not rerun for binding-only change. Reviewer inspected281hashes/finalreports and independently ran22unit tests, no remaining material findings. FullKAN15 incomplete; same30minute taskclock retained. Task app/private files removed; publication under standing authorization.
+
+## 1 November 2026 — KAN-15 API/private access matrix
+
+Completed all27 API definitions (native human roles, GET/HEAD reads, actual handling effects, logout/expiry for each permitted role, scoped routing identity) and28 private-template/metadata/source definitions. Native routing principal/roles/sequence are observed server-side in lab-only instrumentation; no production application/permission change.
+
+Initial strict date validator rejected valid JSON-B [UTC] dates; corrected with format/malformed/order regressions. Earlier reviewer was interrupted by usage limit before final approval. User authorized continuation; fresh reviewer /root/review_kan15_final_api inspected all final code/docs/evidence and284 input hashes, independently ran43unit checks, and approved this bounded increment with no remaining material findings.
+
+Final156 application/210 Chromium/35 domain PASS (one inherited empty TODO);43 unit PASS; fresh catalogue55PASS/447BLOCKED, nativeexit2. Six logout/expiry cohorts preserve independent snapshots and positive handling detects actual SQL/broker/worker effects. Resource packaging flags distinguish inaccessible existing files from omitted resources. Archived image was unavailable for artifact comparison; inaccurate identity claim removed and current browser regression rerun. Different build IDs are recorded, not asserted identical.
+
+Task fixtures/private files removed, historicalHTTP200/source/Jenkins preserved. Full KAN-14/KAN-15/KAN-18 remains incomplete. Publishing under standing authorization; no production deployment. Human effort/cost unavailable.

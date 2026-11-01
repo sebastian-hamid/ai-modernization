@@ -1,0 +1,40 @@
+{
+  "task": "KAN-15 API and private-resource matrix",
+  "reviewer": "/root/review_kan15_final_api",
+  "base": "fd63103fc29ce4d31fe7ac301d280fdfec35a3c4",
+  "verdict": "Approved bounded increment; no remaining material findings. Full KAN-15 incomplete.",
+  "input_hashes_verified": 284,
+  "independently_executed_unit_tests": 43,
+  "application": 156,
+  "browser": 210,
+  "domain": 35,
+  "catalogue": {
+    "PASS": 55,
+    "BLOCKED": 447,
+    "native_exit": 2
+  },
+  "reviewer_live_execution": false,
+  "corrections": [
+    "Test date parser supports observed JSON-B UTC suffix with strict offset agreement",
+    "Removed inaccurate same-image claim; current browser regression rerun and separate build IDs disclosed"
+  ],
+  "remaining_findings": [],
+  "limits": [
+    "Inherited empty domain TODO",
+    "Different build IDs recorded; earlier artifact unavailable for comparison",
+    "Marker inspection bounded; full worker/UI/callback/retry coverage incomplete"
+  ],
+  "evidence_sha256": {
+    "application-results.json": "9948ee5edaf62ec55a693ec2be31407d886b7d11e3d1f1841dc7b42d315c089c",
+    "artifact-comparison.json": "8742b074ad306d0c7e012898827af04ca6b87702cbc74434e3b48234e7eb94d8",
+    "browser-results.json": "1f55eb518ee99fb487c4b60709f32838a0f3aa823c877148cacbaeeb2d495287",
+    "browser-run-application-results.json": "16ed32c6c4b04643cad77a223b17d127dedfca781a6bdfbefe76652d7cea90d8",
+    "catalogue-exit.json": "486563e0cb180d374720cf5bddada853b3a7244cbf0ce012134e750bd4f8f60c",
+    "catalogue-results.json": "0342b1e842d93c15c988eb30431c6364d706d5917658022898af02e2088d5ded",
+    "date-format-observation.json": "39061c8c90164f02b4f932366b1536db932dca1c66d2da71ee25925a23f39dba",
+    "earlier-browser-application-results.json": "66555dc94c238c2530ad3a2afc65c972113042e2329e9f1f922aec399a627df3",
+    "earlier-browser-results.json": "1f55eb518ee99fb487c4b60709f32838a0f3aa823c877148cacbaeeb2d495287",
+    "initial-route-semantics-failure.json": "2b2effcabce71d159659d55ba4315bc7e4c4f7dc26f453da10c33d6361d6d85f",
+    "validation.json": "fcc87593db97e3d0bf74566040c2f06eb15ee49a7daa9f45ac296e3401573e49"
+  }
+}

@@ -5,10 +5,11 @@ sys.path.insert(0,str(Path(__file__).parent))
 import run_candidate_contracts as adapter
 from contracts import UnsupportedCase,evaluate
 class LiveSubsetTests(unittest.TestCase):
-    def case(self):return {"id":"API-02::Reader::active","surface_id":"API-02","path":"/cargo-tracker/rest/handling/reports","method":"POST","expected":"deny","write":True}
+    def case(self):return dict(adapter.bound_contracts()["API-02::Reader::active"])
     def prepared(self):
         value=adapter.LiveSubsetCandidate.__new__(adapter.LiveSubsetCandidate)
         value.observations={self.case()["id"]:{"supported":True,"status":403}}
+        value.contracts=adapter.bound_contracts()
         return value
     def test_internal_template_404_is_denial_but_never_success_or_login(self):
         case={"channel":"page","classification":"internal-template","actor":"anonymous","expected":"deny","write":False}
@@ -20,8 +21,22 @@ class LiveSubsetTests(unittest.TestCase):
         case={"channel":"page","classification":"read","actor":"anonymous","expected":"deny","write":False}
         self.assertEqual(evaluate(case,{"supported":True,"status":404,"protected_payload_absent":True})[0],"FAIL")
     def test_private_binding_never_accepts_operational_page(self):
-        case={"id":"PAGE-01::Reader::active","surface_id":"PAGE-01","path":"/cargo-tracker/admin/dashboard.xhtml","method":"GET","classification":"internal-template","expected":"deny","write":False}
+        case=dict(adapter.bound_contracts()["PAGE-01::Reader::active"]);case["path"]="/cargo-tracker/admin/dashboard.xhtml"
         value=self.prepared();value.observations[case["id"]]={"supported":True,"status":404}
+        with self.assertRaises(UnsupportedCase):value.execute(case)
+    def test_lifecycle_or_actor_mutation_cannot_reuse_an_observation(self):
+        for key,value in [("actor","Administrator"),("channel","session"),("session_state","expired")]:
+            case=self.case();case[key]=value
+            with self.subTest(key=key),self.assertRaises(UnsupportedCase):self.prepared().execute(case)
+    def test_machine_scope_mutation_cannot_reuse_an_observation(self):
+        case=dict(adapter.bound_contracts()["API-03-SCOPED::routing-service::active"])
+        value=self.prepared();value.observations[case["id"]]={"supported":True,"status":200}
+        case["required_machine_scope"]="administrator"
+        with self.assertRaises(UnsupportedCase):value.execute(case)
+    def test_private_metadata_binding_cannot_be_repointed_to_public_file(self):
+        case=dict(adapter.bound_contracts()["PRIVATE-03::Reader::active"])
+        value=self.prepared();value.observations[case["id"]]={"supported":True,"status":404}
+        case["path"]="/cargo-tracker/index.xhtml"
         with self.assertRaises(UnsupportedCase):value.execute(case)
     def test_unknown_case_remains_blocked(self):
         case=self.case();case["id"]="API-02::Administrator::expired"

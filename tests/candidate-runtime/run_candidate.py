@@ -3,6 +3,7 @@
 from pathlib import Path
 import hashlib,http.cookiejar,json,re,secrets,shutil,subprocess,tempfile,time,urllib.request,urllib.error,urllib.parse
 import xml.etree.ElementTree as ET
+from datetime import datetime
 ROOT=Path(__file__).resolve().parents[2]
 WORK=ROOT/".work/kan18"
 NAME="ai-modernization-kan18"
@@ -55,6 +56,35 @@ def settle_effects(capture,timeout=15,clock=time.monotonic,pause=time.sleep):
         if equal>=2:return current
         previous=current;pause(.5)
     raise RuntimeError("Independent observers did not settle")
+
+def route_date(value):
+    # JSON-B in the pinned lab serializes java.util.Date with a UTC region suffix.
+    if value.endswith("[UTC]"):
+        value=value[:-5]
+        parsed=datetime.fromisoformat(value)
+        if parsed.tzinfo is None or parsed.utcoffset().total_seconds()!=0:raise ValueError("UTC suffix disagrees with offset")
+        return parsed
+    if "[" in value or "]" in value:raise ValueError("Unsupported date region")
+    return datetime.fromisoformat(value)
+
+def route_semantics(body):
+    """Validate the sample planner response, not a claim of real timetable optimization."""
+    try:
+        values=json.loads(body)
+        if not isinstance(values,list) or not values:return False
+        for route in values:
+            edges=route.get("transitEdges")
+            if not isinstance(edges,list) or not edges or edges[0].get("fromUnLocode")!="CNHKG" or edges[-1].get("toUnLocode")!="FIHEL":return False
+            previous_arrival=None
+            for index,edge in enumerate(edges):
+                if not all(isinstance(edge.get(key),str) and edge[key] for key in ["fromUnLocode","toUnLocode","voyageNumber","fromDate","toDate"]):return False
+                if not re.fullmatch("[A-Z]{2}[A-Z0-9]{3}",edge["fromUnLocode"]) or not re.fullmatch("[A-Z]{2}[A-Z0-9]{3}",edge["toUnLocode"]):return False
+                if index and edges[index-1]["toUnLocode"]!=edge["fromUnLocode"]:return False
+                departure=route_date(edge["fromDate"]);arrival=route_date(edge["toDate"])
+                if departure.tzinfo is None or arrival.tzinfo is None or departure>=arrival or (previous_arrival is not None and departure<previous_arrival):return False
+                previous_arrival=arrival
+        return True
+    except (ValueError,TypeError,KeyError,AttributeError):return False
 
 def main(after_checks=None):
     WORK.mkdir(parents=True,exist_ok=True)
@@ -136,6 +166,13 @@ def main(after_checks=None):
         sessions={who:login(who) for who in credentials}
         def payload_absent(body):
             return not any(marker in body for marker in ["trackingId","ABC123","DEF789","JKL567","MNO456","Hong Kong","Helsinki"])
+        private_resources={
+            "PRIVATE-01":"WEB-INF/faces-config.xml","PRIVATE-02":"WEB-INF/glassfish-web.xml",
+            "PRIVATE-03":"WEB-INF/web.xml","PRIVATE-04":"WEB-INF/weblogic.xml","PRIVATE-05":"booking/todo.txt"}
+        packaged_entries=set(command("docker","exec",container,"jar","tf","/opt/jboss/wildfly/standalone/deployments/cargo-tracker.war").splitlines())
+        report["private_resource_packaging"]={surface:path in packaged_entries for surface,path in private_resources.items()}
+        def private_payload_absent(body):
+            return payload_absent(body) and not any(marker in body for marker in ["<faces-config","<web-app","<glassfish-web-app","<weblogic-web-app","net.java.cargotracker"])
         for actor,who in [("anonymous",None),("Reader","reader"),("Operator","operator"),("Administrator","admin")]:
             opener=sessions[who][1] if who else anonymous
             status,body,_=request(opener,"rest/cargo")
@@ -158,11 +195,36 @@ def main(after_checks=None):
                 observation={"supported":True,"status":status,"protected_payload_absent":payload_absent(body)}
                 if who:observation["identity"]=report["identities"][who]
                 report["access_observations"]["PAGE-"+number+"::"+actor+"::active"]=observation
+            for surface,path in private_resources.items():
+                status,body,_=request(opener,path)
+                absent=private_payload_absent(body)
+                check("Private metadata/source denied: "+surface+" "+actor,status==404 and absent)
+                observation={"supported":True,"status":status,"protected_payload_absent":absent,"resource_packaged":report["private_resource_packaging"][surface]}
+                if who:observation["identity"]=report["identities"][who]
+                report["access_observations"][surface+"::"+actor+"::active"]=observation
+        def effects():
+            processes=command("docker","exec",container,"jcmd","-l").splitlines()
+            candidates=[line.split()[0] for line in processes if "org.jboss.as.standalone" in line or "jboss-modules.jar" in line]
+            if len(candidates)!=1:raise RuntimeError("Cannot identify unique app JVM")
+            text=command("docker","exec",container,"java","-cp","/opt/jboss/observer-client","ReadEffects",candidates[0])
+            return json.loads(text)
+        def settled():return settle_effects(effects)
         route_path="rest/graph-traversal/shortest-path?origin=CNHKG&destination=FIHEL&deadline=2030-12-31"
-        check("Anonymous routing API denied",request(anonymous,route_path)[0]==401)
-        check("Reader routing API denied",request(sessions["reader"][1],route_path)[0]==403)
-        check("Operator routing API allowed",request(sessions["operator"][1],route_path)[0]==200)
-        check("Administrator routing API allowed",request(sessions["admin"][1],route_path)[0]==200)
+        def routing_payload_absent(body):
+            return payload_absent(body) and not any(marker in body for marker in ["transitEdges","voyageNumber","CNHKG","FIHEL"])
+        for actor,who in [("anonymous",None),("Reader","reader"),("Operator","operator"),("Administrator","admin")]:
+            code,body,_=request(sessions[who][1] if who else anonymous,route_path)
+            allowed=who in {"operator","admin"}
+            if allowed:
+                semantic=route_semantics(body)
+                check("Catalogue real routing result: "+actor,code==200 and semantic)
+                observation={"supported":True,"status":code,"semantic_success":semantic,"identity":report["identities"][who]}
+            else:
+                absent=routing_payload_absent(body)
+                check("Catalogue routing denial without route payload: "+actor,code==(403 if who else 401) and absent)
+                observation={"supported":True,"status":code,"protected_payload_absent":absent}
+                if who:observation["identity"]=report["identities"][who]
+            report["access_observations"]["API-03::"+actor+"::active"]=observation
         def basic_route(username,password,path=route_path,raw_header=None):
             import base64
             header=raw_header or "Basic "+base64.b64encode((username+":"+password).encode()).decode()
@@ -170,8 +232,12 @@ def main(after_checks=None):
             try:res=urllib.request.build_opener(NoRedirect()).open(req,timeout=10)
             except urllib.error.HTTPError as failure:res=failure
             with res:return res.status,res.read(),res.headers
-        code,_,route_headers=basic_route("routing",routing_password)
-        check("Native scoped routing account allowed",code==200)
+        sequence_before=effects()["routing_identity"].get("sequence",0)
+        code,route_body,route_headers=basic_route("routing",routing_password)
+        check("Native scoped routing account allowed",code==200 and route_semantics(route_body))
+        routing_identity=effects()["routing_identity"]
+        check("Server-native routing identity and exact role observed",routing_identity.get("principal")=="routing" and routing_identity.get("roles")==["RoutingService"] and routing_identity.get("sequence")==sequence_before+1 and routing_identity.get("path")=="/rest/graph-traversal/shortest-path")
+        report["routing_machine_identity"]=routing_identity
         from http.cookies import SimpleCookie
         cookie=SimpleCookie();cookie.load(route_headers.get("Set-Cookie",""))
         reusable=False
@@ -185,6 +251,8 @@ def main(after_checks=None):
         check("Human Basic credentials cannot impersonate service",basic_route("operator",credentials["operator"])[0]==403)
         check("Malformed Basic rejected",basic_route("","",raw_header="Basic !!!")[0]==401)
         check("Routing identity cannot use monitoring API",basic_route("routing",routing_password,path="rest/cargo")[0]==401)
+        route_policy=next(row for row in json.loads((ROOT/"specifications/access-policy-inventory.json").read_text())["interfaces"] if row["id"]=="API-03")
+        report["access_observations"]["API-03-SCOPED::routing-service::active"]={"supported":True,"status":code,"semantic_success":route_semantics(route_body),"machine_identity_verified":True,"machine_scope":route_policy["internal_caller"],"native_identity":routing_identity}
         check("Invalid route locations controlled",request(sessions["operator"][1],"rest/graph-traversal/shortest-path?origin=XXXXX&destination=FIHEL")[0]==400)
         check("Invalid route deadline controlled",request(sessions["operator"][1],"rest/graph-traversal/shortest-path?origin=CNHKG&destination=FIHEL&deadline=2030-02-30")[0]==400)
 
@@ -216,13 +284,6 @@ def main(after_checks=None):
         check("Actual booking callback fixture renders",code==200 and book_state is not None)
         before_book=cargos(sessions["reader"][1])
         book_form={"booking":"booking","booking:origin":"CNHKG","booking:destination":"FIHEL","booking:deadline":"2030-12-31","booking:submit":"","jakarta.faces.ViewState":book_state[1]}
-        def effects():
-            processes=command("docker","exec",container,"jcmd","-l").splitlines()
-            candidates=[line.split()[0] for line in processes if "org.jboss.as.standalone" in line or "jboss-modules.jar" in line]
-            if len(candidates)!=1:raise RuntimeError("Cannot identify unique app JVM")
-            text=command("docker","exec",container,"java","-cp","/opt/jboss/observer-client","ReadEffects",candidates[0])
-            return json.loads(text)
-        def settled():return settle_effects(effects)
         before_denied=settled()
         check("Anonymous valid handling denied",handling_as(anonymous)==401)
         anonymous_denial=dict(last_handling)
@@ -268,9 +329,11 @@ def main(after_checks=None):
         for worker in ["HandlingEventRegistrationAttemptConsumer","CargoHandledConsumer"]:
             check("MDB invocation observer connected: "+worker,any(worker+"#onMessage" in name and count>after_denied["business_invocations"].get(name,0) for name,count in positive_effects["business_invocations"].items()))
         report["scoped_denied_effects"]["positive_control"]=positive_effects
+        report["access_observations"]["API-02::Operator::active"]={"supported":True,"status":204,"identity":report["identities"]["operator"],"semantic_success":True,"authorized_effect_verified":True,"processing_evidence":{"database_changed":positive_effects["tables"]!=after_denied["tables"],"worker_invocations_observed":True}}
         report["cargo_before"]=before;report["cargo_after"]=after
         check("Administrator fixture starts away from FIHEL",next(c for c in initial if c["trackingId"]=="MNO456")["lastKnownLocation"]!="FIHEL")
         payload=json.dumps({"trackingId":"MNO456","eventType":"CUSTOMS","unLocode":"FIHEL","completionTime":"2030-01-02 10:00"}).encode()
+        admin_before=settled()
         check("Administrator report accepted",handling("admin")==204)
         deadline=time.monotonic()+30
         while time.monotonic()<deadline:
@@ -279,38 +342,60 @@ def main(after_checks=None):
             time.sleep(.25)
         else:raise AssertionError("Administrator handling did not persist")
         check("Administrator real asynchronous handling effect",True)
+        admin_after=settled()
+        check("Administrator independent persisted handling effect",admin_after["tables"]!=admin_before["tables"] and any(q["MessagesAdded"]>admin_before["queues"][name]["MessagesAdded"] for name,q in admin_after["queues"].items()) and any("registerHandlingEvent" in name and count>admin_before["business_invocations"].get(name,0) for name,count in admin_after["business_invocations"].items()))
+        report["admin_handling_effects"]={"before":admin_before,"after":admin_after}
+        report["access_observations"]["API-02::Administrator::active"]={"supported":True,"status":204,"identity":report["identities"]["admin"],"semantic_success":True,"authorized_effect_verified":True}
+
 
         def stale_client(jar):
             saved=client()[1];saved.addheaders=[("Cookie","JSESSIONID="+next(c.value for c in jar if c.name=="JSESSIONID"))]
             return saved
-        logout_jar,logout_actor,logout_token=login("operator")
-        logout_replay=stale_client(logout_jar)
-        check("Mutation-capable identity logout",request(logout_actor,"logout",b"",logout_token)[0]==204)
-        logout_before=settled()
-        check("Logged-out Operator identity revoked",request(logout_replay,"session")[0]==401)
-        check("Logged-out valid handling replay denied",handling_as(logout_replay,logout_token)==401)
-        logout_denial=dict(last_handling)
-        logout_after=settled()
-        check("Logout replay leaves independent effects unchanged",logout_before==logout_after)
-        report["access_observations"]["API-02::Operator::logged_out"]=denial_observation(logout_denial,logout_before,logout_after,"operator",True)
-        report["logout_denied_effects"]={"before":logout_before,"after":logout_after,"independent_snapshots_match":logout_before==logout_after}
-        expiry_jar,expiry_actor,expiry_token=login("operator")
-        expiry_replay=stale_client(expiry_jar)
-        # Lab sessions are one minute. No HTTP request refreshes this isolated session.
+        actors=[("Reader","reader"),("Operator","operator"),("Administrator","admin")]
+        def revoked_api_requests(actor,who,opener,token,state,before_sample):
+            check("Revoked server identity: "+actor+" "+state,request(opener,"session")[0]==401)
+            pending={}
+            status,body,_=request(opener,"rest/cargo")
+            head_status,head_body,_=request(opener,"rest/cargo",method="HEAD")
+            check("Revoked monitoring GET/HEAD: "+actor+" "+state,status==401 and payload_absent(body) and head_status==401 and head_body=="")
+            pending["API-01::"+actor+"::"+state]={"supported":True,"status":status,"protected_payload_absent":payload_absent(body),"identity":report["identities"][who],"authenticated_before_revocation":True,"revocation_verified":True,"head_status":head_status,"head_body_empty":head_body==""}
+            if who!="reader":
+                status,body,_=request(opener,route_path)
+                check("Revoked routing GET: "+actor+" "+state,status==401 and routing_payload_absent(body))
+                pending["API-03::"+actor+"::"+state]={"supported":True,"status":status,"protected_payload_absent":routing_payload_absent(body),"identity":report["identities"][who],"authenticated_before_revocation":True,"revocation_verified":True}
+                check("Revoked valid handling POST: "+actor+" "+state,handling_as(opener,token)==401)
+                pending["API-02::"+actor+"::"+state]=dict(last_handling)
+            return pending
+        def record_revocations(pending,before_sample,after_sample,who):
+            for case,observation in pending.items():
+                if case.startswith("API-02::"):observation=denial_observation(observation,before_sample,after_sample,who,True)
+                report["access_observations"][case]=observation
+        report["lifecycle_effects"]={}
+        for actor,who in actors:
+            jar,opener,token=login(who);saved=stale_client(jar)
+            check("Role lifecycle positive monitoring: "+actor,request(opener,"rest/cargo")[0]==200)
+            check("Actual role logout: "+actor,request(opener,"logout",b"",token)[0]==204)
+            baseline=settled()
+            pending=revoked_api_requests(actor,who,saved,token,"logged_out",baseline)
+            after_sample=settled()
+            check("Logout independent effects unchanged: "+actor,baseline==after_sample)
+            record_revocations(pending,baseline,after_sample,who)
+            report["lifecycle_effects"][who+"_logged_out"]={"before":baseline,"after":after_sample}
+        expiring={}
+        for actor,who in actors:
+            jar,opener,token=login(who)
+            check("Expiry lifecycle positive monitoring: "+actor,request(opener,"rest/cargo")[0]==200)
+            expiring[who]=(stale_client(jar),token)
+        # Every saved identity is left idle for at least75s after the last login.
         for unused in range(5):time.sleep(15)
-        expiry_before=settled()
-        check("Expired Operator identity revoked",request(expiry_replay,"session")[0]==401)
-        check("Expired valid handling replay denied",handling_as(expiry_replay,expiry_token)==401)
-        expiry_denial=dict(last_handling)
-        expiry_after=settled()
-        check("Expiry replay leaves independent effects unchanged",expiry_before==expiry_after)
-        report["access_observations"]["API-02::Operator::expired"]=denial_observation(expiry_denial,expiry_before,expiry_after,"operator",True)
-        report["expiry_denied_effects"]={"before":expiry_before,"after":expiry_after,"independent_snapshots_match":expiry_before==expiry_after,"idle_wait_seconds":75}
-        sessions["reader"]=login("reader")
-        jar,reader,csrf=sessions["reader"]
-        stale=client()[1];stale.addheaders=[("Cookie","JSESSIONID="+next(c.value for c in jar if c.name=="JSESSIONID"))]
-        check("Logout succeeds",request(reader,"logout",b"",csrf)[0]==204)
-        check("Old authenticated cookie revoked",request(stale,"rest/cargo")[0]==401)
+        for actor,who in actors:
+            saved,token=expiring[who]
+            baseline=settled()
+            pending=revoked_api_requests(actor,who,saved,token,"expired",baseline)
+            after_sample=settled()
+            check("Expiry independent effects unchanged: "+actor,baseline==after_sample)
+            record_revocations(pending,baseline,after_sample,who)
+            report["lifecycle_effects"][who+"_expired"]={"before":baseline,"after":after_sample,"idle_wait_seconds_minimum":75}
         if after_checks:after_checks(container,base,credentials,report)
         report["status"]="PASS"
     except Exception as error:

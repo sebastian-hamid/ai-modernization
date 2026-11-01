@@ -9,7 +9,7 @@ These are candidate requirements, separate from historical characterization. Def
     python3 tests/security/run_candidate_contracts.py
     python3 tests/security/probe_legacy_gaps.py
 
-The generator derives 502 actor/surface/session cases from the approved KAN-12 inventory. The 16 unit cases check the assertion engine with artificial observations; they are not application security tests. The default candidate command reports all502 BLOCKED and exits2. The optional --live-subset executes the real isolated runtime for four bindings and keeps the other498 BLOCKED. Expand real application/browser/service adapters in KAN-15; do not swap in mock observations to obtain green results.
+The generator derives 502 actor/surface/session cases from the approved KAN-12 inventory. The 16 unit cases check the assertion engine with artificial observations; they are not application security tests. The default candidate command reports all 502 BLOCKED and exits2. The optional --live-subset executes the real isolated runtime for four bindings and keeps the other498 BLOCKED. Expand real application/browser/service adapters in KAN-15; do not swap in mock observations to obtain green results.
 
 The legacy probe creates a new container from the recorded historical image ID, binds a Docker-assigned loopback port, uses fresh seeded data, submits one handling event, closes its WebSocket and removes only its created container ID in finally. Docker rejects an existing name. It cannot accept a shared URL. Its expected exit is 1: eight desired-security failures and two public-page successes. Missing image, readiness failure or request errors are infrastructure errors, not authorization passes. Logs and full observations remain ignored under .work/kan14; sanitized summary lives under notes/evidence/kan-14-security.
 
@@ -35,9 +35,14 @@ See notes/evidence/kan-14-security/validation.json and notes/agent-reviews/2026-
 
 ## Subsequent scoped effects evidence
 
-The [disposable independent effects observer](../../docs/candidate/independent-effects.md) now verifies selected real handling/forged-booking denials and Operator logout/idle-expiry replay, with an allowed processing control. This supersedes the blanket observer-unavailable statement for that bounded subset only. The optional --live-subset command launches a fresh candidate and binds four real handling-denial/revocation cases; the remaining498 cases stay BLOCKED and exit2. Default execution remains all502 BLOCKED. Missing adapters and remaining machine/worker/retry scenarios are not converted to PASS.
+The [disposable independent effects observer](../../docs/candidate/independent-effects.md) now verifies selected real handling/forged-booking denials and Operator logout/idle-expiry replay, with an allowed processing control. This supersedes the blanket observer-unavailable statement for that bounded subset only. The optional --live-subset command launches a fresh candidate and binds four real handling-denial/revocation cases; the remaining498 cases stay BLOCKED and exit 2. Default execution remains all 502 BLOCKED. Missing adapters and remaining machine/worker/retry scenarios are not converted to PASS.
 
 
 ## Monitoring and private-template binding follow-up
 
-The [read-access binding follow-up](../../docs/candidate/read-access-bindings.md) expands the optional live adapter to16 definitions; other486 remain BLOCKED/exit2. Earlier4PASS/498BLOCKED statements describe the first effects increment. This adds parsed monitoring semantics and exact private-template denials, without application or permission changes.
+The [read-access binding follow-up](../../docs/candidate/read-access-bindings.md) expands the optional live adapter to16 definitions; other486 remain BLOCKED/exit 2. Earlier4PASS/498BLOCKED statements describe the first effects increment. This adds parsed monitoring semantics and exact private-template denials, without application or permission changes.
+
+
+## Complete HTTP API definition binding follow-up
+
+The [API access matrix](../../docs/candidate/api-access-matrix.md) binds all 27 API definitions (active roles, human logout/expiry and scoped native routing) plus eight private templates and 20 private metadata/source-note cases: 55 bound, 447 unsupported/BLOCKED, overall exit 2. Earlier 4 PASS / 16 PASS counts are historical checkpoints. This remains a partial implementation of the entire 502-definition catalogue.

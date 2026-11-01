@@ -11,7 +11,7 @@ COPY tests/candidate-runtime/persistence-lab.xml src/main/resources/META-INF/per
 # Observer and interceptor exist only in this opt-in disposable fixture, never candidate source.
 COPY tests/candidate-runtime/observer/*.java /tmp/observer/
 COPY tests/candidate-runtime/observer/ejb-jar.xml src/main/webapp/WEB-INF/ejb-jar.xml
-RUN mkdir -p src/main/java/lab/fixture && cp /tmp/observer/LabEffects*.java /tmp/observer/InvocationAudit.java src/main/java/lab/fixture/
+RUN mkdir -p src/main/java/lab/fixture && cp /tmp/observer/LabEffects*.java /tmp/observer/InvocationAudit.java /tmp/observer/RoutingIdentityFilter.java src/main/java/lab/fixture/
 RUN mvn -B -ntp package -Dsession.timeout.minutes=1
 RUN mkdir /tmp/observer-client && javac -d /tmp/observer-client /tmp/observer/ReadEffects.java
 FROM quay.io/wildfly/wildfly@sha256:3fc71f6c4fe1075ac942dbb652799840ecd5424458def6039f829bf3221a8daf

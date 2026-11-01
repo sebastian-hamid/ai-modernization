@@ -1,0 +1,349 @@
+{
+  "task": "KAN-18/KAN-15",
+  "scope": "Real Cargo Tracker candidate: monitoring/handling/session plus Faces list/booking/details/destination routes",
+  "checks": [
+    {
+      "name": "Pinned runtime fixture builds",
+      "passed": true
+    },
+    {
+      "name": "Disposable image refuses absent opt-in",
+      "passed": true
+    },
+    {
+      "name": "35 candidate domain tests execute",
+      "passed": true
+    },
+    {
+      "name": "Anonymous monitoring denied",
+      "passed": true
+    },
+    {
+      "name": "Anonymous handling denied",
+      "passed": true
+    },
+    {
+      "name": "Anonymous operational page navigates to login",
+      "passed": true
+    },
+    {
+      "name": "Anonymous tracking endpoint denied",
+      "passed": true
+    },
+    {
+      "name": "Private source note denied",
+      "passed": true
+    },
+    {
+      "name": "Login form with token: reader",
+      "passed": true
+    },
+    {
+      "name": "Container login succeeds: reader",
+      "passed": true
+    },
+    {
+      "name": "Session ID rotates: reader",
+      "passed": true
+    },
+    {
+      "name": "Server principal and role: reader",
+      "passed": true
+    },
+    {
+      "name": "Login form with token: operator",
+      "passed": true
+    },
+    {
+      "name": "Container login succeeds: operator",
+      "passed": true
+    },
+    {
+      "name": "Session ID rotates: operator",
+      "passed": true
+    },
+    {
+      "name": "Server principal and role: operator",
+      "passed": true
+    },
+    {
+      "name": "Login form with token: admin",
+      "passed": true
+    },
+    {
+      "name": "Container login succeeds: admin",
+      "passed": true
+    },
+    {
+      "name": "Session ID rotates: admin",
+      "passed": true
+    },
+    {
+      "name": "Server principal and role: admin",
+      "passed": true
+    },
+    {
+      "name": "Catalogue anonymous monitoring denial has no payload",
+      "passed": true
+    },
+    {
+      "name": "Catalogue monitoring HEAD: anonymous",
+      "passed": true
+    },
+    {
+      "name": "Private template denied without cargo: admin anonymous",
+      "passed": true
+    },
+    {
+      "name": "Private template denied without cargo: public anonymous",
+      "passed": true
+    },
+    {
+      "name": "Catalogue monitoring semantics: Reader",
+      "passed": true
+    },
+    {
+      "name": "Catalogue monitoring HEAD: Reader",
+      "passed": true
+    },
+    {
+      "name": "Private template denied without cargo: admin Reader",
+      "passed": true
+    },
+    {
+      "name": "Private template denied without cargo: public Reader",
+      "passed": true
+    },
+    {
+      "name": "Catalogue monitoring semantics: Operator",
+      "passed": true
+    },
+    {
+      "name": "Catalogue monitoring HEAD: Operator",
+      "passed": true
+    },
+    {
+      "name": "Private template denied without cargo: admin Operator",
+      "passed": true
+    },
+    {
+      "name": "Private template denied without cargo: public Operator",
+      "passed": true
+    },
+    {
+      "name": "Catalogue monitoring semantics: Administrator",
+      "passed": true
+    },
+    {
+      "name": "Catalogue monitoring HEAD: Administrator",
+      "passed": true
+    },
+    {
+      "name": "Private template denied without cargo: admin Administrator",
+      "passed": true
+    },
+    {
+      "name": "Private template denied without cargo: public Administrator",
+      "passed": true
+    },
+    {
+      "name": "Catalogue routing denial without route payload: anonymous",
+      "passed": true
+    },
+    {
+      "name": "Catalogue routing denial without route payload: Reader",
+      "passed": true
+    },
+    {
+      "name": "Catalogue real routing result: Operator",
+      "passed": false
+    }
+  ],
+  "status": "FAIL",
+  "identities": {
+    "reader": {
+      "server_verified": true,
+      "principal": "reader",
+      "roles": [
+        "Reader"
+      ]
+    },
+    "operator": {
+      "server_verified": true,
+      "principal": "operator",
+      "roles": [
+        "Operator"
+      ]
+    },
+    "admin": {
+      "server_verified": true,
+      "principal": "admin",
+      "roles": [
+        "Administrator"
+      ]
+    }
+  },
+  "access_observations": {
+    "API-01::anonymous::active": {
+      "supported": true,
+      "status": 401,
+      "protected_payload_absent": true,
+      "head_status": 401,
+      "head_body_empty": true
+    },
+    "PAGE-01::anonymous::active": {
+      "supported": true,
+      "status": 404,
+      "protected_payload_absent": true
+    },
+    "PAGE-02::anonymous::active": {
+      "supported": true,
+      "status": 404,
+      "protected_payload_absent": true
+    },
+    "API-01::Reader::active": {
+      "supported": true,
+      "status": 200,
+      "identity": {
+        "server_verified": true,
+        "principal": "reader",
+        "roles": [
+          "Reader"
+        ]
+      },
+      "semantic_success": true,
+      "head_status": 200,
+      "head_body_empty": true
+    },
+    "PAGE-01::Reader::active": {
+      "supported": true,
+      "status": 404,
+      "protected_payload_absent": true,
+      "identity": {
+        "server_verified": true,
+        "principal": "reader",
+        "roles": [
+          "Reader"
+        ]
+      }
+    },
+    "PAGE-02::Reader::active": {
+      "supported": true,
+      "status": 404,
+      "protected_payload_absent": true,
+      "identity": {
+        "server_verified": true,
+        "principal": "reader",
+        "roles": [
+          "Reader"
+        ]
+      }
+    },
+    "API-01::Operator::active": {
+      "supported": true,
+      "status": 200,
+      "identity": {
+        "server_verified": true,
+        "principal": "operator",
+        "roles": [
+          "Operator"
+        ]
+      },
+      "semantic_success": true,
+      "head_status": 200,
+      "head_body_empty": true
+    },
+    "PAGE-01::Operator::active": {
+      "supported": true,
+      "status": 404,
+      "protected_payload_absent": true,
+      "identity": {
+        "server_verified": true,
+        "principal": "operator",
+        "roles": [
+          "Operator"
+        ]
+      }
+    },
+    "PAGE-02::Operator::active": {
+      "supported": true,
+      "status": 404,
+      "protected_payload_absent": true,
+      "identity": {
+        "server_verified": true,
+        "principal": "operator",
+        "roles": [
+          "Operator"
+        ]
+      }
+    },
+    "API-01::Administrator::active": {
+      "supported": true,
+      "status": 200,
+      "identity": {
+        "server_verified": true,
+        "principal": "admin",
+        "roles": [
+          "Administrator"
+        ]
+      },
+      "semantic_success": true,
+      "head_status": 200,
+      "head_body_empty": true
+    },
+    "PAGE-01::Administrator::active": {
+      "supported": true,
+      "status": 404,
+      "protected_payload_absent": true,
+      "identity": {
+        "server_verified": true,
+        "principal": "admin",
+        "roles": [
+          "Administrator"
+        ]
+      }
+    },
+    "PAGE-02::Administrator::active": {
+      "supported": true,
+      "status": 404,
+      "protected_payload_absent": true,
+      "identity": {
+        "server_verified": true,
+        "principal": "admin",
+        "roles": [
+          "Administrator"
+        ]
+      }
+    },
+    "API-03::anonymous::active": {
+      "supported": true,
+      "status": 401,
+      "protected_payload_absent": true
+    },
+    "API-03::Reader::active": {
+      "supported": true,
+      "status": 403,
+      "protected_payload_absent": true,
+      "identity": {
+        "server_verified": true,
+        "principal": "reader",
+        "roles": [
+          "Reader"
+        ]
+      }
+    }
+  },
+  "image_id": "sha256:1832eac4550b12ba58942a0bce7ac50bda0b33a4eae9eb147878dbdfec5afcd1",
+  "domain_tests": {
+    "tests": 35,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0,
+    "empty_legacy_todo_retained": true
+  },
+  "error_type": "AssertionError",
+  "owned_container_removed": true,
+  "private_files_removed": true,
+  "cleanup_errors": [],
+  "count": 39
+}

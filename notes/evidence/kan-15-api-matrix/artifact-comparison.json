@@ -1,0 +1,7 @@
+{
+  "status": "unavailable",
+  "reason": "Archived browser image no longer exists locally; normalized artifact identity not verified",
+  "timed_out_helper_removed": true,
+  "stopped_comparison_container_removed": true,
+  "resolution": "Run current browser regression; do not claim old/new image identity"
+}

@@ -51,6 +51,6 @@ public class LabEffects implements LabEffectsMBean {
    if(found.stream().noneMatch(q->q.endsWith(required)))throw new IllegalStateException("Missing queue observer: "+required);
   }
   JsonObjectBuilder calls=Json.createObjectBuilder();new TreeMap<>(InvocationAudit.COUNTS).forEach((key,value)->calls.add(key,value.get()));
-  return Json.createObjectBuilder().add("tables",tables).add("queues",queues).add("business_invocations",calls).build().toString();
+  return Json.createObjectBuilder().add("tables",tables).add("queues",queues).add("business_invocations",calls).add("routing_identity",RoutingIdentityFilter.LAST.get()).build().toString();
  }
 }

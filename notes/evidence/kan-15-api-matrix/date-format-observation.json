@@ -1,0 +1,6 @@
+{
+  "source": "Private diagnostic from a disposable fixture, credentials/cookies absent",
+  "fromDate": "2026-11-03T12:23:36.925Z[UTC]",
+  "toDate": "2026-11-04T18:42:36.925Z[UTC]",
+  "conclusion": "UTC region suffix supported by corrected test validator; no planner-source change"
+}
