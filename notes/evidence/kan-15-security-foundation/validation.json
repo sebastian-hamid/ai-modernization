@@ -1,0 +1,33 @@
+{
+  "task": "KAN-15",
+  "date": "2026-11-01",
+  "repository_base": "e1378aaa459ef5a3f196e02fa3cc2260731528a3",
+  "scope": "Reusable security component plus separate test WAR, not migrated Cargo Tracker",
+  "runtime_checks": 49,
+  "runtime_status": "PASS",
+  "harness_checks": 3,
+  "candidate_access_cases": "502 BLOCKED unchanged",
+  "acceptance_state": "In Progress; real app/platform integration and independent DB/JMS observers pending",
+  "inputs_sha256": {
+    "candidate/security/README.md": "2cc3f8d2efb7bf8ad69c238000af802ae64b4a02b82ad2a5bb1274974116a694",
+    "candidate/security/pom.xml": "7c798587a6c323e74cedc9def9845ebecdad805866ec7973f7d1234af318f246",
+    "candidate/security/src/main/java/lab/modernization/security/AccessFilter.java": "ad4ed83e9ba309c6aad5855f08fae4e3b054fda647864568e6735ebd4cd97d38",
+    "candidate/security/src/main/java/lab/modernization/security/LocalLoginServlet.java": "2059f1ab924f79948d25500c96ad089d4a69e57b5029b7d18056294b4f61d799",
+    "candidate/security/src/main/java/lab/modernization/security/LocalLogoutServlet.java": "cca4c3bac73f3cb340f339abc1c551c8cb0f8fc0a7333bd59a35d3d421f7d9e9",
+    "candidate/security/src/main/java/lab/modernization/security/RequiresRoles.java": "2f6bdd9503fd904466c1aefdac1e7c9a2b3b025d44e4fc0fd8502f1189fee66b",
+    "candidate/security/src/main/java/lab/modernization/security/RoleInterceptor.java": "20bafda669215461ff398a50a85ca7a04a04c0245b212579c14e0461f1ca032f",
+    "candidate/security/src/main/java/lab/modernization/security/SessionTokens.java": "f8bc01f09e5fad39461c7ea912b1eecb919d77c55867e0138f16d1ee2c6e4bfb",
+    "candidate/security/src/main/resources/META-INF/beans.xml": "1010244631992ec72768c64c48003dcc467338bf5dff3e88da39b2d8858ad8fe",
+    "tests/security-runtime/Dockerfile": "2bf578631e4056bd80c4108b8139a19c1f374fdde2e59a015178131ff8ee6100",
+    "tests/security-runtime/pom.xml": "d5da18d9ad12f41d766ef4d0dab800a21130501a2d0bbd43f7720588d78fbeec",
+    "tests/security-runtime/run_security.py": "251e93e65d7506a89fe6972911ed0af5c64aebe502c2125e296aa1ab173ef7f0",
+    "tests/security-runtime/src/main/java/lab/modernization/fixture/FixtureService.java": "e2ff2fb9725c6136613f376fd40c24a80ddd4248ff32fa01e386bf94d1e6c812",
+    "tests/security-runtime/src/main/java/lab/modernization/fixture/FixtureServlet.java": "a7a06f40aa66862b93b818029b585dea64916c41db1bd75e6e0c61fc10b57b74",
+    "tests/security-runtime/src/main/webapp/WEB-INF/access-routes.tsv": "4ab712c25a66b40ce6205b477032b48c2d536692c4b4072982d8a8101ab4d9a8",
+    "tests/security-runtime/src/main/webapp/WEB-INF/beans.xml": "1010244631992ec72768c64c48003dcc467338bf5dff3e88da39b2d8858ad8fe",
+    "tests/security-runtime/src/main/webapp/WEB-INF/jboss-web.xml": "7458179be7887a7ea08e21ba9abd47781ad73e786e00adf4e541564bb2867b19",
+    "tests/security-runtime/src/main/webapp/WEB-INF/web.xml": "d135ddad8bbee128c59e9110c86c59ba8e48da62000ccbb865e8b042efc1cc85",
+    "tests/security-runtime/start.sh": "741434cb4d09e8068b8b9f46db40fabe872a956aef7c763a035c6557f4aece84",
+    "tests/security-runtime/test_harness.py": "b5d541de8c634fcd16106e47ed202c090349e698d03aa7624396d930cedac41b"
+  }
+}

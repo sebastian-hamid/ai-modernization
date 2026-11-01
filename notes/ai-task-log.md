@@ -84,3 +84,14 @@
 
 - User authorized commit/push. Verified all eight reviewed input hashes and reran 16 passing assertion-engine checks. Published desired-access definitions, sanitized evidence and independent review records; no application runtime or security success claimed.
 - KAN-14 remains In Review: real denied-write database/queue observations require candidate authentication and independent observers. Earlier local/uncommitted statements describe the pre-publication checkpoint. No runtime rerun or service changes during publication.
+
+## 1 November 2026 — KAN-15 local identity/session foundation (in progress)
+
+- Implemented reusable container-login, session CSRF/logout, explicit HTTP path roles and CDI method roles under candidate/security. Kept integration test WAR under tests/security-runtime separate from Cargo Tracker.
+- Fresh pinned WildFly/Java25 fixture passes 49 runtime checks: actual local accounts/roles, session ID rotation, CSRF, direct service-role denial, logout replay and real server idle expiry. Three cleanup regressions pass (partial secret initialization, Docker log failure and container removal failure). Runtime/private realm files removed; historical source/demo/Jenkins preserved.
+- This does not implement full KAN-15 or unblock KAN-14: actual Cargo Tracker candidate bootstrap (overlaps KAN-18), all callbacks/EJB/machine boundaries, WebSocket revocation and real database/queue/business-audit observers remain required. KAN-15 stays In Progress. See candidate/security/README.md; independent review/recheck complete with no remaining material foundation findings after cleanup correction. No commit/push. Human effort/review time/cost unavailable; no savings claim.
+
+## 1 November 2026 — KAN-15 foundation publication
+
+- User authorized commit/push. Verified all20 independently reviewed input hashes,49 passing recorded runtime checks, runtime/private-file cleanup and reran three cleanup regressions successfully. Included security library, separate fixture, sanitized evidence and independent review records; raw logs/private files excluded.
+- KAN-15 remains In Progress and KAN-14 remains502 BLOCKED pending actual application integration and independent database/queue observers. Earlier local/uncommitted statements describe the pre-publication checkpoint. No new runtime deployment or full CI run during publication.

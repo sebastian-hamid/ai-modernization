@@ -1,0 +1,208 @@
+{
+  "task": "KAN-15",
+  "scope": "Reusable security component integration fixture; not migrated Cargo Tracker",
+  "checks": [
+    {
+      "name": "Pinned runtime fixture builds",
+      "passed": true
+    },
+    {
+      "name": "Anonymous read denied",
+      "passed": true
+    },
+    {
+      "name": "Protected page navigates to login",
+      "passed": true
+    },
+    {
+      "name": "Unknown route denied",
+      "passed": true
+    },
+    {
+      "name": "Path parameter bypass denied",
+      "passed": true
+    },
+    {
+      "name": "Anonymous write denied",
+      "passed": true
+    },
+    {
+      "name": "Login CSRF required",
+      "passed": true
+    },
+    {
+      "name": "Wrong password denied",
+      "passed": true
+    },
+    {
+      "name": "Login form with token: reader",
+      "passed": true
+    },
+    {
+      "name": "Container login succeeds: reader",
+      "passed": true
+    },
+    {
+      "name": "Session ID rotates: reader",
+      "passed": true
+    },
+    {
+      "name": "Server principal and role: reader",
+      "passed": true
+    },
+    {
+      "name": "Login form with token: operator",
+      "passed": true
+    },
+    {
+      "name": "Container login succeeds: operator",
+      "passed": true
+    },
+    {
+      "name": "Session ID rotates: operator",
+      "passed": true
+    },
+    {
+      "name": "Server principal and role: operator",
+      "passed": true
+    },
+    {
+      "name": "Login form with token: admin",
+      "passed": true
+    },
+    {
+      "name": "Container login succeeds: admin",
+      "passed": true
+    },
+    {
+      "name": "Session ID rotates: admin",
+      "passed": true
+    },
+    {
+      "name": "Server principal and role: admin",
+      "passed": true
+    },
+    {
+      "name": "Authorized read: reader",
+      "passed": true
+    },
+    {
+      "name": "Mutation CSRF required: reader",
+      "passed": true
+    },
+    {
+      "name": "Operator role boundary: reader",
+      "passed": true
+    },
+    {
+      "name": "Administrator role boundary: reader",
+      "passed": true
+    },
+    {
+      "name": "CDI boundary cannot bypass role: reader",
+      "passed": true
+    },
+    {
+      "name": "Authorized read: operator",
+      "passed": true
+    },
+    {
+      "name": "Mutation CSRF required: operator",
+      "passed": true
+    },
+    {
+      "name": "Operator role boundary: operator",
+      "passed": true
+    },
+    {
+      "name": "Administrator role boundary: operator",
+      "passed": true
+    },
+    {
+      "name": "CDI boundary cannot bypass role: operator",
+      "passed": true
+    },
+    {
+      "name": "Authorized read: admin",
+      "passed": true
+    },
+    {
+      "name": "Mutation CSRF required: admin",
+      "passed": true
+    },
+    {
+      "name": "Operator role boundary: admin",
+      "passed": true
+    },
+    {
+      "name": "Administrator role boundary: admin",
+      "passed": true
+    },
+    {
+      "name": "CDI boundary cannot bypass role: admin",
+      "passed": true
+    },
+    {
+      "name": "Authorized service mutations produce exactly five effects",
+      "passed": true
+    },
+    {
+      "name": "Token from another identity is rejected",
+      "passed": true
+    },
+    {
+      "name": "Reader direct write rejected",
+      "passed": true
+    },
+    {
+      "name": "Denied fixture mutation has no downstream counter effect",
+      "passed": true
+    },
+    {
+      "name": "Logout rejects missing CSRF",
+      "passed": true
+    },
+    {
+      "name": "Logout succeeds",
+      "passed": true
+    },
+    {
+      "name": "Logged out session cannot read",
+      "passed": true
+    },
+    {
+      "name": "Logged out session cannot mutate",
+      "passed": true
+    },
+    {
+      "name": "Login form with token: reader",
+      "passed": true
+    },
+    {
+      "name": "Container login succeeds: reader",
+      "passed": true
+    },
+    {
+      "name": "Session ID rotates: reader",
+      "passed": true
+    },
+    {
+      "name": "Server principal and role: reader",
+      "passed": true
+    },
+    {
+      "name": "Expired session cannot read",
+      "passed": true
+    },
+    {
+      "name": "Expired session cannot mutate",
+      "passed": true
+    }
+  ],
+  "status": "PASS",
+  "image_id": "sha256:bbc97458ec80f4049f5be622f52160341d86387f8ae64ddb804e89672af07acc",
+  "owned_container_removed": true,
+  "private_files_removed": true,
+  "cleanup_errors": [],
+  "count": 49
+}

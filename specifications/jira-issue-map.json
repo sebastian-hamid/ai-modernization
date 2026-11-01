@@ -92,7 +92,10 @@
       "key": "KAN-15",
       "type": "Story",
       "title": "[SEC-03] Implement local identities and authorization on candidate surfaces",
-      "parent": "KAN-5"
+      "parent": "KAN-5",
+      "last_verified_status": "In Progress",
+      "evidence": "notes/evidence/kan-15-security-foundation/validation.json",
+      "remaining_blocker": "Real Cargo Tracker candidate platform/bootstrap and full mapped enforcement/observers still required"
     },
     "BUG-01": {
       "key": "KAN-16",

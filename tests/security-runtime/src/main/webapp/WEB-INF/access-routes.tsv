@@ -1,0 +1,9 @@
+/login	PUBLIC
+/public	PUBLIC
+/session	Reader,Operator,Administrator
+/logout	Reader,Operator,Administrator
+/read	Reader,Operator,Administrator
+/operate	Operator,Administrator
+/admin	Administrator
+/page.xhtml	Reader,Operator,Administrator
+/boundary	Reader,Operator,Administrator
