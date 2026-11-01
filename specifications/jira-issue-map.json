@@ -94,8 +94,8 @@
       "title": "[SEC-03] Implement local identities and authorization on candidate surfaces",
       "parent": "KAN-5",
       "last_verified_status": "In Progress",
-      "evidence": "notes/evidence/kan-15-effects/validation.json",
-      "remaining_blocker": "Four live catalogue denials/revocations only; remaining498 adapters plus full machine/worker/retry acceptance"
+      "evidence": "notes/evidence/kan-15-read-bindings/validation.json",
+      "remaining_blocker": "Sixteen live catalogue bindings only; remaining486 adapters plus full machine/worker/retry acceptance"
     },
     "BUG-01": {
       "key": "KAN-16",

@@ -19,6 +19,10 @@ class LiveSubsetTests(unittest.TestCase):
     def test_operational_page_404_does_not_become_authorization_pass(self):
         case={"channel":"page","classification":"read","actor":"anonymous","expected":"deny","write":False}
         self.assertEqual(evaluate(case,{"supported":True,"status":404,"protected_payload_absent":True})[0],"FAIL")
+    def test_private_binding_never_accepts_operational_page(self):
+        case={"id":"PAGE-01::Reader::active","surface_id":"PAGE-01","path":"/cargo-tracker/admin/dashboard.xhtml","method":"GET","classification":"internal-template","expected":"deny","write":False}
+        value=self.prepared();value.observations[case["id"]]={"supported":True,"status":404}
+        with self.assertRaises(UnsupportedCase):value.execute(case)
     def test_unknown_case_remains_blocked(self):
         case=self.case();case["id"]="API-02::Administrator::expired"
         with self.assertRaises(UnsupportedCase):self.prepared().execute(case)

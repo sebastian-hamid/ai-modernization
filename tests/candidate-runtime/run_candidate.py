@@ -134,6 +134,30 @@ def main(after_checks=None):
         check("Anonymous tracking endpoint denied",request(anonymous,"tracking")[0]==401)
         check("Private source note denied",request(anonymous,"booking/todo.txt")[0]==404)
         sessions={who:login(who) for who in credentials}
+        def payload_absent(body):
+            return not any(marker in body for marker in ["trackingId","ABC123","DEF789","JKL567","MNO456","Hong Kong","Helsinki"])
+        for actor,who in [("anonymous",None),("Reader","reader"),("Operator","operator"),("Administrator","admin")]:
+            opener=sessions[who][1] if who else anonymous
+            status,body,_=request(opener,"rest/cargo")
+            observation={"supported":True,"status":status}
+            if who:
+                values=json.loads(body)
+                meaningful=isinstance(values,list) and {"ABC123","DEF789","JKL567","MNO456"}.issubset({cargo["trackingId"] for cargo in values})
+                check("Catalogue monitoring semantics: "+actor,status==200 and meaningful)
+                observation.update({"identity":report["identities"][who],"semantic_success":meaningful})
+            else:
+                check("Catalogue anonymous monitoring denial has no payload",status==401 and payload_absent(body))
+                observation["protected_payload_absent"]=payload_absent(body)
+            head_status,head_body,_=request(opener,"rest/cargo",method="HEAD")
+            check("Catalogue monitoring HEAD: "+actor,head_status==(200 if who else 401) and head_body=="")
+            observation.update({"head_status":head_status,"head_body_empty":head_body==""})
+            report["access_observations"]["API-01::"+actor+"::active"]=observation
+            for number,template in [("01","admin"),("02","public")]:
+                status,body,_=request(opener,"WEB-INF/templates/common/"+template+".xhtml")
+                check("Private template denied without cargo: "+template+" "+actor,status==404 and payload_absent(body))
+                observation={"supported":True,"status":status,"protected_payload_absent":payload_absent(body)}
+                if who:observation["identity"]=report["identities"][who]
+                report["access_observations"]["PAGE-"+number+"::"+actor+"::active"]=observation
         route_path="rest/graph-traversal/shortest-path?origin=CNHKG&destination=FIHEL&deadline=2030-12-31"
         check("Anonymous routing API denied",request(anonymous,route_path)[0]==401)
         check("Reader routing API denied",request(sessions["reader"][1],route_path)[0]==403)

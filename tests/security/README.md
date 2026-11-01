@@ -36,3 +36,8 @@ See notes/evidence/kan-14-security/validation.json and notes/agent-reviews/2026-
 ## Subsequent scoped effects evidence
 
 The [disposable independent effects observer](../../docs/candidate/independent-effects.md) now verifies selected real handling/forged-booking denials and Operator logout/idle-expiry replay, with an allowed processing control. This supersedes the blanket observer-unavailable statement for that bounded subset only. The optional --live-subset command launches a fresh candidate and binds four real handling-denial/revocation cases; the remaining498 cases stay BLOCKED and exit2. Default execution remains all502 BLOCKED. Missing adapters and remaining machine/worker/retry scenarios are not converted to PASS.
+
+
+## Monitoring and private-template binding follow-up
+
+The [read-access binding follow-up](../../docs/candidate/read-access-bindings.md) expands the optional live adapter to16 definitions; other486 remain BLOCKED/exit2. Earlier4PASS/498BLOCKED statements describe the first effects increment. This adds parsed monitoring semantics and exact private-template denials, without application or permission changes.

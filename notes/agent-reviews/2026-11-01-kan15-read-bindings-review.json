@@ -1,0 +1,28 @@
+{
+  "task": "KAN-15 monitoring/private-template binding follow-up",
+  "reviewer": "/root/review_kan15_reads",
+  "base": "700dda94ed8fd80be90afa7bc1f5a3ed7bc781c0",
+  "verdict": "Approved bounded publication; no remaining material findings. Full KAN-15 incomplete.",
+  "input_hashes_verified": 281,
+  "application": 96,
+  "domain": 35,
+  "catalogue": {
+    "PASS": 16,
+    "BLOCKED": 486,
+    "native_exit": 2
+  },
+  "independently_executed_security_unit_tests": 22,
+  "reviewer_live_execution": false,
+  "resolved_material_finding": "GET/HEAD grouped case initially exercised GET only. Added actual HEAD status/empty-body assertions for all four actors and fresh corrected live execution; reviewer rechecked.",
+  "limits": [
+    "Browser suite not rerun for binding-only change; prior210-case result historical",
+    "Inherited empty domain TODO",
+    "Marker inspection bounded; full remaining486 adapters incomplete"
+  ],
+  "evidence_sha256": {
+    "catalogue-results.json": "22e83e54329379977d1a029e7878537c0b0d6cdb73838d97d14e7471da211316",
+    "application-results.json": "ea23711b50583a24666691f6e55ba0b2e954b421f9378baa343f2fa85283b36b",
+    "validation.json": "786db949a0942ad46923eb8f496ed7fd95fe492f9be0e30ae909d8ef6710c6fd",
+    "initial-get-only-catalogue.json": "22e83e54329379977d1a029e7878537c0b0d6cdb73838d97d14e7471da211316"
+  }
+}

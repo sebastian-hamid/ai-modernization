@@ -18,7 +18,16 @@ class LiveSubsetCandidate:
         if report.get("status")!="PASS" or not report.get("owned_container_removed") or not report.get("private_files_removed"):raise RuntimeError("Live fixture failed or cleanup incomplete")
         self.observations=report["access_observations"]
     def execute(self,case):
-        if case.get("surface_id")!="API-02" or case.get("path")!="/cargo-tracker/rest/handling/reports" or case.get("method")!="POST" or case.get("expected")!="deny" or case.get("write") is not True:raise UnsupportedCase()
+        surface=case.get("surface_id")
+        if surface=="API-02":
+            valid=case.get("path")=="/cargo-tracker/rest/handling/reports" and case.get("method")=="POST" and case.get("expected")=="deny" and case.get("write") is True
+        elif surface=="API-01":
+            valid=case.get("path")=="/cargo-tracker/rest/cargo" and case.get("method")=="GET/HEAD" and case.get("write") is False and case.get("expected")==("deny" if case.get("actor")=="anonymous" else "allow")
+        elif surface in {"PAGE-01","PAGE-02"}:
+            template="admin" if surface=="PAGE-01" else "public"
+            valid=case.get("path")=="/cargo-tracker/WEB-INF/templates/common/"+template+".xhtml" and case.get("method")=="GET" and case.get("classification")=="internal-template" and case.get("expected")=="deny" and case.get("write") is False
+        else:valid=False
+        if not valid:raise UnsupportedCase()
         observation=self.observations.get(case["id"])
         if observation is None:raise UnsupportedCase()
         return observation
