@@ -51,3 +51,8 @@ The [API access matrix](../../docs/candidate/api-access-matrix.md) binds all 27 
 ## Filtered cargo and About page bindings
 
 The [read-view follow-up](../../docs/candidate/read-views.md) adds six page surfaces with native active roles and protected-page logout/expiry cases. The optional live adapter now binds 103 definitions, leaving 399 unsupported/BLOCKED and overall exit 2. Earlier 55/447 results remain historical evidence.
+
+
+## All HTTP page definitions
+
+The [HTTP page matrix](../../docs/candidate/http-page-matrix.md) binds all page GETs and their declared role/session cases, using specific content and fixed alias targets. Dynamic map allows require real browser data/socket proof. The optional live command now orchestrates the fresh browser/runtime wrapper: 243 bound definitions, 259 unsupported/BLOCKED, overall exit 2. Earlier counts remain historical checkpoints; callbacks, socket definitions and worker/internal boundaries remain incomplete.

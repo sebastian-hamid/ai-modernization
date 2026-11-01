@@ -39,3 +39,5 @@
 /admin/listRouted.xhtml	Reader,Operator,Administrator
 /admin/listNotRouted.xhtml	Reader,Operator,Administrator
 /admin/listClaimed.xhtml	Reader,Operator,Administrator
+/error.xhtml	PUBLIC
+/error_404.xhtml	PUBLIC

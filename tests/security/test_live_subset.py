@@ -44,6 +44,15 @@ class LiveSubsetTests(unittest.TestCase):
         for key,new in [("classification","internal-template"),("actor","anonymous"),("method","POST")]:
             case=dict(canonical);case[key]=new
             with self.subTest(key=key),self.assertRaises(UnsupportedCase):value.execute(case)
+    def test_html_only_dynamic_page_stays_blocked(self):
+        case=dict(adapter.bound_contracts()["PAGE-09::Reader::active"])
+        value=self.prepared();value.observations[case["id"]]={"supported":False,"status":200,"semantic_success":False}
+        self.assertEqual(evaluate(case,value.execute(case))[0],"BLOCKED")
+    def test_error_page_classification_cannot_be_changed(self):
+        case=dict(adapter.bound_contracts()["PAGE-18::anonymous::active"])
+        value=self.prepared();value.observations[case["id"]]={"supported":True,"status":200}
+        case["classification"]="read"
+        with self.assertRaises(UnsupportedCase):value.execute(case)
     def test_unknown_case_remains_blocked(self):
         case=self.case();case["id"]="API-02::Administrator::expired"
         with self.assertRaises(UnsupportedCase):self.prepared().execute(case)
@@ -52,7 +61,7 @@ class LiveSubsetTests(unittest.TestCase):
             case=self.case();case[key]=value
             with self.subTest(key=key),self.assertRaises(UnsupportedCase):self.prepared().execute(case)
     def test_failed_or_unclean_live_fixture_is_rejected(self):
-        for report in [{"status":"FAIL"},{"status":"PASS","owned_container_removed":False,"private_files_removed":True},{"status":"PASS","owned_container_removed":True,"private_files_removed":False}]:
+        for report in [{"status":"PASS","owned_container_removed":True,"private_files_removed":True,"access_observations":{}},{"status":"FAIL"},{"status":"PASS","owned_container_removed":False,"private_files_removed":True},{"status":"PASS","owned_container_removed":True,"private_files_removed":False}]:
             fake=type("Module",(),{"main":staticmethod(lambda:report)})()
             fake_spec=type("Spec",(),{"loader":type("Loader",(),{"exec_module":staticmethod(lambda module:None)})()})()
             with patch.object(adapter.importlib.util,"spec_from_file_location",return_value=fake_spec),patch.object(adapter.importlib.util,"module_from_spec",return_value=fake):

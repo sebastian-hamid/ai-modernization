@@ -180,6 +180,49 @@ def main(after_checks=None):
             "PAGE-08":("admin/listRouted.xhtml","Routed cargo","routed"),
             "PAGE-22":("index.xhtml","Cargo Tracker","public"),
             "PAGE-24":("public/about.xhtml","About Cargo Tracker","public")}
+        # Create a real future-deadline cargo through a rendered permitted form.
+        status,book_body,_=request(sessions["operator"][1],"admin/book.xhtml")
+        state=re.search(r'name="jakarta.faces.ViewState"[^>]*value="([^"]+)"',book_body)
+        check("Page fixture uses real booking form",status==200 and state is not None)
+        status,_,headers=request(sessions["operator"][1],"admin/book.xhtml",{"csrf":sessions["operator"][2],"booking":"booking","booking:origin":"CNHKG","booking:destination":"FIHEL","booking:deadline":"2030-12-31","booking:submit":"","jakarta.faces.ViewState":state[1]})
+        location=urllib.parse.urlsplit(urllib.parse.urljoin(base,headers.get("Location","")))
+        query=urllib.parse.parse_qs(location.query);ids=query.get("trackingId",[])
+        check("Page fixture booking persists with fixed details redirect",status in {302,303} and location.netloc==urllib.parse.urlsplit(base).netloc and location.path=="/cargo-tracker/admin/show.xhtml" and len(ids)==1 and re.fullmatch("[A-Z0-9]{8}",ids[0]) is not None)
+        fixture_id=ids[0];report["page_fixture_tracking_id"]=fixture_id
+        # surface -> path, heading, semantics, operator-only, trackingId, fixed alias target
+        other_pages={
+            "PAGE-04":("admin/changeDestination.xhtml","Change destination","change",True,True,None),
+            "PAGE-05":("admin/dashboard.xhtml","Cargo list","dashboard",False,False,None),
+            "PAGE-09":("admin/map.xhtml","Live cargo tracking","live",False,False,"admin/live.xhtml"),
+            "PAGE-10":("admin/mapFrame.html","Live cargo tracking","live",False,False,"admin/live.xhtml"),
+            "PAGE-11":("admin/route.xhtml","Assign route","route",True,True,None),
+            "PAGE-12":("admin/selectItinerary.xhtml","Assign route","route",True,True,"admin/route.xhtml"),
+            "PAGE-13":("admin/show.xhtml","Cargo details","details",False,True,None),
+            "PAGE-14":("admin/track.xhtml","Track cargo","track",False,False,None),
+            "PAGE-15":("booking/booking-date.xhtml","Book cargo","book",True,False,"admin/book.xhtml"),
+            "PAGE-16":("booking/booking-destination.xhtml","Book cargo","book",True,False,"admin/book.xhtml"),
+            "PAGE-17":("booking/booking.xhtml","Book cargo","book",True,False,"admin/book.xhtml"),
+            "PAGE-18":("error.xhtml","Request could not be completed","error",False,False,None),
+            "PAGE-19":("error_404.xhtml","Page not found","error",False,False,None),
+            "PAGE-20":("eventLogger/eventLogger.xhtml","Report handling","handling",True,False,"mobile.xhtml"),
+            "PAGE-21":("eventLogger/root.xhtml","Report handling","handling",True,False,"mobile.xhtml"),
+            "PAGE-23":("mobile.xhtml","Report handling","handling",True,False,None),
+            "PAGE-25":("public/track.xhtml","Track cargo","track",False,False,"admin/track.xhtml")}
+        def page_path(spec):
+            path,heading,kind,operator,needs_id,target=spec
+            return path+("?trackingId="+fixture_id if needs_id else "")
+        def page_semantics(kind,body,values):
+            form=lambda name: 'id="'+name+'"' in body and 'name="csrf"' in body and 'name="jakarta.faces.ViewState"' in body
+            if kind=="dashboard":return set(re.findall(r'trackingId=([A-Z0-9]{6,8})',body))=={c["trackingId"] for c in values} and 'id="cargos"' in body
+            if kind=="details":return 'id="trackingId">'+fixture_id in body and "Hong Kong" in body and "Helsinki" in body and 'id="routingStatus">' in body
+            if kind=="change":return form("change") and 'id="change:destination"' in body and "FIHEL" in body
+            if kind=="route":return form("routing") and "route-candidate" in body and 'id="routing:choice"' in body
+            if kind=="book":return form("booking") and 'id="booking:origin"' in body and 'id="booking:deadline"' in body
+            if kind=="handling":return form("handling") and 'id="handling:type"' in body and 'id="handling:location"' in body
+            if kind=="track":return form("tracking") and 'id="tracking:id"' in body
+            if kind=="live":return 'id="live-cargos"' in body and 'id="live-map"' in body and "/resources/js/live-tracking.js" in body
+            if kind=="error":return payload_absent(body) and not any(marker in body for marker in ["jakarta.faces.FacesException","java.lang.","password","JSESSIONID","<script","untrusted.example"])
+            return False
         for actor,who in [("anonymous",None),("Reader","reader"),("Operator","operator"),("Administrator","admin")]:
             opener=sessions[who][1] if who else anonymous
             status,body,_=request(opener,"rest/cargo")
@@ -226,6 +269,30 @@ def main(after_checks=None):
                     fixed=headers.get("Location")=="/cargo-tracker/login"
                     check("Anonymous read page login without payload: "+surface,status==303 and fixed and payload_absent(body))
                     observation={"supported":True,"status":status,"redirect_is_configured_login":fixed,"protected_payload_absent":payload_absent(body)}
+                if who:observation["identity"]=report["identities"][who]
+                report["access_observations"][surface+"::"+actor+"::active"]=observation
+            for surface,spec in other_pages.items():
+                path,heading,kind,operator,needs_id,target=spec
+                allowed=kind=="error" or who is not None and (not operator or who in {"operator","admin"})
+                status,body,headers=request(opener,page_path(spec))
+                if allowed:
+                    redirected=False
+                    if target:
+                        expected="/cargo-tracker/"+target+("?trackingId="+fixture_id if needs_id else "")
+                        redirected=status==303 and headers.get("Location")==expected
+                        check("Fixed page alias target: "+surface+" "+actor,redirected)
+                        status,body,headers=request(opener,target+("?trackingId="+fixture_id if needs_id else ""))
+                    semantic=status==200 and "<h1>"+heading+"</h1>" in body and page_semantics(kind,body,values if who else [])
+                    check("Allowed page content: "+surface+" "+actor,semantic)
+                    observation={"supported":kind!="live","status":status,"semantic_success":semantic if kind!="live" else False}
+                    if target:observation["fixed_alias_verified"]=redirected
+                    if kind=="live":observation.update({"shell_rendered":semantic,"browser_required":True})
+                    if kind=="error":observation["protected_payload_absent"]=page_semantics(kind,body,[])
+                else:
+                    fixed=headers.get("Location")=="/cargo-tracker/login"
+                    absent=payload_absent(body)
+                    check("Page denial precedes data: "+surface+" "+actor,status==(403 if who else 303) and absent and (who is not None or fixed))
+                    observation={"supported":True,"status":status,"protected_payload_absent":absent,"redirect_is_configured_login":fixed}
                 if who:observation["identity"]=report["identities"][who]
                 report["access_observations"][surface+"::"+actor+"::active"]=observation
         def effects():
@@ -396,6 +463,12 @@ def main(after_checks=None):
                 status,body,headers=request(opener,path)
                 fixed=headers.get("Location")=="/cargo-tracker/login"
                 check("Revoked read page login: "+surface+" "+actor+" "+state,status==303 and fixed and payload_absent(body))
+                pending[surface+"::"+actor+"::"+state]={"supported":True,"status":status,"redirect_is_configured_login":fixed,"protected_payload_absent":payload_absent(body),"identity":report["identities"][who],"authenticated_before_revocation":True,"revocation_verified":True}
+            for surface,spec in other_pages.items():
+                path,heading,kind,operator,needs_id,target=spec
+                if kind=="error" or operator and who=="reader":continue
+                status,body,headers=request(opener,page_path(spec));fixed=headers.get("Location")=="/cargo-tracker/login"
+                check("Revoked remaining page login: "+surface+" "+actor+" "+state,status==303 and fixed and payload_absent(body))
                 pending[surface+"::"+actor+"::"+state]={"supported":True,"status":status,"redirect_is_configured_login":fixed,"protected_payload_absent":payload_absent(body),"identity":report["identities"][who],"authenticated_before_revocation":True,"revocation_verified":True}
             return pending
         def record_revocations(pending,before_sample,after_sample,who):

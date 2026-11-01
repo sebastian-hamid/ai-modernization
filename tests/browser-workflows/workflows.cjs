@@ -2,7 +2,7 @@ const {chromium}=require("playwright");
 const fs=require("fs");
 const cfg=JSON.parse(fs.readFileSync("/run/credentials.json","utf8"));
 const base=cfg.base;
-const checks=[];const failures=[];let stage="initialize";let navigation=null;
+const checks=[];const failures=[];const pageSemantics={};let stage="initialize";let navigation=null;
 function check(name,ok){stage=name;checks.push({name,passed:!!ok});if(!ok)throw new Error(name);}
 (async()=>{
  const browser=await chromium.launch({headless:true});
@@ -21,8 +21,10 @@ function check(name,ok){stage=name;checks.push({name,passed:!!ok});if(!ok)throw 
    await page.getByLabel("Password").fill(cfg.credentials[who]);
    await page.getByRole("button",{name:"Sign in"}).click();
    await page.waitForURL(base+"session");
-   check("Browser login "+who,(await page.textContent("body")).includes('"principal":"'+who+'"'));
-   return {context,page,who};
+   const identity=JSON.parse(await page.textContent("body"));
+   const role={reader:"Reader",operator:"Operator",admin:"Administrator"}[who];
+   check("Browser login "+who,identity.principal===who && identity.roles.includes(role));
+   return {context,page,who,identity};
   }
 
   const aliasesRead=["public/track.xhtml","admin/map.xhtml","admin/mapFrame.html"];
@@ -53,7 +55,27 @@ function check(name,ok){stage=name;checks.push({name,passed:!!ok});if(!ok)throw 
    await ap.goto(base+path);check("Anonymous filtered/About page goes to login "+path,ap.url().endsWith("/login")&&!(await ap.textContent("body")).includes("ABC123"));
   }
   await ap.goto(base+"public/about.xhtml");await ap.getByText("Tracking requires sign-in.",{exact:true}).waitFor();check("Public About accurately explains login",!(await ap.textContent("body")).includes("ABC123"));
+  async function liveAliases(actor){
+   const role={reader:"Reader",operator:"Operator",admin:"Administrator"}[actor.who];
+   for(const [surface,path] of [["PAGE-09","admin/map.xhtml"],["PAGE-10","admin/mapFrame.html"]]){
+    const page=await actor.context.newPage();
+    try{
+     const response=await page.goto(base+path);
+     await page.locator("#live-status").getByText("Live",{exact:true}).waitFor();
+     await page.locator('tr[data-tracking-id="ABC123"]').waitFor();
+     check("Alias browser data and socket live "+surface+" "+role,response.status()===200 && new URL(page.url()).pathname==="/cargo-tracker/admin/live.xhtml");
+     pageSemantics[surface+"::"+role+"::active"]={principal:actor.identity.principal,roles:actor.identity.roles,source_path:"/"+path,final_path:"/cargo-tracker/admin/live.xhtml",status:response.status(),cargo_observed:"ABC123",socket_live:true};
+    }finally{await page.close();}
+   }
+  }
+  for(const [path,heading] of [["error.xhtml","Request could not be completed"],["error_404.xhtml","Page not found"]]){
+   await ap.goto(base+path+"?message=%3Cscript%3Ebad%3C/script%3E&next=https://untrusted.example");
+   await ap.getByRole("heading",{name:heading,exact:true}).waitFor();
+   const body=await ap.textContent("body");
+   check("Generic error page ignores unsafe query "+path,!body.includes("bad")&&!body.includes("untrusted.example")&&!body.includes("ABC123")&&await ap.locator("script").count()===0);
+  }
   const reader=await login("reader");
+  await liveAliases(reader);
   await readViews(reader);
 
   await reader.page.goto(base+"admin/track.xhtml");
@@ -103,7 +125,7 @@ function check(name,ok){stage=name;checks.push({name,passed:!!ok});if(!ok)throw 
   for(const path of ["admin/show.xhtml","admin/show.xhtml?trackingId=UNKNOWN","admin/show.xhtml?trackingId=%3Cscript%3E"]){
    const response=await reader.context.request.get(base+path);check("Controlled invalid link "+path,response.status()===404);
   }
-  const operator=await login("operator");
+  const operator=await login("operator");await liveAliases(operator);
   async function book(actor){
    const page=actor.page;
    await page.goto(base+"admin/book.xhtml");
@@ -207,7 +229,7 @@ function check(name,ok){stage=name;checks.push({name,passed:!!ok});if(!ok)throw 
   const noCsrf=await operator.context.request.post(base+"admin/book.xhtml",{form:{"booking":"booking","booking:submit":"","jakarta.faces.ViewState":view[1]}});
   check("Missing CSRF booking POST denied",noCsrf.status()===403);
 
-  const admin=await login("admin");await book(admin);
+  const admin=await login("admin");await liveAliases(admin);await book(admin);
   for(const actor of [operator,admin]){
    for(const path of aliasesWrite){
     const response=await actor.context.request.get(base+path+(path.includes("selectItinerary")?"?trackingId="+id:""));
@@ -367,5 +389,5 @@ function check(name,ok){stage=name;checks.push({name,passed:!!ok});if(!ok)throw 
   check("No new data after idle expiry",await sockets.operator.page.evaluate(()=>window.framesReceived.length)===expiredCount);
   check("No page or asset errors",failures.length===0);
  } catch(error){checks.push({name:stage+" failed ("+error.name+")",outcome:"FAIL",passed:false});process.exitCode=1;}
- finally{await browser.close();fs.writeFileSync("/out/results.json",JSON.stringify({scope:"Real Chromium cargo read/booking/destination/routing/live/handling workflows",checks,last_navigation:navigation,resource_errors:failures},null,2)+"\n");}
+ finally{await browser.close();fs.writeFileSync("/out/results.json",JSON.stringify({scope:"Real Chromium cargo read/booking/destination/routing/live/handling workflows",checks,last_navigation:navigation,resource_errors:failures,page_semantics:pageSemantics},null,2)+"\n");}
 })();

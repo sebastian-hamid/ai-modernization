@@ -6,6 +6,20 @@ ROOT=Path(__file__).resolve().parents[2]
 spec=importlib.util.spec_from_file_location("candidate_runtime",ROOT/"tests/candidate-runtime/run_candidate.py")
 app=importlib.util.module_from_spec(spec);spec.loader.exec_module(app)
 WORK=ROOT/".work/kan19"
+def promote_live_pages(report,results):
+    proofs=results.get("page_semantics",{})
+    role_users={"Reader":"reader","Operator":"operator","Administrator":"admin"}
+    expected={surface+"::"+role+"::active":(role,user,path) for surface,path in [("PAGE-09","/admin/map.xhtml"),("PAGE-10","/admin/mapFrame.html")] for role,user in role_users.items()}
+    if set(proofs)!=set(expected):raise AssertionError("Missing or unexpected live-page browser proof")
+    observations=report.get("access_observations",{});validated=[]
+    for key,(role,user,path) in expected.items():
+        proof=proofs[key];observation=observations.get(key,{})
+        identity=observation.get("identity",{})
+        if not (observation.get("browser_required") is True and observation.get("shell_rendered") is True and identity.get("server_verified") is True and identity.get("principal")==user and role in identity.get("roles",[]) and proof.get("principal")==user and role in proof.get("roles",[]) and proof.get("source_path")==path and proof.get("final_path")=="/cargo-tracker/admin/live.xhtml" and proof.get("status")==200 and proof.get("cargo_observed")=="ABC123" and proof.get("socket_live") is True):raise AssertionError("Invalid live-page browser proof")
+        validated.append(observation)
+    for observation in validated:observation.update({"supported":True,"semantic_success":True,"browser_semantics_verified":True})
+    report["browser_page_proofs"]=proofs
+
 def main():
     WORK.mkdir(parents=True,exist_ok=True)
     name="ai-modernization-kan19-browser"
@@ -28,6 +42,7 @@ def main():
             results=json.loads((WORK/"results.json").read_text())
             report["browser_checks"]={"count":len(results["checks"]),"passed":all(c["passed"] for c in results["checks"])}
             if proc.returncode or not report["browser_checks"]["passed"]:raise AssertionError("Real browser workflow failed; inspect sanitized .work/kan19/results.json")
+            promote_live_pages(report,results)
         finally:
             cleanup=[]
             if bid:
@@ -39,5 +54,5 @@ def main():
                 if result.returncode:cleanup.append("private network removal")
             report["browser_cleanup"]={"container_removed":bool(bid) and "browser removal" not in cleanup,"network_removed":bool(network) and "private network removal" not in cleanup,"errors":cleanup}
             if cleanup:raise RuntimeError("Browser fixture cleanup incomplete: "+",".join(cleanup))
-    app.main(after_checks=browser)
+    return app.main(after_checks=browser)
 if __name__=="__main__":main()

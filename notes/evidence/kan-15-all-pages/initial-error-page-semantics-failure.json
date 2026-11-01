@@ -1,0 +1,398 @@
+{
+  "task": "KAN-18/KAN-15",
+  "scope": "Real Cargo Tracker candidate: monitoring/handling/session plus Faces list/booking/details/destination routes",
+  "checks": [
+    {
+      "name": "Pinned runtime fixture builds",
+      "passed": true
+    },
+    {
+      "name": "Disposable image refuses absent opt-in",
+      "passed": true
+    },
+    {
+      "name": "35 candidate domain tests execute",
+      "passed": true
+    },
+    {
+      "name": "Anonymous monitoring denied",
+      "passed": true
+    },
+    {
+      "name": "Anonymous handling denied",
+      "passed": true
+    },
+    {
+      "name": "Anonymous operational page navigates to login",
+      "passed": true
+    },
+    {
+      "name": "Anonymous tracking endpoint denied",
+      "passed": true
+    },
+    {
+      "name": "Private source note denied",
+      "passed": true
+    },
+    {
+      "name": "Login form with token: reader",
+      "passed": true
+    },
+    {
+      "name": "Container login succeeds: reader",
+      "passed": true
+    },
+    {
+      "name": "Session ID rotates: reader",
+      "passed": true
+    },
+    {
+      "name": "Server principal and role: reader",
+      "passed": true
+    },
+    {
+      "name": "Login form with token: operator",
+      "passed": true
+    },
+    {
+      "name": "Container login succeeds: operator",
+      "passed": true
+    },
+    {
+      "name": "Session ID rotates: operator",
+      "passed": true
+    },
+    {
+      "name": "Server principal and role: operator",
+      "passed": true
+    },
+    {
+      "name": "Login form with token: admin",
+      "passed": true
+    },
+    {
+      "name": "Container login succeeds: admin",
+      "passed": true
+    },
+    {
+      "name": "Session ID rotates: admin",
+      "passed": true
+    },
+    {
+      "name": "Server principal and role: admin",
+      "passed": true
+    },
+    {
+      "name": "Page fixture uses real booking form",
+      "passed": true
+    },
+    {
+      "name": "Page fixture booking persists with fixed details redirect",
+      "passed": true
+    },
+    {
+      "name": "Catalogue anonymous monitoring denial has no payload",
+      "passed": true
+    },
+    {
+      "name": "Catalogue monitoring HEAD: anonymous",
+      "passed": true
+    },
+    {
+      "name": "Private template denied without cargo: admin anonymous",
+      "passed": true
+    },
+    {
+      "name": "Private template denied without cargo: public anonymous",
+      "passed": true
+    },
+    {
+      "name": "Private metadata/source denied: PRIVATE-01 anonymous",
+      "passed": true
+    },
+    {
+      "name": "Private metadata/source denied: PRIVATE-02 anonymous",
+      "passed": true
+    },
+    {
+      "name": "Private metadata/source denied: PRIVATE-03 anonymous",
+      "passed": true
+    },
+    {
+      "name": "Private metadata/source denied: PRIVATE-04 anonymous",
+      "passed": true
+    },
+    {
+      "name": "Private metadata/source denied: PRIVATE-05 anonymous",
+      "passed": true
+    },
+    {
+      "name": "Anonymous read page login without payload: PAGE-03",
+      "passed": true
+    },
+    {
+      "name": "Anonymous read page login without payload: PAGE-06",
+      "passed": true
+    },
+    {
+      "name": "Anonymous read page login without payload: PAGE-07",
+      "passed": true
+    },
+    {
+      "name": "Anonymous read page login without payload: PAGE-08",
+      "passed": true
+    },
+    {
+      "name": "Read page semantics: PAGE-22 anonymous",
+      "passed": true
+    },
+    {
+      "name": "Read page semantics: PAGE-24 anonymous",
+      "passed": true
+    },
+    {
+      "name": "Page denial precedes data: PAGE-04 anonymous",
+      "passed": true
+    },
+    {
+      "name": "Page denial precedes data: PAGE-05 anonymous",
+      "passed": true
+    },
+    {
+      "name": "Page denial precedes data: PAGE-09 anonymous",
+      "passed": true
+    },
+    {
+      "name": "Page denial precedes data: PAGE-10 anonymous",
+      "passed": true
+    },
+    {
+      "name": "Page denial precedes data: PAGE-11 anonymous",
+      "passed": true
+    },
+    {
+      "name": "Page denial precedes data: PAGE-12 anonymous",
+      "passed": true
+    },
+    {
+      "name": "Page denial precedes data: PAGE-13 anonymous",
+      "passed": true
+    },
+    {
+      "name": "Page denial precedes data: PAGE-14 anonymous",
+      "passed": true
+    },
+    {
+      "name": "Page denial precedes data: PAGE-15 anonymous",
+      "passed": true
+    },
+    {
+      "name": "Page denial precedes data: PAGE-16 anonymous",
+      "passed": true
+    },
+    {
+      "name": "Page denial precedes data: PAGE-17 anonymous",
+      "passed": true
+    },
+    {
+      "name": "Allowed page content: PAGE-18 anonymous",
+      "passed": false
+    }
+  ],
+  "status": "FAIL",
+  "identities": {
+    "reader": {
+      "server_verified": true,
+      "principal": "reader",
+      "roles": [
+        "Reader"
+      ]
+    },
+    "operator": {
+      "server_verified": true,
+      "principal": "operator",
+      "roles": [
+        "Operator"
+      ]
+    },
+    "admin": {
+      "server_verified": true,
+      "principal": "admin",
+      "roles": [
+        "Administrator"
+      ]
+    }
+  },
+  "access_observations": {
+    "API-01::anonymous::active": {
+      "supported": true,
+      "status": 401,
+      "protected_payload_absent": true,
+      "head_status": 401,
+      "head_body_empty": true
+    },
+    "PAGE-01::anonymous::active": {
+      "supported": true,
+      "status": 404,
+      "protected_payload_absent": true
+    },
+    "PAGE-02::anonymous::active": {
+      "supported": true,
+      "status": 404,
+      "protected_payload_absent": true
+    },
+    "PRIVATE-01::anonymous::active": {
+      "supported": true,
+      "status": 404,
+      "protected_payload_absent": true,
+      "resource_packaged": true
+    },
+    "PRIVATE-02::anonymous::active": {
+      "supported": true,
+      "status": 404,
+      "protected_payload_absent": true,
+      "resource_packaged": false
+    },
+    "PRIVATE-03::anonymous::active": {
+      "supported": true,
+      "status": 404,
+      "protected_payload_absent": true,
+      "resource_packaged": true
+    },
+    "PRIVATE-04::anonymous::active": {
+      "supported": true,
+      "status": 404,
+      "protected_payload_absent": true,
+      "resource_packaged": false
+    },
+    "PRIVATE-05::anonymous::active": {
+      "supported": true,
+      "status": 404,
+      "protected_payload_absent": true,
+      "resource_packaged": true
+    },
+    "PAGE-03::anonymous::active": {
+      "supported": true,
+      "status": 303,
+      "redirect_is_configured_login": true,
+      "protected_payload_absent": true
+    },
+    "PAGE-06::anonymous::active": {
+      "supported": true,
+      "status": 303,
+      "redirect_is_configured_login": true,
+      "protected_payload_absent": true
+    },
+    "PAGE-07::anonymous::active": {
+      "supported": true,
+      "status": 303,
+      "redirect_is_configured_login": true,
+      "protected_payload_absent": true
+    },
+    "PAGE-08::anonymous::active": {
+      "supported": true,
+      "status": 303,
+      "redirect_is_configured_login": true,
+      "protected_payload_absent": true
+    },
+    "PAGE-22::anonymous::active": {
+      "supported": true,
+      "status": 200,
+      "semantic_success": true,
+      "protected_payload_absent": true
+    },
+    "PAGE-24::anonymous::active": {
+      "supported": true,
+      "status": 200,
+      "semantic_success": true,
+      "protected_payload_absent": true
+    },
+    "PAGE-04::anonymous::active": {
+      "supported": true,
+      "status": 303,
+      "protected_payload_absent": true,
+      "redirect_is_configured_login": true
+    },
+    "PAGE-05::anonymous::active": {
+      "supported": true,
+      "status": 303,
+      "protected_payload_absent": true,
+      "redirect_is_configured_login": true
+    },
+    "PAGE-09::anonymous::active": {
+      "supported": true,
+      "status": 303,
+      "protected_payload_absent": true,
+      "redirect_is_configured_login": true
+    },
+    "PAGE-10::anonymous::active": {
+      "supported": true,
+      "status": 303,
+      "protected_payload_absent": true,
+      "redirect_is_configured_login": true
+    },
+    "PAGE-11::anonymous::active": {
+      "supported": true,
+      "status": 303,
+      "protected_payload_absent": true,
+      "redirect_is_configured_login": true
+    },
+    "PAGE-12::anonymous::active": {
+      "supported": true,
+      "status": 303,
+      "protected_payload_absent": true,
+      "redirect_is_configured_login": true
+    },
+    "PAGE-13::anonymous::active": {
+      "supported": true,
+      "status": 303,
+      "protected_payload_absent": true,
+      "redirect_is_configured_login": true
+    },
+    "PAGE-14::anonymous::active": {
+      "supported": true,
+      "status": 303,
+      "protected_payload_absent": true,
+      "redirect_is_configured_login": true
+    },
+    "PAGE-15::anonymous::active": {
+      "supported": true,
+      "status": 303,
+      "protected_payload_absent": true,
+      "redirect_is_configured_login": true
+    },
+    "PAGE-16::anonymous::active": {
+      "supported": true,
+      "status": 303,
+      "protected_payload_absent": true,
+      "redirect_is_configured_login": true
+    },
+    "PAGE-17::anonymous::active": {
+      "supported": true,
+      "status": 303,
+      "protected_payload_absent": true,
+      "redirect_is_configured_login": true
+    }
+  },
+  "image_id": "sha256:716fbd6ed565c05df5135121c71b8f652b0cb66775cf892381974a2d60fc24fc",
+  "domain_tests": {
+    "tests": 35,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0,
+    "empty_legacy_todo_retained": true
+  },
+  "private_resource_packaging": {
+    "PRIVATE-01": true,
+    "PRIVATE-02": false,
+    "PRIVATE-03": true,
+    "PRIVATE-04": false,
+    "PRIVATE-05": true
+  },
+  "page_fixture_tracking_id": "C1C272DE",
+  "error_type": "AssertionError",
+  "owned_container_removed": true,
+  "private_files_removed": true,
+  "cleanup_errors": [],
+  "count": 49
+}

@@ -1,0 +1,32 @@
+{
+  "task": "KAN-15 all HTTP page/session bindings",
+  "reviewer": "/root/review_kan15_all_pages",
+  "base": "07c0113fa64e5e61de79b302600c04a843c2ef53",
+  "verdict": "Approved bounded increment; no remaining material findings. Full KAN-15 incomplete.",
+  "input_hashes_verified": 287,
+  "independently_executed_unit_tests": 50,
+  "application": 367,
+  "browser": 272,
+  "domain": 35,
+  "catalogue": {
+    "PASS": 243,
+    "BLOCKED": 259,
+    "native_exit": 2
+  },
+  "reviewer_live_execution": false,
+  "correction": "Initial Faces-component error-help view failed no-script semantics; replaced unnecessary components with literal HTML and verified actual fresh run.",
+  "remaining_findings": [],
+  "limits": [
+    "One inherited empty domain TODO",
+    "Callbacks/socket/internal-worker definitions remain unsupported",
+    "H2/Chromium only; bounded observations"
+  ],
+  "evidence_sha256": {
+    "catalogue-results.json": "cc0bb26c1d048aabcdd15aa5a50eee1cb042d0c8be42d086d9485a76c8fc05f7",
+    "application-results.json": "cd7ed56f6fd2015e0d5fe99ebb88e7757fa4bceaac9c9e026c748125248fc200",
+    "validation.json": "db72fc66e97ad16aa54fa820039ac58518d9a46c41544297c8533b8fed3931a2",
+    "browser-results.json": "5f01ad33430a9f1792cbfc0db92e4f2e5cb4bfef2f7fe2ffb5a0eb3583f45f44",
+    "initial-error-page-semantics-failure.json": "0deb3e0796ddbd5cada01133dfd3c70291bf42dcb518d89a1d5bc7b377779ece",
+    "catalogue-exit.json": "63b7df8c1fa081a25c4f09a2b468ed516cb2ed96b8898679d812eb3bb261c520"
+  }
+}
