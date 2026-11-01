@@ -1,0 +1,98 @@
+{
+  "task": "KAN-14",
+  "purpose": "Desired security, expected RED on unchanged historical application",
+  "image_id": "sha256:899f3ae0a00cc80fd9e8dd49d9104da4baf4aad81167754ac51c8c3b7a160e84",
+  "container_id": "12811661a4ab08c3449251534126a816d8e1adedc7e82150d6d42b9b535d73e1",
+  "registration_log_present": true,
+  "owned_container_removed": true,
+  "results": [
+    {
+      "case": "public:index.xhtml",
+      "status": 200,
+      "outcome": "PASS"
+    },
+    {
+      "case": "public:public/about.xhtml",
+      "status": 200,
+      "outcome": "PASS"
+    },
+    {
+      "case": "anonymous-denied:public/track.xhtml",
+      "status": 200,
+      "outcome": "FAIL",
+      "body_sha256": "46422aad483f95b1a463796d6b7150960535cb8eec93e8526072bb6d8328fb55",
+      "cargo_marker_present": false
+    },
+    {
+      "case": "anonymous-denied:admin/dashboard.xhtml",
+      "status": 200,
+      "outcome": "FAIL",
+      "body_sha256": "ddaf738866b8bfca5bcd0f18d1a48c768cc41f240f61b0e26aa258757b84f1db",
+      "cargo_marker_present": true
+    },
+    {
+      "case": "anonymous-denied:admin/show.xhtml?trackingId=ABC123",
+      "status": 200,
+      "outcome": "FAIL",
+      "body_sha256": "7ea08918cab34ef8e2a621424a9c5569a441b5a038d2097ebef2c196f9e0767b",
+      "cargo_marker_present": true
+    },
+    {
+      "case": "anonymous-denied:admin/mapFrame.html",
+      "status": 200,
+      "outcome": "FAIL",
+      "body_sha256": "1e2262d08790da168dc4f194bb559856821813bb02c1c1ac89153c57a58ddc59",
+      "cargo_marker_present": false
+    },
+    {
+      "case": "anonymous-denied:rest/cargo",
+      "status": 200,
+      "outcome": "FAIL",
+      "body_sha256": "3dd310812d4e9968b88d1cb80b4f542060c3156de102881b02cc661425c0485d",
+      "cargo_marker_present": true
+    },
+    {
+      "case": "anonymous-denied:rest/graph-traversal/shortest-path?origin=CNHKG&destination=FIHEL&deadline=2030-12-31",
+      "status": 200,
+      "outcome": "FAIL",
+      "body_sha256": "62f726ae493f5ae49ed8a9ac2978b6ed293b0c1691c7ef4461005218b274b418",
+      "cargo_marker_present": false
+    },
+    {
+      "case": "anonymous-write-denied",
+      "status": 204,
+      "outcome": "FAIL",
+      "before": {
+        "trackingId": "DEF789",
+        "routingStatus": "NOT_ROUTED",
+        "misdirected": false,
+        "transportStatus": "NOT_RECEIVED",
+        "atDestination": false,
+        "origin": "CNHKG",
+        "lastKnownLocation": "Unknown"
+      },
+      "after": {
+        "trackingId": "DEF789",
+        "routingStatus": "MISROUTED",
+        "misdirected": false,
+        "transportStatus": "IN_PORT",
+        "atDestination": false,
+        "origin": "CNHKG",
+        "lastKnownLocation": "FIHEL"
+      },
+      "mutation_observed": true,
+      "no_effect_assertion_verified": false,
+      "limitation": "Monitor is not an independent database/queue/audit observer; no PASS for denied-write contract from this probe"
+    },
+    {
+      "case": "anonymous-cross-origin-websocket-denied",
+      "status": 101,
+      "outcome": "FAIL",
+      "limitation": "Upgrade only; authorized frames and authenticated Origin checks require candidate adapter"
+    }
+  ],
+  "counts": {
+    "PASS": 2,
+    "FAIL": 8
+  }
+}

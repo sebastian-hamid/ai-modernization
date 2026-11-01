@@ -1,0 +1,21 @@
+test_403_without_observers_is_blocked (test_contract_engine.ContractEngineTests.test_403_without_observers_is_blocked) ... ok
+test_adapter_error_does_not_echo_secret (test_contract_engine.ContractEngineTests.test_adapter_error_does_not_echo_secret) ... ok
+test_allowed_open_endpoint_without_identity_is_blocked (test_contract_engine.ContractEngineTests.test_allowed_open_endpoint_without_identity_is_blocked) ... ok
+test_allowed_server_error_cannot_pass (test_contract_engine.ContractEngineTests.test_allowed_server_error_cannot_pass) ... ok
+test_arbitrary_redirect_is_not_login_denial (test_contract_engine.ContractEngineTests.test_arbitrary_redirect_is_not_login_denial) ... ok
+test_blocked_suite_cannot_exit_success (test_contract_engine.ContractEngineTests.test_blocked_suite_cannot_exit_success) ... ok
+test_catalogue_covers_surfaces_and_sessions (test_contract_engine.ContractEngineTests.test_catalogue_covers_surfaces_and_sessions) ... ok
+test_complete_denial_evidence_can_pass_oracle (test_contract_engine.ContractEngineTests.test_complete_denial_evidence_can_pass_oracle) ... ok
+test_denied_role_without_verified_identity_is_blocked (test_contract_engine.ContractEngineTests.test_denied_role_without_verified_identity_is_blocked) ... ok
+test_denied_write_requires_every_channel_unchanged (test_contract_engine.ContractEngineTests.test_denied_write_requires_every_channel_unchanged) ... ok
+test_expired_session_needs_real_lifecycle (test_contract_engine.ContractEngineTests.test_expired_session_needs_real_lifecycle) ... ok
+test_machine_identity_cannot_use_human_admin (test_contract_engine.ContractEngineTests.test_machine_identity_cannot_use_human_admin) ... ok
+test_missing_database_observer_is_blocked (test_contract_engine.ContractEngineTests.test_missing_database_observer_is_blocked) ... ok
+test_public_page_cannot_leak_data (test_contract_engine.ContractEngineTests.test_public_page_cannot_leak_data) ... ok
+test_revoked_socket_cannot_upgrade_or_receive_frames (test_contract_engine.ContractEngineTests.test_revoked_socket_cannot_upgrade_or_receive_frames) ... ok
+test_socket_101_is_not_denial (test_contract_engine.ContractEngineTests.test_socket_101_is_not_denial) ... ok
+
+----------------------------------------------------------------------
+Ran 16 tests in 0.004s
+
+OK

@@ -1,0 +1,38 @@
+{
+  "task": "KAN-14",
+  "date": "2026-11-01",
+  "source_revision": "57fc7b32d2597e43b5e0d454e707e0146de5258a",
+  "repository_base": "f3046a10a05d26cbbc159a102910440372145124",
+  "oracle_unit_tests": {
+    "count": 16,
+    "exit_code": 0,
+    "application_coverage": false
+  },
+  "candidate_gate": {
+    "exit_code": 2,
+    "BLOCKED": 502,
+    "PASS": 0
+  },
+  "legacy_desired_security": {
+    "PASS": 2,
+    "FAIL": 8
+  },
+  "legacy_exit_code": 1,
+  "owned_container_removed": true,
+  "shared_services_changed": false,
+  "inputs_sha256": {
+    "tests/security/README.md": "87a778fd86a8238433d7128911d0f6fc29ed43279d876fcfebc25fc1a2170f92",
+    "tests/security/contracts.py": "af1d52b8b25b69bedd195959ef2d313299b54308d35efb6de85a57da15e875cb",
+    "tests/security/desired-cases.json": "0c3c763c02ff068b32f9f393df0800eaff62302faf7d595f7b375bdf0acab70e",
+    "tests/security/generate_cases.py": "bae0d8cdfb10692a7ee5021f98cee02923894615a95ca95efd2f70cc11e4a5bf",
+    "tests/security/probe_legacy_gaps.py": "b23d8bc20681dc4b627502babefa09cac2f6f5e8443c3f883a1620893a8f5fdf",
+    "tests/security/run_candidate_contracts.py": "47bff98814132834d224fcf786b2aa1a7a656bce7303f2d4ab829fe2829298fc",
+    "tests/security/test_contract_engine.py": "ff9e40d34f06c2a607140d74e585f39874dc6fa6de832eb455a44c21c19f4f5f",
+    "specifications/access-policy-inventory.json": "b6aeafdfc512d5853c4dc74ee2771fb088da872d1541b47d1aaa6fae33e563d2"
+  },
+  "limits": [
+    "No migrated application identity/session/browser or independent queue/database/audit adapters yet",
+    "No candidate security success claimed; KAN-14 defines expectations and reproduces legacy gaps"
+  ],
+  "acceptance_state": "In Review; real denied-write queue/database observer execution pending KAN-15 candidate security"
+}

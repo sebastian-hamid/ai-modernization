@@ -72,3 +72,15 @@
 - Earlier local/uncommitted notes describe the pre-publication state; this checkpoint publishes the reviewed artifacts. Exact commit/remote verification reference is recorded in Jira. Publication bookkeeping is non-semantic and does not alter reviewed build inputs.
 
 - Publication whitespace check found only extra blank lines at EOF in several reviewed spike inputs. Preserved their exact tested bytes and checked other whitespace errors with the blank-at-EOF cosmetic warning excluded for this check only; no repository-wide setting changed.
+
+## 1 November 2026 — KAN-14 desired access tests
+
+- Defined generated desired-role/session cases separately from insecure historical characterization. Added strict identity, status, no-leak and database/queue/business-audit effect assertions; missing candidate adapters block the gate.
+- Executed 16 assertion-engine unit checks and fresh disposable historical gap probe: 2 public-page PASS, 8 security FAIL. Candidate gate: 502 BLOCKED, 0 PASS, exit 2. Runtime removed; shared historical application/Jenkins and read-only source preserved.
+- Defined direct/AJAX replay, logout/expiry, scoped machine authorities and further scenario expansion requirements in tests/security/README.md. Runtime identity/session implementation remains KAN-15; no production security or full browser verification claimed.
+- Separate reviewer found socket-revocation and public no-leak false-pass paths; corrected with regressions. Recheck confirmed both fixes, 16 passing unit checks, deterministic generation and matching hashes; no remaining material definition/oracle findings. Literal denied-write queue/persistence execution remains incomplete; ticket stays In Review pending KAN-15 candidate/observers. No publication performed. Human review duration, effort and attributable cost unavailable; no savings claim.
+
+## 1 November 2026 — KAN-14 publication
+
+- User authorized commit/push. Verified all eight reviewed input hashes and reran 16 passing assertion-engine checks. Published desired-access definitions, sanitized evidence and independent review records; no application runtime or security success claimed.
+- KAN-14 remains In Review: real denied-write database/queue observations require candidate authentication and independent observers. Earlier local/uncommitted statements describe the pre-publication checkpoint. No runtime rerun or service changes during publication.

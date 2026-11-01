@@ -54,3 +54,7 @@ Added 81 entrypoint contracts and verified Jenkins build 6 (134 application case
 
 ## Baseline documentation (28 October 2026)
 Created source/evidence-checked functional, architecture and technical documentation under [docs/baseline](../docs/baseline/README.md), with commit-specific source references and a SHA-256 verification manifest. Clarified destructive startup initialization, two-minute batch scheduling, one-second attempt TTL and unverified rejection/dead-letter behavior. No application changes, service restarts or new runtime tests were performed; gaps remain explicitly labeled.
+
+## 1 November 2026 — KAN-14 desired access tests
+
+Defined 502 policy-derived actor/surface/session cases, with fail-closed candidate assertions. Sixteen oracle unit checks pass; these use artificial observations and are not application coverage. A fresh disposable legacy run reports two public-page successes and eight desired-security failures, including anonymous state mutation. Candidate gate explicitly reports all 502 BLOCKED (exit 2) pending real login/session/browser and independent effect observers in KAN-15. Shared services and original sources preserved. Independent review found two oracle false-pass paths; corrected with regression tests. Ticket remains In Review: actual denied-write queue/persistence absence verification awaits KAN-15 candidate security and independent observers. Local files only.

@@ -8,6 +8,7 @@ Windows 11 + WSL2 Ubuntu development environment, local Jenkins and a preserved 
 - [Legacy functional, architecture and technical documentation](docs/baseline/README.md)
 - [Prepared Jira backlog](specifications/jira-backlog.md)
 - [Entrypoint permissions and security test map](specifications/access-policy-map.md)
+- [Desired access test contracts and current gaps](tests/security/README.md)
 - [Separate-agent review workflow](docs/agent-review-workflow.md)
 - [Java 25/Jakarta EE 11/WildFly compatibility spike](spikes/kan13-runtime/README.md)
 - [Verified setup and remaining checks](notes/setup-status.md)

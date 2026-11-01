@@ -83,7 +83,10 @@
       "key": "KAN-14",
       "type": "Task",
       "title": "[SEC-02] Define desired-access tests for anonymous, role and session cases",
-      "parent": "KAN-5"
+      "parent": "KAN-5",
+      "last_verified_status": "In Review",
+      "evidence": "notes/evidence/kan-14-security/validation.json",
+      "remaining_blocker": "Actual denied-write queue/persistence verification requires KAN-15 candidate identities and independent observers"
     },
     "SEC-03": {
       "key": "KAN-15",
