@@ -1,0 +1,38 @@
+{
+  "task": "KAN-15 filtered cargo and About views",
+  "reviewer": "/root/review_kan15_read_views",
+  "base": "a95a86da4def4d871dea0a03b45be2960a2ea1fc",
+  "verdict": "Approved bounded increment; no remaining material findings. Full KAN-15 incomplete.",
+  "input_hashes_verified": 285,
+  "application": 204,
+  "browser": 264,
+  "domain": 35,
+  "independently_executed_security_unit_tests": 26,
+  "author_unit_tests": 44,
+  "catalogue": {
+    "PASS": 103,
+    "BLOCKED": 399,
+    "native_exit": 2
+  },
+  "reviewer_live_execution": false,
+  "resolved_material_finding": "Initial Routed view used all routed cargo instead of legacy routed-and-unclaimed. Restored original predicate in page and tests, interrupted obsolete run, verified corrected live/browser results.",
+  "clarifications": [
+    "Explicit390px viewport for every role",
+    "Unrouted links now open role-safe details before operator route action"
+  ],
+  "remaining_findings": [],
+  "limits": [
+    "Inherited empty domain TODO",
+    "H2/Chromium only",
+    "399 unsupported UI/callback/worker/import/resilience definitions remain"
+  ],
+  "evidence_sha256": {
+    "catalogue-results.json": "84e95d9a2ebb3c0355b51405e2f68a4e6ba105e53ab9bccbbdf190ca6977ba1d",
+    "application-results.json": "12b2ae6f678c28d636dfe0b981a7ce2417026fe8259d3a2210776f53f18ab259",
+    "validation.json": "d1fb4395a6fe6c85f76f314e646fe74d7c454324ce822f312b11b984ccc5e109",
+    "interrupted-before-predicate-correction.json": "5a181d586b4c4b966702c673ca14e32ff3a77b6c918b8419760888c2e3afa061",
+    "browser-results.json": "cdf4c227ad69247b075a56dd80b001e3b7e52db2b4617f93fb5a89f52ad6cc34",
+    "browser-run-application-results.json": "d9157222859768a34e2c5bc9a1aa353817a5c11c3f1f530191e2c3c800b813ad",
+    "catalogue-exit.json": "63b7df8c1fa081a25c4f09a2b468ed516cb2ed96b8898679d812eb3bb261c520"
+  }
+}

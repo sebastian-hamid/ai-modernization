@@ -1,29 +1,6 @@
-<div id="id_list_compl_cargoes" xmlns="http://www.w3.org/1999/xhtml"
-     xmlns:h="http://xmlns.jcp.org/jsf/html"
-     xmlns:f="http://xmlns.jcp.org/jsf/core"
-     xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
-     xmlns:p="http://primefaces.org/ui">
-    
-    <p:dataTable var="cargo" value="#{listCargo.claimedCargos}" style="text-align: center;">
-        <p:column headerText="Id" width="94">
-            <h:link value="#{cargo.trackingId}" id="trackingId"
-                    outcome="show.xhtml?faces-redirect=true" style="text-decoration: none;" >
-                <f:param name="trackingId" value="#{cargo.trackingId}" />                
-                <i class="fa fa-info-circle" style="color: #999999;"></i>
-            </h:link>
-            <p:tooltip id="toolTipFade" for="trackingId" value="Click to see history." />
-        </p:column>
-
-        <p:column headerText="Origin">
-            <h:outputText value="#{cargo.originName}  " /> -
-            <h:outputText value="#{cargo.originCode}" style="color: #999999;font-size:.8em;"/>
-        </p:column>
-
-        <p:column headerText="Destination">
-            <h:outputText value="#{cargo.finalDestinationName}  " /> -
-            <h:outputText value="#{cargo.finalDestinationCode}" style="color: #999999;font-size:.8em;"/>
-        </p:column>
-
-    </p:dataTable>
-    
-</div>
+<ui:composition xmlns="http://www.w3.org/1999/xhtml" xmlns:ui="jakarta.faces.facelets" xmlns:h="jakarta.faces.html" xmlns:f="jakarta.faces.core" template="/WEB-INF/templates/candidate.xhtml">
+<ui:define name="title">Claimed cargo</ui:define><ui:define name="content"><h1>Claimed cargo</h1>
+<nav class="cargo-filters" aria-label="Cargo views"><h:link outcome="/admin/dashboard.xhtml" value="All cargo"/><h:link outcome="/admin/listRouted.xhtml" value="Routed cargo"/><h:link outcome="/admin/listNotRouted.xhtml" value="Unrouted cargo"/><h:link outcome="/admin/listClaimed.xhtml" value="Claimed cargo"/><h:link outcome="/admin/about.xhtml" value="Cargo workflows"/></nav>
+<h:dataTable id="cargos" value="#{listCargo.claimedCargos}" var="cargo"><h:column><f:facet name="header">Tracking ID</f:facet><h:link outcome="/admin/show.xhtml" value="#{cargo.trackingId}"><f:param name="trackingId" value="#{cargo.trackingId}"/></h:link></h:column><h:column><f:facet name="header">Origin</f:facet>#{cargo.originName}</h:column><h:column><f:facet name="header">Destination</f:facet>#{cargo.finalDestinationName}</h:column></h:dataTable>
+<h:panelGroup rendered="#{empty listCargo.claimedCargos}"><p>No cargo matches this view.</p></h:panelGroup>
+</ui:define></ui:composition>

@@ -36,10 +36,17 @@ def bound_contracts():
         "PRIVATE-03":("/cargo-tracker/WEB-INF/web.xml","GET"),
         "PRIVATE-04":("/cargo-tracker/WEB-INF/weblogic.xml","GET"),
         "PRIVATE-05":("/cargo-tracker/booking/todo.txt","GET"),
+        "PAGE-03":("/cargo-tracker/admin/about.xhtml","GET"),
+        "PAGE-06":("/cargo-tracker/admin/listClaimed.xhtml","GET"),
+        "PAGE-07":("/cargo-tracker/admin/listNotRouted.xhtml","GET"),
+        "PAGE-08":("/cargo-tracker/admin/listRouted.xhtml","GET"),
+        "PAGE-22":("/cargo-tracker/index.xhtml","GET"),
+        "PAGE-24":("/cargo-tracker/public/about.xhtml","GET"),
         "PAGE-01":("/cargo-tracker/WEB-INF/templates/common/admin.xhtml","GET"),
         "PAGE-02":("/cargo-tracker/WEB-INF/templates/common/public.xhtml","GET")}
     cases=build(json.loads((ROOT/"specifications/access-policy-inventory.json").read_text()))
-    return {case["id"]:case for case in cases if paths.get(case["surface_id"])==(case.get("path"),case.get("method")) and (not case["surface_id"].startswith("PAGE-") or case.get("classification")=="internal-template")}
+    classes={"PAGE-01":"internal-template","PAGE-02":"internal-template","PAGE-03":"read","PAGE-06":"read","PAGE-07":"read","PAGE-08":"read","PAGE-22":"public","PAGE-24":"public"}
+    return {case["id"]:case for case in cases if paths.get(case["surface_id"])==(case.get("path"),case.get("method")) and (case["channel"]!="page" or case.get("classification")==classes.get(case["surface_id"]))}
 
 if __name__=="__main__":
     ap=argparse.ArgumentParser()

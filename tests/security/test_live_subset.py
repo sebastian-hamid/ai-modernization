@@ -38,6 +38,12 @@ class LiveSubsetTests(unittest.TestCase):
         value=self.prepared();value.observations[case["id"]]={"supported":True,"status":404}
         case["path"]="/cargo-tracker/index.xhtml"
         with self.assertRaises(UnsupportedCase):value.execute(case)
+    def test_read_page_classification_or_role_cannot_reuse_observation(self):
+        canonical=adapter.bound_contracts()["PAGE-06::Reader::active"]
+        value=self.prepared();value.observations[canonical["id"]]={"supported":True,"status":200}
+        for key,new in [("classification","internal-template"),("actor","anonymous"),("method","POST")]:
+            case=dict(canonical);case[key]=new
+            with self.subTest(key=key),self.assertRaises(UnsupportedCase):value.execute(case)
     def test_unknown_case_remains_blocked(self):
         case=self.case();case["id"]="API-02::Administrator::expired"
         with self.assertRaises(UnsupportedCase):self.prepared().execute(case)

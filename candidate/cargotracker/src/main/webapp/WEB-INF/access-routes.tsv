@@ -35,3 +35,7 @@
 /booking/booking.xhtml	Operator,Administrator
 /booking/booking-date.xhtml	Operator,Administrator
 /booking/booking-destination.xhtml	Operator,Administrator
+/admin/about.xhtml	Reader,Operator,Administrator
+/admin/listRouted.xhtml	Reader,Operator,Administrator
+/admin/listNotRouted.xhtml	Reader,Operator,Administrator
+/admin/listClaimed.xhtml	Reader,Operator,Administrator

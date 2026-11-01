@@ -22,7 +22,7 @@ function check(name,ok){stage=name;checks.push({name,passed:!!ok});if(!ok)throw 
    await page.getByRole("button",{name:"Sign in"}).click();
    await page.waitForURL(base+"session");
    check("Browser login "+who,(await page.textContent("body")).includes('"principal":"'+who+'"'));
-   return {context,page};
+   return {context,page,who};
   }
 
   const aliasesRead=["public/track.xhtml","admin/map.xhtml","admin/mapFrame.html"];
@@ -33,7 +33,29 @@ function check(name,ok){stage=name;checks.push({name,passed:!!ok});if(!ok)throw 
    const response=await anon.request.get(base+path+"?trackingId=UNKNOWN",{maxRedirects:0});
    check("Authentication precedes legacy lookup "+path,response.status()===303 && response.headers().location.endsWith("/login"));
   }
+  async function readViews(actor){
+   const previousViewport=actor.page.viewportSize();await actor.page.setViewportSize({width:390,height:844});
+   const response=await actor.context.request.get(base+"rest/cargo");const cargos=await response.json();
+   for(const [path,heading,kind] of [["listRouted","Routed cargo","routed"],["listNotRouted","Unrouted cargo","unrouted"],["listClaimed","Claimed cargo","claimed"]]){
+    await actor.page.goto(base+"admin/"+path+".xhtml");
+    await actor.page.getByRole("heading",{name:heading,exact:true}).waitFor();
+    const actual=(await actor.page.locator("#cargos tbody tr td:first-child a").allTextContents()).sort();
+    const expected=cargos.filter(c=>kind==="claimed"?c.transportStatus==="CLAIMED":kind==="unrouted"?c.routingStatus==="NOT_ROUTED":c.routingStatus!=="NOT_ROUTED"&&c.transportStatus!=="CLAIMED").map(c=>c.trackingId).sort();
+    check("Filtered list exact persisted partition "+actor.who+" "+kind,JSON.stringify(actual)===JSON.stringify(expected));
+    if(expected.length===0){await actor.page.getByText("No cargo matches this view.",{exact:true}).waitFor();check("Empty filtered list controlled "+kind,true);}
+    check("Filtered list fits viewport "+actor.who+" "+kind,await actor.page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth));
+   }
+   await actor.page.goto(base+"admin/about.xhtml");await actor.page.getByRole("heading",{name:"Cargo workflows",exact:true}).waitFor();
+   check("Protected About workflow page "+actor.who,true);
+   if(previousViewport)await actor.page.setViewportSize(previousViewport);
+  }
+  for(const path of ["admin/about.xhtml","admin/listRouted.xhtml","admin/listNotRouted.xhtml","admin/listClaimed.xhtml"]){
+   await ap.goto(base+path);check("Anonymous filtered/About page goes to login "+path,ap.url().endsWith("/login")&&!(await ap.textContent("body")).includes("ABC123"));
+  }
+  await ap.goto(base+"public/about.xhtml");await ap.getByText("Tracking requires sign-in.",{exact:true}).waitFor();check("Public About accurately explains login",!(await ap.textContent("body")).includes("ABC123"));
   const reader=await login("reader");
+  await readViews(reader);
+
   await reader.page.goto(base+"admin/track.xhtml");
   await reader.page.getByLabel("Tracking ID",{exact:true}).fill("UNKNOWN");
   await reader.page.getByRole("button",{name:"Track cargo",exact:true}).click();
@@ -109,6 +131,7 @@ function check(name,ok){stage=name;checks.push({name,passed:!!ok});if(!ok)throw 
    const read=await reader.context.request.get(base+"admin/show.xhtml?trackingId="+id);
    check("Independent Reader sees persisted destination",read.status()===200 && (await read.text()).includes("New York"));
    await routeCargo(actor,id);
+   await readViews(actor);
    return id;
   }
   async function tableRows(table){
@@ -257,6 +280,15 @@ function check(name,ok){stage=name;checks.push({name,passed:!!ok});if(!ok)throw 
    check("Mobile LOAD actually changes transport state",loaded);
   }
 
+  for(const [event,date] of [["UNLOAD","2032-02-05 10:00"],["CLAIM","2032-02-06 10:00"]]){
+   const token=(await (await admin.context.request.get(base+"session")).json()).csrf;
+   const result=await admin.context.request.post(base+"rest/handling/reports",{headers:{"X-CSRF-Token":token},data:{trackingId:id,eventType:event,unLocode:"FIHEL",completionTime:date,...(event==="UNLOAD"?{voyageNumber:"0100S"}:{})}});
+   check("Actual "+event+" for claimed-list fixture accepted",result.status()===204);
+   let completed=false;
+   for(let retry=0;retry<40;retry++){const cargo=(await (await reader.context.request.get(base+"rest/cargo")).json()).find(c=>c.trackingId===id);if(cargo.transportStatus===(event==="CLAIM"?"CLAIMED":"IN_PORT")&&cargo.lastKnownLocation==="FIHEL"){completed=true;break;}await admin.page.waitForTimeout(250);}
+   check("Actual "+event+" fixture persisted",completed);
+  }
+  for(const actor of [reader,operator,admin])await readViews(actor);
   await operator.page.setViewportSize({width:390,height:844});
   await operator.page.goto(base+"admin/show.xhtml?trackingId="+id);
   check("Cargo details fit mobile viewport",await operator.page.evaluate(()=>document.documentElement.scrollWidth<=window.innerWidth));

@@ -1,0 +1,5553 @@
+{
+  "task": "KAN-18/KAN-15",
+  "scope": "Real Cargo Tracker candidate: monitoring/handling/session plus Faces list/booking/details/destination routes",
+  "checks": [
+    {
+      "name": "Pinned runtime fixture builds",
+      "passed": true
+    },
+    {
+      "name": "Disposable image refuses absent opt-in",
+      "passed": true
+    },
+    {
+      "name": "35 candidate domain tests execute",
+      "passed": true
+    },
+    {
+      "name": "Anonymous monitoring denied",
+      "passed": true
+    },
+    {
+      "name": "Anonymous handling denied",
+      "passed": true
+    },
+    {
+      "name": "Anonymous operational page navigates to login",
+      "passed": true
+    },
+    {
+      "name": "Anonymous tracking endpoint denied",
+      "passed": true
+    },
+    {
+      "name": "Private source note denied",
+      "passed": true
+    },
+    {
+      "name": "Login form with token: reader",
+      "passed": true
+    },
+    {
+      "name": "Container login succeeds: reader",
+      "passed": true
+    },
+    {
+      "name": "Session ID rotates: reader",
+      "passed": true
+    },
+    {
+      "name": "Server principal and role: reader",
+      "passed": true
+    },
+    {
+      "name": "Login form with token: operator",
+      "passed": true
+    },
+    {
+      "name": "Container login succeeds: operator",
+      "passed": true
+    },
+    {
+      "name": "Session ID rotates: operator",
+      "passed": true
+    },
+    {
+      "name": "Server principal and role: operator",
+      "passed": true
+    },
+    {
+      "name": "Login form with token: admin",
+      "passed": true
+    },
+    {
+      "name": "Container login succeeds: admin",
+      "passed": true
+    },
+    {
+      "name": "Session ID rotates: admin",
+      "passed": true
+    },
+    {
+      "name": "Server principal and role: admin",
+      "passed": true
+    },
+    {
+      "name": "Catalogue anonymous monitoring denial has no payload",
+      "passed": true
+    },
+    {
+      "name": "Catalogue monitoring HEAD: anonymous",
+      "passed": true
+    },
+    {
+      "name": "Private template denied without cargo: admin anonymous",
+      "passed": true
+    },
+    {
+      "name": "Private template denied without cargo: public anonymous",
+      "passed": true
+    },
+    {
+      "name": "Private metadata/source denied: PRIVATE-01 anonymous",
+      "passed": true
+    },
+    {
+      "name": "Private metadata/source denied: PRIVATE-02 anonymous",
+      "passed": true
+    },
+    {
+      "name": "Private metadata/source denied: PRIVATE-03 anonymous",
+      "passed": true
+    },
+    {
+      "name": "Private metadata/source denied: PRIVATE-04 anonymous",
+      "passed": true
+    },
+    {
+      "name": "Private metadata/source denied: PRIVATE-05 anonymous",
+      "passed": true
+    },
+    {
+      "name": "Anonymous read page login without payload: PAGE-03",
+      "passed": true
+    },
+    {
+      "name": "Anonymous read page login without payload: PAGE-06",
+      "passed": true
+    },
+    {
+      "name": "Anonymous read page login without payload: PAGE-07",
+      "passed": true
+    },
+    {
+      "name": "Anonymous read page login without payload: PAGE-08",
+      "passed": true
+    },
+    {
+      "name": "Read page semantics: PAGE-22 anonymous",
+      "passed": true
+    },
+    {
+      "name": "Read page semantics: PAGE-24 anonymous",
+      "passed": true
+    },
+    {
+      "name": "Catalogue monitoring semantics: Reader",
+      "passed": true
+    },
+    {
+      "name": "Catalogue monitoring HEAD: Reader",
+      "passed": true
+    },
+    {
+      "name": "Private template denied without cargo: admin Reader",
+      "passed": true
+    },
+    {
+      "name": "Private template denied without cargo: public Reader",
+      "passed": true
+    },
+    {
+      "name": "Private metadata/source denied: PRIVATE-01 Reader",
+      "passed": true
+    },
+    {
+      "name": "Private metadata/source denied: PRIVATE-02 Reader",
+      "passed": true
+    },
+    {
+      "name": "Private metadata/source denied: PRIVATE-03 Reader",
+      "passed": true
+    },
+    {
+      "name": "Private metadata/source denied: PRIVATE-04 Reader",
+      "passed": true
+    },
+    {
+      "name": "Private metadata/source denied: PRIVATE-05 Reader",
+      "passed": true
+    },
+    {
+      "name": "Read page semantics: PAGE-03 Reader",
+      "passed": true
+    },
+    {
+      "name": "Read page semantics: PAGE-06 Reader",
+      "passed": true
+    },
+    {
+      "name": "Read page semantics: PAGE-07 Reader",
+      "passed": true
+    },
+    {
+      "name": "Read page semantics: PAGE-08 Reader",
+      "passed": true
+    },
+    {
+      "name": "Read page semantics: PAGE-22 Reader",
+      "passed": true
+    },
+    {
+      "name": "Read page semantics: PAGE-24 Reader",
+      "passed": true
+    },
+    {
+      "name": "Catalogue monitoring semantics: Operator",
+      "passed": true
+    },
+    {
+      "name": "Catalogue monitoring HEAD: Operator",
+      "passed": true
+    },
+    {
+      "name": "Private template denied without cargo: admin Operator",
+      "passed": true
+    },
+    {
+      "name": "Private template denied without cargo: public Operator",
+      "passed": true
+    },
+    {
+      "name": "Private metadata/source denied: PRIVATE-01 Operator",
+      "passed": true
+    },
+    {
+      "name": "Private metadata/source denied: PRIVATE-02 Operator",
+      "passed": true
+    },
+    {
+      "name": "Private metadata/source denied: PRIVATE-03 Operator",
+      "passed": true
+    },
+    {
+      "name": "Private metadata/source denied: PRIVATE-04 Operator",
+      "passed": true
+    },
+    {
+      "name": "Private metadata/source denied: PRIVATE-05 Operator",
+      "passed": true
+    },
+    {
+      "name": "Read page semantics: PAGE-03 Operator",
+      "passed": true
+    },
+    {
+      "name": "Read page semantics: PAGE-06 Operator",
+      "passed": true
+    },
+    {
+      "name": "Read page semantics: PAGE-07 Operator",
+      "passed": true
+    },
+    {
+      "name": "Read page semantics: PAGE-08 Operator",
+      "passed": true
+    },
+    {
+      "name": "Read page semantics: PAGE-22 Operator",
+      "passed": true
+    },
+    {
+      "name": "Read page semantics: PAGE-24 Operator",
+      "passed": true
+    },
+    {
+      "name": "Catalogue monitoring semantics: Administrator",
+      "passed": true
+    },
+    {
+      "name": "Catalogue monitoring HEAD: Administrator",
+      "passed": true
+    },
+    {
+      "name": "Private template denied without cargo: admin Administrator",
+      "passed": true
+    },
+    {
+      "name": "Private template denied without cargo: public Administrator",
+      "passed": true
+    },
+    {
+      "name": "Private metadata/source denied: PRIVATE-01 Administrator",
+      "passed": true
+    },
+    {
+      "name": "Private metadata/source denied: PRIVATE-02 Administrator",
+      "passed": true
+    },
+    {
+      "name": "Private metadata/source denied: PRIVATE-03 Administrator",
+      "passed": true
+    },
+    {
+      "name": "Private metadata/source denied: PRIVATE-04 Administrator",
+      "passed": true
+    },
+    {
+      "name": "Private metadata/source denied: PRIVATE-05 Administrator",
+      "passed": true
+    },
+    {
+      "name": "Read page semantics: PAGE-03 Administrator",
+      "passed": true
+    },
+    {
+      "name": "Read page semantics: PAGE-06 Administrator",
+      "passed": true
+    },
+    {
+      "name": "Read page semantics: PAGE-07 Administrator",
+      "passed": true
+    },
+    {
+      "name": "Read page semantics: PAGE-08 Administrator",
+      "passed": true
+    },
+    {
+      "name": "Read page semantics: PAGE-22 Administrator",
+      "passed": true
+    },
+    {
+      "name": "Read page semantics: PAGE-24 Administrator",
+      "passed": true
+    },
+    {
+      "name": "Catalogue routing denial without route payload: anonymous",
+      "passed": true
+    },
+    {
+      "name": "Catalogue routing denial without route payload: Reader",
+      "passed": true
+    },
+    {
+      "name": "Catalogue real routing result: Operator",
+      "passed": true
+    },
+    {
+      "name": "Catalogue real routing result: Administrator",
+      "passed": true
+    },
+    {
+      "name": "Native scoped routing account allowed",
+      "passed": true
+    },
+    {
+      "name": "Server-native routing identity and exact role observed",
+      "passed": true
+    },
+    {
+      "name": "Routing Basic retains no usable session",
+      "passed": true
+    },
+    {
+      "name": "Wrong routing service password denied",
+      "passed": true
+    },
+    {
+      "name": "Human Basic credentials cannot impersonate service",
+      "passed": true
+    },
+    {
+      "name": "Malformed Basic rejected",
+      "passed": true
+    },
+    {
+      "name": "Routing identity cannot use monitoring API",
+      "passed": true
+    },
+    {
+      "name": "Invalid route locations controlled",
+      "passed": true
+    },
+    {
+      "name": "Invalid route deadline controlled",
+      "passed": true
+    },
+    {
+      "name": "Authenticated monitoring",
+      "passed": true
+    },
+    {
+      "name": "Authenticated monitoring",
+      "passed": true
+    },
+    {
+      "name": "Authenticated monitoring",
+      "passed": true
+    },
+    {
+      "name": "Original four seeded cargos",
+      "passed": true
+    },
+    {
+      "name": "Actual booking callback fixture renders",
+      "passed": true
+    },
+    {
+      "name": "Authenticated monitoring",
+      "passed": true
+    },
+    {
+      "name": "Anonymous valid handling denied",
+      "passed": true
+    },
+    {
+      "name": "Reader handling denied",
+      "passed": true
+    },
+    {
+      "name": "Operator handling requires CSRF",
+      "passed": true
+    },
+    {
+      "name": "Operator incorrect CSRF denied",
+      "passed": true
+    },
+    {
+      "name": "Reader valid forged booking callback denied",
+      "passed": true
+    },
+    {
+      "name": "Operator missing-CSRF booking callback denied",
+      "passed": true
+    },
+    {
+      "name": "Denied REST reports leave independent DB queue invocation snapshots unchanged",
+      "passed": true
+    },
+    {
+      "name": "Authenticated monitoring",
+      "passed": true
+    },
+    {
+      "name": "Denied report leaves monitor unchanged",
+      "passed": true
+    },
+    {
+      "name": "Authenticated monitoring",
+      "passed": true
+    },
+    {
+      "name": "Denied booking callback leaves cargo list unchanged",
+      "passed": true
+    },
+    {
+      "name": "Operator report accepted",
+      "passed": true
+    },
+    {
+      "name": "Real JPA/JMS handling changes cargo",
+      "passed": true
+    },
+    {
+      "name": "DB observer detects allowed persisted handling",
+      "passed": true
+    },
+    {
+      "name": "Cumulative broker observer detects allowed processing",
+      "passed": true
+    },
+    {
+      "name": "Business invocation observer detects allowed processing",
+      "passed": true
+    },
+    {
+      "name": "MDB invocation observer connected: HandlingEventRegistrationAttemptConsumer",
+      "passed": true
+    },
+    {
+      "name": "MDB invocation observer connected: CargoHandledConsumer",
+      "passed": true
+    },
+    {
+      "name": "Administrator fixture starts away from FIHEL",
+      "passed": true
+    },
+    {
+      "name": "Administrator report accepted",
+      "passed": true
+    },
+    {
+      "name": "Administrator real asynchronous handling effect",
+      "passed": true
+    },
+    {
+      "name": "Administrator independent persisted handling effect",
+      "passed": true
+    },
+    {
+      "name": "Login form with token: reader",
+      "passed": true
+    },
+    {
+      "name": "Container login succeeds: reader",
+      "passed": true
+    },
+    {
+      "name": "Session ID rotates: reader",
+      "passed": true
+    },
+    {
+      "name": "Server principal and role: reader",
+      "passed": true
+    },
+    {
+      "name": "Role lifecycle positive monitoring: Reader",
+      "passed": true
+    },
+    {
+      "name": "Actual role logout: Reader",
+      "passed": true
+    },
+    {
+      "name": "Revoked server identity: Reader logged_out",
+      "passed": true
+    },
+    {
+      "name": "Revoked monitoring GET/HEAD: Reader logged_out",
+      "passed": true
+    },
+    {
+      "name": "Revoked read page login: PAGE-03 Reader logged_out",
+      "passed": true
+    },
+    {
+      "name": "Revoked read page login: PAGE-06 Reader logged_out",
+      "passed": true
+    },
+    {
+      "name": "Revoked read page login: PAGE-07 Reader logged_out",
+      "passed": true
+    },
+    {
+      "name": "Revoked read page login: PAGE-08 Reader logged_out",
+      "passed": true
+    },
+    {
+      "name": "Logout independent effects unchanged: Reader",
+      "passed": true
+    },
+    {
+      "name": "Login form with token: operator",
+      "passed": true
+    },
+    {
+      "name": "Container login succeeds: operator",
+      "passed": true
+    },
+    {
+      "name": "Session ID rotates: operator",
+      "passed": true
+    },
+    {
+      "name": "Server principal and role: operator",
+      "passed": true
+    },
+    {
+      "name": "Role lifecycle positive monitoring: Operator",
+      "passed": true
+    },
+    {
+      "name": "Actual role logout: Operator",
+      "passed": true
+    },
+    {
+      "name": "Revoked server identity: Operator logged_out",
+      "passed": true
+    },
+    {
+      "name": "Revoked monitoring GET/HEAD: Operator logged_out",
+      "passed": true
+    },
+    {
+      "name": "Revoked routing GET: Operator logged_out",
+      "passed": true
+    },
+    {
+      "name": "Revoked valid handling POST: Operator logged_out",
+      "passed": true
+    },
+    {
+      "name": "Revoked read page login: PAGE-03 Operator logged_out",
+      "passed": true
+    },
+    {
+      "name": "Revoked read page login: PAGE-06 Operator logged_out",
+      "passed": true
+    },
+    {
+      "name": "Revoked read page login: PAGE-07 Operator logged_out",
+      "passed": true
+    },
+    {
+      "name": "Revoked read page login: PAGE-08 Operator logged_out",
+      "passed": true
+    },
+    {
+      "name": "Logout independent effects unchanged: Operator",
+      "passed": true
+    },
+    {
+      "name": "Login form with token: admin",
+      "passed": true
+    },
+    {
+      "name": "Container login succeeds: admin",
+      "passed": true
+    },
+    {
+      "name": "Session ID rotates: admin",
+      "passed": true
+    },
+    {
+      "name": "Server principal and role: admin",
+      "passed": true
+    },
+    {
+      "name": "Role lifecycle positive monitoring: Administrator",
+      "passed": true
+    },
+    {
+      "name": "Actual role logout: Administrator",
+      "passed": true
+    },
+    {
+      "name": "Revoked server identity: Administrator logged_out",
+      "passed": true
+    },
+    {
+      "name": "Revoked monitoring GET/HEAD: Administrator logged_out",
+      "passed": true
+    },
+    {
+      "name": "Revoked routing GET: Administrator logged_out",
+      "passed": true
+    },
+    {
+      "name": "Revoked valid handling POST: Administrator logged_out",
+      "passed": true
+    },
+    {
+      "name": "Revoked read page login: PAGE-03 Administrator logged_out",
+      "passed": true
+    },
+    {
+      "name": "Revoked read page login: PAGE-06 Administrator logged_out",
+      "passed": true
+    },
+    {
+      "name": "Revoked read page login: PAGE-07 Administrator logged_out",
+      "passed": true
+    },
+    {
+      "name": "Revoked read page login: PAGE-08 Administrator logged_out",
+      "passed": true
+    },
+    {
+      "name": "Logout independent effects unchanged: Administrator",
+      "passed": true
+    },
+    {
+      "name": "Login form with token: reader",
+      "passed": true
+    },
+    {
+      "name": "Container login succeeds: reader",
+      "passed": true
+    },
+    {
+      "name": "Session ID rotates: reader",
+      "passed": true
+    },
+    {
+      "name": "Server principal and role: reader",
+      "passed": true
+    },
+    {
+      "name": "Expiry lifecycle positive monitoring: Reader",
+      "passed": true
+    },
+    {
+      "name": "Login form with token: operator",
+      "passed": true
+    },
+    {
+      "name": "Container login succeeds: operator",
+      "passed": true
+    },
+    {
+      "name": "Session ID rotates: operator",
+      "passed": true
+    },
+    {
+      "name": "Server principal and role: operator",
+      "passed": true
+    },
+    {
+      "name": "Expiry lifecycle positive monitoring: Operator",
+      "passed": true
+    },
+    {
+      "name": "Login form with token: admin",
+      "passed": true
+    },
+    {
+      "name": "Container login succeeds: admin",
+      "passed": true
+    },
+    {
+      "name": "Session ID rotates: admin",
+      "passed": true
+    },
+    {
+      "name": "Server principal and role: admin",
+      "passed": true
+    },
+    {
+      "name": "Expiry lifecycle positive monitoring: Administrator",
+      "passed": true
+    },
+    {
+      "name": "Revoked server identity: Reader expired",
+      "passed": true
+    },
+    {
+      "name": "Revoked monitoring GET/HEAD: Reader expired",
+      "passed": true
+    },
+    {
+      "name": "Revoked read page login: PAGE-03 Reader expired",
+      "passed": true
+    },
+    {
+      "name": "Revoked read page login: PAGE-06 Reader expired",
+      "passed": true
+    },
+    {
+      "name": "Revoked read page login: PAGE-07 Reader expired",
+      "passed": true
+    },
+    {
+      "name": "Revoked read page login: PAGE-08 Reader expired",
+      "passed": true
+    },
+    {
+      "name": "Expiry independent effects unchanged: Reader",
+      "passed": true
+    },
+    {
+      "name": "Revoked server identity: Operator expired",
+      "passed": true
+    },
+    {
+      "name": "Revoked monitoring GET/HEAD: Operator expired",
+      "passed": true
+    },
+    {
+      "name": "Revoked routing GET: Operator expired",
+      "passed": true
+    },
+    {
+      "name": "Revoked valid handling POST: Operator expired",
+      "passed": true
+    },
+    {
+      "name": "Revoked read page login: PAGE-03 Operator expired",
+      "passed": true
+    },
+    {
+      "name": "Revoked read page login: PAGE-06 Operator expired",
+      "passed": true
+    },
+    {
+      "name": "Revoked read page login: PAGE-07 Operator expired",
+      "passed": true
+    },
+    {
+      "name": "Revoked read page login: PAGE-08 Operator expired",
+      "passed": true
+    },
+    {
+      "name": "Expiry independent effects unchanged: Operator",
+      "passed": true
+    },
+    {
+      "name": "Revoked server identity: Administrator expired",
+      "passed": true
+    },
+    {
+      "name": "Revoked monitoring GET/HEAD: Administrator expired",
+      "passed": true
+    },
+    {
+      "name": "Revoked routing GET: Administrator expired",
+      "passed": true
+    },
+    {
+      "name": "Revoked valid handling POST: Administrator expired",
+      "passed": true
+    },
+    {
+      "name": "Revoked read page login: PAGE-03 Administrator expired",
+      "passed": true
+    },
+    {
+      "name": "Revoked read page login: PAGE-06 Administrator expired",
+      "passed": true
+    },
+    {
+      "name": "Revoked read page login: PAGE-07 Administrator expired",
+      "passed": true
+    },
+    {
+      "name": "Revoked read page login: PAGE-08 Administrator expired",
+      "passed": true
+    },
+    {
+      "name": "Expiry independent effects unchanged: Administrator",
+      "passed": true
+    }
+  ],
+  "status": "PASS",
+  "identities": {
+    "reader": {
+      "server_verified": true,
+      "principal": "reader",
+      "roles": [
+        "Reader"
+      ]
+    },
+    "operator": {
+      "server_verified": true,
+      "principal": "operator",
+      "roles": [
+        "Operator"
+      ]
+    },
+    "admin": {
+      "server_verified": true,
+      "principal": "admin",
+      "roles": [
+        "Administrator"
+      ]
+    }
+  },
+  "access_observations": {
+    "API-01::anonymous::active": {
+      "supported": true,
+      "status": 401,
+      "protected_payload_absent": true,
+      "head_status": 401,
+      "head_body_empty": true
+    },
+    "PAGE-01::anonymous::active": {
+      "supported": true,
+      "status": 404,
+      "protected_payload_absent": true
+    },
+    "PAGE-02::anonymous::active": {
+      "supported": true,
+      "status": 404,
+      "protected_payload_absent": true
+    },
+    "PRIVATE-01::anonymous::active": {
+      "supported": true,
+      "status": 404,
+      "protected_payload_absent": true,
+      "resource_packaged": true
+    },
+    "PRIVATE-02::anonymous::active": {
+      "supported": true,
+      "status": 404,
+      "protected_payload_absent": true,
+      "resource_packaged": false
+    },
+    "PRIVATE-03::anonymous::active": {
+      "supported": true,
+      "status": 404,
+      "protected_payload_absent": true,
+      "resource_packaged": true
+    },
+    "PRIVATE-04::anonymous::active": {
+      "supported": true,
+      "status": 404,
+      "protected_payload_absent": true,
+      "resource_packaged": false
+    },
+    "PRIVATE-05::anonymous::active": {
+      "supported": true,
+      "status": 404,
+      "protected_payload_absent": true,
+      "resource_packaged": true
+    },
+    "PAGE-03::anonymous::active": {
+      "supported": true,
+      "status": 303,
+      "redirect_is_configured_login": true,
+      "protected_payload_absent": true
+    },
+    "PAGE-06::anonymous::active": {
+      "supported": true,
+      "status": 303,
+      "redirect_is_configured_login": true,
+      "protected_payload_absent": true
+    },
+    "PAGE-07::anonymous::active": {
+      "supported": true,
+      "status": 303,
+      "redirect_is_configured_login": true,
+      "protected_payload_absent": true
+    },
+    "PAGE-08::anonymous::active": {
+      "supported": true,
+      "status": 303,
+      "redirect_is_configured_login": true,
+      "protected_payload_absent": true
+    },
+    "PAGE-22::anonymous::active": {
+      "supported": true,
+      "status": 200,
+      "semantic_success": true,
+      "protected_payload_absent": true
+    },
+    "PAGE-24::anonymous::active": {
+      "supported": true,
+      "status": 200,
+      "semantic_success": true,
+      "protected_payload_absent": true
+    },
+    "API-01::Reader::active": {
+      "supported": true,
+      "status": 200,
+      "identity": {
+        "server_verified": true,
+        "principal": "reader",
+        "roles": [
+          "Reader"
+        ]
+      },
+      "semantic_success": true,
+      "head_status": 200,
+      "head_body_empty": true
+    },
+    "PAGE-01::Reader::active": {
+      "supported": true,
+      "status": 404,
+      "protected_payload_absent": true,
+      "identity": {
+        "server_verified": true,
+        "principal": "reader",
+        "roles": [
+          "Reader"
+        ]
+      }
+    },
+    "PAGE-02::Reader::active": {
+      "supported": true,
+      "status": 404,
+      "protected_payload_absent": true,
+      "identity": {
+        "server_verified": true,
+        "principal": "reader",
+        "roles": [
+          "Reader"
+        ]
+      }
+    },
+    "PRIVATE-01::Reader::active": {
+      "supported": true,
+      "status": 404,
+      "protected_payload_absent": true,
+      "resource_packaged": true,
+      "identity": {
+        "server_verified": true,
+        "principal": "reader",
+        "roles": [
+          "Reader"
+        ]
+      }
+    },
+    "PRIVATE-02::Reader::active": {
+      "supported": true,
+      "status": 404,
+      "protected_payload_absent": true,
+      "resource_packaged": false,
+      "identity": {
+        "server_verified": true,
+        "principal": "reader",
+        "roles": [
+          "Reader"
+        ]
+      }
+    },
+    "PRIVATE-03::Reader::active": {
+      "supported": true,
+      "status": 404,
+      "protected_payload_absent": true,
+      "resource_packaged": true,
+      "identity": {
+        "server_verified": true,
+        "principal": "reader",
+        "roles": [
+          "Reader"
+        ]
+      }
+    },
+    "PRIVATE-04::Reader::active": {
+      "supported": true,
+      "status": 404,
+      "protected_payload_absent": true,
+      "resource_packaged": false,
+      "identity": {
+        "server_verified": true,
+        "principal": "reader",
+        "roles": [
+          "Reader"
+        ]
+      }
+    },
+    "PRIVATE-05::Reader::active": {
+      "supported": true,
+      "status": 404,
+      "protected_payload_absent": true,
+      "resource_packaged": true,
+      "identity": {
+        "server_verified": true,
+        "principal": "reader",
+        "roles": [
+          "Reader"
+        ]
+      }
+    },
+    "PAGE-03::Reader::active": {
+      "supported": true,
+      "status": 200,
+      "semantic_success": true,
+      "identity": {
+        "server_verified": true,
+        "principal": "reader",
+        "roles": [
+          "Reader"
+        ]
+      }
+    },
+    "PAGE-06::Reader::active": {
+      "supported": true,
+      "status": 200,
+      "semantic_success": true,
+      "identity": {
+        "server_verified": true,
+        "principal": "reader",
+        "roles": [
+          "Reader"
+        ]
+      }
+    },
+    "PAGE-07::Reader::active": {
+      "supported": true,
+      "status": 200,
+      "semantic_success": true,
+      "identity": {
+        "server_verified": true,
+        "principal": "reader",
+        "roles": [
+          "Reader"
+        ]
+      }
+    },
+    "PAGE-08::Reader::active": {
+      "supported": true,
+      "status": 200,
+      "semantic_success": true,
+      "identity": {
+        "server_verified": true,
+        "principal": "reader",
+        "roles": [
+          "Reader"
+        ]
+      }
+    },
+    "PAGE-22::Reader::active": {
+      "supported": true,
+      "status": 200,
+      "semantic_success": true,
+      "protected_payload_absent": true,
+      "identity": {
+        "server_verified": true,
+        "principal": "reader",
+        "roles": [
+          "Reader"
+        ]
+      }
+    },
+    "PAGE-24::Reader::active": {
+      "supported": true,
+      "status": 200,
+      "semantic_success": true,
+      "protected_payload_absent": true,
+      "identity": {
+        "server_verified": true,
+        "principal": "reader",
+        "roles": [
+          "Reader"
+        ]
+      }
+    },
+    "API-01::Operator::active": {
+      "supported": true,
+      "status": 200,
+      "identity": {
+        "server_verified": true,
+        "principal": "operator",
+        "roles": [
+          "Operator"
+        ]
+      },
+      "semantic_success": true,
+      "head_status": 200,
+      "head_body_empty": true
+    },
+    "PAGE-01::Operator::active": {
+      "supported": true,
+      "status": 404,
+      "protected_payload_absent": true,
+      "identity": {
+        "server_verified": true,
+        "principal": "operator",
+        "roles": [
+          "Operator"
+        ]
+      }
+    },
+    "PAGE-02::Operator::active": {
+      "supported": true,
+      "status": 404,
+      "protected_payload_absent": true,
+      "identity": {
+        "server_verified": true,
+        "principal": "operator",
+        "roles": [
+          "Operator"
+        ]
+      }
+    },
+    "PRIVATE-01::Operator::active": {
+      "supported": true,
+      "status": 404,
+      "protected_payload_absent": true,
+      "resource_packaged": true,
+      "identity": {
+        "server_verified": true,
+        "principal": "operator",
+        "roles": [
+          "Operator"
+        ]
+      }
+    },
+    "PRIVATE-02::Operator::active": {
+      "supported": true,
+      "status": 404,
+      "protected_payload_absent": true,
+      "resource_packaged": false,
+      "identity": {
+        "server_verified": true,
+        "principal": "operator",
+        "roles": [
+          "Operator"
+        ]
+      }
+    },
+    "PRIVATE-03::Operator::active": {
+      "supported": true,
+      "status": 404,
+      "protected_payload_absent": true,
+      "resource_packaged": true,
+      "identity": {
+        "server_verified": true,
+        "principal": "operator",
+        "roles": [
+          "Operator"
+        ]
+      }
+    },
+    "PRIVATE-04::Operator::active": {
+      "supported": true,
+      "status": 404,
+      "protected_payload_absent": true,
+      "resource_packaged": false,
+      "identity": {
+        "server_verified": true,
+        "principal": "operator",
+        "roles": [
+          "Operator"
+        ]
+      }
+    },
+    "PRIVATE-05::Operator::active": {
+      "supported": true,
+      "status": 404,
+      "protected_payload_absent": true,
+      "resource_packaged": true,
+      "identity": {
+        "server_verified": true,
+        "principal": "operator",
+        "roles": [
+          "Operator"
+        ]
+      }
+    },
+    "PAGE-03::Operator::active": {
+      "supported": true,
+      "status": 200,
+      "semantic_success": true,
+      "identity": {
+        "server_verified": true,
+        "principal": "operator",
+        "roles": [
+          "Operator"
+        ]
+      }
+    },
+    "PAGE-06::Operator::active": {
+      "supported": true,
+      "status": 200,
+      "semantic_success": true,
+      "identity": {
+        "server_verified": true,
+        "principal": "operator",
+        "roles": [
+          "Operator"
+        ]
+      }
+    },
+    "PAGE-07::Operator::active": {
+      "supported": true,
+      "status": 200,
+      "semantic_success": true,
+      "identity": {
+        "server_verified": true,
+        "principal": "operator",
+        "roles": [
+          "Operator"
+        ]
+      }
+    },
+    "PAGE-08::Operator::active": {
+      "supported": true,
+      "status": 200,
+      "semantic_success": true,
+      "identity": {
+        "server_verified": true,
+        "principal": "operator",
+        "roles": [
+          "Operator"
+        ]
+      }
+    },
+    "PAGE-22::Operator::active": {
+      "supported": true,
+      "status": 200,
+      "semantic_success": true,
+      "protected_payload_absent": true,
+      "identity": {
+        "server_verified": true,
+        "principal": "operator",
+        "roles": [
+          "Operator"
+        ]
+      }
+    },
+    "PAGE-24::Operator::active": {
+      "supported": true,
+      "status": 200,
+      "semantic_success": true,
+      "protected_payload_absent": true,
+      "identity": {
+        "server_verified": true,
+        "principal": "operator",
+        "roles": [
+          "Operator"
+        ]
+      }
+    },
+    "API-01::Administrator::active": {
+      "supported": true,
+      "status": 200,
+      "identity": {
+        "server_verified": true,
+        "principal": "admin",
+        "roles": [
+          "Administrator"
+        ]
+      },
+      "semantic_success": true,
+      "head_status": 200,
+      "head_body_empty": true
+    },
+    "PAGE-01::Administrator::active": {
+      "supported": true,
+      "status": 404,
+      "protected_payload_absent": true,
+      "identity": {
+        "server_verified": true,
+        "principal": "admin",
+        "roles": [
+          "Administrator"
+        ]
+      }
+    },
+    "PAGE-02::Administrator::active": {
+      "supported": true,
+      "status": 404,
+      "protected_payload_absent": true,
+      "identity": {
+        "server_verified": true,
+        "principal": "admin",
+        "roles": [
+          "Administrator"
+        ]
+      }
+    },
+    "PRIVATE-01::Administrator::active": {
+      "supported": true,
+      "status": 404,
+      "protected_payload_absent": true,
+      "resource_packaged": true,
+      "identity": {
+        "server_verified": true,
+        "principal": "admin",
+        "roles": [
+          "Administrator"
+        ]
+      }
+    },
+    "PRIVATE-02::Administrator::active": {
+      "supported": true,
+      "status": 404,
+      "protected_payload_absent": true,
+      "resource_packaged": false,
+      "identity": {
+        "server_verified": true,
+        "principal": "admin",
+        "roles": [
+          "Administrator"
+        ]
+      }
+    },
+    "PRIVATE-03::Administrator::active": {
+      "supported": true,
+      "status": 404,
+      "protected_payload_absent": true,
+      "resource_packaged": true,
+      "identity": {
+        "server_verified": true,
+        "principal": "admin",
+        "roles": [
+          "Administrator"
+        ]
+      }
+    },
+    "PRIVATE-04::Administrator::active": {
+      "supported": true,
+      "status": 404,
+      "protected_payload_absent": true,
+      "resource_packaged": false,
+      "identity": {
+        "server_verified": true,
+        "principal": "admin",
+        "roles": [
+          "Administrator"
+        ]
+      }
+    },
+    "PRIVATE-05::Administrator::active": {
+      "supported": true,
+      "status": 404,
+      "protected_payload_absent": true,
+      "resource_packaged": true,
+      "identity": {
+        "server_verified": true,
+        "principal": "admin",
+        "roles": [
+          "Administrator"
+        ]
+      }
+    },
+    "PAGE-03::Administrator::active": {
+      "supported": true,
+      "status": 200,
+      "semantic_success": true,
+      "identity": {
+        "server_verified": true,
+        "principal": "admin",
+        "roles": [
+          "Administrator"
+        ]
+      }
+    },
+    "PAGE-06::Administrator::active": {
+      "supported": true,
+      "status": 200,
+      "semantic_success": true,
+      "identity": {
+        "server_verified": true,
+        "principal": "admin",
+        "roles": [
+          "Administrator"
+        ]
+      }
+    },
+    "PAGE-07::Administrator::active": {
+      "supported": true,
+      "status": 200,
+      "semantic_success": true,
+      "identity": {
+        "server_verified": true,
+        "principal": "admin",
+        "roles": [
+          "Administrator"
+        ]
+      }
+    },
+    "PAGE-08::Administrator::active": {
+      "supported": true,
+      "status": 200,
+      "semantic_success": true,
+      "identity": {
+        "server_verified": true,
+        "principal": "admin",
+        "roles": [
+          "Administrator"
+        ]
+      }
+    },
+    "PAGE-22::Administrator::active": {
+      "supported": true,
+      "status": 200,
+      "semantic_success": true,
+      "protected_payload_absent": true,
+      "identity": {
+        "server_verified": true,
+        "principal": "admin",
+        "roles": [
+          "Administrator"
+        ]
+      }
+    },
+    "PAGE-24::Administrator::active": {
+      "supported": true,
+      "status": 200,
+      "semantic_success": true,
+      "protected_payload_absent": true,
+      "identity": {
+        "server_verified": true,
+        "principal": "admin",
+        "roles": [
+          "Administrator"
+        ]
+      }
+    },
+    "API-03::anonymous::active": {
+      "supported": true,
+      "status": 401,
+      "protected_payload_absent": true
+    },
+    "API-03::Reader::active": {
+      "supported": true,
+      "status": 403,
+      "protected_payload_absent": true,
+      "identity": {
+        "server_verified": true,
+        "principal": "reader",
+        "roles": [
+          "Reader"
+        ]
+      }
+    },
+    "API-03::Operator::active": {
+      "supported": true,
+      "status": 200,
+      "semantic_success": true,
+      "identity": {
+        "server_verified": true,
+        "principal": "operator",
+        "roles": [
+          "Operator"
+        ]
+      }
+    },
+    "API-03::Administrator::active": {
+      "supported": true,
+      "status": 200,
+      "semantic_success": true,
+      "identity": {
+        "server_verified": true,
+        "principal": "admin",
+        "roles": [
+          "Administrator"
+        ]
+      }
+    },
+    "API-03-SCOPED::routing-service::active": {
+      "supported": true,
+      "status": 200,
+      "semantic_success": true,
+      "machine_identity_verified": true,
+      "machine_scope": "Scoped routing service identity; exact credential propagation/capability mapping to resolve in KAN-13/KAN-15",
+      "native_identity": {
+        "sequence": 3,
+        "principal": "routing",
+        "roles": [
+          "RoutingService"
+        ],
+        "path": "/rest/graph-traversal/shortest-path"
+      }
+    },
+    "API-02::anonymous::active": {
+      "supported": true,
+      "status": 401,
+      "protected_payload_absent": true,
+      "effects": {
+        "settled": true,
+        "fixture_id": "796ba25c1c4b3d1b26fb492cd597a77e0cfd3bb3312a38ea2a259558f7f350c3",
+        "before_fixture": "796ba25c1c4b3d1b26fb492cd597a77e0cfd3bb3312a38ea2a259558f7f350c3",
+        "after_fixture": "796ba25c1c4b3d1b26fb492cd597a77e0cfd3bb3312a38ea2a259558f7f350c3",
+        "before": {
+          "database": {
+            "CARGO": {
+              "rows": 4,
+              "sha256": "b33620d9c5217eedc864daa0e8d45ac2ecd46a4017a1ae5ed3ac18624182f91d"
+            },
+            "CARRIER_MOVEMENT": {
+              "rows": 13,
+              "sha256": "e0351c24d5d9ce5543bbb2d2c7efc31de9616f6fcb6e1ad581da71b1d1660179"
+            },
+            "HANDLINGEVENT": {
+              "rows": 12,
+              "sha256": "34587e78c9af41f679348c1d268bcf43a1b39aed1da32cfa89224aaa6115a8b1"
+            },
+            "LEG": {
+              "rows": 7,
+              "sha256": "648e498b58192ed880e116d5c4ed1d814915791c99f76ea08e548fe7bd0fb3bc"
+            },
+            "LOCATION": {
+              "rows": 13,
+              "sha256": "5631b21c70a39a0e7e713beba81df653bddc1708df7af9f9167cb9c8a0bbc642"
+            },
+            "VOYAGE": {
+              "rows": 5,
+              "sha256": "9f4454b6b1706bb684003759b5f2dc617a074f8e0bb83eeb513d19b172b1a889"
+            }
+          },
+          "queue": {
+            "jms.queue.CargoHandledQueue": {
+              "MessageCount": 0,
+              "DeliveringCount": 0,
+              "ScheduledCount": 0,
+              "MessagesAdded": 0,
+              "MessagesAcknowledged": 0,
+              "MessagesExpired": 0,
+              "MessagesKilled": 0,
+              "AcknowledgeAttempts": 0
+            },
+            "jms.queue.DLQ": {
+              "MessageCount": 0,
+              "DeliveringCount": 0,
+              "ScheduledCount": 0,
+              "MessagesAdded": 0,
+              "MessagesAcknowledged": 0,
+              "MessagesExpired": 0,
+              "MessagesKilled": 0,
+              "AcknowledgeAttempts": 0
+            },
+            "jms.queue.DeliveredCargoQueue": {
+              "MessageCount": 0,
+              "DeliveringCount": 0,
+              "ScheduledCount": 0,
+              "MessagesAdded": 0,
+              "MessagesAcknowledged": 0,
+              "MessagesExpired": 0,
+              "MessagesKilled": 0,
+              "AcknowledgeAttempts": 0
+            },
+            "jms.queue.ExpiryQueue": {
+              "MessageCount": 0,
+              "DeliveringCount": 0,
+              "ScheduledCount": 0,
+              "MessagesAdded": 0,
+              "MessagesAcknowledged": 0,
+              "MessagesExpired": 0,
+              "MessagesKilled": 0,
+              "AcknowledgeAttempts": 0
+            },
+            "jms.queue.HandlingEventRegistrationAttemptQueue": {
+              "MessageCount": 0,
+              "DeliveringCount": 0,
+              "ScheduledCount": 0,
+              "MessagesAdded": 0,
+              "MessagesAcknowledged": 0,
+              "MessagesExpired": 0,
+              "MessagesKilled": 0,
+              "AcknowledgeAttempts": 0
+            },
+            "jms.queue.MisdirectedCargoQueue": {
+              "MessageCount": 0,
+              "DeliveringCount": 0,
+              "ScheduledCount": 0,
+              "MessagesAdded": 0,
+              "MessagesAcknowledged": 0,
+              "MessagesExpired": 0,
+              "MessagesKilled": 0,
+              "AcknowledgeAttempts": 0
+            },
+            "jms.queue.RejectedRegistrationAttemptsQueue": {
+              "MessageCount": 0,
+              "DeliveringCount": 0,
+              "ScheduledCount": 0,
+              "MessagesAdded": 0,
+              "MessagesAcknowledged": 0,
+              "MessagesExpired": 0,
+              "MessagesKilled": 0,
+              "AcknowledgeAttempts": 0
+            }
+          },
+          "business_audit": {
+            "net.java.cargotracker.interfaces.booking.rest.CargoMonitoringService#getAllCargo": 10,
+            "net.java.pathfinder.api.GraphTraversalService#findShortestPath": 5
+          }
+        },
+        "after": {
+          "database": {
+            "CARGO": {
+              "rows": 4,
+              "sha256": "b33620d9c5217eedc864daa0e8d45ac2ecd46a4017a1ae5ed3ac18624182f91d"
+            },
+            "CARRIER_MOVEMENT": {
+              "rows": 13,
+              "sha256": "e0351c24d5d9ce5543bbb2d2c7efc31de9616f6fcb6e1ad581da71b1d1660179"
+            },
+            "HANDLINGEVENT": {
+              "rows": 12,
+              "sha256": "34587e78c9af41f679348c1d268bcf43a1b39aed1da32cfa89224aaa6115a8b1"
+            },
+            "LEG": {
+              "rows": 7,
+              "sha256": "648e498b58192ed880e116d5c4ed1d814915791c99f76ea08e548fe7bd0fb3bc"
+            },
+            "LOCATION": {
+              "rows": 13,
+              "sha256": "5631b21c70a39a0e7e713beba81df653bddc1708df7af9f9167cb9c8a0bbc642"
+            },
+            "VOYAGE": {
+              "rows": 5,
+              "sha256": "9f4454b6b1706bb684003759b5f2dc617a074f8e0bb83eeb513d19b172b1a889"
+            }
+          },
+          "queue": {
+            "jms.queue.CargoHandledQueue": {
+              "MessageCount": 0,
+              "DeliveringCount": 0,
+              "ScheduledCount": 0,
+              "MessagesAdded": 0,
+              "MessagesAcknowledged": 0,
+              "MessagesExpired": 0,
+              "MessagesKilled": 0,
+              "AcknowledgeAttempts": 0
+            },
+            "jms.queue.DLQ": {
+              "MessageCount": 0,
+              "DeliveringCount": 0,
+              "ScheduledCount": 0,
+              "MessagesAdded": 0,
+              "MessagesAcknowledged": 0,
+              "MessagesExpired": 0,
+              "MessagesKilled": 0,
+              "AcknowledgeAttempts": 0
+            },
+            "jms.queue.DeliveredCargoQueue": {
+              "MessageCount": 0,
+              "DeliveringCount": 0,
+              "ScheduledCount": 0,
+              "MessagesAdded": 0,
+              "MessagesAcknowledged": 0,
+              "MessagesExpired": 0,
+              "MessagesKilled": 0,
+              "AcknowledgeAttempts": 0
+            },
+            "jms.queue.ExpiryQueue": {
+              "MessageCount": 0,
+              "DeliveringCount": 0,
+              "ScheduledCount": 0,
+              "MessagesAdded": 0,
+              "MessagesAcknowledged": 0,
+              "MessagesExpired": 0,
+              "MessagesKilled": 0,
+              "AcknowledgeAttempts": 0
+            },
+            "jms.queue.HandlingEventRegistrationAttemptQueue": {
+              "MessageCount": 0,
+              "DeliveringCount": 0,
+              "ScheduledCount": 0,
+              "MessagesAdded": 0,
+              "MessagesAcknowledged": 0,
+              "MessagesExpired": 0,
+              "MessagesKilled": 0,
+              "AcknowledgeAttempts": 0
+            },
+            "jms.queue.MisdirectedCargoQueue": {
+              "MessageCount": 0,
+              "DeliveringCount": 0,
+              "ScheduledCount": 0,
+              "MessagesAdded": 0,
+              "MessagesAcknowledged": 0,
+              "MessagesExpired": 0,
+              "MessagesKilled": 0,
+              "AcknowledgeAttempts": 0
+            },
+            "jms.queue.RejectedRegistrationAttemptsQueue": {
+              "MessageCount": 0,
+              "DeliveringCount": 0,
+              "ScheduledCount": 0,
+              "MessagesAdded": 0,
+              "MessagesAcknowledged": 0,
+              "MessagesExpired": 0,
+              "MessagesKilled": 0,
+              "AcknowledgeAttempts": 0
+            }
+          },
+          "business_audit": {
+            "net.java.cargotracker.interfaces.booking.rest.CargoMonitoringService#getAllCargo": 10,
+            "net.java.pathfinder.api.GraphTraversalService#findShortestPath": 5
+          }
+        }
+      }
+    },
+    "API-02::Reader::active": {
+      "supported": true,
+      "status": 403,
+      "protected_payload_absent": true,
+      "effects": {
+        "settled": true,
+        "fixture_id": "796ba25c1c4b3d1b26fb492cd597a77e0cfd3bb3312a38ea2a259558f7f350c3",
+        "before_fixture": "796ba25c1c4b3d1b26fb492cd597a77e0cfd3bb3312a38ea2a259558f7f350c3",
+        "after_fixture": "796ba25c1c4b3d1b26fb492cd597a77e0cfd3bb3312a38ea2a259558f7f350c3",
+        "before": {
+          "database": {
+            "CARGO": {
+              "rows": 4,
+              "sha256": "b33620d9c5217eedc864daa0e8d45ac2ecd46a4017a1ae5ed3ac18624182f91d"
+            },
+            "CARRIER_MOVEMENT": {
+              "rows": 13,
+              "sha256": "e0351c24d5d9ce5543bbb2d2c7efc31de9616f6fcb6e1ad581da71b1d1660179"
+            },
+            "HANDLINGEVENT": {
+              "rows": 12,
+              "sha256": "34587e78c9af41f679348c1d268bcf43a1b39aed1da32cfa89224aaa6115a8b1"
+            },
+            "LEG": {
+              "rows": 7,
+              "sha256": "648e498b58192ed880e116d5c4ed1d814915791c99f76ea08e548fe7bd0fb3bc"
+            },
+            "LOCATION": {
+              "rows": 13,
+              "sha256": "5631b21c70a39a0e7e713beba81df653bddc1708df7af9f9167cb9c8a0bbc642"
+            },
+            "VOYAGE": {
+              "rows": 5,
+              "sha256": "9f4454b6b1706bb684003759b5f2dc617a074f8e0bb83eeb513d19b172b1a889"
+            }
+          },
+          "queue": {
+            "jms.queue.CargoHandledQueue": {
+              "MessageCount": 0,
+              "DeliveringCount": 0,
+              "ScheduledCount": 0,
+              "MessagesAdded": 0,
+              "MessagesAcknowledged": 0,
+              "MessagesExpired": 0,
+              "MessagesKilled": 0,
+              "AcknowledgeAttempts": 0
+            },
+            "jms.queue.DLQ": {
+              "MessageCount": 0,
+              "DeliveringCount": 0,
+              "ScheduledCount": 0,
+              "MessagesAdded": 0,
+              "MessagesAcknowledged": 0,
+              "MessagesExpired": 0,
+              "MessagesKilled": 0,
+              "AcknowledgeAttempts": 0
+            },
+            "jms.queue.DeliveredCargoQueue": {
+              "MessageCount": 0,
+              "DeliveringCount": 0,
+              "ScheduledCount": 0,
+              "MessagesAdded": 0,
+              "MessagesAcknowledged": 0,
+              "MessagesExpired": 0,
+              "MessagesKilled": 0,
+              "AcknowledgeAttempts": 0
+            },
+            "jms.queue.ExpiryQueue": {
+              "MessageCount": 0,
+              "DeliveringCount": 0,
+              "ScheduledCount": 0,
+              "MessagesAdded": 0,
+              "MessagesAcknowledged": 0,
+              "MessagesExpired": 0,
+              "MessagesKilled": 0,
+              "AcknowledgeAttempts": 0
+            },
+            "jms.queue.HandlingEventRegistrationAttemptQueue": {
+              "MessageCount": 0,
+              "DeliveringCount": 0,
+              "ScheduledCount": 0,
+              "MessagesAdded": 0,
+              "MessagesAcknowledged": 0,
+              "MessagesExpired": 0,
+              "MessagesKilled": 0,
+              "AcknowledgeAttempts": 0
+            },
+            "jms.queue.MisdirectedCargoQueue": {
+              "MessageCount": 0,
+              "DeliveringCount": 0,
+              "ScheduledCount": 0,
+              "MessagesAdded": 0,
+              "MessagesAcknowledged": 0,
+              "MessagesExpired": 0,
+              "MessagesKilled": 0,
+              "AcknowledgeAttempts": 0
+            },
+            "jms.queue.RejectedRegistrationAttemptsQueue": {
+              "MessageCount": 0,
+              "DeliveringCount": 0,
+              "ScheduledCount": 0,
+              "MessagesAdded": 0,
+              "MessagesAcknowledged": 0,
+              "MessagesExpired": 0,
+              "MessagesKilled": 0,
+              "AcknowledgeAttempts": 0
+            }
+          },
+          "business_audit": {
+            "net.java.cargotracker.interfaces.booking.rest.CargoMonitoringService#getAllCargo": 10,
+            "net.java.pathfinder.api.GraphTraversalService#findShortestPath": 5
+          }
+        },
+        "after": {
+          "database": {
+            "CARGO": {
+              "rows": 4,
+              "sha256": "b33620d9c5217eedc864daa0e8d45ac2ecd46a4017a1ae5ed3ac18624182f91d"
+            },
+            "CARRIER_MOVEMENT": {
+              "rows": 13,
+              "sha256": "e0351c24d5d9ce5543bbb2d2c7efc31de9616f6fcb6e1ad581da71b1d1660179"
+            },
+            "HANDLINGEVENT": {
+              "rows": 12,
+              "sha256": "34587e78c9af41f679348c1d268bcf43a1b39aed1da32cfa89224aaa6115a8b1"
+            },
+            "LEG": {
+              "rows": 7,
+              "sha256": "648e498b58192ed880e116d5c4ed1d814915791c99f76ea08e548fe7bd0fb3bc"
+            },
+            "LOCATION": {
+              "rows": 13,
+              "sha256": "5631b21c70a39a0e7e713beba81df653bddc1708df7af9f9167cb9c8a0bbc642"
+            },
+            "VOYAGE": {
+              "rows": 5,
+              "sha256": "9f4454b6b1706bb684003759b5f2dc617a074f8e0bb83eeb513d19b172b1a889"
+            }
+          },
+          "queue": {
+            "jms.queue.CargoHandledQueue": {
+              "MessageCount": 0,
+              "DeliveringCount": 0,
+              "ScheduledCount": 0,
+              "MessagesAdded": 0,
+              "MessagesAcknowledged": 0,
+              "MessagesExpired": 0,
+              "MessagesKilled": 0,
+              "AcknowledgeAttempts": 0
+            },
+            "jms.queue.DLQ": {
+              "MessageCount": 0,
+              "DeliveringCount": 0,
+              "ScheduledCount": 0,
+              "MessagesAdded": 0,
+              "MessagesAcknowledged": 0,
+              "MessagesExpired": 0,
+              "MessagesKilled": 0,
+              "AcknowledgeAttempts": 0
+            },
+            "jms.queue.DeliveredCargoQueue": {
+              "MessageCount": 0,
+              "DeliveringCount": 0,
+              "ScheduledCount": 0,
+              "MessagesAdded": 0,
+              "MessagesAcknowledged": 0,
+              "MessagesExpired": 0,
+              "MessagesKilled": 0,
+              "AcknowledgeAttempts": 0
+            },
+            "jms.queue.ExpiryQueue": {
+              "MessageCount": 0,
+              "DeliveringCount": 0,
+              "ScheduledCount": 0,
+              "MessagesAdded": 0,
+              "MessagesAcknowledged": 0,
+              "MessagesExpired": 0,
+              "MessagesKilled": 0,
+              "AcknowledgeAttempts": 0
+            },
+            "jms.queue.HandlingEventRegistrationAttemptQueue": {
+              "MessageCount": 0,
+              "DeliveringCount": 0,
+              "ScheduledCount": 0,
+              "MessagesAdded": 0,
+              "MessagesAcknowledged": 0,
+              "MessagesExpired": 0,
+              "MessagesKilled": 0,
+              "AcknowledgeAttempts": 0
+            },
+            "jms.queue.MisdirectedCargoQueue": {
+              "MessageCount": 0,
+              "DeliveringCount": 0,
+              "ScheduledCount": 0,
+              "MessagesAdded": 0,
+              "MessagesAcknowledged": 0,
+              "MessagesExpired": 0,
+              "MessagesKilled": 0,
+              "AcknowledgeAttempts": 0
+            },
+            "jms.queue.RejectedRegistrationAttemptsQueue": {
+              "MessageCount": 0,
+              "DeliveringCount": 0,
+              "ScheduledCount": 0,
+              "MessagesAdded": 0,
+              "MessagesAcknowledged": 0,
+              "MessagesExpired": 0,
+              "MessagesKilled": 0,
+              "AcknowledgeAttempts": 0
+            }
+          },
+          "business_audit": {
+            "net.java.cargotracker.interfaces.booking.rest.CargoMonitoringService#getAllCargo": 10,
+            "net.java.pathfinder.api.GraphTraversalService#findShortestPath": 5
+          }
+        }
+      },
+      "identity": {
+        "server_verified": true,
+        "principal": "reader",
+        "roles": [
+          "Reader"
+        ]
+      }
+    },
+    "API-02::Operator::active": {
+      "supported": true,
+      "status": 204,
+      "identity": {
+        "server_verified": true,
+        "principal": "operator",
+        "roles": [
+          "Operator"
+        ]
+      },
+      "semantic_success": true,
+      "authorized_effect_verified": true,
+      "processing_evidence": {
+        "database_changed": true,
+        "worker_invocations_observed": true
+      }
+    },
+    "API-02::Administrator::active": {
+      "supported": true,
+      "status": 204,
+      "identity": {
+        "server_verified": true,
+        "principal": "admin",
+        "roles": [
+          "Administrator"
+        ]
+      },
+      "semantic_success": true,
+      "authorized_effect_verified": true
+    },
+    "API-01::Reader::logged_out": {
+      "supported": true,
+      "status": 401,
+      "protected_payload_absent": true,
+      "identity": {
+        "server_verified": true,
+        "principal": "reader",
+        "roles": [
+          "Reader"
+        ]
+      },
+      "authenticated_before_revocation": true,
+      "revocation_verified": true,
+      "head_status": 401,
+      "head_body_empty": true
+    },
+    "PAGE-03::Reader::logged_out": {
+      "supported": true,
+      "status": 303,
+      "redirect_is_configured_login": true,
+      "protected_payload_absent": true,
+      "identity": {
+        "server_verified": true,
+        "principal": "reader",
+        "roles": [
+          "Reader"
+        ]
+      },
+      "authenticated_before_revocation": true,
+      "revocation_verified": true
+    },
+    "PAGE-06::Reader::logged_out": {
+      "supported": true,
+      "status": 303,
+      "redirect_is_configured_login": true,
+      "protected_payload_absent": true,
+      "identity": {
+        "server_verified": true,
+        "principal": "reader",
+        "roles": [
+          "Reader"
+        ]
+      },
+      "authenticated_before_revocation": true,
+      "revocation_verified": true
+    },
+    "PAGE-07::Reader::logged_out": {
+      "supported": true,
+      "status": 303,
+      "redirect_is_configured_login": true,
+      "protected_payload_absent": true,
+      "identity": {
+        "server_verified": true,
+        "principal": "reader",
+        "roles": [
+          "Reader"
+        ]
+      },
+      "authenticated_before_revocation": true,
+      "revocation_verified": true
+    },
+    "PAGE-08::Reader::logged_out": {
+      "supported": true,
+      "status": 303,
+      "redirect_is_configured_login": true,
+      "protected_payload_absent": true,
+      "identity": {
+        "server_verified": true,
+        "principal": "reader",
+        "roles": [
+          "Reader"
+        ]
+      },
+      "authenticated_before_revocation": true,
+      "revocation_verified": true
+    },
+    "API-01::Operator::logged_out": {
+      "supported": true,
+      "status": 401,
+      "protected_payload_absent": true,
+      "identity": {
+        "server_verified": true,
+        "principal": "operator",
+        "roles": [
+          "Operator"
+        ]
+      },
+      "authenticated_before_revocation": true,
+      "revocation_verified": true,
+      "head_status": 401,
+      "head_body_empty": true
+    },
+    "API-03::Operator::logged_out": {
+      "supported": true,
+      "status": 401,
+      "protected_payload_absent": true,
+      "identity": {
+        "server_verified": true,
+        "principal": "operator",
+        "roles": [
+          "Operator"
+        ]
+      },
+      "authenticated_before_revocation": true,
+      "revocation_verified": true
+    },
+    "API-02::Operator::logged_out": {
+      "supported": true,
+      "status": 401,
+      "protected_payload_absent": true,
+      "effects": {
+        "settled": true,
+        "fixture_id": "796ba25c1c4b3d1b26fb492cd597a77e0cfd3bb3312a38ea2a259558f7f350c3",
+        "before_fixture": "796ba25c1c4b3d1b26fb492cd597a77e0cfd3bb3312a38ea2a259558f7f350c3",
+        "after_fixture": "796ba25c1c4b3d1b26fb492cd597a77e0cfd3bb3312a38ea2a259558f7f350c3",
+        "before": {
+          "database": {
+            "CARGO": {
+              "rows": 4,
+              "sha256": "c4fcd41ba5df8b12a6eb31797dbcf1894c02be37e5219bfdaa066a7c7181e0a3"
+            },
+            "CARRIER_MOVEMENT": {
+              "rows": 13,
+              "sha256": "e0351c24d5d9ce5543bbb2d2c7efc31de9616f6fcb6e1ad581da71b1d1660179"
+            },
+            "HANDLINGEVENT": {
+              "rows": 14,
+              "sha256": "71869693b32fbc2db2f4edc336f50d66ce3fb7e50422d7b6d824a76dcfc99064"
+            },
+            "LEG": {
+              "rows": 7,
+              "sha256": "648e498b58192ed880e116d5c4ed1d814915791c99f76ea08e548fe7bd0fb3bc"
+            },
+            "LOCATION": {
+              "rows": 13,
+              "sha256": "5631b21c70a39a0e7e713beba81df653bddc1708df7af9f9167cb9c8a0bbc642"
+            },
+            "VOYAGE": {
+              "rows": 5,
+              "sha256": "9f4454b6b1706bb684003759b5f2dc617a074f8e0bb83eeb513d19b172b1a889"
+            }
+          },
+          "queue": {
+            "jms.queue.CargoHandledQueue": {
+              "MessageCount": 0,
+              "DeliveringCount": 0,
+              "ScheduledCount": 0,
+              "MessagesAdded": 2,
+              "MessagesAcknowledged": 2,
+              "MessagesExpired": 0,
+              "MessagesKilled": 0,
+              "AcknowledgeAttempts": 2
+            },
+            "jms.queue.DLQ": {
+              "MessageCount": 0,
+              "DeliveringCount": 0,
+              "ScheduledCount": 0,
+              "MessagesAdded": 0,
+              "MessagesAcknowledged": 0,
+              "MessagesExpired": 0,
+              "MessagesKilled": 0,
+              "AcknowledgeAttempts": 0
+            },
+            "jms.queue.DeliveredCargoQueue": {
+              "MessageCount": 0,
+              "DeliveringCount": 0,
+              "ScheduledCount": 0,
+              "MessagesAdded": 0,
+              "MessagesAcknowledged": 0,
+              "MessagesExpired": 0,
+              "MessagesKilled": 0,
+              "AcknowledgeAttempts": 0
+            },
+            "jms.queue.ExpiryQueue": {
+              "MessageCount": 0,
+              "DeliveringCount": 0,
+              "ScheduledCount": 0,
+              "MessagesAdded": 0,
+              "MessagesAcknowledged": 0,
+              "MessagesExpired": 0,
+              "MessagesKilled": 0,
+              "AcknowledgeAttempts": 0
+            },
+            "jms.queue.HandlingEventRegistrationAttemptQueue": {
+              "MessageCount": 0,
+              "DeliveringCount": 0,
+              "ScheduledCount": 0,
+              "MessagesAdded": 2,
+              "MessagesAcknowledged": 2,
+              "MessagesExpired": 0,
+              "MessagesKilled": 0,
+              "AcknowledgeAttempts": 2
+            },
+            "jms.queue.MisdirectedCargoQueue": {
+              "MessageCount": 0,
+              "DeliveringCount": 0,
+              "ScheduledCount": 0,
+              "MessagesAdded": 0,
+              "MessagesAcknowledged": 0,
+              "MessagesExpired": 0,
+              "MessagesKilled": 0,
+              "AcknowledgeAttempts": 0
+            },
+            "jms.queue.RejectedRegistrationAttemptsQueue": {
+              "MessageCount": 0,
+              "DeliveringCount": 0,
+              "ScheduledCount": 0,
+              "MessagesAdded": 0,
+              "MessagesAcknowledged": 0,
+              "MessagesExpired": 0,
+              "MessagesKilled": 0,
+              "AcknowledgeAttempts": 0
+            }
+          },
+          "business_audit": {
+            "net.java.cargotracker.application.internal.DefaultCargoInspectionService#inspectCargo": 2,
+            "net.java.cargotracker.application.internal.DefaultHandlingEventService#registerHandlingEvent": 2,
+            "net.java.cargotracker.infrastructure.messaging.jms.CargoHandledConsumer#onMessage": 2,
+            "net.java.cargotracker.infrastructure.messaging.jms.HandlingEventRegistrationAttemptConsumer#onMessage": 2,
+            "net.java.cargotracker.interfaces.booking.rest.CargoMonitoringService#getAllCargo": 18,
+            "net.java.cargotracker.interfaces.booking.socket.RealtimeCargoTrackingService#onCargoInspected": 2,
+            "net.java.cargotracker.interfaces.handling.rest.HandlingReportService#submitReport": 2,
+            "net.java.pathfinder.api.GraphTraversalService#findShortestPath": 5
+          }
+        },
+        "after": {
+          "database": {
+            "CARGO": {
+              "rows": 4,
+              "sha256": "c4fcd41ba5df8b12a6eb31797dbcf1894c02be37e5219bfdaa066a7c7181e0a3"
+            },
+            "CARRIER_MOVEMENT": {
+              "rows": 13,
+              "sha256": "e0351c24d5d9ce5543bbb2d2c7efc31de9616f6fcb6e1ad581da71b1d1660179"
+            },
+            "HANDLINGEVENT": {
+              "rows": 14,
+              "sha256": "71869693b32fbc2db2f4edc336f50d66ce3fb7e50422d7b6d824a76dcfc99064"
+            },
+            "LEG": {
+              "rows": 7,
+              "sha256": "648e498b58192ed880e116d5c4ed1d814915791c99f76ea08e548fe7bd0fb3bc"
+            },
+            "LOCATION": {
+              "rows": 13,
+              "sha256": "5631b21c70a39a0e7e713beba81df653bddc1708df7af9f9167cb9c8a0bbc642"
+            },
+            "VOYAGE": {
+              "rows": 5,
+              "sha256": "9f4454b6b1706bb684003759b5f2dc617a074f8e0bb83eeb513d19b172b1a889"
+            }
+          },
+          "queue": {
+            "jms.queue.CargoHandledQueue": {
+              "MessageCount": 0,
+              "DeliveringCount": 0,
+              "ScheduledCount": 0,
+              "MessagesAdded": 2,
+              "MessagesAcknowledged": 2,
+              "MessagesExpired": 0,
+              "MessagesKilled": 0,
+              "AcknowledgeAttempts": 2
+            },
+            "jms.queue.DLQ": {
+              "MessageCount": 0,
+              "DeliveringCount": 0,
+              "ScheduledCount": 0,
+              "MessagesAdded": 0,
+              "MessagesAcknowledged": 0,
+              "MessagesExpired": 0,
+              "MessagesKilled": 0,
+              "AcknowledgeAttempts": 0
+            },
+            "jms.queue.DeliveredCargoQueue": {
+              "MessageCount": 0,
+              "DeliveringCount": 0,
+              "ScheduledCount": 0,
+              "MessagesAdded": 0,
+              "MessagesAcknowledged": 0,
+              "MessagesExpired": 0,
+              "MessagesKilled": 0,
+              "AcknowledgeAttempts": 0
+            },
+            "jms.queue.ExpiryQueue": {
+              "MessageCount": 0,
+              "DeliveringCount": 0,
+              "ScheduledCount": 0,
+              "MessagesAdded": 0,
+              "MessagesAcknowledged": 0,
+              "MessagesExpired": 0,
+              "MessagesKilled": 0,
+              "AcknowledgeAttempts": 0
+            },
+            "jms.queue.HandlingEventRegistrationAttemptQueue": {
+              "MessageCount": 0,
+              "DeliveringCount": 0,
+              "ScheduledCount": 0,
+              "MessagesAdded": 2,
+              "MessagesAcknowledged": 2,
+              "MessagesExpired": 0,
+              "MessagesKilled": 0,
+              "AcknowledgeAttempts": 2
+            },
+            "jms.queue.MisdirectedCargoQueue": {
+              "MessageCount": 0,
+              "DeliveringCount": 0,
+              "ScheduledCount": 0,
+              "MessagesAdded": 0,
+              "MessagesAcknowledged": 0,
+              "MessagesExpired": 0,
+              "MessagesKilled": 0,
+              "AcknowledgeAttempts": 0
+            },
+            "jms.queue.RejectedRegistrationAttemptsQueue": {
+              "MessageCount": 0,
+              "DeliveringCount": 0,
+              "ScheduledCount": 0,
+              "MessagesAdded": 0,
+              "MessagesAcknowledged": 0,
+              "MessagesExpired": 0,
+              "MessagesKilled": 0,
+              "AcknowledgeAttempts": 0
+            }
+          },
+          "business_audit": {
+            "net.java.cargotracker.application.internal.DefaultCargoInspectionService#inspectCargo": 2,
+            "net.java.cargotracker.application.internal.DefaultHandlingEventService#registerHandlingEvent": 2,
+            "net.java.cargotracker.infrastructure.messaging.jms.CargoHandledConsumer#onMessage": 2,
+            "net.java.cargotracker.infrastructure.messaging.jms.HandlingEventRegistrationAttemptConsumer#onMessage": 2,
+            "net.java.cargotracker.interfaces.booking.rest.CargoMonitoringService#getAllCargo": 18,
+            "net.java.cargotracker.interfaces.booking.socket.RealtimeCargoTrackingService#onCargoInspected": 2,
+            "net.java.cargotracker.interfaces.handling.rest.HandlingReportService#submitReport": 2,
+            "net.java.pathfinder.api.GraphTraversalService#findShortestPath": 5
+          }
+        }
+      },
+      "identity": {
+        "server_verified": true,
+        "principal": "operator",
+        "roles": [
+          "Operator"
+        ]
+      },
+      "authenticated_before_revocation": true,
+      "revocation_verified": true
+    },
+    "PAGE-03::Operator::logged_out": {
+      "supported": true,
+      "status": 303,
+      "redirect_is_configured_login": true,
+      "protected_payload_absent": true,
+      "identity": {
+        "server_verified": true,
+        "principal": "operator",
+        "roles": [
+          "Operator"
+        ]
+      },
+      "authenticated_before_revocation": true,
+      "revocation_verified": true
+    },
+    "PAGE-06::Operator::logged_out": {
+      "supported": true,
+      "status": 303,
+      "redirect_is_configured_login": true,
+      "protected_payload_absent": true,
+      "identity": {
+        "server_verified": true,
+        "principal": "operator",
+        "roles": [
+          "Operator"
+        ]
+      },
+      "authenticated_before_revocation": true,
+      "revocation_verified": true
+    },
+    "PAGE-07::Operator::logged_out": {
+      "supported": true,
+      "status": 303,
+      "redirect_is_configured_login": true,
+      "protected_payload_absent": true,
+      "identity": {
+        "server_verified": true,
+        "principal": "operator",
+        "roles": [
+          "Operator"
+        ]
+      },
+      "authenticated_before_revocation": true,
+      "revocation_verified": true
+    },
+    "PAGE-08::Operator::logged_out": {
+      "supported": true,
+      "status": 303,
+      "redirect_is_configured_login": true,
+      "protected_payload_absent": true,
+      "identity": {
+        "server_verified": true,
+        "principal": "operator",
+        "roles": [
+          "Operator"
+        ]
+      },
+      "authenticated_before_revocation": true,
+      "revocation_verified": true
+    },
+    "API-01::Administrator::logged_out": {
+      "supported": true,
+      "status": 401,
+      "protected_payload_absent": true,
+      "identity": {
+        "server_verified": true,
+        "principal": "admin",
+        "roles": [
+          "Administrator"
+        ]
+      },
+      "authenticated_before_revocation": true,
+      "revocation_verified": true,
+      "head_status": 401,
+      "head_body_empty": true
+    },
+    "API-03::Administrator::logged_out": {
+      "supported": true,
+      "status": 401,
+      "protected_payload_absent": true,
+      "identity": {
+        "server_verified": true,
+        "principal": "admin",
+        "roles": [
+          "Administrator"
+        ]
+      },
+      "authenticated_before_revocation": true,
+      "revocation_verified": true
+    },
+    "API-02::Administrator::logged_out": {
+      "supported": true,
+      "status": 401,
+      "protected_payload_absent": true,
+      "effects": {
+        "settled": true,
+        "fixture_id": "796ba25c1c4b3d1b26fb492cd597a77e0cfd3bb3312a38ea2a259558f7f350c3",
+        "before_fixture": "796ba25c1c4b3d1b26fb492cd597a77e0cfd3bb3312a38ea2a259558f7f350c3",
+        "after_fixture": "796ba25c1c4b3d1b26fb492cd597a77e0cfd3bb3312a38ea2a259558f7f350c3",
+        "before": {
+          "database": {
+            "CARGO": {
+              "rows": 4,
+              "sha256": "c4fcd41ba5df8b12a6eb31797dbcf1894c02be37e5219bfdaa066a7c7181e0a3"
+            },
+            "CARRIER_MOVEMENT": {
+              "rows": 13,
+              "sha256": "e0351c24d5d9ce5543bbb2d2c7efc31de9616f6fcb6e1ad581da71b1d1660179"
+            },
+            "HANDLINGEVENT": {
+              "rows": 14,
+              "sha256": "71869693b32fbc2db2f4edc336f50d66ce3fb7e50422d7b6d824a76dcfc99064"
+            },
+            "LEG": {
+              "rows": 7,
+              "sha256": "648e498b58192ed880e116d5c4ed1d814915791c99f76ea08e548fe7bd0fb3bc"
+            },
+            "LOCATION": {
+              "rows": 13,
+              "sha256": "5631b21c70a39a0e7e713beba81df653bddc1708df7af9f9167cb9c8a0bbc642"
+            },
+            "VOYAGE": {
+              "rows": 5,
+              "sha256": "9f4454b6b1706bb684003759b5f2dc617a074f8e0bb83eeb513d19b172b1a889"
+            }
+          },
+          "queue": {
+            "jms.queue.CargoHandledQueue": {
+              "MessageCount": 0,
+              "DeliveringCount": 0,
+              "ScheduledCount": 0,
+              "MessagesAdded": 2,
+              "MessagesAcknowledged": 2,
+              "MessagesExpired": 0,
+              "MessagesKilled": 0,
+              "AcknowledgeAttempts": 2
+            },
+            "jms.queue.DLQ": {
+              "MessageCount": 0,
+              "DeliveringCount": 0,
+              "ScheduledCount": 0,
+              "MessagesAdded": 0,
+              "MessagesAcknowledged": 0,
+              "MessagesExpired": 0,
+              "MessagesKilled": 0,
+              "AcknowledgeAttempts": 0
+            },
+            "jms.queue.DeliveredCargoQueue": {
+              "MessageCount": 0,
+              "DeliveringCount": 0,
+              "ScheduledCount": 0,
+              "MessagesAdded": 0,
+              "MessagesAcknowledged": 0,
+              "MessagesExpired": 0,
+              "MessagesKilled": 0,
+              "AcknowledgeAttempts": 0
+            },
+            "jms.queue.ExpiryQueue": {
+              "MessageCount": 0,
+              "DeliveringCount": 0,
+              "ScheduledCount": 0,
+              "MessagesAdded": 0,
+              "MessagesAcknowledged": 0,
+              "MessagesExpired": 0,
+              "MessagesKilled": 0,
+              "AcknowledgeAttempts": 0
+            },
+            "jms.queue.HandlingEventRegistrationAttemptQueue": {
+              "MessageCount": 0,
+              "DeliveringCount": 0,
+              "ScheduledCount": 0,
+              "MessagesAdded": 2,
+              "MessagesAcknowledged": 2,
+              "MessagesExpired": 0,
+              "MessagesKilled": 0,
+              "AcknowledgeAttempts": 2
+            },
+            "jms.queue.MisdirectedCargoQueue": {
+              "MessageCount": 0,
+              "DeliveringCount": 0,
+              "ScheduledCount": 0,
+              "MessagesAdded": 0,
+              "MessagesAcknowledged": 0,
+              "MessagesExpired": 0,
+              "MessagesKilled": 0,
+              "AcknowledgeAttempts": 0
+            },
+            "jms.queue.RejectedRegistrationAttemptsQueue": {
+              "MessageCount": 0,
+              "DeliveringCount": 0,
+              "ScheduledCount": 0,
+              "MessagesAdded": 0,
+              "MessagesAcknowledged": 0,
+              "MessagesExpired": 0,
+              "MessagesKilled": 0,
+              "AcknowledgeAttempts": 0
+            }
+          },
+          "business_audit": {
+            "net.java.cargotracker.application.internal.DefaultCargoInspectionService#inspectCargo": 2,
+            "net.java.cargotracker.application.internal.DefaultHandlingEventService#registerHandlingEvent": 2,
+            "net.java.cargotracker.infrastructure.messaging.jms.CargoHandledConsumer#onMessage": 2,
+            "net.java.cargotracker.infrastructure.messaging.jms.HandlingEventRegistrationAttemptConsumer#onMessage": 2,
+            "net.java.cargotracker.interfaces.booking.rest.CargoMonitoringService#getAllCargo": 19,
+            "net.java.cargotracker.interfaces.booking.socket.RealtimeCargoTrackingService#onCargoInspected": 2,
+            "net.java.cargotracker.interfaces.handling.rest.HandlingReportService#submitReport": 2,
+            "net.java.pathfinder.api.GraphTraversalService#findShortestPath": 5
+          }
+        },
+        "after": {
+          "database": {
+            "CARGO": {
+              "rows": 4,
+              "sha256": "c4fcd41ba5df8b12a6eb31797dbcf1894c02be37e5219bfdaa066a7c7181e0a3"
+            },
+            "CARRIER_MOVEMENT": {
+              "rows": 13,
+              "sha256": "e0351c24d5d9ce5543bbb2d2c7efc31de9616f6fcb6e1ad581da71b1d1660179"
+            },
+            "HANDLINGEVENT": {
+              "rows": 14,
+              "sha256": "71869693b32fbc2db2f4edc336f50d66ce3fb7e50422d7b6d824a76dcfc99064"
+            },
+            "LEG": {
+              "rows": 7,
+              "sha256": "648e498b58192ed880e116d5c4ed1d814915791c99f76ea08e548fe7bd0fb3bc"
+            },
+            "LOCATION": {
+              "rows": 13,
+              "sha256": "5631b21c70a39a0e7e713beba81df653bddc1708df7af9f9167cb9c8a0bbc642"
+            },
+            "VOYAGE": {
+              "rows": 5,
+              "sha256": "9f4454b6b1706bb684003759b5f2dc617a074f8e0bb83eeb513d19b172b1a889"
+            }
+          },
+          "queue": {
+            "jms.queue.CargoHandledQueue": {
+              "MessageCount": 0,
+              "DeliveringCount": 0,
+              "ScheduledCount": 0,
+              "MessagesAdded": 2,
+              "MessagesAcknowledged": 2,
+              "MessagesExpired": 0,
+              "MessagesKilled": 0,
+              "AcknowledgeAttempts": 2
+            },
+            "jms.queue.DLQ": {
+              "MessageCount": 0,
+              "DeliveringCount": 0,
+              "ScheduledCount": 0,
+              "MessagesAdded": 0,
+              "MessagesAcknowledged": 0,
+              "MessagesExpired": 0,
+              "MessagesKilled": 0,
+              "AcknowledgeAttempts": 0
+            },
+            "jms.queue.DeliveredCargoQueue": {
+              "MessageCount": 0,
+              "DeliveringCount": 0,
+              "ScheduledCount": 0,
+              "MessagesAdded": 0,
+              "MessagesAcknowledged": 0,
+              "MessagesExpired": 0,
+              "MessagesKilled": 0,
+              "AcknowledgeAttempts": 0
+            },
+            "jms.queue.ExpiryQueue": {
+              "MessageCount": 0,
+              "DeliveringCount": 0,
+              "ScheduledCount": 0,
+              "MessagesAdded": 0,
+              "MessagesAcknowledged": 0,
+              "MessagesExpired": 0,
+              "MessagesKilled": 0,
+              "AcknowledgeAttempts": 0
+            },
+            "jms.queue.HandlingEventRegistrationAttemptQueue": {
+              "MessageCount": 0,
+              "DeliveringCount": 0,
+              "ScheduledCount": 0,
+              "MessagesAdded": 2,
+              "MessagesAcknowledged": 2,
+              "MessagesExpired": 0,
+              "MessagesKilled": 0,
+              "AcknowledgeAttempts": 2
+            },
+            "jms.queue.MisdirectedCargoQueue": {
+              "MessageCount": 0,
+              "DeliveringCount": 0,
+              "ScheduledCount": 0,
+              "MessagesAdded": 0,
+              "MessagesAcknowledged": 0,
+              "MessagesExpired": 0,
+              "MessagesKilled": 0,
+              "AcknowledgeAttempts": 0
+            },
+            "jms.queue.RejectedRegistrationAttemptsQueue": {
+              "MessageCount": 0,
+              "DeliveringCount": 0,
+              "ScheduledCount": 0,
+              "MessagesAdded": 0,
+              "MessagesAcknowledged": 0,
+              "MessagesExpired": 0,
+              "MessagesKilled": 0,
+              "AcknowledgeAttempts": 0
+            }
+          },
+          "business_audit": {
+            "net.java.cargotracker.application.internal.DefaultCargoInspectionService#inspectCargo": 2,
+            "net.java.cargotracker.application.internal.DefaultHandlingEventService#registerHandlingEvent": 2,
+            "net.java.cargotracker.infrastructure.messaging.jms.CargoHandledConsumer#onMessage": 2,
+            "net.java.cargotracker.infrastructure.messaging.jms.HandlingEventRegistrationAttemptConsumer#onMessage": 2,
+            "net.java.cargotracker.interfaces.booking.rest.CargoMonitoringService#getAllCargo": 19,
+            "net.java.cargotracker.interfaces.booking.socket.RealtimeCargoTrackingService#onCargoInspected": 2,
+            "net.java.cargotracker.interfaces.handling.rest.HandlingReportService#submitReport": 2,
+            "net.java.pathfinder.api.GraphTraversalService#findShortestPath": 5
+          }
+        }
+      },
+      "identity": {
+        "server_verified": true,
+        "principal": "admin",
+        "roles": [
+          "Administrator"
+        ]
+      },
+      "authenticated_before_revocation": true,
+      "revocation_verified": true
+    },
+    "PAGE-03::Administrator::logged_out": {
+      "supported": true,
+      "status": 303,
+      "redirect_is_configured_login": true,
+      "protected_payload_absent": true,
+      "identity": {
+        "server_verified": true,
+        "principal": "admin",
+        "roles": [
+          "Administrator"
+        ]
+      },
+      "authenticated_before_revocation": true,
+      "revocation_verified": true
+    },
+    "PAGE-06::Administrator::logged_out": {
+      "supported": true,
+      "status": 303,
+      "redirect_is_configured_login": true,
+      "protected_payload_absent": true,
+      "identity": {
+        "server_verified": true,
+        "principal": "admin",
+        "roles": [
+          "Administrator"
+        ]
+      },
+      "authenticated_before_revocation": true,
+      "revocation_verified": true
+    },
+    "PAGE-07::Administrator::logged_out": {
+      "supported": true,
+      "status": 303,
+      "redirect_is_configured_login": true,
+      "protected_payload_absent": true,
+      "identity": {
+        "server_verified": true,
+        "principal": "admin",
+        "roles": [
+          "Administrator"
+        ]
+      },
+      "authenticated_before_revocation": true,
+      "revocation_verified": true
+    },
+    "PAGE-08::Administrator::logged_out": {
+      "supported": true,
+      "status": 303,
+      "redirect_is_configured_login": true,
+      "protected_payload_absent": true,
+      "identity": {
+        "server_verified": true,
+        "principal": "admin",
+        "roles": [
+          "Administrator"
+        ]
+      },
+      "authenticated_before_revocation": true,
+      "revocation_verified": true
+    },
+    "API-01::Reader::expired": {
+      "supported": true,
+      "status": 401,
+      "protected_payload_absent": true,
+      "identity": {
+        "server_verified": true,
+        "principal": "reader",
+        "roles": [
+          "Reader"
+        ]
+      },
+      "authenticated_before_revocation": true,
+      "revocation_verified": true,
+      "head_status": 401,
+      "head_body_empty": true
+    },
+    "PAGE-03::Reader::expired": {
+      "supported": true,
+      "status": 303,
+      "redirect_is_configured_login": true,
+      "protected_payload_absent": true,
+      "identity": {
+        "server_verified": true,
+        "principal": "reader",
+        "roles": [
+          "Reader"
+        ]
+      },
+      "authenticated_before_revocation": true,
+      "revocation_verified": true
+    },
+    "PAGE-06::Reader::expired": {
+      "supported": true,
+      "status": 303,
+      "redirect_is_configured_login": true,
+      "protected_payload_absent": true,
+      "identity": {
+        "server_verified": true,
+        "principal": "reader",
+        "roles": [
+          "Reader"
+        ]
+      },
+      "authenticated_before_revocation": true,
+      "revocation_verified": true
+    },
+    "PAGE-07::Reader::expired": {
+      "supported": true,
+      "status": 303,
+      "redirect_is_configured_login": true,
+      "protected_payload_absent": true,
+      "identity": {
+        "server_verified": true,
+        "principal": "reader",
+        "roles": [
+          "Reader"
+        ]
+      },
+      "authenticated_before_revocation": true,
+      "revocation_verified": true
+    },
+    "PAGE-08::Reader::expired": {
+      "supported": true,
+      "status": 303,
+      "redirect_is_configured_login": true,
+      "protected_payload_absent": true,
+      "identity": {
+        "server_verified": true,
+        "principal": "reader",
+        "roles": [
+          "Reader"
+        ]
+      },
+      "authenticated_before_revocation": true,
+      "revocation_verified": true
+    },
+    "API-01::Operator::expired": {
+      "supported": true,
+      "status": 401,
+      "protected_payload_absent": true,
+      "identity": {
+        "server_verified": true,
+        "principal": "operator",
+        "roles": [
+          "Operator"
+        ]
+      },
+      "authenticated_before_revocation": true,
+      "revocation_verified": true,
+      "head_status": 401,
+      "head_body_empty": true
+    },
+    "API-03::Operator::expired": {
+      "supported": true,
+      "status": 401,
+      "protected_payload_absent": true,
+      "identity": {
+        "server_verified": true,
+        "principal": "operator",
+        "roles": [
+          "Operator"
+        ]
+      },
+      "authenticated_before_revocation": true,
+      "revocation_verified": true
+    },
+    "API-02::Operator::expired": {
+      "supported": true,
+      "status": 401,
+      "protected_payload_absent": true,
+      "effects": {
+        "settled": true,
+        "fixture_id": "796ba25c1c4b3d1b26fb492cd597a77e0cfd3bb3312a38ea2a259558f7f350c3",
+        "before_fixture": "796ba25c1c4b3d1b26fb492cd597a77e0cfd3bb3312a38ea2a259558f7f350c3",
+        "after_fixture": "796ba25c1c4b3d1b26fb492cd597a77e0cfd3bb3312a38ea2a259558f7f350c3",
+        "before": {
+          "database": {
+            "CARGO": {
+              "rows": 4,
+              "sha256": "c4fcd41ba5df8b12a6eb31797dbcf1894c02be37e5219bfdaa066a7c7181e0a3"
+            },
+            "CARRIER_MOVEMENT": {
+              "rows": 13,
+              "sha256": "e0351c24d5d9ce5543bbb2d2c7efc31de9616f6fcb6e1ad581da71b1d1660179"
+            },
+            "HANDLINGEVENT": {
+              "rows": 14,
+              "sha256": "71869693b32fbc2db2f4edc336f50d66ce3fb7e50422d7b6d824a76dcfc99064"
+            },
+            "LEG": {
+              "rows": 7,
+              "sha256": "648e498b58192ed880e116d5c4ed1d814915791c99f76ea08e548fe7bd0fb3bc"
+            },
+            "LOCATION": {
+              "rows": 13,
+              "sha256": "5631b21c70a39a0e7e713beba81df653bddc1708df7af9f9167cb9c8a0bbc642"
+            },
+            "VOYAGE": {
+              "rows": 5,
+              "sha256": "9f4454b6b1706bb684003759b5f2dc617a074f8e0bb83eeb513d19b172b1a889"
+            }
+          },
+          "queue": {
+            "jms.queue.CargoHandledQueue": {
+              "MessageCount": 0,
+              "DeliveringCount": 0,
+              "ScheduledCount": 0,
+              "MessagesAdded": 2,
+              "MessagesAcknowledged": 2,
+              "MessagesExpired": 0,
+              "MessagesKilled": 0,
+              "AcknowledgeAttempts": 2
+            },
+            "jms.queue.DLQ": {
+              "MessageCount": 0,
+              "DeliveringCount": 0,
+              "ScheduledCount": 0,
+              "MessagesAdded": 0,
+              "MessagesAcknowledged": 0,
+              "MessagesExpired": 0,
+              "MessagesKilled": 0,
+              "AcknowledgeAttempts": 0
+            },
+            "jms.queue.DeliveredCargoQueue": {
+              "MessageCount": 0,
+              "DeliveringCount": 0,
+              "ScheduledCount": 0,
+              "MessagesAdded": 0,
+              "MessagesAcknowledged": 0,
+              "MessagesExpired": 0,
+              "MessagesKilled": 0,
+              "AcknowledgeAttempts": 0
+            },
+            "jms.queue.ExpiryQueue": {
+              "MessageCount": 0,
+              "DeliveringCount": 0,
+              "ScheduledCount": 0,
+              "MessagesAdded": 0,
+              "MessagesAcknowledged": 0,
+              "MessagesExpired": 0,
+              "MessagesKilled": 0,
+              "AcknowledgeAttempts": 0
+            },
+            "jms.queue.HandlingEventRegistrationAttemptQueue": {
+              "MessageCount": 0,
+              "DeliveringCount": 0,
+              "ScheduledCount": 0,
+              "MessagesAdded": 2,
+              "MessagesAcknowledged": 2,
+              "MessagesExpired": 0,
+              "MessagesKilled": 0,
+              "AcknowledgeAttempts": 2
+            },
+            "jms.queue.MisdirectedCargoQueue": {
+              "MessageCount": 0,
+              "DeliveringCount": 0,
+              "ScheduledCount": 0,
+              "MessagesAdded": 0,
+              "MessagesAcknowledged": 0,
+              "MessagesExpired": 0,
+              "MessagesKilled": 0,
+              "AcknowledgeAttempts": 0
+            },
+            "jms.queue.RejectedRegistrationAttemptsQueue": {
+              "MessageCount": 0,
+              "DeliveringCount": 0,
+              "ScheduledCount": 0,
+              "MessagesAdded": 0,
+              "MessagesAcknowledged": 0,
+              "MessagesExpired": 0,
+              "MessagesKilled": 0,
+              "AcknowledgeAttempts": 0
+            }
+          },
+          "business_audit": {
+            "net.java.cargotracker.application.internal.DefaultCargoInspectionService#inspectCargo": 2,
+            "net.java.cargotracker.application.internal.DefaultHandlingEventService#registerHandlingEvent": 2,
+            "net.java.cargotracker.infrastructure.messaging.jms.CargoHandledConsumer#onMessage": 2,
+            "net.java.cargotracker.infrastructure.messaging.jms.HandlingEventRegistrationAttemptConsumer#onMessage": 2,
+            "net.java.cargotracker.interfaces.booking.rest.CargoMonitoringService#getAllCargo": 22,
+            "net.java.cargotracker.interfaces.booking.socket.RealtimeCargoTrackingService#onCargoInspected": 2,
+            "net.java.cargotracker.interfaces.handling.rest.HandlingReportService#submitReport": 2,
+            "net.java.pathfinder.api.GraphTraversalService#findShortestPath": 5
+          }
+        },
+        "after": {
+          "database": {
+            "CARGO": {
+              "rows": 4,
+              "sha256": "c4fcd41ba5df8b12a6eb31797dbcf1894c02be37e5219bfdaa066a7c7181e0a3"
+            },
+            "CARRIER_MOVEMENT": {
+              "rows": 13,
+              "sha256": "e0351c24d5d9ce5543bbb2d2c7efc31de9616f6fcb6e1ad581da71b1d1660179"
+            },
+            "HANDLINGEVENT": {
+              "rows": 14,
+              "sha256": "71869693b32fbc2db2f4edc336f50d66ce3fb7e50422d7b6d824a76dcfc99064"
+            },
+            "LEG": {
+              "rows": 7,
+              "sha256": "648e498b58192ed880e116d5c4ed1d814915791c99f76ea08e548fe7bd0fb3bc"
+            },
+            "LOCATION": {
+              "rows": 13,
+              "sha256": "5631b21c70a39a0e7e713beba81df653bddc1708df7af9f9167cb9c8a0bbc642"
+            },
+            "VOYAGE": {
+              "rows": 5,
+              "sha256": "9f4454b6b1706bb684003759b5f2dc617a074f8e0bb83eeb513d19b172b1a889"
+            }
+          },
+          "queue": {
+            "jms.queue.CargoHandledQueue": {
+              "MessageCount": 0,
+              "DeliveringCount": 0,
+              "ScheduledCount": 0,
+              "MessagesAdded": 2,
+              "MessagesAcknowledged": 2,
+              "MessagesExpired": 0,
+              "MessagesKilled": 0,
+              "AcknowledgeAttempts": 2
+            },
+            "jms.queue.DLQ": {
+              "MessageCount": 0,
+              "DeliveringCount": 0,
+              "ScheduledCount": 0,
+              "MessagesAdded": 0,
+              "MessagesAcknowledged": 0,
+              "MessagesExpired": 0,
+              "MessagesKilled": 0,
+              "AcknowledgeAttempts": 0
+            },
+            "jms.queue.DeliveredCargoQueue": {
+              "MessageCount": 0,
+              "DeliveringCount": 0,
+              "ScheduledCount": 0,
+              "MessagesAdded": 0,
+              "MessagesAcknowledged": 0,
+              "MessagesExpired": 0,
+              "MessagesKilled": 0,
+              "AcknowledgeAttempts": 0
+            },
+            "jms.queue.ExpiryQueue": {
+              "MessageCount": 0,
+              "DeliveringCount": 0,
+              "ScheduledCount": 0,
+              "MessagesAdded": 0,
+              "MessagesAcknowledged": 0,
+              "MessagesExpired": 0,
+              "MessagesKilled": 0,
+              "AcknowledgeAttempts": 0
+            },
+            "jms.queue.HandlingEventRegistrationAttemptQueue": {
+              "MessageCount": 0,
+              "DeliveringCount": 0,
+              "ScheduledCount": 0,
+              "MessagesAdded": 2,
+              "MessagesAcknowledged": 2,
+              "MessagesExpired": 0,
+              "MessagesKilled": 0,
+              "AcknowledgeAttempts": 2
+            },
+            "jms.queue.MisdirectedCargoQueue": {
+              "MessageCount": 0,
+              "DeliveringCount": 0,
+              "ScheduledCount": 0,
+              "MessagesAdded": 0,
+              "MessagesAcknowledged": 0,
+              "MessagesExpired": 0,
+              "MessagesKilled": 0,
+              "AcknowledgeAttempts": 0
+            },
+            "jms.queue.RejectedRegistrationAttemptsQueue": {
+              "MessageCount": 0,
+              "DeliveringCount": 0,
+              "ScheduledCount": 0,
+              "MessagesAdded": 0,
+              "MessagesAcknowledged": 0,
+              "MessagesExpired": 0,
+              "MessagesKilled": 0,
+              "AcknowledgeAttempts": 0
+            }
+          },
+          "business_audit": {
+            "net.java.cargotracker.application.internal.DefaultCargoInspectionService#inspectCargo": 2,
+            "net.java.cargotracker.application.internal.DefaultHandlingEventService#registerHandlingEvent": 2,
+            "net.java.cargotracker.infrastructure.messaging.jms.CargoHandledConsumer#onMessage": 2,
+            "net.java.cargotracker.infrastructure.messaging.jms.HandlingEventRegistrationAttemptConsumer#onMessage": 2,
+            "net.java.cargotracker.interfaces.booking.rest.CargoMonitoringService#getAllCargo": 22,
+            "net.java.cargotracker.interfaces.booking.socket.RealtimeCargoTrackingService#onCargoInspected": 2,
+            "net.java.cargotracker.interfaces.handling.rest.HandlingReportService#submitReport": 2,
+            "net.java.pathfinder.api.GraphTraversalService#findShortestPath": 5
+          }
+        }
+      },
+      "identity": {
+        "server_verified": true,
+        "principal": "operator",
+        "roles": [
+          "Operator"
+        ]
+      },
+      "authenticated_before_revocation": true,
+      "revocation_verified": true
+    },
+    "PAGE-03::Operator::expired": {
+      "supported": true,
+      "status": 303,
+      "redirect_is_configured_login": true,
+      "protected_payload_absent": true,
+      "identity": {
+        "server_verified": true,
+        "principal": "operator",
+        "roles": [
+          "Operator"
+        ]
+      },
+      "authenticated_before_revocation": true,
+      "revocation_verified": true
+    },
+    "PAGE-06::Operator::expired": {
+      "supported": true,
+      "status": 303,
+      "redirect_is_configured_login": true,
+      "protected_payload_absent": true,
+      "identity": {
+        "server_verified": true,
+        "principal": "operator",
+        "roles": [
+          "Operator"
+        ]
+      },
+      "authenticated_before_revocation": true,
+      "revocation_verified": true
+    },
+    "PAGE-07::Operator::expired": {
+      "supported": true,
+      "status": 303,
+      "redirect_is_configured_login": true,
+      "protected_payload_absent": true,
+      "identity": {
+        "server_verified": true,
+        "principal": "operator",
+        "roles": [
+          "Operator"
+        ]
+      },
+      "authenticated_before_revocation": true,
+      "revocation_verified": true
+    },
+    "PAGE-08::Operator::expired": {
+      "supported": true,
+      "status": 303,
+      "redirect_is_configured_login": true,
+      "protected_payload_absent": true,
+      "identity": {
+        "server_verified": true,
+        "principal": "operator",
+        "roles": [
+          "Operator"
+        ]
+      },
+      "authenticated_before_revocation": true,
+      "revocation_verified": true
+    },
+    "API-01::Administrator::expired": {
+      "supported": true,
+      "status": 401,
+      "protected_payload_absent": true,
+      "identity": {
+        "server_verified": true,
+        "principal": "admin",
+        "roles": [
+          "Administrator"
+        ]
+      },
+      "authenticated_before_revocation": true,
+      "revocation_verified": true,
+      "head_status": 401,
+      "head_body_empty": true
+    },
+    "API-03::Administrator::expired": {
+      "supported": true,
+      "status": 401,
+      "protected_payload_absent": true,
+      "identity": {
+        "server_verified": true,
+        "principal": "admin",
+        "roles": [
+          "Administrator"
+        ]
+      },
+      "authenticated_before_revocation": true,
+      "revocation_verified": true
+    },
+    "API-02::Administrator::expired": {
+      "supported": true,
+      "status": 401,
+      "protected_payload_absent": true,
+      "effects": {
+        "settled": true,
+        "fixture_id": "796ba25c1c4b3d1b26fb492cd597a77e0cfd3bb3312a38ea2a259558f7f350c3",
+        "before_fixture": "796ba25c1c4b3d1b26fb492cd597a77e0cfd3bb3312a38ea2a259558f7f350c3",
+        "after_fixture": "796ba25c1c4b3d1b26fb492cd597a77e0cfd3bb3312a38ea2a259558f7f350c3",
+        "before": {
+          "database": {
+            "CARGO": {
+              "rows": 4,
+              "sha256": "c4fcd41ba5df8b12a6eb31797dbcf1894c02be37e5219bfdaa066a7c7181e0a3"
+            },
+            "CARRIER_MOVEMENT": {
+              "rows": 13,
+              "sha256": "e0351c24d5d9ce5543bbb2d2c7efc31de9616f6fcb6e1ad581da71b1d1660179"
+            },
+            "HANDLINGEVENT": {
+              "rows": 14,
+              "sha256": "71869693b32fbc2db2f4edc336f50d66ce3fb7e50422d7b6d824a76dcfc99064"
+            },
+            "LEG": {
+              "rows": 7,
+              "sha256": "648e498b58192ed880e116d5c4ed1d814915791c99f76ea08e548fe7bd0fb3bc"
+            },
+            "LOCATION": {
+              "rows": 13,
+              "sha256": "5631b21c70a39a0e7e713beba81df653bddc1708df7af9f9167cb9c8a0bbc642"
+            },
+            "VOYAGE": {
+              "rows": 5,
+              "sha256": "9f4454b6b1706bb684003759b5f2dc617a074f8e0bb83eeb513d19b172b1a889"
+            }
+          },
+          "queue": {
+            "jms.queue.CargoHandledQueue": {
+              "MessageCount": 0,
+              "DeliveringCount": 0,
+              "ScheduledCount": 0,
+              "MessagesAdded": 2,
+              "MessagesAcknowledged": 2,
+              "MessagesExpired": 0,
+              "MessagesKilled": 0,
+              "AcknowledgeAttempts": 2
+            },
+            "jms.queue.DLQ": {
+              "MessageCount": 0,
+              "DeliveringCount": 0,
+              "ScheduledCount": 0,
+              "MessagesAdded": 0,
+              "MessagesAcknowledged": 0,
+              "MessagesExpired": 0,
+              "MessagesKilled": 0,
+              "AcknowledgeAttempts": 0
+            },
+            "jms.queue.DeliveredCargoQueue": {
+              "MessageCount": 0,
+              "DeliveringCount": 0,
+              "ScheduledCount": 0,
+              "MessagesAdded": 0,
+              "MessagesAcknowledged": 0,
+              "MessagesExpired": 0,
+              "MessagesKilled": 0,
+              "AcknowledgeAttempts": 0
+            },
+            "jms.queue.ExpiryQueue": {
+              "MessageCount": 0,
+              "DeliveringCount": 0,
+              "ScheduledCount": 0,
+              "MessagesAdded": 0,
+              "MessagesAcknowledged": 0,
+              "MessagesExpired": 0,
+              "MessagesKilled": 0,
+              "AcknowledgeAttempts": 0
+            },
+            "jms.queue.HandlingEventRegistrationAttemptQueue": {
+              "MessageCount": 0,
+              "DeliveringCount": 0,
+              "ScheduledCount": 0,
+              "MessagesAdded": 2,
+              "MessagesAcknowledged": 2,
+              "MessagesExpired": 0,
+              "MessagesKilled": 0,
+              "AcknowledgeAttempts": 2
+            },
+            "jms.queue.MisdirectedCargoQueue": {
+              "MessageCount": 0,
+              "DeliveringCount": 0,
+              "ScheduledCount": 0,
+              "MessagesAdded": 0,
+              "MessagesAcknowledged": 0,
+              "MessagesExpired": 0,
+              "MessagesKilled": 0,
+              "AcknowledgeAttempts": 0
+            },
+            "jms.queue.RejectedRegistrationAttemptsQueue": {
+              "MessageCount": 0,
+              "DeliveringCount": 0,
+              "ScheduledCount": 0,
+              "MessagesAdded": 0,
+              "MessagesAcknowledged": 0,
+              "MessagesExpired": 0,
+              "MessagesKilled": 0,
+              "AcknowledgeAttempts": 0
+            }
+          },
+          "business_audit": {
+            "net.java.cargotracker.application.internal.DefaultCargoInspectionService#inspectCargo": 2,
+            "net.java.cargotracker.application.internal.DefaultHandlingEventService#registerHandlingEvent": 2,
+            "net.java.cargotracker.infrastructure.messaging.jms.CargoHandledConsumer#onMessage": 2,
+            "net.java.cargotracker.infrastructure.messaging.jms.HandlingEventRegistrationAttemptConsumer#onMessage": 2,
+            "net.java.cargotracker.interfaces.booking.rest.CargoMonitoringService#getAllCargo": 22,
+            "net.java.cargotracker.interfaces.booking.socket.RealtimeCargoTrackingService#onCargoInspected": 2,
+            "net.java.cargotracker.interfaces.handling.rest.HandlingReportService#submitReport": 2,
+            "net.java.pathfinder.api.GraphTraversalService#findShortestPath": 5
+          }
+        },
+        "after": {
+          "database": {
+            "CARGO": {
+              "rows": 4,
+              "sha256": "c4fcd41ba5df8b12a6eb31797dbcf1894c02be37e5219bfdaa066a7c7181e0a3"
+            },
+            "CARRIER_MOVEMENT": {
+              "rows": 13,
+              "sha256": "e0351c24d5d9ce5543bbb2d2c7efc31de9616f6fcb6e1ad581da71b1d1660179"
+            },
+            "HANDLINGEVENT": {
+              "rows": 14,
+              "sha256": "71869693b32fbc2db2f4edc336f50d66ce3fb7e50422d7b6d824a76dcfc99064"
+            },
+            "LEG": {
+              "rows": 7,
+              "sha256": "648e498b58192ed880e116d5c4ed1d814915791c99f76ea08e548fe7bd0fb3bc"
+            },
+            "LOCATION": {
+              "rows": 13,
+              "sha256": "5631b21c70a39a0e7e713beba81df653bddc1708df7af9f9167cb9c8a0bbc642"
+            },
+            "VOYAGE": {
+              "rows": 5,
+              "sha256": "9f4454b6b1706bb684003759b5f2dc617a074f8e0bb83eeb513d19b172b1a889"
+            }
+          },
+          "queue": {
+            "jms.queue.CargoHandledQueue": {
+              "MessageCount": 0,
+              "DeliveringCount": 0,
+              "ScheduledCount": 0,
+              "MessagesAdded": 2,
+              "MessagesAcknowledged": 2,
+              "MessagesExpired": 0,
+              "MessagesKilled": 0,
+              "AcknowledgeAttempts": 2
+            },
+            "jms.queue.DLQ": {
+              "MessageCount": 0,
+              "DeliveringCount": 0,
+              "ScheduledCount": 0,
+              "MessagesAdded": 0,
+              "MessagesAcknowledged": 0,
+              "MessagesExpired": 0,
+              "MessagesKilled": 0,
+              "AcknowledgeAttempts": 0
+            },
+            "jms.queue.DeliveredCargoQueue": {
+              "MessageCount": 0,
+              "DeliveringCount": 0,
+              "ScheduledCount": 0,
+              "MessagesAdded": 0,
+              "MessagesAcknowledged": 0,
+              "MessagesExpired": 0,
+              "MessagesKilled": 0,
+              "AcknowledgeAttempts": 0
+            },
+            "jms.queue.ExpiryQueue": {
+              "MessageCount": 0,
+              "DeliveringCount": 0,
+              "ScheduledCount": 0,
+              "MessagesAdded": 0,
+              "MessagesAcknowledged": 0,
+              "MessagesExpired": 0,
+              "MessagesKilled": 0,
+              "AcknowledgeAttempts": 0
+            },
+            "jms.queue.HandlingEventRegistrationAttemptQueue": {
+              "MessageCount": 0,
+              "DeliveringCount": 0,
+              "ScheduledCount": 0,
+              "MessagesAdded": 2,
+              "MessagesAcknowledged": 2,
+              "MessagesExpired": 0,
+              "MessagesKilled": 0,
+              "AcknowledgeAttempts": 2
+            },
+            "jms.queue.MisdirectedCargoQueue": {
+              "MessageCount": 0,
+              "DeliveringCount": 0,
+              "ScheduledCount": 0,
+              "MessagesAdded": 0,
+              "MessagesAcknowledged": 0,
+              "MessagesExpired": 0,
+              "MessagesKilled": 0,
+              "AcknowledgeAttempts": 0
+            },
+            "jms.queue.RejectedRegistrationAttemptsQueue": {
+              "MessageCount": 0,
+              "DeliveringCount": 0,
+              "ScheduledCount": 0,
+              "MessagesAdded": 0,
+              "MessagesAcknowledged": 0,
+              "MessagesExpired": 0,
+              "MessagesKilled": 0,
+              "AcknowledgeAttempts": 0
+            }
+          },
+          "business_audit": {
+            "net.java.cargotracker.application.internal.DefaultCargoInspectionService#inspectCargo": 2,
+            "net.java.cargotracker.application.internal.DefaultHandlingEventService#registerHandlingEvent": 2,
+            "net.java.cargotracker.infrastructure.messaging.jms.CargoHandledConsumer#onMessage": 2,
+            "net.java.cargotracker.infrastructure.messaging.jms.HandlingEventRegistrationAttemptConsumer#onMessage": 2,
+            "net.java.cargotracker.interfaces.booking.rest.CargoMonitoringService#getAllCargo": 22,
+            "net.java.cargotracker.interfaces.booking.socket.RealtimeCargoTrackingService#onCargoInspected": 2,
+            "net.java.cargotracker.interfaces.handling.rest.HandlingReportService#submitReport": 2,
+            "net.java.pathfinder.api.GraphTraversalService#findShortestPath": 5
+          }
+        }
+      },
+      "identity": {
+        "server_verified": true,
+        "principal": "admin",
+        "roles": [
+          "Administrator"
+        ]
+      },
+      "authenticated_before_revocation": true,
+      "revocation_verified": true
+    },
+    "PAGE-03::Administrator::expired": {
+      "supported": true,
+      "status": 303,
+      "redirect_is_configured_login": true,
+      "protected_payload_absent": true,
+      "identity": {
+        "server_verified": true,
+        "principal": "admin",
+        "roles": [
+          "Administrator"
+        ]
+      },
+      "authenticated_before_revocation": true,
+      "revocation_verified": true
+    },
+    "PAGE-06::Administrator::expired": {
+      "supported": true,
+      "status": 303,
+      "redirect_is_configured_login": true,
+      "protected_payload_absent": true,
+      "identity": {
+        "server_verified": true,
+        "principal": "admin",
+        "roles": [
+          "Administrator"
+        ]
+      },
+      "authenticated_before_revocation": true,
+      "revocation_verified": true
+    },
+    "PAGE-07::Administrator::expired": {
+      "supported": true,
+      "status": 303,
+      "redirect_is_configured_login": true,
+      "protected_payload_absent": true,
+      "identity": {
+        "server_verified": true,
+        "principal": "admin",
+        "roles": [
+          "Administrator"
+        ]
+      },
+      "authenticated_before_revocation": true,
+      "revocation_verified": true
+    },
+    "PAGE-08::Administrator::expired": {
+      "supported": true,
+      "status": 303,
+      "redirect_is_configured_login": true,
+      "protected_payload_absent": true,
+      "identity": {
+        "server_verified": true,
+        "principal": "admin",
+        "roles": [
+          "Administrator"
+        ]
+      },
+      "authenticated_before_revocation": true,
+      "revocation_verified": true
+    }
+  },
+  "image_id": "sha256:7b25e80f298a5bfeaf23d5e7a8fcc438d414dedd086fef02072611ba7ab7d145",
+  "domain_tests": {
+    "tests": 35,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0,
+    "empty_legacy_todo_retained": true
+  },
+  "private_resource_packaging": {
+    "PRIVATE-01": true,
+    "PRIVATE-02": false,
+    "PRIVATE-03": true,
+    "PRIVATE-04": false,
+    "PRIVATE-05": true
+  },
+  "routing_machine_identity": {
+    "sequence": 3,
+    "principal": "routing",
+    "roles": [
+      "RoutingService"
+    ],
+    "path": "/rest/graph-traversal/shortest-path"
+  },
+  "scoped_denied_effects": {
+    "scope": "Anonymous/Reader/missing-or-wrong-CSRF handling POST; Reader/missing-CSRF booking callback",
+    "before": {
+      "tables": {
+        "CARGO": {
+          "rows": 4,
+          "sha256": "b33620d9c5217eedc864daa0e8d45ac2ecd46a4017a1ae5ed3ac18624182f91d"
+        },
+        "CARRIER_MOVEMENT": {
+          "rows": 13,
+          "sha256": "e0351c24d5d9ce5543bbb2d2c7efc31de9616f6fcb6e1ad581da71b1d1660179"
+        },
+        "HANDLINGEVENT": {
+          "rows": 12,
+          "sha256": "34587e78c9af41f679348c1d268bcf43a1b39aed1da32cfa89224aaa6115a8b1"
+        },
+        "LEG": {
+          "rows": 7,
+          "sha256": "648e498b58192ed880e116d5c4ed1d814915791c99f76ea08e548fe7bd0fb3bc"
+        },
+        "LOCATION": {
+          "rows": 13,
+          "sha256": "5631b21c70a39a0e7e713beba81df653bddc1708df7af9f9167cb9c8a0bbc642"
+        },
+        "VOYAGE": {
+          "rows": 5,
+          "sha256": "9f4454b6b1706bb684003759b5f2dc617a074f8e0bb83eeb513d19b172b1a889"
+        }
+      },
+      "queues": {
+        "jms.queue.CargoHandledQueue": {
+          "MessageCount": 0,
+          "DeliveringCount": 0,
+          "ScheduledCount": 0,
+          "MessagesAdded": 0,
+          "MessagesAcknowledged": 0,
+          "MessagesExpired": 0,
+          "MessagesKilled": 0,
+          "AcknowledgeAttempts": 0
+        },
+        "jms.queue.DLQ": {
+          "MessageCount": 0,
+          "DeliveringCount": 0,
+          "ScheduledCount": 0,
+          "MessagesAdded": 0,
+          "MessagesAcknowledged": 0,
+          "MessagesExpired": 0,
+          "MessagesKilled": 0,
+          "AcknowledgeAttempts": 0
+        },
+        "jms.queue.DeliveredCargoQueue": {
+          "MessageCount": 0,
+          "DeliveringCount": 0,
+          "ScheduledCount": 0,
+          "MessagesAdded": 0,
+          "MessagesAcknowledged": 0,
+          "MessagesExpired": 0,
+          "MessagesKilled": 0,
+          "AcknowledgeAttempts": 0
+        },
+        "jms.queue.ExpiryQueue": {
+          "MessageCount": 0,
+          "DeliveringCount": 0,
+          "ScheduledCount": 0,
+          "MessagesAdded": 0,
+          "MessagesAcknowledged": 0,
+          "MessagesExpired": 0,
+          "MessagesKilled": 0,
+          "AcknowledgeAttempts": 0
+        },
+        "jms.queue.HandlingEventRegistrationAttemptQueue": {
+          "MessageCount": 0,
+          "DeliveringCount": 0,
+          "ScheduledCount": 0,
+          "MessagesAdded": 0,
+          "MessagesAcknowledged": 0,
+          "MessagesExpired": 0,
+          "MessagesKilled": 0,
+          "AcknowledgeAttempts": 0
+        },
+        "jms.queue.MisdirectedCargoQueue": {
+          "MessageCount": 0,
+          "DeliveringCount": 0,
+          "ScheduledCount": 0,
+          "MessagesAdded": 0,
+          "MessagesAcknowledged": 0,
+          "MessagesExpired": 0,
+          "MessagesKilled": 0,
+          "AcknowledgeAttempts": 0
+        },
+        "jms.queue.RejectedRegistrationAttemptsQueue": {
+          "MessageCount": 0,
+          "DeliveringCount": 0,
+          "ScheduledCount": 0,
+          "MessagesAdded": 0,
+          "MessagesAcknowledged": 0,
+          "MessagesExpired": 0,
+          "MessagesKilled": 0,
+          "AcknowledgeAttempts": 0
+        }
+      },
+      "business_invocations": {
+        "net.java.cargotracker.interfaces.booking.rest.CargoMonitoringService#getAllCargo": 10,
+        "net.java.pathfinder.api.GraphTraversalService#findShortestPath": 5
+      },
+      "routing_identity": {
+        "sequence": 5,
+        "principal": "operator",
+        "roles": [
+          "Operator"
+        ],
+        "path": "/rest/graph-traversal/shortest-path"
+      }
+    },
+    "after": {
+      "tables": {
+        "CARGO": {
+          "rows": 4,
+          "sha256": "b33620d9c5217eedc864daa0e8d45ac2ecd46a4017a1ae5ed3ac18624182f91d"
+        },
+        "CARRIER_MOVEMENT": {
+          "rows": 13,
+          "sha256": "e0351c24d5d9ce5543bbb2d2c7efc31de9616f6fcb6e1ad581da71b1d1660179"
+        },
+        "HANDLINGEVENT": {
+          "rows": 12,
+          "sha256": "34587e78c9af41f679348c1d268bcf43a1b39aed1da32cfa89224aaa6115a8b1"
+        },
+        "LEG": {
+          "rows": 7,
+          "sha256": "648e498b58192ed880e116d5c4ed1d814915791c99f76ea08e548fe7bd0fb3bc"
+        },
+        "LOCATION": {
+          "rows": 13,
+          "sha256": "5631b21c70a39a0e7e713beba81df653bddc1708df7af9f9167cb9c8a0bbc642"
+        },
+        "VOYAGE": {
+          "rows": 5,
+          "sha256": "9f4454b6b1706bb684003759b5f2dc617a074f8e0bb83eeb513d19b172b1a889"
+        }
+      },
+      "queues": {
+        "jms.queue.CargoHandledQueue": {
+          "MessageCount": 0,
+          "DeliveringCount": 0,
+          "ScheduledCount": 0,
+          "MessagesAdded": 0,
+          "MessagesAcknowledged": 0,
+          "MessagesExpired": 0,
+          "MessagesKilled": 0,
+          "AcknowledgeAttempts": 0
+        },
+        "jms.queue.DLQ": {
+          "MessageCount": 0,
+          "DeliveringCount": 0,
+          "ScheduledCount": 0,
+          "MessagesAdded": 0,
+          "MessagesAcknowledged": 0,
+          "MessagesExpired": 0,
+          "MessagesKilled": 0,
+          "AcknowledgeAttempts": 0
+        },
+        "jms.queue.DeliveredCargoQueue": {
+          "MessageCount": 0,
+          "DeliveringCount": 0,
+          "ScheduledCount": 0,
+          "MessagesAdded": 0,
+          "MessagesAcknowledged": 0,
+          "MessagesExpired": 0,
+          "MessagesKilled": 0,
+          "AcknowledgeAttempts": 0
+        },
+        "jms.queue.ExpiryQueue": {
+          "MessageCount": 0,
+          "DeliveringCount": 0,
+          "ScheduledCount": 0,
+          "MessagesAdded": 0,
+          "MessagesAcknowledged": 0,
+          "MessagesExpired": 0,
+          "MessagesKilled": 0,
+          "AcknowledgeAttempts": 0
+        },
+        "jms.queue.HandlingEventRegistrationAttemptQueue": {
+          "MessageCount": 0,
+          "DeliveringCount": 0,
+          "ScheduledCount": 0,
+          "MessagesAdded": 0,
+          "MessagesAcknowledged": 0,
+          "MessagesExpired": 0,
+          "MessagesKilled": 0,
+          "AcknowledgeAttempts": 0
+        },
+        "jms.queue.MisdirectedCargoQueue": {
+          "MessageCount": 0,
+          "DeliveringCount": 0,
+          "ScheduledCount": 0,
+          "MessagesAdded": 0,
+          "MessagesAcknowledged": 0,
+          "MessagesExpired": 0,
+          "MessagesKilled": 0,
+          "AcknowledgeAttempts": 0
+        },
+        "jms.queue.RejectedRegistrationAttemptsQueue": {
+          "MessageCount": 0,
+          "DeliveringCount": 0,
+          "ScheduledCount": 0,
+          "MessagesAdded": 0,
+          "MessagesAcknowledged": 0,
+          "MessagesExpired": 0,
+          "MessagesKilled": 0,
+          "AcknowledgeAttempts": 0
+        }
+      },
+      "business_invocations": {
+        "net.java.cargotracker.interfaces.booking.rest.CargoMonitoringService#getAllCargo": 10,
+        "net.java.pathfinder.api.GraphTraversalService#findShortestPath": 5
+      },
+      "routing_identity": {
+        "sequence": 5,
+        "principal": "operator",
+        "roles": [
+          "Operator"
+        ],
+        "path": "/rest/graph-traversal/shortest-path"
+      }
+    },
+    "independent_snapshots_match": true,
+    "positive_control": {
+      "tables": {
+        "CARGO": {
+          "rows": 4,
+          "sha256": "963ae6c3ceac55e8dde6f3a637508c1be72d61853d71159ac93632a51b602588"
+        },
+        "CARRIER_MOVEMENT": {
+          "rows": 13,
+          "sha256": "e0351c24d5d9ce5543bbb2d2c7efc31de9616f6fcb6e1ad581da71b1d1660179"
+        },
+        "HANDLINGEVENT": {
+          "rows": 13,
+          "sha256": "163358a8bcce4bbf495368fefa9779296cf435e036a421384f84010731ffc092"
+        },
+        "LEG": {
+          "rows": 7,
+          "sha256": "648e498b58192ed880e116d5c4ed1d814915791c99f76ea08e548fe7bd0fb3bc"
+        },
+        "LOCATION": {
+          "rows": 13,
+          "sha256": "5631b21c70a39a0e7e713beba81df653bddc1708df7af9f9167cb9c8a0bbc642"
+        },
+        "VOYAGE": {
+          "rows": 5,
+          "sha256": "9f4454b6b1706bb684003759b5f2dc617a074f8e0bb83eeb513d19b172b1a889"
+        }
+      },
+      "queues": {
+        "jms.queue.CargoHandledQueue": {
+          "MessageCount": 0,
+          "DeliveringCount": 0,
+          "ScheduledCount": 0,
+          "MessagesAdded": 1,
+          "MessagesAcknowledged": 1,
+          "MessagesExpired": 0,
+          "MessagesKilled": 0,
+          "AcknowledgeAttempts": 1
+        },
+        "jms.queue.DLQ": {
+          "MessageCount": 0,
+          "DeliveringCount": 0,
+          "ScheduledCount": 0,
+          "MessagesAdded": 0,
+          "MessagesAcknowledged": 0,
+          "MessagesExpired": 0,
+          "MessagesKilled": 0,
+          "AcknowledgeAttempts": 0
+        },
+        "jms.queue.DeliveredCargoQueue": {
+          "MessageCount": 0,
+          "DeliveringCount": 0,
+          "ScheduledCount": 0,
+          "MessagesAdded": 0,
+          "MessagesAcknowledged": 0,
+          "MessagesExpired": 0,
+          "MessagesKilled": 0,
+          "AcknowledgeAttempts": 0
+        },
+        "jms.queue.ExpiryQueue": {
+          "MessageCount": 0,
+          "DeliveringCount": 0,
+          "ScheduledCount": 0,
+          "MessagesAdded": 0,
+          "MessagesAcknowledged": 0,
+          "MessagesExpired": 0,
+          "MessagesKilled": 0,
+          "AcknowledgeAttempts": 0
+        },
+        "jms.queue.HandlingEventRegistrationAttemptQueue": {
+          "MessageCount": 0,
+          "DeliveringCount": 0,
+          "ScheduledCount": 0,
+          "MessagesAdded": 1,
+          "MessagesAcknowledged": 1,
+          "MessagesExpired": 0,
+          "MessagesKilled": 0,
+          "AcknowledgeAttempts": 1
+        },
+        "jms.queue.MisdirectedCargoQueue": {
+          "MessageCount": 0,
+          "DeliveringCount": 0,
+          "ScheduledCount": 0,
+          "MessagesAdded": 0,
+          "MessagesAcknowledged": 0,
+          "MessagesExpired": 0,
+          "MessagesKilled": 0,
+          "AcknowledgeAttempts": 0
+        },
+        "jms.queue.RejectedRegistrationAttemptsQueue": {
+          "MessageCount": 0,
+          "DeliveringCount": 0,
+          "ScheduledCount": 0,
+          "MessagesAdded": 0,
+          "MessagesAcknowledged": 0,
+          "MessagesExpired": 0,
+          "MessagesKilled": 0,
+          "AcknowledgeAttempts": 0
+        }
+      },
+      "business_invocations": {
+        "net.java.cargotracker.application.internal.DefaultCargoInspectionService#inspectCargo": 1,
+        "net.java.cargotracker.application.internal.DefaultHandlingEventService#registerHandlingEvent": 1,
+        "net.java.cargotracker.infrastructure.messaging.jms.CargoHandledConsumer#onMessage": 1,
+        "net.java.cargotracker.infrastructure.messaging.jms.HandlingEventRegistrationAttemptConsumer#onMessage": 1,
+        "net.java.cargotracker.interfaces.booking.rest.CargoMonitoringService#getAllCargo": 14,
+        "net.java.cargotracker.interfaces.booking.socket.RealtimeCargoTrackingService#onCargoInspected": 1,
+        "net.java.cargotracker.interfaces.handling.rest.HandlingReportService#submitReport": 1,
+        "net.java.pathfinder.api.GraphTraversalService#findShortestPath": 5
+      },
+      "routing_identity": {
+        "sequence": 5,
+        "principal": "operator",
+        "roles": [
+          "Operator"
+        ],
+        "path": "/rest/graph-traversal/shortest-path"
+      }
+    }
+  },
+  "denied_write_absence_verified": false,
+  "cargo_before": {
+    "trackingId": "DEF789",
+    "routingStatus": "NOT_ROUTED",
+    "misdirected": false,
+    "transportStatus": "NOT_RECEIVED",
+    "atDestination": false,
+    "origin": "CNHKG",
+    "originName": "Hong Kong",
+    "originCode": "CNHKG",
+    "destination": "AUMEL",
+    "destinationName": "Melbourne",
+    "destinationCode": "AUMEL",
+    "lastKnownLocation": "Unknown",
+    "lastKnownLocationName": "Unknown location",
+    "lastKnownLocationCode": "Unknown",
+    "updatedAt": 1793567804319
+  },
+  "cargo_after": {
+    "trackingId": "DEF789",
+    "routingStatus": "NOT_ROUTED",
+    "misdirected": false,
+    "transportStatus": "IN_PORT",
+    "atDestination": false,
+    "origin": "CNHKG",
+    "originName": "Hong Kong",
+    "originCode": "CNHKG",
+    "destination": "AUMEL",
+    "destinationName": "Melbourne",
+    "destinationCode": "AUMEL",
+    "lastKnownLocation": "FIHEL",
+    "lastKnownLocationName": "Helsinki",
+    "lastKnownLocationCode": "FIHEL",
+    "updatedAt": 1793567814769
+  },
+  "admin_handling_effects": {
+    "before": {
+      "tables": {
+        "CARGO": {
+          "rows": 4,
+          "sha256": "963ae6c3ceac55e8dde6f3a637508c1be72d61853d71159ac93632a51b602588"
+        },
+        "CARRIER_MOVEMENT": {
+          "rows": 13,
+          "sha256": "e0351c24d5d9ce5543bbb2d2c7efc31de9616f6fcb6e1ad581da71b1d1660179"
+        },
+        "HANDLINGEVENT": {
+          "rows": 13,
+          "sha256": "163358a8bcce4bbf495368fefa9779296cf435e036a421384f84010731ffc092"
+        },
+        "LEG": {
+          "rows": 7,
+          "sha256": "648e498b58192ed880e116d5c4ed1d814915791c99f76ea08e548fe7bd0fb3bc"
+        },
+        "LOCATION": {
+          "rows": 13,
+          "sha256": "5631b21c70a39a0e7e713beba81df653bddc1708df7af9f9167cb9c8a0bbc642"
+        },
+        "VOYAGE": {
+          "rows": 5,
+          "sha256": "9f4454b6b1706bb684003759b5f2dc617a074f8e0bb83eeb513d19b172b1a889"
+        }
+      },
+      "queues": {
+        "jms.queue.CargoHandledQueue": {
+          "MessageCount": 0,
+          "DeliveringCount": 0,
+          "ScheduledCount": 0,
+          "MessagesAdded": 1,
+          "MessagesAcknowledged": 1,
+          "MessagesExpired": 0,
+          "MessagesKilled": 0,
+          "AcknowledgeAttempts": 1
+        },
+        "jms.queue.DLQ": {
+          "MessageCount": 0,
+          "DeliveringCount": 0,
+          "ScheduledCount": 0,
+          "MessagesAdded": 0,
+          "MessagesAcknowledged": 0,
+          "MessagesExpired": 0,
+          "MessagesKilled": 0,
+          "AcknowledgeAttempts": 0
+        },
+        "jms.queue.DeliveredCargoQueue": {
+          "MessageCount": 0,
+          "DeliveringCount": 0,
+          "ScheduledCount": 0,
+          "MessagesAdded": 0,
+          "MessagesAcknowledged": 0,
+          "MessagesExpired": 0,
+          "MessagesKilled": 0,
+          "AcknowledgeAttempts": 0
+        },
+        "jms.queue.ExpiryQueue": {
+          "MessageCount": 0,
+          "DeliveringCount": 0,
+          "ScheduledCount": 0,
+          "MessagesAdded": 0,
+          "MessagesAcknowledged": 0,
+          "MessagesExpired": 0,
+          "MessagesKilled": 0,
+          "AcknowledgeAttempts": 0
+        },
+        "jms.queue.HandlingEventRegistrationAttemptQueue": {
+          "MessageCount": 0,
+          "DeliveringCount": 0,
+          "ScheduledCount": 0,
+          "MessagesAdded": 1,
+          "MessagesAcknowledged": 1,
+          "MessagesExpired": 0,
+          "MessagesKilled": 0,
+          "AcknowledgeAttempts": 1
+        },
+        "jms.queue.MisdirectedCargoQueue": {
+          "MessageCount": 0,
+          "DeliveringCount": 0,
+          "ScheduledCount": 0,
+          "MessagesAdded": 0,
+          "MessagesAcknowledged": 0,
+          "MessagesExpired": 0,
+          "MessagesKilled": 0,
+          "AcknowledgeAttempts": 0
+        },
+        "jms.queue.RejectedRegistrationAttemptsQueue": {
+          "MessageCount": 0,
+          "DeliveringCount": 0,
+          "ScheduledCount": 0,
+          "MessagesAdded": 0,
+          "MessagesAcknowledged": 0,
+          "MessagesExpired": 0,
+          "MessagesKilled": 0,
+          "AcknowledgeAttempts": 0
+        }
+      },
+      "business_invocations": {
+        "net.java.cargotracker.application.internal.DefaultCargoInspectionService#inspectCargo": 1,
+        "net.java.cargotracker.application.internal.DefaultHandlingEventService#registerHandlingEvent": 1,
+        "net.java.cargotracker.infrastructure.messaging.jms.CargoHandledConsumer#onMessage": 1,
+        "net.java.cargotracker.infrastructure.messaging.jms.HandlingEventRegistrationAttemptConsumer#onMessage": 1,
+        "net.java.cargotracker.interfaces.booking.rest.CargoMonitoringService#getAllCargo": 14,
+        "net.java.cargotracker.interfaces.booking.socket.RealtimeCargoTrackingService#onCargoInspected": 1,
+        "net.java.cargotracker.interfaces.handling.rest.HandlingReportService#submitReport": 1,
+        "net.java.pathfinder.api.GraphTraversalService#findShortestPath": 5
+      },
+      "routing_identity": {
+        "sequence": 5,
+        "principal": "operator",
+        "roles": [
+          "Operator"
+        ],
+        "path": "/rest/graph-traversal/shortest-path"
+      }
+    },
+    "after": {
+      "tables": {
+        "CARGO": {
+          "rows": 4,
+          "sha256": "c4fcd41ba5df8b12a6eb31797dbcf1894c02be37e5219bfdaa066a7c7181e0a3"
+        },
+        "CARRIER_MOVEMENT": {
+          "rows": 13,
+          "sha256": "e0351c24d5d9ce5543bbb2d2c7efc31de9616f6fcb6e1ad581da71b1d1660179"
+        },
+        "HANDLINGEVENT": {
+          "rows": 14,
+          "sha256": "71869693b32fbc2db2f4edc336f50d66ce3fb7e50422d7b6d824a76dcfc99064"
+        },
+        "LEG": {
+          "rows": 7,
+          "sha256": "648e498b58192ed880e116d5c4ed1d814915791c99f76ea08e548fe7bd0fb3bc"
+        },
+        "LOCATION": {
+          "rows": 13,
+          "sha256": "5631b21c70a39a0e7e713beba81df653bddc1708df7af9f9167cb9c8a0bbc642"
+        },
+        "VOYAGE": {
+          "rows": 5,
+          "sha256": "9f4454b6b1706bb684003759b5f2dc617a074f8e0bb83eeb513d19b172b1a889"
+        }
+      },
+      "queues": {
+        "jms.queue.CargoHandledQueue": {
+          "MessageCount": 0,
+          "DeliveringCount": 0,
+          "ScheduledCount": 0,
+          "MessagesAdded": 2,
+          "MessagesAcknowledged": 2,
+          "MessagesExpired": 0,
+          "MessagesKilled": 0,
+          "AcknowledgeAttempts": 2
+        },
+        "jms.queue.DLQ": {
+          "MessageCount": 0,
+          "DeliveringCount": 0,
+          "ScheduledCount": 0,
+          "MessagesAdded": 0,
+          "MessagesAcknowledged": 0,
+          "MessagesExpired": 0,
+          "MessagesKilled": 0,
+          "AcknowledgeAttempts": 0
+        },
+        "jms.queue.DeliveredCargoQueue": {
+          "MessageCount": 0,
+          "DeliveringCount": 0,
+          "ScheduledCount": 0,
+          "MessagesAdded": 0,
+          "MessagesAcknowledged": 0,
+          "MessagesExpired": 0,
+          "MessagesKilled": 0,
+          "AcknowledgeAttempts": 0
+        },
+        "jms.queue.ExpiryQueue": {
+          "MessageCount": 0,
+          "DeliveringCount": 0,
+          "ScheduledCount": 0,
+          "MessagesAdded": 0,
+          "MessagesAcknowledged": 0,
+          "MessagesExpired": 0,
+          "MessagesKilled": 0,
+          "AcknowledgeAttempts": 0
+        },
+        "jms.queue.HandlingEventRegistrationAttemptQueue": {
+          "MessageCount": 0,
+          "DeliveringCount": 0,
+          "ScheduledCount": 0,
+          "MessagesAdded": 2,
+          "MessagesAcknowledged": 2,
+          "MessagesExpired": 0,
+          "MessagesKilled": 0,
+          "AcknowledgeAttempts": 2
+        },
+        "jms.queue.MisdirectedCargoQueue": {
+          "MessageCount": 0,
+          "DeliveringCount": 0,
+          "ScheduledCount": 0,
+          "MessagesAdded": 0,
+          "MessagesAcknowledged": 0,
+          "MessagesExpired": 0,
+          "MessagesKilled": 0,
+          "AcknowledgeAttempts": 0
+        },
+        "jms.queue.RejectedRegistrationAttemptsQueue": {
+          "MessageCount": 0,
+          "DeliveringCount": 0,
+          "ScheduledCount": 0,
+          "MessagesAdded": 0,
+          "MessagesAcknowledged": 0,
+          "MessagesExpired": 0,
+          "MessagesKilled": 0,
+          "AcknowledgeAttempts": 0
+        }
+      },
+      "business_invocations": {
+        "net.java.cargotracker.application.internal.DefaultCargoInspectionService#inspectCargo": 2,
+        "net.java.cargotracker.application.internal.DefaultHandlingEventService#registerHandlingEvent": 2,
+        "net.java.cargotracker.infrastructure.messaging.jms.CargoHandledConsumer#onMessage": 2,
+        "net.java.cargotracker.infrastructure.messaging.jms.HandlingEventRegistrationAttemptConsumer#onMessage": 2,
+        "net.java.cargotracker.interfaces.booking.rest.CargoMonitoringService#getAllCargo": 16,
+        "net.java.cargotracker.interfaces.booking.socket.RealtimeCargoTrackingService#onCargoInspected": 2,
+        "net.java.cargotracker.interfaces.handling.rest.HandlingReportService#submitReport": 2,
+        "net.java.pathfinder.api.GraphTraversalService#findShortestPath": 5
+      },
+      "routing_identity": {
+        "sequence": 5,
+        "principal": "operator",
+        "roles": [
+          "Operator"
+        ],
+        "path": "/rest/graph-traversal/shortest-path"
+      }
+    }
+  },
+  "lifecycle_effects": {
+    "reader_logged_out": {
+      "before": {
+        "tables": {
+          "CARGO": {
+            "rows": 4,
+            "sha256": "c4fcd41ba5df8b12a6eb31797dbcf1894c02be37e5219bfdaa066a7c7181e0a3"
+          },
+          "CARRIER_MOVEMENT": {
+            "rows": 13,
+            "sha256": "e0351c24d5d9ce5543bbb2d2c7efc31de9616f6fcb6e1ad581da71b1d1660179"
+          },
+          "HANDLINGEVENT": {
+            "rows": 14,
+            "sha256": "71869693b32fbc2db2f4edc336f50d66ce3fb7e50422d7b6d824a76dcfc99064"
+          },
+          "LEG": {
+            "rows": 7,
+            "sha256": "648e498b58192ed880e116d5c4ed1d814915791c99f76ea08e548fe7bd0fb3bc"
+          },
+          "LOCATION": {
+            "rows": 13,
+            "sha256": "5631b21c70a39a0e7e713beba81df653bddc1708df7af9f9167cb9c8a0bbc642"
+          },
+          "VOYAGE": {
+            "rows": 5,
+            "sha256": "9f4454b6b1706bb684003759b5f2dc617a074f8e0bb83eeb513d19b172b1a889"
+          }
+        },
+        "queues": {
+          "jms.queue.CargoHandledQueue": {
+            "MessageCount": 0,
+            "DeliveringCount": 0,
+            "ScheduledCount": 0,
+            "MessagesAdded": 2,
+            "MessagesAcknowledged": 2,
+            "MessagesExpired": 0,
+            "MessagesKilled": 0,
+            "AcknowledgeAttempts": 2
+          },
+          "jms.queue.DLQ": {
+            "MessageCount": 0,
+            "DeliveringCount": 0,
+            "ScheduledCount": 0,
+            "MessagesAdded": 0,
+            "MessagesAcknowledged": 0,
+            "MessagesExpired": 0,
+            "MessagesKilled": 0,
+            "AcknowledgeAttempts": 0
+          },
+          "jms.queue.DeliveredCargoQueue": {
+            "MessageCount": 0,
+            "DeliveringCount": 0,
+            "ScheduledCount": 0,
+            "MessagesAdded": 0,
+            "MessagesAcknowledged": 0,
+            "MessagesExpired": 0,
+            "MessagesKilled": 0,
+            "AcknowledgeAttempts": 0
+          },
+          "jms.queue.ExpiryQueue": {
+            "MessageCount": 0,
+            "DeliveringCount": 0,
+            "ScheduledCount": 0,
+            "MessagesAdded": 0,
+            "MessagesAcknowledged": 0,
+            "MessagesExpired": 0,
+            "MessagesKilled": 0,
+            "AcknowledgeAttempts": 0
+          },
+          "jms.queue.HandlingEventRegistrationAttemptQueue": {
+            "MessageCount": 0,
+            "DeliveringCount": 0,
+            "ScheduledCount": 0,
+            "MessagesAdded": 2,
+            "MessagesAcknowledged": 2,
+            "MessagesExpired": 0,
+            "MessagesKilled": 0,
+            "AcknowledgeAttempts": 2
+          },
+          "jms.queue.MisdirectedCargoQueue": {
+            "MessageCount": 0,
+            "DeliveringCount": 0,
+            "ScheduledCount": 0,
+            "MessagesAdded": 0,
+            "MessagesAcknowledged": 0,
+            "MessagesExpired": 0,
+            "MessagesKilled": 0,
+            "AcknowledgeAttempts": 0
+          },
+          "jms.queue.RejectedRegistrationAttemptsQueue": {
+            "MessageCount": 0,
+            "DeliveringCount": 0,
+            "ScheduledCount": 0,
+            "MessagesAdded": 0,
+            "MessagesAcknowledged": 0,
+            "MessagesExpired": 0,
+            "MessagesKilled": 0,
+            "AcknowledgeAttempts": 0
+          }
+        },
+        "business_invocations": {
+          "net.java.cargotracker.application.internal.DefaultCargoInspectionService#inspectCargo": 2,
+          "net.java.cargotracker.application.internal.DefaultHandlingEventService#registerHandlingEvent": 2,
+          "net.java.cargotracker.infrastructure.messaging.jms.CargoHandledConsumer#onMessage": 2,
+          "net.java.cargotracker.infrastructure.messaging.jms.HandlingEventRegistrationAttemptConsumer#onMessage": 2,
+          "net.java.cargotracker.interfaces.booking.rest.CargoMonitoringService#getAllCargo": 17,
+          "net.java.cargotracker.interfaces.booking.socket.RealtimeCargoTrackingService#onCargoInspected": 2,
+          "net.java.cargotracker.interfaces.handling.rest.HandlingReportService#submitReport": 2,
+          "net.java.pathfinder.api.GraphTraversalService#findShortestPath": 5
+        },
+        "routing_identity": {
+          "sequence": 5,
+          "principal": "operator",
+          "roles": [
+            "Operator"
+          ],
+          "path": "/rest/graph-traversal/shortest-path"
+        }
+      },
+      "after": {
+        "tables": {
+          "CARGO": {
+            "rows": 4,
+            "sha256": "c4fcd41ba5df8b12a6eb31797dbcf1894c02be37e5219bfdaa066a7c7181e0a3"
+          },
+          "CARRIER_MOVEMENT": {
+            "rows": 13,
+            "sha256": "e0351c24d5d9ce5543bbb2d2c7efc31de9616f6fcb6e1ad581da71b1d1660179"
+          },
+          "HANDLINGEVENT": {
+            "rows": 14,
+            "sha256": "71869693b32fbc2db2f4edc336f50d66ce3fb7e50422d7b6d824a76dcfc99064"
+          },
+          "LEG": {
+            "rows": 7,
+            "sha256": "648e498b58192ed880e116d5c4ed1d814915791c99f76ea08e548fe7bd0fb3bc"
+          },
+          "LOCATION": {
+            "rows": 13,
+            "sha256": "5631b21c70a39a0e7e713beba81df653bddc1708df7af9f9167cb9c8a0bbc642"
+          },
+          "VOYAGE": {
+            "rows": 5,
+            "sha256": "9f4454b6b1706bb684003759b5f2dc617a074f8e0bb83eeb513d19b172b1a889"
+          }
+        },
+        "queues": {
+          "jms.queue.CargoHandledQueue": {
+            "MessageCount": 0,
+            "DeliveringCount": 0,
+            "ScheduledCount": 0,
+            "MessagesAdded": 2,
+            "MessagesAcknowledged": 2,
+            "MessagesExpired": 0,
+            "MessagesKilled": 0,
+            "AcknowledgeAttempts": 2
+          },
+          "jms.queue.DLQ": {
+            "MessageCount": 0,
+            "DeliveringCount": 0,
+            "ScheduledCount": 0,
+            "MessagesAdded": 0,
+            "MessagesAcknowledged": 0,
+            "MessagesExpired": 0,
+            "MessagesKilled": 0,
+            "AcknowledgeAttempts": 0
+          },
+          "jms.queue.DeliveredCargoQueue": {
+            "MessageCount": 0,
+            "DeliveringCount": 0,
+            "ScheduledCount": 0,
+            "MessagesAdded": 0,
+            "MessagesAcknowledged": 0,
+            "MessagesExpired": 0,
+            "MessagesKilled": 0,
+            "AcknowledgeAttempts": 0
+          },
+          "jms.queue.ExpiryQueue": {
+            "MessageCount": 0,
+            "DeliveringCount": 0,
+            "ScheduledCount": 0,
+            "MessagesAdded": 0,
+            "MessagesAcknowledged": 0,
+            "MessagesExpired": 0,
+            "MessagesKilled": 0,
+            "AcknowledgeAttempts": 0
+          },
+          "jms.queue.HandlingEventRegistrationAttemptQueue": {
+            "MessageCount": 0,
+            "DeliveringCount": 0,
+            "ScheduledCount": 0,
+            "MessagesAdded": 2,
+            "MessagesAcknowledged": 2,
+            "MessagesExpired": 0,
+            "MessagesKilled": 0,
+            "AcknowledgeAttempts": 2
+          },
+          "jms.queue.MisdirectedCargoQueue": {
+            "MessageCount": 0,
+            "DeliveringCount": 0,
+            "ScheduledCount": 0,
+            "MessagesAdded": 0,
+            "MessagesAcknowledged": 0,
+            "MessagesExpired": 0,
+            "MessagesKilled": 0,
+            "AcknowledgeAttempts": 0
+          },
+          "jms.queue.RejectedRegistrationAttemptsQueue": {
+            "MessageCount": 0,
+            "DeliveringCount": 0,
+            "ScheduledCount": 0,
+            "MessagesAdded": 0,
+            "MessagesAcknowledged": 0,
+            "MessagesExpired": 0,
+            "MessagesKilled": 0,
+            "AcknowledgeAttempts": 0
+          }
+        },
+        "business_invocations": {
+          "net.java.cargotracker.application.internal.DefaultCargoInspectionService#inspectCargo": 2,
+          "net.java.cargotracker.application.internal.DefaultHandlingEventService#registerHandlingEvent": 2,
+          "net.java.cargotracker.infrastructure.messaging.jms.CargoHandledConsumer#onMessage": 2,
+          "net.java.cargotracker.infrastructure.messaging.jms.HandlingEventRegistrationAttemptConsumer#onMessage": 2,
+          "net.java.cargotracker.interfaces.booking.rest.CargoMonitoringService#getAllCargo": 17,
+          "net.java.cargotracker.interfaces.booking.socket.RealtimeCargoTrackingService#onCargoInspected": 2,
+          "net.java.cargotracker.interfaces.handling.rest.HandlingReportService#submitReport": 2,
+          "net.java.pathfinder.api.GraphTraversalService#findShortestPath": 5
+        },
+        "routing_identity": {
+          "sequence": 5,
+          "principal": "operator",
+          "roles": [
+            "Operator"
+          ],
+          "path": "/rest/graph-traversal/shortest-path"
+        }
+      }
+    },
+    "operator_logged_out": {
+      "before": {
+        "tables": {
+          "CARGO": {
+            "rows": 4,
+            "sha256": "c4fcd41ba5df8b12a6eb31797dbcf1894c02be37e5219bfdaa066a7c7181e0a3"
+          },
+          "CARRIER_MOVEMENT": {
+            "rows": 13,
+            "sha256": "e0351c24d5d9ce5543bbb2d2c7efc31de9616f6fcb6e1ad581da71b1d1660179"
+          },
+          "HANDLINGEVENT": {
+            "rows": 14,
+            "sha256": "71869693b32fbc2db2f4edc336f50d66ce3fb7e50422d7b6d824a76dcfc99064"
+          },
+          "LEG": {
+            "rows": 7,
+            "sha256": "648e498b58192ed880e116d5c4ed1d814915791c99f76ea08e548fe7bd0fb3bc"
+          },
+          "LOCATION": {
+            "rows": 13,
+            "sha256": "5631b21c70a39a0e7e713beba81df653bddc1708df7af9f9167cb9c8a0bbc642"
+          },
+          "VOYAGE": {
+            "rows": 5,
+            "sha256": "9f4454b6b1706bb684003759b5f2dc617a074f8e0bb83eeb513d19b172b1a889"
+          }
+        },
+        "queues": {
+          "jms.queue.CargoHandledQueue": {
+            "MessageCount": 0,
+            "DeliveringCount": 0,
+            "ScheduledCount": 0,
+            "MessagesAdded": 2,
+            "MessagesAcknowledged": 2,
+            "MessagesExpired": 0,
+            "MessagesKilled": 0,
+            "AcknowledgeAttempts": 2
+          },
+          "jms.queue.DLQ": {
+            "MessageCount": 0,
+            "DeliveringCount": 0,
+            "ScheduledCount": 0,
+            "MessagesAdded": 0,
+            "MessagesAcknowledged": 0,
+            "MessagesExpired": 0,
+            "MessagesKilled": 0,
+            "AcknowledgeAttempts": 0
+          },
+          "jms.queue.DeliveredCargoQueue": {
+            "MessageCount": 0,
+            "DeliveringCount": 0,
+            "ScheduledCount": 0,
+            "MessagesAdded": 0,
+            "MessagesAcknowledged": 0,
+            "MessagesExpired": 0,
+            "MessagesKilled": 0,
+            "AcknowledgeAttempts": 0
+          },
+          "jms.queue.ExpiryQueue": {
+            "MessageCount": 0,
+            "DeliveringCount": 0,
+            "ScheduledCount": 0,
+            "MessagesAdded": 0,
+            "MessagesAcknowledged": 0,
+            "MessagesExpired": 0,
+            "MessagesKilled": 0,
+            "AcknowledgeAttempts": 0
+          },
+          "jms.queue.HandlingEventRegistrationAttemptQueue": {
+            "MessageCount": 0,
+            "DeliveringCount": 0,
+            "ScheduledCount": 0,
+            "MessagesAdded": 2,
+            "MessagesAcknowledged": 2,
+            "MessagesExpired": 0,
+            "MessagesKilled": 0,
+            "AcknowledgeAttempts": 2
+          },
+          "jms.queue.MisdirectedCargoQueue": {
+            "MessageCount": 0,
+            "DeliveringCount": 0,
+            "ScheduledCount": 0,
+            "MessagesAdded": 0,
+            "MessagesAcknowledged": 0,
+            "MessagesExpired": 0,
+            "MessagesKilled": 0,
+            "AcknowledgeAttempts": 0
+          },
+          "jms.queue.RejectedRegistrationAttemptsQueue": {
+            "MessageCount": 0,
+            "DeliveringCount": 0,
+            "ScheduledCount": 0,
+            "MessagesAdded": 0,
+            "MessagesAcknowledged": 0,
+            "MessagesExpired": 0,
+            "MessagesKilled": 0,
+            "AcknowledgeAttempts": 0
+          }
+        },
+        "business_invocations": {
+          "net.java.cargotracker.application.internal.DefaultCargoInspectionService#inspectCargo": 2,
+          "net.java.cargotracker.application.internal.DefaultHandlingEventService#registerHandlingEvent": 2,
+          "net.java.cargotracker.infrastructure.messaging.jms.CargoHandledConsumer#onMessage": 2,
+          "net.java.cargotracker.infrastructure.messaging.jms.HandlingEventRegistrationAttemptConsumer#onMessage": 2,
+          "net.java.cargotracker.interfaces.booking.rest.CargoMonitoringService#getAllCargo": 18,
+          "net.java.cargotracker.interfaces.booking.socket.RealtimeCargoTrackingService#onCargoInspected": 2,
+          "net.java.cargotracker.interfaces.handling.rest.HandlingReportService#submitReport": 2,
+          "net.java.pathfinder.api.GraphTraversalService#findShortestPath": 5
+        },
+        "routing_identity": {
+          "sequence": 5,
+          "principal": "operator",
+          "roles": [
+            "Operator"
+          ],
+          "path": "/rest/graph-traversal/shortest-path"
+        }
+      },
+      "after": {
+        "tables": {
+          "CARGO": {
+            "rows": 4,
+            "sha256": "c4fcd41ba5df8b12a6eb31797dbcf1894c02be37e5219bfdaa066a7c7181e0a3"
+          },
+          "CARRIER_MOVEMENT": {
+            "rows": 13,
+            "sha256": "e0351c24d5d9ce5543bbb2d2c7efc31de9616f6fcb6e1ad581da71b1d1660179"
+          },
+          "HANDLINGEVENT": {
+            "rows": 14,
+            "sha256": "71869693b32fbc2db2f4edc336f50d66ce3fb7e50422d7b6d824a76dcfc99064"
+          },
+          "LEG": {
+            "rows": 7,
+            "sha256": "648e498b58192ed880e116d5c4ed1d814915791c99f76ea08e548fe7bd0fb3bc"
+          },
+          "LOCATION": {
+            "rows": 13,
+            "sha256": "5631b21c70a39a0e7e713beba81df653bddc1708df7af9f9167cb9c8a0bbc642"
+          },
+          "VOYAGE": {
+            "rows": 5,
+            "sha256": "9f4454b6b1706bb684003759b5f2dc617a074f8e0bb83eeb513d19b172b1a889"
+          }
+        },
+        "queues": {
+          "jms.queue.CargoHandledQueue": {
+            "MessageCount": 0,
+            "DeliveringCount": 0,
+            "ScheduledCount": 0,
+            "MessagesAdded": 2,
+            "MessagesAcknowledged": 2,
+            "MessagesExpired": 0,
+            "MessagesKilled": 0,
+            "AcknowledgeAttempts": 2
+          },
+          "jms.queue.DLQ": {
+            "MessageCount": 0,
+            "DeliveringCount": 0,
+            "ScheduledCount": 0,
+            "MessagesAdded": 0,
+            "MessagesAcknowledged": 0,
+            "MessagesExpired": 0,
+            "MessagesKilled": 0,
+            "AcknowledgeAttempts": 0
+          },
+          "jms.queue.DeliveredCargoQueue": {
+            "MessageCount": 0,
+            "DeliveringCount": 0,
+            "ScheduledCount": 0,
+            "MessagesAdded": 0,
+            "MessagesAcknowledged": 0,
+            "MessagesExpired": 0,
+            "MessagesKilled": 0,
+            "AcknowledgeAttempts": 0
+          },
+          "jms.queue.ExpiryQueue": {
+            "MessageCount": 0,
+            "DeliveringCount": 0,
+            "ScheduledCount": 0,
+            "MessagesAdded": 0,
+            "MessagesAcknowledged": 0,
+            "MessagesExpired": 0,
+            "MessagesKilled": 0,
+            "AcknowledgeAttempts": 0
+          },
+          "jms.queue.HandlingEventRegistrationAttemptQueue": {
+            "MessageCount": 0,
+            "DeliveringCount": 0,
+            "ScheduledCount": 0,
+            "MessagesAdded": 2,
+            "MessagesAcknowledged": 2,
+            "MessagesExpired": 0,
+            "MessagesKilled": 0,
+            "AcknowledgeAttempts": 2
+          },
+          "jms.queue.MisdirectedCargoQueue": {
+            "MessageCount": 0,
+            "DeliveringCount": 0,
+            "ScheduledCount": 0,
+            "MessagesAdded": 0,
+            "MessagesAcknowledged": 0,
+            "MessagesExpired": 0,
+            "MessagesKilled": 0,
+            "AcknowledgeAttempts": 0
+          },
+          "jms.queue.RejectedRegistrationAttemptsQueue": {
+            "MessageCount": 0,
+            "DeliveringCount": 0,
+            "ScheduledCount": 0,
+            "MessagesAdded": 0,
+            "MessagesAcknowledged": 0,
+            "MessagesExpired": 0,
+            "MessagesKilled": 0,
+            "AcknowledgeAttempts": 0
+          }
+        },
+        "business_invocations": {
+          "net.java.cargotracker.application.internal.DefaultCargoInspectionService#inspectCargo": 2,
+          "net.java.cargotracker.application.internal.DefaultHandlingEventService#registerHandlingEvent": 2,
+          "net.java.cargotracker.infrastructure.messaging.jms.CargoHandledConsumer#onMessage": 2,
+          "net.java.cargotracker.infrastructure.messaging.jms.HandlingEventRegistrationAttemptConsumer#onMessage": 2,
+          "net.java.cargotracker.interfaces.booking.rest.CargoMonitoringService#getAllCargo": 18,
+          "net.java.cargotracker.interfaces.booking.socket.RealtimeCargoTrackingService#onCargoInspected": 2,
+          "net.java.cargotracker.interfaces.handling.rest.HandlingReportService#submitReport": 2,
+          "net.java.pathfinder.api.GraphTraversalService#findShortestPath": 5
+        },
+        "routing_identity": {
+          "sequence": 5,
+          "principal": "operator",
+          "roles": [
+            "Operator"
+          ],
+          "path": "/rest/graph-traversal/shortest-path"
+        }
+      }
+    },
+    "admin_logged_out": {
+      "before": {
+        "tables": {
+          "CARGO": {
+            "rows": 4,
+            "sha256": "c4fcd41ba5df8b12a6eb31797dbcf1894c02be37e5219bfdaa066a7c7181e0a3"
+          },
+          "CARRIER_MOVEMENT": {
+            "rows": 13,
+            "sha256": "e0351c24d5d9ce5543bbb2d2c7efc31de9616f6fcb6e1ad581da71b1d1660179"
+          },
+          "HANDLINGEVENT": {
+            "rows": 14,
+            "sha256": "71869693b32fbc2db2f4edc336f50d66ce3fb7e50422d7b6d824a76dcfc99064"
+          },
+          "LEG": {
+            "rows": 7,
+            "sha256": "648e498b58192ed880e116d5c4ed1d814915791c99f76ea08e548fe7bd0fb3bc"
+          },
+          "LOCATION": {
+            "rows": 13,
+            "sha256": "5631b21c70a39a0e7e713beba81df653bddc1708df7af9f9167cb9c8a0bbc642"
+          },
+          "VOYAGE": {
+            "rows": 5,
+            "sha256": "9f4454b6b1706bb684003759b5f2dc617a074f8e0bb83eeb513d19b172b1a889"
+          }
+        },
+        "queues": {
+          "jms.queue.CargoHandledQueue": {
+            "MessageCount": 0,
+            "DeliveringCount": 0,
+            "ScheduledCount": 0,
+            "MessagesAdded": 2,
+            "MessagesAcknowledged": 2,
+            "MessagesExpired": 0,
+            "MessagesKilled": 0,
+            "AcknowledgeAttempts": 2
+          },
+          "jms.queue.DLQ": {
+            "MessageCount": 0,
+            "DeliveringCount": 0,
+            "ScheduledCount": 0,
+            "MessagesAdded": 0,
+            "MessagesAcknowledged": 0,
+            "MessagesExpired": 0,
+            "MessagesKilled": 0,
+            "AcknowledgeAttempts": 0
+          },
+          "jms.queue.DeliveredCargoQueue": {
+            "MessageCount": 0,
+            "DeliveringCount": 0,
+            "ScheduledCount": 0,
+            "MessagesAdded": 0,
+            "MessagesAcknowledged": 0,
+            "MessagesExpired": 0,
+            "MessagesKilled": 0,
+            "AcknowledgeAttempts": 0
+          },
+          "jms.queue.ExpiryQueue": {
+            "MessageCount": 0,
+            "DeliveringCount": 0,
+            "ScheduledCount": 0,
+            "MessagesAdded": 0,
+            "MessagesAcknowledged": 0,
+            "MessagesExpired": 0,
+            "MessagesKilled": 0,
+            "AcknowledgeAttempts": 0
+          },
+          "jms.queue.HandlingEventRegistrationAttemptQueue": {
+            "MessageCount": 0,
+            "DeliveringCount": 0,
+            "ScheduledCount": 0,
+            "MessagesAdded": 2,
+            "MessagesAcknowledged": 2,
+            "MessagesExpired": 0,
+            "MessagesKilled": 0,
+            "AcknowledgeAttempts": 2
+          },
+          "jms.queue.MisdirectedCargoQueue": {
+            "MessageCount": 0,
+            "DeliveringCount": 0,
+            "ScheduledCount": 0,
+            "MessagesAdded": 0,
+            "MessagesAcknowledged": 0,
+            "MessagesExpired": 0,
+            "MessagesKilled": 0,
+            "AcknowledgeAttempts": 0
+          },
+          "jms.queue.RejectedRegistrationAttemptsQueue": {
+            "MessageCount": 0,
+            "DeliveringCount": 0,
+            "ScheduledCount": 0,
+            "MessagesAdded": 0,
+            "MessagesAcknowledged": 0,
+            "MessagesExpired": 0,
+            "MessagesKilled": 0,
+            "AcknowledgeAttempts": 0
+          }
+        },
+        "business_invocations": {
+          "net.java.cargotracker.application.internal.DefaultCargoInspectionService#inspectCargo": 2,
+          "net.java.cargotracker.application.internal.DefaultHandlingEventService#registerHandlingEvent": 2,
+          "net.java.cargotracker.infrastructure.messaging.jms.CargoHandledConsumer#onMessage": 2,
+          "net.java.cargotracker.infrastructure.messaging.jms.HandlingEventRegistrationAttemptConsumer#onMessage": 2,
+          "net.java.cargotracker.interfaces.booking.rest.CargoMonitoringService#getAllCargo": 19,
+          "net.java.cargotracker.interfaces.booking.socket.RealtimeCargoTrackingService#onCargoInspected": 2,
+          "net.java.cargotracker.interfaces.handling.rest.HandlingReportService#submitReport": 2,
+          "net.java.pathfinder.api.GraphTraversalService#findShortestPath": 5
+        },
+        "routing_identity": {
+          "sequence": 5,
+          "principal": "operator",
+          "roles": [
+            "Operator"
+          ],
+          "path": "/rest/graph-traversal/shortest-path"
+        }
+      },
+      "after": {
+        "tables": {
+          "CARGO": {
+            "rows": 4,
+            "sha256": "c4fcd41ba5df8b12a6eb31797dbcf1894c02be37e5219bfdaa066a7c7181e0a3"
+          },
+          "CARRIER_MOVEMENT": {
+            "rows": 13,
+            "sha256": "e0351c24d5d9ce5543bbb2d2c7efc31de9616f6fcb6e1ad581da71b1d1660179"
+          },
+          "HANDLINGEVENT": {
+            "rows": 14,
+            "sha256": "71869693b32fbc2db2f4edc336f50d66ce3fb7e50422d7b6d824a76dcfc99064"
+          },
+          "LEG": {
+            "rows": 7,
+            "sha256": "648e498b58192ed880e116d5c4ed1d814915791c99f76ea08e548fe7bd0fb3bc"
+          },
+          "LOCATION": {
+            "rows": 13,
+            "sha256": "5631b21c70a39a0e7e713beba81df653bddc1708df7af9f9167cb9c8a0bbc642"
+          },
+          "VOYAGE": {
+            "rows": 5,
+            "sha256": "9f4454b6b1706bb684003759b5f2dc617a074f8e0bb83eeb513d19b172b1a889"
+          }
+        },
+        "queues": {
+          "jms.queue.CargoHandledQueue": {
+            "MessageCount": 0,
+            "DeliveringCount": 0,
+            "ScheduledCount": 0,
+            "MessagesAdded": 2,
+            "MessagesAcknowledged": 2,
+            "MessagesExpired": 0,
+            "MessagesKilled": 0,
+            "AcknowledgeAttempts": 2
+          },
+          "jms.queue.DLQ": {
+            "MessageCount": 0,
+            "DeliveringCount": 0,
+            "ScheduledCount": 0,
+            "MessagesAdded": 0,
+            "MessagesAcknowledged": 0,
+            "MessagesExpired": 0,
+            "MessagesKilled": 0,
+            "AcknowledgeAttempts": 0
+          },
+          "jms.queue.DeliveredCargoQueue": {
+            "MessageCount": 0,
+            "DeliveringCount": 0,
+            "ScheduledCount": 0,
+            "MessagesAdded": 0,
+            "MessagesAcknowledged": 0,
+            "MessagesExpired": 0,
+            "MessagesKilled": 0,
+            "AcknowledgeAttempts": 0
+          },
+          "jms.queue.ExpiryQueue": {
+            "MessageCount": 0,
+            "DeliveringCount": 0,
+            "ScheduledCount": 0,
+            "MessagesAdded": 0,
+            "MessagesAcknowledged": 0,
+            "MessagesExpired": 0,
+            "MessagesKilled": 0,
+            "AcknowledgeAttempts": 0
+          },
+          "jms.queue.HandlingEventRegistrationAttemptQueue": {
+            "MessageCount": 0,
+            "DeliveringCount": 0,
+            "ScheduledCount": 0,
+            "MessagesAdded": 2,
+            "MessagesAcknowledged": 2,
+            "MessagesExpired": 0,
+            "MessagesKilled": 0,
+            "AcknowledgeAttempts": 2
+          },
+          "jms.queue.MisdirectedCargoQueue": {
+            "MessageCount": 0,
+            "DeliveringCount": 0,
+            "ScheduledCount": 0,
+            "MessagesAdded": 0,
+            "MessagesAcknowledged": 0,
+            "MessagesExpired": 0,
+            "MessagesKilled": 0,
+            "AcknowledgeAttempts": 0
+          },
+          "jms.queue.RejectedRegistrationAttemptsQueue": {
+            "MessageCount": 0,
+            "DeliveringCount": 0,
+            "ScheduledCount": 0,
+            "MessagesAdded": 0,
+            "MessagesAcknowledged": 0,
+            "MessagesExpired": 0,
+            "MessagesKilled": 0,
+            "AcknowledgeAttempts": 0
+          }
+        },
+        "business_invocations": {
+          "net.java.cargotracker.application.internal.DefaultCargoInspectionService#inspectCargo": 2,
+          "net.java.cargotracker.application.internal.DefaultHandlingEventService#registerHandlingEvent": 2,
+          "net.java.cargotracker.infrastructure.messaging.jms.CargoHandledConsumer#onMessage": 2,
+          "net.java.cargotracker.infrastructure.messaging.jms.HandlingEventRegistrationAttemptConsumer#onMessage": 2,
+          "net.java.cargotracker.interfaces.booking.rest.CargoMonitoringService#getAllCargo": 19,
+          "net.java.cargotracker.interfaces.booking.socket.RealtimeCargoTrackingService#onCargoInspected": 2,
+          "net.java.cargotracker.interfaces.handling.rest.HandlingReportService#submitReport": 2,
+          "net.java.pathfinder.api.GraphTraversalService#findShortestPath": 5
+        },
+        "routing_identity": {
+          "sequence": 5,
+          "principal": "operator",
+          "roles": [
+            "Operator"
+          ],
+          "path": "/rest/graph-traversal/shortest-path"
+        }
+      }
+    },
+    "reader_expired": {
+      "before": {
+        "tables": {
+          "CARGO": {
+            "rows": 4,
+            "sha256": "c4fcd41ba5df8b12a6eb31797dbcf1894c02be37e5219bfdaa066a7c7181e0a3"
+          },
+          "CARRIER_MOVEMENT": {
+            "rows": 13,
+            "sha256": "e0351c24d5d9ce5543bbb2d2c7efc31de9616f6fcb6e1ad581da71b1d1660179"
+          },
+          "HANDLINGEVENT": {
+            "rows": 14,
+            "sha256": "71869693b32fbc2db2f4edc336f50d66ce3fb7e50422d7b6d824a76dcfc99064"
+          },
+          "LEG": {
+            "rows": 7,
+            "sha256": "648e498b58192ed880e116d5c4ed1d814915791c99f76ea08e548fe7bd0fb3bc"
+          },
+          "LOCATION": {
+            "rows": 13,
+            "sha256": "5631b21c70a39a0e7e713beba81df653bddc1708df7af9f9167cb9c8a0bbc642"
+          },
+          "VOYAGE": {
+            "rows": 5,
+            "sha256": "9f4454b6b1706bb684003759b5f2dc617a074f8e0bb83eeb513d19b172b1a889"
+          }
+        },
+        "queues": {
+          "jms.queue.CargoHandledQueue": {
+            "MessageCount": 0,
+            "DeliveringCount": 0,
+            "ScheduledCount": 0,
+            "MessagesAdded": 2,
+            "MessagesAcknowledged": 2,
+            "MessagesExpired": 0,
+            "MessagesKilled": 0,
+            "AcknowledgeAttempts": 2
+          },
+          "jms.queue.DLQ": {
+            "MessageCount": 0,
+            "DeliveringCount": 0,
+            "ScheduledCount": 0,
+            "MessagesAdded": 0,
+            "MessagesAcknowledged": 0,
+            "MessagesExpired": 0,
+            "MessagesKilled": 0,
+            "AcknowledgeAttempts": 0
+          },
+          "jms.queue.DeliveredCargoQueue": {
+            "MessageCount": 0,
+            "DeliveringCount": 0,
+            "ScheduledCount": 0,
+            "MessagesAdded": 0,
+            "MessagesAcknowledged": 0,
+            "MessagesExpired": 0,
+            "MessagesKilled": 0,
+            "AcknowledgeAttempts": 0
+          },
+          "jms.queue.ExpiryQueue": {
+            "MessageCount": 0,
+            "DeliveringCount": 0,
+            "ScheduledCount": 0,
+            "MessagesAdded": 0,
+            "MessagesAcknowledged": 0,
+            "MessagesExpired": 0,
+            "MessagesKilled": 0,
+            "AcknowledgeAttempts": 0
+          },
+          "jms.queue.HandlingEventRegistrationAttemptQueue": {
+            "MessageCount": 0,
+            "DeliveringCount": 0,
+            "ScheduledCount": 0,
+            "MessagesAdded": 2,
+            "MessagesAcknowledged": 2,
+            "MessagesExpired": 0,
+            "MessagesKilled": 0,
+            "AcknowledgeAttempts": 2
+          },
+          "jms.queue.MisdirectedCargoQueue": {
+            "MessageCount": 0,
+            "DeliveringCount": 0,
+            "ScheduledCount": 0,
+            "MessagesAdded": 0,
+            "MessagesAcknowledged": 0,
+            "MessagesExpired": 0,
+            "MessagesKilled": 0,
+            "AcknowledgeAttempts": 0
+          },
+          "jms.queue.RejectedRegistrationAttemptsQueue": {
+            "MessageCount": 0,
+            "DeliveringCount": 0,
+            "ScheduledCount": 0,
+            "MessagesAdded": 0,
+            "MessagesAcknowledged": 0,
+            "MessagesExpired": 0,
+            "MessagesKilled": 0,
+            "AcknowledgeAttempts": 0
+          }
+        },
+        "business_invocations": {
+          "net.java.cargotracker.application.internal.DefaultCargoInspectionService#inspectCargo": 2,
+          "net.java.cargotracker.application.internal.DefaultHandlingEventService#registerHandlingEvent": 2,
+          "net.java.cargotracker.infrastructure.messaging.jms.CargoHandledConsumer#onMessage": 2,
+          "net.java.cargotracker.infrastructure.messaging.jms.HandlingEventRegistrationAttemptConsumer#onMessage": 2,
+          "net.java.cargotracker.interfaces.booking.rest.CargoMonitoringService#getAllCargo": 22,
+          "net.java.cargotracker.interfaces.booking.socket.RealtimeCargoTrackingService#onCargoInspected": 2,
+          "net.java.cargotracker.interfaces.handling.rest.HandlingReportService#submitReport": 2,
+          "net.java.pathfinder.api.GraphTraversalService#findShortestPath": 5
+        },
+        "routing_identity": {
+          "sequence": 5,
+          "principal": "operator",
+          "roles": [
+            "Operator"
+          ],
+          "path": "/rest/graph-traversal/shortest-path"
+        }
+      },
+      "after": {
+        "tables": {
+          "CARGO": {
+            "rows": 4,
+            "sha256": "c4fcd41ba5df8b12a6eb31797dbcf1894c02be37e5219bfdaa066a7c7181e0a3"
+          },
+          "CARRIER_MOVEMENT": {
+            "rows": 13,
+            "sha256": "e0351c24d5d9ce5543bbb2d2c7efc31de9616f6fcb6e1ad581da71b1d1660179"
+          },
+          "HANDLINGEVENT": {
+            "rows": 14,
+            "sha256": "71869693b32fbc2db2f4edc336f50d66ce3fb7e50422d7b6d824a76dcfc99064"
+          },
+          "LEG": {
+            "rows": 7,
+            "sha256": "648e498b58192ed880e116d5c4ed1d814915791c99f76ea08e548fe7bd0fb3bc"
+          },
+          "LOCATION": {
+            "rows": 13,
+            "sha256": "5631b21c70a39a0e7e713beba81df653bddc1708df7af9f9167cb9c8a0bbc642"
+          },
+          "VOYAGE": {
+            "rows": 5,
+            "sha256": "9f4454b6b1706bb684003759b5f2dc617a074f8e0bb83eeb513d19b172b1a889"
+          }
+        },
+        "queues": {
+          "jms.queue.CargoHandledQueue": {
+            "MessageCount": 0,
+            "DeliveringCount": 0,
+            "ScheduledCount": 0,
+            "MessagesAdded": 2,
+            "MessagesAcknowledged": 2,
+            "MessagesExpired": 0,
+            "MessagesKilled": 0,
+            "AcknowledgeAttempts": 2
+          },
+          "jms.queue.DLQ": {
+            "MessageCount": 0,
+            "DeliveringCount": 0,
+            "ScheduledCount": 0,
+            "MessagesAdded": 0,
+            "MessagesAcknowledged": 0,
+            "MessagesExpired": 0,
+            "MessagesKilled": 0,
+            "AcknowledgeAttempts": 0
+          },
+          "jms.queue.DeliveredCargoQueue": {
+            "MessageCount": 0,
+            "DeliveringCount": 0,
+            "ScheduledCount": 0,
+            "MessagesAdded": 0,
+            "MessagesAcknowledged": 0,
+            "MessagesExpired": 0,
+            "MessagesKilled": 0,
+            "AcknowledgeAttempts": 0
+          },
+          "jms.queue.ExpiryQueue": {
+            "MessageCount": 0,
+            "DeliveringCount": 0,
+            "ScheduledCount": 0,
+            "MessagesAdded": 0,
+            "MessagesAcknowledged": 0,
+            "MessagesExpired": 0,
+            "MessagesKilled": 0,
+            "AcknowledgeAttempts": 0
+          },
+          "jms.queue.HandlingEventRegistrationAttemptQueue": {
+            "MessageCount": 0,
+            "DeliveringCount": 0,
+            "ScheduledCount": 0,
+            "MessagesAdded": 2,
+            "MessagesAcknowledged": 2,
+            "MessagesExpired": 0,
+            "MessagesKilled": 0,
+            "AcknowledgeAttempts": 2
+          },
+          "jms.queue.MisdirectedCargoQueue": {
+            "MessageCount": 0,
+            "DeliveringCount": 0,
+            "ScheduledCount": 0,
+            "MessagesAdded": 0,
+            "MessagesAcknowledged": 0,
+            "MessagesExpired": 0,
+            "MessagesKilled": 0,
+            "AcknowledgeAttempts": 0
+          },
+          "jms.queue.RejectedRegistrationAttemptsQueue": {
+            "MessageCount": 0,
+            "DeliveringCount": 0,
+            "ScheduledCount": 0,
+            "MessagesAdded": 0,
+            "MessagesAcknowledged": 0,
+            "MessagesExpired": 0,
+            "MessagesKilled": 0,
+            "AcknowledgeAttempts": 0
+          }
+        },
+        "business_invocations": {
+          "net.java.cargotracker.application.internal.DefaultCargoInspectionService#inspectCargo": 2,
+          "net.java.cargotracker.application.internal.DefaultHandlingEventService#registerHandlingEvent": 2,
+          "net.java.cargotracker.infrastructure.messaging.jms.CargoHandledConsumer#onMessage": 2,
+          "net.java.cargotracker.infrastructure.messaging.jms.HandlingEventRegistrationAttemptConsumer#onMessage": 2,
+          "net.java.cargotracker.interfaces.booking.rest.CargoMonitoringService#getAllCargo": 22,
+          "net.java.cargotracker.interfaces.booking.socket.RealtimeCargoTrackingService#onCargoInspected": 2,
+          "net.java.cargotracker.interfaces.handling.rest.HandlingReportService#submitReport": 2,
+          "net.java.pathfinder.api.GraphTraversalService#findShortestPath": 5
+        },
+        "routing_identity": {
+          "sequence": 5,
+          "principal": "operator",
+          "roles": [
+            "Operator"
+          ],
+          "path": "/rest/graph-traversal/shortest-path"
+        }
+      },
+      "idle_wait_seconds_minimum": 75
+    },
+    "operator_expired": {
+      "before": {
+        "tables": {
+          "CARGO": {
+            "rows": 4,
+            "sha256": "c4fcd41ba5df8b12a6eb31797dbcf1894c02be37e5219bfdaa066a7c7181e0a3"
+          },
+          "CARRIER_MOVEMENT": {
+            "rows": 13,
+            "sha256": "e0351c24d5d9ce5543bbb2d2c7efc31de9616f6fcb6e1ad581da71b1d1660179"
+          },
+          "HANDLINGEVENT": {
+            "rows": 14,
+            "sha256": "71869693b32fbc2db2f4edc336f50d66ce3fb7e50422d7b6d824a76dcfc99064"
+          },
+          "LEG": {
+            "rows": 7,
+            "sha256": "648e498b58192ed880e116d5c4ed1d814915791c99f76ea08e548fe7bd0fb3bc"
+          },
+          "LOCATION": {
+            "rows": 13,
+            "sha256": "5631b21c70a39a0e7e713beba81df653bddc1708df7af9f9167cb9c8a0bbc642"
+          },
+          "VOYAGE": {
+            "rows": 5,
+            "sha256": "9f4454b6b1706bb684003759b5f2dc617a074f8e0bb83eeb513d19b172b1a889"
+          }
+        },
+        "queues": {
+          "jms.queue.CargoHandledQueue": {
+            "MessageCount": 0,
+            "DeliveringCount": 0,
+            "ScheduledCount": 0,
+            "MessagesAdded": 2,
+            "MessagesAcknowledged": 2,
+            "MessagesExpired": 0,
+            "MessagesKilled": 0,
+            "AcknowledgeAttempts": 2
+          },
+          "jms.queue.DLQ": {
+            "MessageCount": 0,
+            "DeliveringCount": 0,
+            "ScheduledCount": 0,
+            "MessagesAdded": 0,
+            "MessagesAcknowledged": 0,
+            "MessagesExpired": 0,
+            "MessagesKilled": 0,
+            "AcknowledgeAttempts": 0
+          },
+          "jms.queue.DeliveredCargoQueue": {
+            "MessageCount": 0,
+            "DeliveringCount": 0,
+            "ScheduledCount": 0,
+            "MessagesAdded": 0,
+            "MessagesAcknowledged": 0,
+            "MessagesExpired": 0,
+            "MessagesKilled": 0,
+            "AcknowledgeAttempts": 0
+          },
+          "jms.queue.ExpiryQueue": {
+            "MessageCount": 0,
+            "DeliveringCount": 0,
+            "ScheduledCount": 0,
+            "MessagesAdded": 0,
+            "MessagesAcknowledged": 0,
+            "MessagesExpired": 0,
+            "MessagesKilled": 0,
+            "AcknowledgeAttempts": 0
+          },
+          "jms.queue.HandlingEventRegistrationAttemptQueue": {
+            "MessageCount": 0,
+            "DeliveringCount": 0,
+            "ScheduledCount": 0,
+            "MessagesAdded": 2,
+            "MessagesAcknowledged": 2,
+            "MessagesExpired": 0,
+            "MessagesKilled": 0,
+            "AcknowledgeAttempts": 2
+          },
+          "jms.queue.MisdirectedCargoQueue": {
+            "MessageCount": 0,
+            "DeliveringCount": 0,
+            "ScheduledCount": 0,
+            "MessagesAdded": 0,
+            "MessagesAcknowledged": 0,
+            "MessagesExpired": 0,
+            "MessagesKilled": 0,
+            "AcknowledgeAttempts": 0
+          },
+          "jms.queue.RejectedRegistrationAttemptsQueue": {
+            "MessageCount": 0,
+            "DeliveringCount": 0,
+            "ScheduledCount": 0,
+            "MessagesAdded": 0,
+            "MessagesAcknowledged": 0,
+            "MessagesExpired": 0,
+            "MessagesKilled": 0,
+            "AcknowledgeAttempts": 0
+          }
+        },
+        "business_invocations": {
+          "net.java.cargotracker.application.internal.DefaultCargoInspectionService#inspectCargo": 2,
+          "net.java.cargotracker.application.internal.DefaultHandlingEventService#registerHandlingEvent": 2,
+          "net.java.cargotracker.infrastructure.messaging.jms.CargoHandledConsumer#onMessage": 2,
+          "net.java.cargotracker.infrastructure.messaging.jms.HandlingEventRegistrationAttemptConsumer#onMessage": 2,
+          "net.java.cargotracker.interfaces.booking.rest.CargoMonitoringService#getAllCargo": 22,
+          "net.java.cargotracker.interfaces.booking.socket.RealtimeCargoTrackingService#onCargoInspected": 2,
+          "net.java.cargotracker.interfaces.handling.rest.HandlingReportService#submitReport": 2,
+          "net.java.pathfinder.api.GraphTraversalService#findShortestPath": 5
+        },
+        "routing_identity": {
+          "sequence": 5,
+          "principal": "operator",
+          "roles": [
+            "Operator"
+          ],
+          "path": "/rest/graph-traversal/shortest-path"
+        }
+      },
+      "after": {
+        "tables": {
+          "CARGO": {
+            "rows": 4,
+            "sha256": "c4fcd41ba5df8b12a6eb31797dbcf1894c02be37e5219bfdaa066a7c7181e0a3"
+          },
+          "CARRIER_MOVEMENT": {
+            "rows": 13,
+            "sha256": "e0351c24d5d9ce5543bbb2d2c7efc31de9616f6fcb6e1ad581da71b1d1660179"
+          },
+          "HANDLINGEVENT": {
+            "rows": 14,
+            "sha256": "71869693b32fbc2db2f4edc336f50d66ce3fb7e50422d7b6d824a76dcfc99064"
+          },
+          "LEG": {
+            "rows": 7,
+            "sha256": "648e498b58192ed880e116d5c4ed1d814915791c99f76ea08e548fe7bd0fb3bc"
+          },
+          "LOCATION": {
+            "rows": 13,
+            "sha256": "5631b21c70a39a0e7e713beba81df653bddc1708df7af9f9167cb9c8a0bbc642"
+          },
+          "VOYAGE": {
+            "rows": 5,
+            "sha256": "9f4454b6b1706bb684003759b5f2dc617a074f8e0bb83eeb513d19b172b1a889"
+          }
+        },
+        "queues": {
+          "jms.queue.CargoHandledQueue": {
+            "MessageCount": 0,
+            "DeliveringCount": 0,
+            "ScheduledCount": 0,
+            "MessagesAdded": 2,
+            "MessagesAcknowledged": 2,
+            "MessagesExpired": 0,
+            "MessagesKilled": 0,
+            "AcknowledgeAttempts": 2
+          },
+          "jms.queue.DLQ": {
+            "MessageCount": 0,
+            "DeliveringCount": 0,
+            "ScheduledCount": 0,
+            "MessagesAdded": 0,
+            "MessagesAcknowledged": 0,
+            "MessagesExpired": 0,
+            "MessagesKilled": 0,
+            "AcknowledgeAttempts": 0
+          },
+          "jms.queue.DeliveredCargoQueue": {
+            "MessageCount": 0,
+            "DeliveringCount": 0,
+            "ScheduledCount": 0,
+            "MessagesAdded": 0,
+            "MessagesAcknowledged": 0,
+            "MessagesExpired": 0,
+            "MessagesKilled": 0,
+            "AcknowledgeAttempts": 0
+          },
+          "jms.queue.ExpiryQueue": {
+            "MessageCount": 0,
+            "DeliveringCount": 0,
+            "ScheduledCount": 0,
+            "MessagesAdded": 0,
+            "MessagesAcknowledged": 0,
+            "MessagesExpired": 0,
+            "MessagesKilled": 0,
+            "AcknowledgeAttempts": 0
+          },
+          "jms.queue.HandlingEventRegistrationAttemptQueue": {
+            "MessageCount": 0,
+            "DeliveringCount": 0,
+            "ScheduledCount": 0,
+            "MessagesAdded": 2,
+            "MessagesAcknowledged": 2,
+            "MessagesExpired": 0,
+            "MessagesKilled": 0,
+            "AcknowledgeAttempts": 2
+          },
+          "jms.queue.MisdirectedCargoQueue": {
+            "MessageCount": 0,
+            "DeliveringCount": 0,
+            "ScheduledCount": 0,
+            "MessagesAdded": 0,
+            "MessagesAcknowledged": 0,
+            "MessagesExpired": 0,
+            "MessagesKilled": 0,
+            "AcknowledgeAttempts": 0
+          },
+          "jms.queue.RejectedRegistrationAttemptsQueue": {
+            "MessageCount": 0,
+            "DeliveringCount": 0,
+            "ScheduledCount": 0,
+            "MessagesAdded": 0,
+            "MessagesAcknowledged": 0,
+            "MessagesExpired": 0,
+            "MessagesKilled": 0,
+            "AcknowledgeAttempts": 0
+          }
+        },
+        "business_invocations": {
+          "net.java.cargotracker.application.internal.DefaultCargoInspectionService#inspectCargo": 2,
+          "net.java.cargotracker.application.internal.DefaultHandlingEventService#registerHandlingEvent": 2,
+          "net.java.cargotracker.infrastructure.messaging.jms.CargoHandledConsumer#onMessage": 2,
+          "net.java.cargotracker.infrastructure.messaging.jms.HandlingEventRegistrationAttemptConsumer#onMessage": 2,
+          "net.java.cargotracker.interfaces.booking.rest.CargoMonitoringService#getAllCargo": 22,
+          "net.java.cargotracker.interfaces.booking.socket.RealtimeCargoTrackingService#onCargoInspected": 2,
+          "net.java.cargotracker.interfaces.handling.rest.HandlingReportService#submitReport": 2,
+          "net.java.pathfinder.api.GraphTraversalService#findShortestPath": 5
+        },
+        "routing_identity": {
+          "sequence": 5,
+          "principal": "operator",
+          "roles": [
+            "Operator"
+          ],
+          "path": "/rest/graph-traversal/shortest-path"
+        }
+      },
+      "idle_wait_seconds_minimum": 75
+    },
+    "admin_expired": {
+      "before": {
+        "tables": {
+          "CARGO": {
+            "rows": 4,
+            "sha256": "c4fcd41ba5df8b12a6eb31797dbcf1894c02be37e5219bfdaa066a7c7181e0a3"
+          },
+          "CARRIER_MOVEMENT": {
+            "rows": 13,
+            "sha256": "e0351c24d5d9ce5543bbb2d2c7efc31de9616f6fcb6e1ad581da71b1d1660179"
+          },
+          "HANDLINGEVENT": {
+            "rows": 14,
+            "sha256": "71869693b32fbc2db2f4edc336f50d66ce3fb7e50422d7b6d824a76dcfc99064"
+          },
+          "LEG": {
+            "rows": 7,
+            "sha256": "648e498b58192ed880e116d5c4ed1d814915791c99f76ea08e548fe7bd0fb3bc"
+          },
+          "LOCATION": {
+            "rows": 13,
+            "sha256": "5631b21c70a39a0e7e713beba81df653bddc1708df7af9f9167cb9c8a0bbc642"
+          },
+          "VOYAGE": {
+            "rows": 5,
+            "sha256": "9f4454b6b1706bb684003759b5f2dc617a074f8e0bb83eeb513d19b172b1a889"
+          }
+        },
+        "queues": {
+          "jms.queue.CargoHandledQueue": {
+            "MessageCount": 0,
+            "DeliveringCount": 0,
+            "ScheduledCount": 0,
+            "MessagesAdded": 2,
+            "MessagesAcknowledged": 2,
+            "MessagesExpired": 0,
+            "MessagesKilled": 0,
+            "AcknowledgeAttempts": 2
+          },
+          "jms.queue.DLQ": {
+            "MessageCount": 0,
+            "DeliveringCount": 0,
+            "ScheduledCount": 0,
+            "MessagesAdded": 0,
+            "MessagesAcknowledged": 0,
+            "MessagesExpired": 0,
+            "MessagesKilled": 0,
+            "AcknowledgeAttempts": 0
+          },
+          "jms.queue.DeliveredCargoQueue": {
+            "MessageCount": 0,
+            "DeliveringCount": 0,
+            "ScheduledCount": 0,
+            "MessagesAdded": 0,
+            "MessagesAcknowledged": 0,
+            "MessagesExpired": 0,
+            "MessagesKilled": 0,
+            "AcknowledgeAttempts": 0
+          },
+          "jms.queue.ExpiryQueue": {
+            "MessageCount": 0,
+            "DeliveringCount": 0,
+            "ScheduledCount": 0,
+            "MessagesAdded": 0,
+            "MessagesAcknowledged": 0,
+            "MessagesExpired": 0,
+            "MessagesKilled": 0,
+            "AcknowledgeAttempts": 0
+          },
+          "jms.queue.HandlingEventRegistrationAttemptQueue": {
+            "MessageCount": 0,
+            "DeliveringCount": 0,
+            "ScheduledCount": 0,
+            "MessagesAdded": 2,
+            "MessagesAcknowledged": 2,
+            "MessagesExpired": 0,
+            "MessagesKilled": 0,
+            "AcknowledgeAttempts": 2
+          },
+          "jms.queue.MisdirectedCargoQueue": {
+            "MessageCount": 0,
+            "DeliveringCount": 0,
+            "ScheduledCount": 0,
+            "MessagesAdded": 0,
+            "MessagesAcknowledged": 0,
+            "MessagesExpired": 0,
+            "MessagesKilled": 0,
+            "AcknowledgeAttempts": 0
+          },
+          "jms.queue.RejectedRegistrationAttemptsQueue": {
+            "MessageCount": 0,
+            "DeliveringCount": 0,
+            "ScheduledCount": 0,
+            "MessagesAdded": 0,
+            "MessagesAcknowledged": 0,
+            "MessagesExpired": 0,
+            "MessagesKilled": 0,
+            "AcknowledgeAttempts": 0
+          }
+        },
+        "business_invocations": {
+          "net.java.cargotracker.application.internal.DefaultCargoInspectionService#inspectCargo": 2,
+          "net.java.cargotracker.application.internal.DefaultHandlingEventService#registerHandlingEvent": 2,
+          "net.java.cargotracker.infrastructure.messaging.jms.CargoHandledConsumer#onMessage": 2,
+          "net.java.cargotracker.infrastructure.messaging.jms.HandlingEventRegistrationAttemptConsumer#onMessage": 2,
+          "net.java.cargotracker.interfaces.booking.rest.CargoMonitoringService#getAllCargo": 22,
+          "net.java.cargotracker.interfaces.booking.socket.RealtimeCargoTrackingService#onCargoInspected": 2,
+          "net.java.cargotracker.interfaces.handling.rest.HandlingReportService#submitReport": 2,
+          "net.java.pathfinder.api.GraphTraversalService#findShortestPath": 5
+        },
+        "routing_identity": {
+          "sequence": 5,
+          "principal": "operator",
+          "roles": [
+            "Operator"
+          ],
+          "path": "/rest/graph-traversal/shortest-path"
+        }
+      },
+      "after": {
+        "tables": {
+          "CARGO": {
+            "rows": 4,
+            "sha256": "c4fcd41ba5df8b12a6eb31797dbcf1894c02be37e5219bfdaa066a7c7181e0a3"
+          },
+          "CARRIER_MOVEMENT": {
+            "rows": 13,
+            "sha256": "e0351c24d5d9ce5543bbb2d2c7efc31de9616f6fcb6e1ad581da71b1d1660179"
+          },
+          "HANDLINGEVENT": {
+            "rows": 14,
+            "sha256": "71869693b32fbc2db2f4edc336f50d66ce3fb7e50422d7b6d824a76dcfc99064"
+          },
+          "LEG": {
+            "rows": 7,
+            "sha256": "648e498b58192ed880e116d5c4ed1d814915791c99f76ea08e548fe7bd0fb3bc"
+          },
+          "LOCATION": {
+            "rows": 13,
+            "sha256": "5631b21c70a39a0e7e713beba81df653bddc1708df7af9f9167cb9c8a0bbc642"
+          },
+          "VOYAGE": {
+            "rows": 5,
+            "sha256": "9f4454b6b1706bb684003759b5f2dc617a074f8e0bb83eeb513d19b172b1a889"
+          }
+        },
+        "queues": {
+          "jms.queue.CargoHandledQueue": {
+            "MessageCount": 0,
+            "DeliveringCount": 0,
+            "ScheduledCount": 0,
+            "MessagesAdded": 2,
+            "MessagesAcknowledged": 2,
+            "MessagesExpired": 0,
+            "MessagesKilled": 0,
+            "AcknowledgeAttempts": 2
+          },
+          "jms.queue.DLQ": {
+            "MessageCount": 0,
+            "DeliveringCount": 0,
+            "ScheduledCount": 0,
+            "MessagesAdded": 0,
+            "MessagesAcknowledged": 0,
+            "MessagesExpired": 0,
+            "MessagesKilled": 0,
+            "AcknowledgeAttempts": 0
+          },
+          "jms.queue.DeliveredCargoQueue": {
+            "MessageCount": 0,
+            "DeliveringCount": 0,
+            "ScheduledCount": 0,
+            "MessagesAdded": 0,
+            "MessagesAcknowledged": 0,
+            "MessagesExpired": 0,
+            "MessagesKilled": 0,
+            "AcknowledgeAttempts": 0
+          },
+          "jms.queue.ExpiryQueue": {
+            "MessageCount": 0,
+            "DeliveringCount": 0,
+            "ScheduledCount": 0,
+            "MessagesAdded": 0,
+            "MessagesAcknowledged": 0,
+            "MessagesExpired": 0,
+            "MessagesKilled": 0,
+            "AcknowledgeAttempts": 0
+          },
+          "jms.queue.HandlingEventRegistrationAttemptQueue": {
+            "MessageCount": 0,
+            "DeliveringCount": 0,
+            "ScheduledCount": 0,
+            "MessagesAdded": 2,
+            "MessagesAcknowledged": 2,
+            "MessagesExpired": 0,
+            "MessagesKilled": 0,
+            "AcknowledgeAttempts": 2
+          },
+          "jms.queue.MisdirectedCargoQueue": {
+            "MessageCount": 0,
+            "DeliveringCount": 0,
+            "ScheduledCount": 0,
+            "MessagesAdded": 0,
+            "MessagesAcknowledged": 0,
+            "MessagesExpired": 0,
+            "MessagesKilled": 0,
+            "AcknowledgeAttempts": 0
+          },
+          "jms.queue.RejectedRegistrationAttemptsQueue": {
+            "MessageCount": 0,
+            "DeliveringCount": 0,
+            "ScheduledCount": 0,
+            "MessagesAdded": 0,
+            "MessagesAcknowledged": 0,
+            "MessagesExpired": 0,
+            "MessagesKilled": 0,
+            "AcknowledgeAttempts": 0
+          }
+        },
+        "business_invocations": {
+          "net.java.cargotracker.application.internal.DefaultCargoInspectionService#inspectCargo": 2,
+          "net.java.cargotracker.application.internal.DefaultHandlingEventService#registerHandlingEvent": 2,
+          "net.java.cargotracker.infrastructure.messaging.jms.CargoHandledConsumer#onMessage": 2,
+          "net.java.cargotracker.infrastructure.messaging.jms.HandlingEventRegistrationAttemptConsumer#onMessage": 2,
+          "net.java.cargotracker.interfaces.booking.rest.CargoMonitoringService#getAllCargo": 22,
+          "net.java.cargotracker.interfaces.booking.socket.RealtimeCargoTrackingService#onCargoInspected": 2,
+          "net.java.cargotracker.interfaces.handling.rest.HandlingReportService#submitReport": 2,
+          "net.java.pathfinder.api.GraphTraversalService#findShortestPath": 5
+        },
+        "routing_identity": {
+          "sequence": 5,
+          "principal": "operator",
+          "roles": [
+            "Operator"
+          ],
+          "path": "/rest/graph-traversal/shortest-path"
+        }
+      },
+      "idle_wait_seconds_minimum": 75
+    }
+  },
+  "browser_checks": {
+    "count": 264,
+    "passed": true
+  },
+  "browser_cleanup": {
+    "container_removed": true,
+    "network_removed": true,
+    "errors": []
+  },
+  "owned_container_removed": true,
+  "private_files_removed": true,
+  "cleanup_errors": [],
+  "count": 204
+}

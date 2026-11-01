@@ -173,6 +173,13 @@ def main(after_checks=None):
         report["private_resource_packaging"]={surface:path in packaged_entries for surface,path in private_resources.items()}
         def private_payload_absent(body):
             return payload_absent(body) and not any(marker in body for marker in ["<faces-config","<web-app","<glassfish-web-app","<weblogic-web-app","net.java.cargotracker"])
+        read_pages={
+            "PAGE-03":("admin/about.xhtml","Cargo workflows","about"),
+            "PAGE-06":("admin/listClaimed.xhtml","Claimed cargo","claimed"),
+            "PAGE-07":("admin/listNotRouted.xhtml","Unrouted cargo","unrouted"),
+            "PAGE-08":("admin/listRouted.xhtml","Routed cargo","routed"),
+            "PAGE-22":("index.xhtml","Cargo Tracker","public"),
+            "PAGE-24":("public/about.xhtml","About Cargo Tracker","public")}
         for actor,who in [("anonymous",None),("Reader","reader"),("Operator","operator"),("Administrator","admin")]:
             opener=sessions[who][1] if who else anonymous
             status,body,_=request(opener,"rest/cargo")
@@ -200,6 +207,25 @@ def main(after_checks=None):
                 absent=private_payload_absent(body)
                 check("Private metadata/source denied: "+surface+" "+actor,status==404 and absent)
                 observation={"supported":True,"status":status,"protected_payload_absent":absent,"resource_packaged":report["private_resource_packaging"][surface]}
+                if who:observation["identity"]=report["identities"][who]
+                report["access_observations"][surface+"::"+actor+"::active"]=observation
+            for surface,(path,heading,kind) in read_pages.items():
+                status,body,headers=request(opener,path)
+                allowed=who is not None or kind=="public"
+                if allowed:
+                    semantic=status==200 and "<h1>"+heading+"</h1>" in body
+                    if kind in {"claimed","routed","unrouted"}:
+                        expected={cargo["trackingId"] for cargo in values if (cargo["transportStatus"]=="CLAIMED" if kind=="claimed" else (cargo["routingStatus"]=="NOT_ROUTED") if kind=="unrouted" else cargo["routingStatus"]!="NOT_ROUTED" and cargo["transportStatus"]!="CLAIMED")}
+                        actual=set(re.findall(r'trackingId=([A-Z0-9]{6,8})',body))
+                        semantic=semantic and actual==expected and 'id="cargos"' in body
+                    if kind=="public":semantic=semantic and payload_absent(body)
+                    check("Read page semantics: "+surface+" "+actor,semantic)
+                    observation={"supported":True,"status":status,"semantic_success":semantic}
+                    if kind=="public":observation["protected_payload_absent"]=payload_absent(body)
+                else:
+                    fixed=headers.get("Location")=="/cargo-tracker/login"
+                    check("Anonymous read page login without payload: "+surface,status==303 and fixed and payload_absent(body))
+                    observation={"supported":True,"status":status,"redirect_is_configured_login":fixed,"protected_payload_absent":payload_absent(body)}
                 if who:observation["identity"]=report["identities"][who]
                 report["access_observations"][surface+"::"+actor+"::active"]=observation
         def effects():
@@ -365,6 +391,12 @@ def main(after_checks=None):
                 pending["API-03::"+actor+"::"+state]={"supported":True,"status":status,"protected_payload_absent":routing_payload_absent(body),"identity":report["identities"][who],"authenticated_before_revocation":True,"revocation_verified":True}
                 check("Revoked valid handling POST: "+actor+" "+state,handling_as(opener,token)==401)
                 pending["API-02::"+actor+"::"+state]=dict(last_handling)
+            for surface,(path,heading,kind) in read_pages.items():
+                if kind=="public":continue
+                status,body,headers=request(opener,path)
+                fixed=headers.get("Location")=="/cargo-tracker/login"
+                check("Revoked read page login: "+surface+" "+actor+" "+state,status==303 and fixed and payload_absent(body))
+                pending[surface+"::"+actor+"::"+state]={"supported":True,"status":status,"redirect_is_configured_login":fixed,"protected_payload_absent":payload_absent(body),"identity":report["identities"][who],"authenticated_before_revocation":True,"revocation_verified":True}
             return pending
         def record_revocations(pending,before_sample,after_sample,who):
             for case,observation in pending.items():

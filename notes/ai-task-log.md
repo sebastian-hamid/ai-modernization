@@ -177,3 +177,9 @@ Initial strict date validator rejected valid JSON-B [UTC] dates; corrected with 
 Final156 application/210 Chromium/35 domain PASS (one inherited empty TODO);43 unit PASS; fresh catalogue55PASS/447BLOCKED, nativeexit2. Six logout/expiry cohorts preserve independent snapshots and positive handling detects actual SQL/broker/worker effects. Resource packaging flags distinguish inaccessible existing files from omitted resources. Archived image was unavailable for artifact comparison; inaccurate identity claim removed and current browser regression rerun. Different build IDs are recorded, not asserted identical.
 
 Task fixtures/private files removed, historicalHTTP200/source/Jenkins preserved. Full KAN-14/KAN-15/KAN-18 remains incomplete. Publishing under standing authorization; no production deployment. Human effort/cost unavailable.
+
+## 1 November 2026 — KAN-15 filtered read views
+
+Restored three legacy filtered cargo pages and protected workflow About with existing read roles; public About now correctly requires sign-in for tracking. Original ListCargo predicates preserved, including routed-and-unclaimed. Reviewer /root/review_kan15_read_views caught an initial all-routed substitution; corrected page/tests and interrupted obsolete run with cleanup. Tracking links open details before role-restricted actions; no domain/business-service change.
+
+Final204 application/264 Chromium/35 domain PASS(one inherited emptyTODO),44 unit checks PASS. Browser includes18 explicit all-role390px checks,3empty cases and actual UNLOAD→CLAIM persistence followed by exact partition checks. Fresh catalogue103PASS/399BLOCKED, nativeexit2. Reviewer independently inspected all final reports and285hashes, ran26security tests, no remaining material findings. All task resources/private files removed; historical/source/Jenkins preserved. FullKAN15 remains incomplete; publishing under standing authorization.

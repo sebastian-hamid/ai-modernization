@@ -46,3 +46,8 @@ The [read-access binding follow-up](../../docs/candidate/read-access-bindings.md
 ## Complete HTTP API definition binding follow-up
 
 The [API access matrix](../../docs/candidate/api-access-matrix.md) binds all 27 API definitions (active roles, human logout/expiry and scoped native routing) plus eight private templates and 20 private metadata/source-note cases: 55 bound, 447 unsupported/BLOCKED, overall exit 2. Earlier 4 PASS / 16 PASS counts are historical checkpoints. This remains a partial implementation of the entire 502-definition catalogue.
+
+
+## Filtered cargo and About page bindings
+
+The [read-view follow-up](../../docs/candidate/read-views.md) adds six page surfaces with native active roles and protected-page logout/expiry cases. The optional live adapter now binds 103 definitions, leaving 399 unsupported/BLOCKED and overall exit 2. Earlier 55/447 results remain historical evidence.
