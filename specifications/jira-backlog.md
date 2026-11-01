@@ -316,3 +316,9 @@ Source/evidence review completed with documentation corrections; KAN-10 is In Re
 
 ## Documentation acceptance (1 November 2026)
 The user reviewed and approved the baseline documentation and authorized Git commit/push. The 28 October In Review entries above are historical; KAN-10 acceptance and publication are recorded in Jira. Remaining security/runtime/test gaps stay open.
+
+## KAN-12 policy mapping (1 November 2026)
+Entrypoint/action mapping and source census completed; KAN-12 is In Review. See [access-policy-map.md](access-policy-map.md) and its validation evidence. New mapping files are local pending review/publication. No security remediation or candidate test execution is claimed.
+
+## KAN-12 acceptance and publication (1 November 2026)
+User approval and separate-agent review are complete. One P2 navigation-role inconsistency was corrected and rechecked; no material findings remain. KAN-12 is Done for the policy inventory/design task. The map, generator and validation evidence are included in this publication checkpoint, together with the standard review workflow and review records. Earlier In Review/uncommitted entries above are historical snapshots. No runtime security remediation is claimed.

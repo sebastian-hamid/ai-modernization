@@ -1,0 +1,7 @@
+# AI modernization project instructions
+
+- Treat synced sources/ references and experiments/legacy-cargotracker as read-only. Preserve unrelated work, credentials and the historical runtime. Make candidate changes separately.
+- For substantive code, configuration, test or documentation changes, follow [the separate-agent review workflow](docs/agent-review-workflow.md). Use a separate reviewer agent, ideally with fresh context; author self-review does not satisfy this requirement. User authorization for separate reviewer agents is recorded 1 November 2026.
+- Resolve material findings and record review evidence in repository/Jira before task completion/publication. Do not claim historical work was independently reviewed when it was not.
+- Minor non-semantic wording/formatting changes can use the documented lighter check. Do not create extra user approval steps for routine corrections; escalate actual scope/business/access-policy changes or accepted material limitations.
+- Publishing, deployment and service changes still require the task's applicable authorization. Never include secrets, caches, ignored source clones or private runtime data in Git/review evidence.

@@ -1,0 +1,32 @@
+{
+  "date": "2026-11-01",
+  "issue": "KAN-12",
+  "author": "/root",
+  "reviewer": "/root/review_kan12_publication",
+  "fresh_context": true,
+  "input_sha256": {
+    "scripts/build-access-inventory.py": "e6dddeddd52fd62926125f41d17aa33bf49d578712202931df2174ed77d40459",
+    "specifications/access-policy-inventory.json": "b6aeafdfc512d5853c4dc74ee2771fb088da872d1541b47d1aaa6fae33e563d2",
+    "specifications/access-policy-map.md": "8e1f0c9a1f7231bd91bab6bf95a1e05ef5f5101e55110fbaa9fee6eaf67a200e",
+    "notes/evidence/kan-12-access-map/validation.json": "5f2c2769f5f273fde7a76ce8b8f1c1267aeae1423eaeab45bd52dfc223ce46cd"
+  },
+  "finding": {
+    "severity": "P2",
+    "scope": "ACTION-11/21/22 navigation roles",
+    "resolution": "Resolve target paths and intersect source/destination permissions; regenerate matrix/evidence",
+    "reviewer_recheck": "resolved"
+  },
+  "final_verdict": "no remaining material findings",
+  "checks": [
+    "73-file complete nonoverlapping web census",
+    "175 source and artifact hashes",
+    "in-memory deterministic regeneration",
+    "source/policy/enforcement/test-plan comparison"
+  ],
+  "limits": [
+    "read-only source/design review",
+    "no runtime security tests or implementation"
+  ],
+  "user_approval": "2026-11-01",
+  "publication_authorized": true
+}

@@ -1,0 +1,46 @@
+{
+  "issue": "KAN-12",
+  "prepared_on": "2026-11-01",
+  "source_commit": "57fc7b32d2597e43b5e0d454e707e0146de5258a",
+  "source_checkout_clean": true,
+  "counts": {
+    "pages_templates": 25,
+    "callback_navigation_occurrences": 45,
+    "flow_descriptors": 2,
+    "rest_families": 3,
+    "websocket_endpoints": 1,
+    "background_boundaries": 6,
+    "service_boundaries": 4,
+    "static_image_files": 41,
+    "auxiliary_private_files": 5,
+    "total_web_files": 73,
+    "source_files_hashed": 175
+  },
+  "checks": {
+    "complete_nonoverlapping_web_file_census": true,
+    "all_rows_have_enforcement_and_test_mapping": true,
+    "mutations_restricted_to_operator_admin": true,
+    "operational_tracking_protected": true,
+    "raw_flow_metadata_denied": true,
+    "no_application_role_grants_deployment_admin": true,
+    "declared_rest_and_websocket_paths_match": true,
+    "generator_repeat_output_identical": true,
+    "source_hashes_match": true,
+    "operator_navigation_respects_relative_destination_policy": true
+  },
+  "artifacts": {
+    "scripts/build-access-inventory.py": "e6dddeddd52fd62926125f41d17aa33bf49d578712202931df2174ed77d40459",
+    "specifications/access-policy-inventory.json": "b6aeafdfc512d5853c4dc74ee2771fb088da872d1541b47d1aaa6fae33e563d2",
+    "specifications/access-policy-map.md": "8e1f0c9a1f7231bd91bab6bf95a1e05ef5f5101e55110fbaa9fee6eaf67a200e"
+  },
+  "limitations": [
+    "Source inventory and desired-policy design only",
+    "No new runtime/security tests or implementation",
+    "Dynamic/dependency-provided paths require candidate deployment review",
+    "Internal caller credentials and worker identity details pending candidate runtime verification"
+  ],
+  "user_documentation_approval": {
+    "date": "2026-11-01",
+    "status": "approved before independent review; correction narrows navigation to existing approved O/A policy"
+  }
+}

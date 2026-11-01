@@ -207,3 +207,9 @@ Next planned implementation action under the agreed sequence: document the legac
 - [Legacy build](../notes/legacy-baseline.md) and [runtime recovery](../notes/legacy-runtime.md)
 - [Coverage/access findings](../notes/test-coverage-review.md)
 - [Jenkins build 6 summary](../notes/evidence/coverage-review-2026-10-27/jenkins-build-6-summary.json)
+
+## KAN-12 policy mapping (1 November 2026)
+Source inventory and desired-policy mapping are available in [access-policy-map.md](access-policy-map.md), with a reproducible JSON census/generator. They map the approved roles and anonymous boundary to pages, actions, APIs, WebSocket, internal calls and background controls. No access implementation or live security test pass is claimed. Detailed worker/internal caller authentication remains to be verified in the candidate runtime.
+
+## Separate-agent review decision (1 November 2026)
+The user approved [separate-agent review as standard workflow](../docs/agent-review-workflow.md) for substantive code and documentation changes. Authoring, fresh-context review, correction/recheck and recorded evidence are distinct; user decisions remain required for business/access/scope changes and accepted material limitations. Minor non-semantic edits use a lighter documented check. This is a workflow requirement, not a claim that CI enforcement or historical independent reviews exist.

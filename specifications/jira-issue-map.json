@@ -63,7 +63,11 @@
       "key": "KAN-12",
       "type": "Task",
       "title": "[SEC-01] Map every entrypoint and action to the approved access policy",
-      "parent": "KAN-5"
+      "parent": "KAN-5",
+      "last_verified_status": "Done",
+      "review_evidence": "specifications/access-policy-map.md",
+      "accepted_on": "2026-11-01",
+      "independent_review": "notes/agent-reviews/2026-11-01-kan-12-publication-review.md"
     },
     "PLAT-01": {
       "key": "KAN-13",

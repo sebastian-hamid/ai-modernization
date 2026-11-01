@@ -34,3 +34,25 @@
 - Reviewed pending documentation plus supporting tests/evidence, scanned for credential patterns (no matches), verified all executed pipeline input hashes against passing Jenkins build 6, and re-ran 10 tooling checks successfully. Historical source remains clean; synced sources untouched.
 - Publishing the approved documentation with supporting verified baseline/test artifacts and prior local baseline/skill commits. No application deployment, security remediation or new full CI run is claimed.
 - Human review duration, rework time, exact elapsed time and attributable cost unavailable; no savings claim.
+
+## 1 November 2026 — KAN-12 entrypoint/policy inventory
+
+- Inventoried 25 page/template files, 45 active callback/navigation occurrences, two flow descriptors, three REST resource families, one WebSocket, six background boundaries, four application-service groups, 41 static/image files and five private metadata/source-note files.
+- Produced specifications/access-policy-map.md and access-policy-inventory.json, plus scripts/build-access-inventory.py. Classified every web file and hashed 175 source/configuration files; verified REST/WebSocket declarations and repeat generation determinism.
+- Applied approved human roles, separate machine-worker/OS/broker/deployment authority, and default deny. Found separate mapFrame.html, mixed read/write dashboards, protected public/track path and unresolved bindings.
+- Recorded enforcement and future candidate test location/groups for each surface; no executable candidate security test or enforcement was implemented. Historical source/services were unchanged.
+- Human review/acceptance of this mapping pending. Review/rework duration, exact elapsed time and attributable cost unavailable; no savings claim.
+
+## 1 November 2026 — Standard separate-agent review workflow
+
+- User approved separate-agent review for substantive code/documentation. Created docs/agent-review-workflow.md and root AGENTS.md; linked from README and recorded the approved proposal decision.
+- Separate reviewer /root/review_workflow_policy used fresh context and read-only checks. Verdict: no material findings. Scope excludes the separate pending KAN-12 mapping review; records are in notes/agent-reviews/2026-11-01-workflow-review.md and JSON.
+- Recorded user KAN-12 approval and still-pending independent review in Jira comment 10003; recorded workflow adoption on KAN-11 in comment 10004.
+- Human review/rework time, attributable cost and exact elapsed time unavailable. No historical review or savings claims. Changes remain local/uncommitted; no publication performed.
+
+## 1 November 2026 — Reviewed workflow and KAN-12 publication
+
+- User explicitly requested commit/push. Separate reviewer /root/review_kan12_publication found P2 relative-navigation role mismatch in ACTION-11/21/22; corrected target resolution/role intersection and regenerated JSON, Markdown matrix and validation evidence. Reviewer recheck: no remaining material findings.
+- Verified deterministic output, exact reviewed hashes, complete source census, local links, clean historical checkout, whitespace and credential-pattern scan (no matches). No new full application/CI/runtime security test was needed for this source/design publication.
+- Recorded separate review evidence and user approval; KAN-12 moved Done. Included previously independently reviewed workflow policy and AGENTS.md in the authorized publication checkpoint.
+- Human review/rework time, attributable cost and exact elapsed time unavailable; no savings claim.

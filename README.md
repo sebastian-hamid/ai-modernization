@@ -7,6 +7,8 @@ Windows 11 + WSL2 Ubuntu development environment, local Jenkins and a preserved 
 - [Modernization proposal: objectives, target and migration plan](specifications/modernization-proposal.md)
 - [Legacy functional, architecture and technical documentation](docs/baseline/README.md)
 - [Prepared Jira backlog](specifications/jira-backlog.md)
+- [Entrypoint permissions and security test map](specifications/access-policy-map.md)
+- [Separate-agent review workflow](docs/agent-review-workflow.md)
 - [Verified setup and remaining checks](notes/setup-status.md)
 - [Test coverage review and access-control findings](notes/test-coverage-review.md)
 - [Legacy baseline findings and next steps](notes/legacy-baseline.md)

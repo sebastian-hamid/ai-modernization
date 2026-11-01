@@ -1,0 +1,2262 @@
+{
+  "issue": "KAN-12",
+  "source_commit": "57fc7b32d2597e43b5e0d454e707e0146de5258a",
+  "scope": "Source inventory and desired-policy mapping only; no access control or candidate tests implemented",
+  "pages": [
+    {
+      "id": "PAGE-01",
+      "path": "/cargo-tracker/WEB-INF/templates/common/admin.xhtml",
+      "source": "src/main/webapp/WEB-INF/templates/common/admin.xhtml",
+      "classification": "internal-template",
+      "allowed_roles": [],
+      "anonymous": false,
+      "enforcement": "Deny direct HTTP access for every identity; includes do not bypass caller checks",
+      "test_location": "candidate HTTP/browser policy suite (KAN-14)",
+      "test_groups": [
+        "PAGE-DIRECT",
+        "JSF-AJAX",
+        "RENDER-NO-LEAK"
+      ],
+      "implemented": false
+    },
+    {
+      "id": "PAGE-02",
+      "path": "/cargo-tracker/WEB-INF/templates/common/public.xhtml",
+      "source": "src/main/webapp/WEB-INF/templates/common/public.xhtml",
+      "classification": "internal-template",
+      "allowed_roles": [],
+      "anonymous": false,
+      "enforcement": "Deny direct HTTP access for every identity; includes do not bypass caller checks",
+      "test_location": "candidate HTTP/browser policy suite (KAN-14)",
+      "test_groups": [
+        "PAGE-DIRECT",
+        "JSF-AJAX",
+        "RENDER-NO-LEAK"
+      ],
+      "implemented": false
+    },
+    {
+      "id": "PAGE-03",
+      "path": "/cargo-tracker/admin/about.xhtml",
+      "source": "src/main/webapp/admin/about.xhtml",
+      "classification": "read",
+      "allowed_roles": [
+        "Reader",
+        "Operator",
+        "Administrator"
+      ],
+      "anonymous": false,
+      "enforcement": "Guard rendering, fragments and AJAX; mixed views must additionally guard operator actions",
+      "test_location": "candidate HTTP/browser policy suite (KAN-14)",
+      "test_groups": [
+        "PAGE-DIRECT",
+        "JSF-AJAX",
+        "RENDER-NO-LEAK"
+      ],
+      "implemented": false
+    },
+    {
+      "id": "PAGE-04",
+      "path": "/cargo-tracker/admin/changeDestination.xhtml",
+      "source": "src/main/webapp/admin/changeDestination.xhtml",
+      "classification": "operator",
+      "allowed_roles": [
+        "Operator",
+        "Administrator"
+      ],
+      "anonymous": false,
+      "enforcement": "Guard GET/POST/AJAX and service mutation before loading data or changing flow state",
+      "test_location": "candidate HTTP/browser policy suite (KAN-14)",
+      "test_groups": [
+        "PAGE-DIRECT",
+        "JSF-AJAX",
+        "RENDER-NO-LEAK"
+      ],
+      "implemented": false
+    },
+    {
+      "id": "PAGE-05",
+      "path": "/cargo-tracker/admin/dashboard.xhtml",
+      "source": "src/main/webapp/admin/dashboard.xhtml",
+      "classification": "read",
+      "allowed_roles": [
+        "Reader",
+        "Operator",
+        "Administrator"
+      ],
+      "anonymous": false,
+      "enforcement": "Guard rendering, fragments and AJAX; mixed views must additionally guard operator actions",
+      "test_location": "candidate HTTP/browser policy suite (KAN-14)",
+      "test_groups": [
+        "PAGE-DIRECT",
+        "JSF-AJAX",
+        "RENDER-NO-LEAK"
+      ],
+      "implemented": false
+    },
+    {
+      "id": "PAGE-06",
+      "path": "/cargo-tracker/admin/listClaimed.xhtml",
+      "source": "src/main/webapp/admin/listClaimed.xhtml",
+      "classification": "read",
+      "allowed_roles": [
+        "Reader",
+        "Operator",
+        "Administrator"
+      ],
+      "anonymous": false,
+      "enforcement": "Guard rendering, fragments and AJAX; mixed views must additionally guard operator actions",
+      "test_location": "candidate HTTP/browser policy suite (KAN-14)",
+      "test_groups": [
+        "PAGE-DIRECT",
+        "JSF-AJAX",
+        "RENDER-NO-LEAK"
+      ],
+      "implemented": false
+    },
+    {
+      "id": "PAGE-07",
+      "path": "/cargo-tracker/admin/listNotRouted.xhtml",
+      "source": "src/main/webapp/admin/listNotRouted.xhtml",
+      "classification": "read",
+      "allowed_roles": [
+        "Reader",
+        "Operator",
+        "Administrator"
+      ],
+      "anonymous": false,
+      "enforcement": "Guard rendering, fragments and AJAX; mixed views must additionally guard operator actions",
+      "test_location": "candidate HTTP/browser policy suite (KAN-14)",
+      "test_groups": [
+        "PAGE-DIRECT",
+        "JSF-AJAX",
+        "RENDER-NO-LEAK"
+      ],
+      "implemented": false
+    },
+    {
+      "id": "PAGE-08",
+      "path": "/cargo-tracker/admin/listRouted.xhtml",
+      "source": "src/main/webapp/admin/listRouted.xhtml",
+      "classification": "read",
+      "allowed_roles": [
+        "Reader",
+        "Operator",
+        "Administrator"
+      ],
+      "anonymous": false,
+      "enforcement": "Guard rendering, fragments and AJAX; mixed views must additionally guard operator actions",
+      "test_location": "candidate HTTP/browser policy suite (KAN-14)",
+      "test_groups": [
+        "PAGE-DIRECT",
+        "JSF-AJAX",
+        "RENDER-NO-LEAK"
+      ],
+      "implemented": false
+    },
+    {
+      "id": "PAGE-09",
+      "path": "/cargo-tracker/admin/map.xhtml",
+      "source": "src/main/webapp/admin/map.xhtml",
+      "classification": "read",
+      "allowed_roles": [
+        "Reader",
+        "Operator",
+        "Administrator"
+      ],
+      "anonymous": false,
+      "enforcement": "Guard rendering, fragments and AJAX; mixed views must additionally guard operator actions",
+      "test_location": "candidate HTTP/browser policy suite (KAN-14)",
+      "test_groups": [
+        "PAGE-DIRECT",
+        "JSF-AJAX",
+        "RENDER-NO-LEAK"
+      ],
+      "implemented": false
+    },
+    {
+      "id": "PAGE-10",
+      "path": "/cargo-tracker/admin/mapFrame.html",
+      "source": "src/main/webapp/admin/mapFrame.html",
+      "classification": "read",
+      "allowed_roles": [
+        "Reader",
+        "Operator",
+        "Administrator"
+      ],
+      "anonymous": false,
+      "enforcement": "Guard rendering, fragments and AJAX; mixed views must additionally guard operator actions",
+      "test_location": "candidate HTTP/browser policy suite (KAN-14)",
+      "test_groups": [
+        "PAGE-DIRECT",
+        "JSF-AJAX",
+        "RENDER-NO-LEAK"
+      ],
+      "implemented": false
+    },
+    {
+      "id": "PAGE-11",
+      "path": "/cargo-tracker/admin/route.xhtml",
+      "source": "src/main/webapp/admin/route.xhtml",
+      "classification": "operator",
+      "allowed_roles": [
+        "Operator",
+        "Administrator"
+      ],
+      "anonymous": false,
+      "enforcement": "Guard GET/POST/AJAX and service mutation before loading data or changing flow state",
+      "test_location": "candidate HTTP/browser policy suite (KAN-14)",
+      "test_groups": [
+        "PAGE-DIRECT",
+        "JSF-AJAX",
+        "RENDER-NO-LEAK"
+      ],
+      "implemented": false
+    },
+    {
+      "id": "PAGE-12",
+      "path": "/cargo-tracker/admin/selectItinerary.xhtml",
+      "source": "src/main/webapp/admin/selectItinerary.xhtml",
+      "classification": "operator",
+      "allowed_roles": [
+        "Operator",
+        "Administrator"
+      ],
+      "anonymous": false,
+      "enforcement": "Guard GET/POST/AJAX and service mutation before loading data or changing flow state",
+      "test_location": "candidate HTTP/browser policy suite (KAN-14)",
+      "test_groups": [
+        "PAGE-DIRECT",
+        "JSF-AJAX",
+        "RENDER-NO-LEAK"
+      ],
+      "implemented": false
+    },
+    {
+      "id": "PAGE-13",
+      "path": "/cargo-tracker/admin/show.xhtml",
+      "source": "src/main/webapp/admin/show.xhtml",
+      "classification": "read",
+      "allowed_roles": [
+        "Reader",
+        "Operator",
+        "Administrator"
+      ],
+      "anonymous": false,
+      "enforcement": "Guard rendering, fragments and AJAX; mixed views must additionally guard operator actions",
+      "test_location": "candidate HTTP/browser policy suite (KAN-14)",
+      "test_groups": [
+        "PAGE-DIRECT",
+        "JSF-AJAX",
+        "RENDER-NO-LEAK"
+      ],
+      "implemented": false
+    },
+    {
+      "id": "PAGE-14",
+      "path": "/cargo-tracker/admin/track.xhtml",
+      "source": "src/main/webapp/admin/track.xhtml",
+      "classification": "read",
+      "allowed_roles": [
+        "Reader",
+        "Operator",
+        "Administrator"
+      ],
+      "anonymous": false,
+      "enforcement": "Guard rendering, fragments and AJAX; mixed views must additionally guard operator actions",
+      "test_location": "candidate HTTP/browser policy suite (KAN-14)",
+      "test_groups": [
+        "PAGE-DIRECT",
+        "JSF-AJAX",
+        "RENDER-NO-LEAK"
+      ],
+      "implemented": false
+    },
+    {
+      "id": "PAGE-15",
+      "path": "/cargo-tracker/booking/booking-date.xhtml",
+      "source": "src/main/webapp/booking/booking-date.xhtml",
+      "classification": "operator",
+      "allowed_roles": [
+        "Operator",
+        "Administrator"
+      ],
+      "anonymous": false,
+      "enforcement": "Guard GET/POST/AJAX and service mutation before loading data or changing flow state",
+      "test_location": "candidate HTTP/browser policy suite (KAN-14)",
+      "test_groups": [
+        "PAGE-DIRECT",
+        "JSF-AJAX",
+        "RENDER-NO-LEAK"
+      ],
+      "implemented": false
+    },
+    {
+      "id": "PAGE-16",
+      "path": "/cargo-tracker/booking/booking-destination.xhtml",
+      "source": "src/main/webapp/booking/booking-destination.xhtml",
+      "classification": "operator",
+      "allowed_roles": [
+        "Operator",
+        "Administrator"
+      ],
+      "anonymous": false,
+      "enforcement": "Guard GET/POST/AJAX and service mutation before loading data or changing flow state",
+      "test_location": "candidate HTTP/browser policy suite (KAN-14)",
+      "test_groups": [
+        "PAGE-DIRECT",
+        "JSF-AJAX",
+        "RENDER-NO-LEAK"
+      ],
+      "implemented": false
+    },
+    {
+      "id": "PAGE-17",
+      "path": "/cargo-tracker/booking/booking.xhtml",
+      "source": "src/main/webapp/booking/booking.xhtml",
+      "classification": "operator",
+      "allowed_roles": [
+        "Operator",
+        "Administrator"
+      ],
+      "anonymous": false,
+      "enforcement": "Guard GET/POST/AJAX and service mutation before loading data or changing flow state",
+      "test_location": "candidate HTTP/browser policy suite (KAN-14)",
+      "test_groups": [
+        "PAGE-DIRECT",
+        "JSF-AJAX",
+        "RENDER-NO-LEAK"
+      ],
+      "implemented": false
+    },
+    {
+      "id": "PAGE-18",
+      "path": "/cargo-tracker/error.xhtml",
+      "source": "src/main/webapp/error.xhtml",
+      "classification": "sanitized-error",
+      "allowed_roles": [
+        "Reader",
+        "Operator",
+        "Administrator"
+      ],
+      "anonymous": true,
+      "enforcement": "Only generic errors public; no cargo details, stack traces or secret/session echo",
+      "test_location": "candidate HTTP/browser policy suite (KAN-14)",
+      "test_groups": [
+        "PAGE-DIRECT",
+        "JSF-AJAX",
+        "RENDER-NO-LEAK"
+      ],
+      "implemented": false
+    },
+    {
+      "id": "PAGE-19",
+      "path": "/cargo-tracker/error_404.xhtml",
+      "source": "src/main/webapp/error_404.xhtml",
+      "classification": "sanitized-error",
+      "allowed_roles": [
+        "Reader",
+        "Operator",
+        "Administrator"
+      ],
+      "anonymous": true,
+      "enforcement": "Only generic errors public; no cargo details, stack traces or secret/session echo",
+      "test_location": "candidate HTTP/browser policy suite (KAN-14)",
+      "test_groups": [
+        "PAGE-DIRECT",
+        "JSF-AJAX",
+        "RENDER-NO-LEAK"
+      ],
+      "implemented": false
+    },
+    {
+      "id": "PAGE-20",
+      "path": "/cargo-tracker/eventLogger/eventLogger.xhtml",
+      "source": "src/main/webapp/eventLogger/eventLogger.xhtml",
+      "classification": "operator",
+      "allowed_roles": [
+        "Operator",
+        "Administrator"
+      ],
+      "anonymous": false,
+      "enforcement": "Guard GET/POST/AJAX and service mutation before loading data or changing flow state",
+      "test_location": "candidate HTTP/browser policy suite (KAN-14)",
+      "test_groups": [
+        "PAGE-DIRECT",
+        "JSF-AJAX",
+        "RENDER-NO-LEAK"
+      ],
+      "implemented": false
+    },
+    {
+      "id": "PAGE-21",
+      "path": "/cargo-tracker/eventLogger/root.xhtml",
+      "source": "src/main/webapp/eventLogger/root.xhtml",
+      "classification": "operator",
+      "allowed_roles": [
+        "Operator",
+        "Administrator"
+      ],
+      "anonymous": false,
+      "enforcement": "Guard GET/POST/AJAX and service mutation before loading data or changing flow state",
+      "test_location": "candidate HTTP/browser policy suite (KAN-14)",
+      "test_groups": [
+        "PAGE-DIRECT",
+        "JSF-AJAX",
+        "RENDER-NO-LEAK"
+      ],
+      "implemented": false
+    },
+    {
+      "id": "PAGE-22",
+      "path": "/cargo-tracker/index.xhtml",
+      "source": "src/main/webapp/index.xhtml",
+      "classification": "public",
+      "allowed_roles": [
+        "Reader",
+        "Operator",
+        "Administrator"
+      ],
+      "anonymous": true,
+      "enforcement": "Public landing/about only; exclude operational data from rendering",
+      "test_location": "candidate HTTP/browser policy suite (KAN-14)",
+      "test_groups": [
+        "PAGE-DIRECT",
+        "JSF-AJAX",
+        "RENDER-NO-LEAK"
+      ],
+      "implemented": false
+    },
+    {
+      "id": "PAGE-23",
+      "path": "/cargo-tracker/mobile.xhtml",
+      "source": "src/main/webapp/mobile.xhtml",
+      "classification": "operator",
+      "allowed_roles": [
+        "Operator",
+        "Administrator"
+      ],
+      "anonymous": false,
+      "enforcement": "Guard GET/POST/AJAX and service mutation before loading data or changing flow state",
+      "test_location": "candidate HTTP/browser policy suite (KAN-14)",
+      "test_groups": [
+        "PAGE-DIRECT",
+        "JSF-AJAX",
+        "RENDER-NO-LEAK"
+      ],
+      "implemented": false
+    },
+    {
+      "id": "PAGE-24",
+      "path": "/cargo-tracker/public/about.xhtml",
+      "source": "src/main/webapp/public/about.xhtml",
+      "classification": "public",
+      "allowed_roles": [
+        "Reader",
+        "Operator",
+        "Administrator"
+      ],
+      "anonymous": true,
+      "enforcement": "Public landing/about only; exclude operational data from rendering",
+      "test_location": "candidate HTTP/browser policy suite (KAN-14)",
+      "test_groups": [
+        "PAGE-DIRECT",
+        "JSF-AJAX",
+        "RENDER-NO-LEAK"
+      ],
+      "implemented": false
+    },
+    {
+      "id": "PAGE-25",
+      "path": "/cargo-tracker/public/track.xhtml",
+      "source": "src/main/webapp/public/track.xhtml",
+      "classification": "read",
+      "allowed_roles": [
+        "Reader",
+        "Operator",
+        "Administrator"
+      ],
+      "anonymous": false,
+      "enforcement": "Guard rendering, fragments and AJAX; mixed views must additionally guard operator actions",
+      "test_location": "candidate HTTP/browser policy suite (KAN-14)",
+      "test_groups": [
+        "PAGE-DIRECT",
+        "JSF-AJAX",
+        "RENDER-NO-LEAK"
+      ],
+      "implemented": false
+    }
+  ],
+  "view_callbacks": [
+    {
+      "id": "ACTION-01",
+      "page_id": "PAGE-01",
+      "source": "src/main/webapp/WEB-INF/templates/common/admin.xhtml",
+      "line": 29,
+      "attribute": "action",
+      "expression": "/admin/dashboard.xhtml",
+      "bean_method": null,
+      "domain_mutation": false,
+      "allowed_roles": [
+        "Reader",
+        "Operator",
+        "Administrator"
+      ],
+      "anonymous": false,
+      "direct_template_request_allowed": false,
+      "enforcement": "Authorize backing action/getter and business service before execution; never trust a hidden button",
+      "test_location": "candidate browser/action policy suite (KAN-14)",
+      "test_groups": [
+        "JSF-AJAX",
+        "SESSION-EXPIRED",
+        "DIRECT-REPLAY"
+      ],
+      "implemented": false
+    },
+    {
+      "id": "ACTION-02",
+      "page_id": "PAGE-01",
+      "source": "src/main/webapp/WEB-INF/templates/common/admin.xhtml",
+      "line": 31,
+      "attribute": "action",
+      "expression": "booking",
+      "bean_method": null,
+      "domain_mutation": false,
+      "allowed_roles": [
+        "Operator",
+        "Administrator"
+      ],
+      "anonymous": false,
+      "direct_template_request_allowed": false,
+      "enforcement": "Authorize backing action/getter and business service before execution; never trust a hidden button",
+      "test_location": "candidate browser/action policy suite (KAN-14)",
+      "test_groups": [
+        "JSF-AJAX",
+        "SESSION-EXPIRED",
+        "DIRECT-REPLAY"
+      ],
+      "implemented": false
+    },
+    {
+      "id": "ACTION-03",
+      "page_id": "PAGE-01",
+      "source": "src/main/webapp/WEB-INF/templates/common/admin.xhtml",
+      "line": 33,
+      "attribute": "action",
+      "expression": "/admin/track.xhtml",
+      "bean_method": null,
+      "domain_mutation": false,
+      "allowed_roles": [
+        "Reader",
+        "Operator",
+        "Administrator"
+      ],
+      "anonymous": false,
+      "direct_template_request_allowed": false,
+      "enforcement": "Authorize backing action/getter and business service before execution; never trust a hidden button",
+      "test_location": "candidate browser/action policy suite (KAN-14)",
+      "test_groups": [
+        "JSF-AJAX",
+        "SESSION-EXPIRED",
+        "DIRECT-REPLAY"
+      ],
+      "implemented": false
+    },
+    {
+      "id": "ACTION-04",
+      "page_id": "PAGE-01",
+      "source": "src/main/webapp/WEB-INF/templates/common/admin.xhtml",
+      "line": 35,
+      "attribute": "action",
+      "expression": "/admin/map.xhtml",
+      "bean_method": null,
+      "domain_mutation": false,
+      "allowed_roles": [
+        "Reader",
+        "Operator",
+        "Administrator"
+      ],
+      "anonymous": false,
+      "direct_template_request_allowed": false,
+      "enforcement": "Authorize backing action/getter and business service before execution; never trust a hidden button",
+      "test_location": "candidate browser/action policy suite (KAN-14)",
+      "test_groups": [
+        "JSF-AJAX",
+        "SESSION-EXPIRED",
+        "DIRECT-REPLAY"
+      ],
+      "implemented": false
+    },
+    {
+      "id": "ACTION-05",
+      "page_id": "PAGE-01",
+      "source": "src/main/webapp/WEB-INF/templates/common/admin.xhtml",
+      "line": 37,
+      "attribute": "action",
+      "expression": "/admin/about.xhtml",
+      "bean_method": null,
+      "domain_mutation": false,
+      "allowed_roles": [
+        "Reader",
+        "Operator",
+        "Administrator"
+      ],
+      "anonymous": false,
+      "direct_template_request_allowed": false,
+      "enforcement": "Authorize backing action/getter and business service before execution; never trust a hidden button",
+      "test_location": "candidate browser/action policy suite (KAN-14)",
+      "test_groups": [
+        "JSF-AJAX",
+        "SESSION-EXPIRED",
+        "DIRECT-REPLAY"
+      ],
+      "implemented": false
+    },
+    {
+      "id": "ACTION-06",
+      "page_id": "PAGE-02",
+      "source": "src/main/webapp/WEB-INF/templates/common/public.xhtml",
+      "line": 29,
+      "attribute": "action",
+      "expression": "/public/about.xhtml",
+      "bean_method": null,
+      "domain_mutation": false,
+      "allowed_roles": [
+        "Reader",
+        "Operator",
+        "Administrator"
+      ],
+      "anonymous": true,
+      "direct_template_request_allowed": false,
+      "enforcement": "Authorize backing action/getter and business service before execution; never trust a hidden button",
+      "test_location": "candidate browser/action policy suite (KAN-14)",
+      "test_groups": [
+        "JSF-AJAX",
+        "SESSION-EXPIRED",
+        "DIRECT-REPLAY"
+      ],
+      "implemented": false
+    },
+    {
+      "id": "ACTION-07",
+      "page_id": "PAGE-04",
+      "source": "src/main/webapp/admin/changeDestination.xhtml",
+      "line": 13,
+      "attribute": "action",
+      "expression": "#{changeDestination.load}",
+      "bean_method": "changeDestination.load",
+      "domain_mutation": false,
+      "allowed_roles": [
+        "Operator",
+        "Administrator"
+      ],
+      "anonymous": false,
+      "direct_template_request_allowed": null,
+      "enforcement": "Authorize backing action/getter and business service before execution; never trust a hidden button",
+      "test_location": "candidate browser/action policy suite (KAN-14)",
+      "test_groups": [
+        "JSF-AJAX",
+        "SESSION-EXPIRED",
+        "DIRECT-REPLAY"
+      ],
+      "implemented": false
+    },
+    {
+      "id": "ACTION-08",
+      "page_id": "PAGE-04",
+      "source": "src/main/webapp/admin/changeDestination.xhtml",
+      "line": 39,
+      "attribute": "action",
+      "expression": "#{changeDestinationDialog.cancel()}",
+      "bean_method": "changeDestinationDialog.cancel",
+      "domain_mutation": false,
+      "allowed_roles": [
+        "Operator",
+        "Administrator"
+      ],
+      "anonymous": false,
+      "direct_template_request_allowed": null,
+      "enforcement": "Authorize backing action/getter and business service before execution; never trust a hidden button",
+      "test_location": "candidate browser/action policy suite (KAN-14)",
+      "test_groups": [
+        "JSF-AJAX",
+        "SESSION-EXPIRED",
+        "DIRECT-REPLAY"
+      ],
+      "implemented": false
+    },
+    {
+      "id": "ACTION-09",
+      "page_id": "PAGE-04",
+      "source": "src/main/webapp/admin/changeDestination.xhtml",
+      "line": 43,
+      "attribute": "action",
+      "expression": "#{changeDestination.changeDestination()}",
+      "bean_method": "changeDestination.changeDestination",
+      "domain_mutation": true,
+      "allowed_roles": [
+        "Operator",
+        "Administrator"
+      ],
+      "anonymous": false,
+      "direct_template_request_allowed": null,
+      "enforcement": "Authorize backing action/getter and business service before execution; never trust a hidden button",
+      "test_location": "candidate browser/action policy suite (KAN-14)",
+      "test_groups": [
+        "DENIED-NO-SIDE-EFFECT",
+        "SESSION-EXPIRED",
+        "DIRECT-REPLAY"
+      ],
+      "implemented": false
+    },
+    {
+      "id": "ACTION-10",
+      "page_id": "PAGE-06",
+      "source": "src/main/webapp/admin/listClaimed.xhtml",
+      "line": 10,
+      "attribute": "outcome",
+      "expression": "show.xhtml?faces-redirect=true",
+      "bean_method": null,
+      "domain_mutation": false,
+      "allowed_roles": [
+        "Reader",
+        "Operator",
+        "Administrator"
+      ],
+      "anonymous": false,
+      "direct_template_request_allowed": null,
+      "enforcement": "Authorize backing action/getter and business service before execution; never trust a hidden button",
+      "test_location": "candidate browser/action policy suite (KAN-14)",
+      "test_groups": [
+        "JSF-AJAX",
+        "SESSION-EXPIRED",
+        "DIRECT-REPLAY"
+      ],
+      "implemented": false
+    },
+    {
+      "id": "ACTION-11",
+      "page_id": "PAGE-07",
+      "source": "src/main/webapp/admin/listNotRouted.xhtml",
+      "line": 10,
+      "attribute": "outcome",
+      "expression": "route.xhtml?faces-redirect=true",
+      "bean_method": null,
+      "domain_mutation": false,
+      "allowed_roles": [
+        "Operator",
+        "Administrator"
+      ],
+      "anonymous": false,
+      "direct_template_request_allowed": null,
+      "enforcement": "Authorize backing action/getter and business service before execution; never trust a hidden button",
+      "test_location": "candidate browser/action policy suite (KAN-14)",
+      "test_groups": [
+        "JSF-AJAX",
+        "SESSION-EXPIRED",
+        "DIRECT-REPLAY"
+      ],
+      "implemented": false
+    },
+    {
+      "id": "ACTION-12",
+      "page_id": "PAGE-07",
+      "source": "src/main/webapp/admin/listNotRouted.xhtml",
+      "line": 23,
+      "attribute": "action",
+      "expression": "#{changeDestinationDialog.showDialog(cargoNotRouted.trackingId)}",
+      "bean_method": "changeDestinationDialog.showDialog",
+      "domain_mutation": false,
+      "allowed_roles": [
+        "Operator",
+        "Administrator"
+      ],
+      "anonymous": false,
+      "direct_template_request_allowed": null,
+      "enforcement": "Authorize backing action/getter and business service before execution; never trust a hidden button",
+      "test_location": "candidate browser/action policy suite (KAN-14)",
+      "test_groups": [
+        "JSF-AJAX",
+        "SESSION-EXPIRED",
+        "DIRECT-REPLAY"
+      ],
+      "implemented": false
+    },
+    {
+      "id": "ACTION-13",
+      "page_id": "PAGE-07",
+      "source": "src/main/webapp/admin/listNotRouted.xhtml",
+      "line": 27,
+      "attribute": "listener",
+      "expression": "#{changeDestinationDialog.handleReturn}",
+      "bean_method": "changeDestinationDialog.handleReturn",
+      "domain_mutation": false,
+      "allowed_roles": [
+        "Operator",
+        "Administrator"
+      ],
+      "anonymous": false,
+      "direct_template_request_allowed": null,
+      "enforcement": "Authorize backing action/getter and business service before execution; never trust a hidden button",
+      "test_location": "candidate browser/action policy suite (KAN-14)",
+      "test_groups": [
+        "JSF-AJAX",
+        "SESSION-EXPIRED",
+        "DIRECT-REPLAY"
+      ],
+      "implemented": false
+    },
+    {
+      "id": "ACTION-14",
+      "page_id": "PAGE-08",
+      "source": "src/main/webapp/admin/listRouted.xhtml",
+      "line": 10,
+      "attribute": "outcome",
+      "expression": "show.xhtml?faces-redirect=true",
+      "bean_method": null,
+      "domain_mutation": false,
+      "allowed_roles": [
+        "Reader",
+        "Operator",
+        "Administrator"
+      ],
+      "anonymous": false,
+      "direct_template_request_allowed": null,
+      "enforcement": "Authorize backing action/getter and business service before execution; never trust a hidden button",
+      "test_location": "candidate browser/action policy suite (KAN-14)",
+      "test_groups": [
+        "JSF-AJAX",
+        "SESSION-EXPIRED",
+        "DIRECT-REPLAY"
+      ],
+      "implemented": false
+    },
+    {
+      "id": "ACTION-15",
+      "page_id": "PAGE-11",
+      "source": "src/main/webapp/admin/route.xhtml",
+      "line": 13,
+      "attribute": "listener",
+      "expression": "#{cargoDetails.load}",
+      "bean_method": "cargoDetails.load",
+      "domain_mutation": false,
+      "allowed_roles": [
+        "Operator",
+        "Administrator"
+      ],
+      "anonymous": false,
+      "direct_template_request_allowed": null,
+      "enforcement": "Authorize backing action/getter and business service before execution; never trust a hidden button",
+      "test_location": "candidate browser/action policy suite (KAN-14)",
+      "test_groups": [
+        "JSF-AJAX",
+        "SESSION-EXPIRED",
+        "DIRECT-REPLAY"
+      ],
+      "implemented": false
+    },
+    {
+      "id": "ACTION-16",
+      "page_id": "PAGE-11",
+      "source": "src/main/webapp/admin/route.xhtml",
+      "line": 15,
+      "attribute": "listener",
+      "expression": "#{itinerarySelection.load}",
+      "bean_method": "itinerarySelection.load",
+      "domain_mutation": false,
+      "allowed_roles": [
+        "Operator",
+        "Administrator"
+      ],
+      "anonymous": false,
+      "direct_template_request_allowed": null,
+      "enforcement": "Authorize backing action/getter and business service before execution; never trust a hidden button",
+      "test_location": "candidate browser/action policy suite (KAN-14)",
+      "test_groups": [
+        "JSF-AJAX",
+        "SESSION-EXPIRED",
+        "DIRECT-REPLAY"
+      ],
+      "implemented": false
+    },
+    {
+      "id": "ACTION-17",
+      "page_id": "PAGE-11",
+      "source": "src/main/webapp/admin/route.xhtml",
+      "line": 53,
+      "attribute": "action",
+      "expression": "#{itinerarySelection.assignItinerary(itineraryStatus.index)}",
+      "bean_method": "itinerarySelection.assignItinerary",
+      "domain_mutation": true,
+      "allowed_roles": [
+        "Operator",
+        "Administrator"
+      ],
+      "anonymous": false,
+      "direct_template_request_allowed": null,
+      "enforcement": "Authorize backing action/getter and business service before execution; never trust a hidden button",
+      "test_location": "candidate browser/action policy suite (KAN-14)",
+      "test_groups": [
+        "DENIED-NO-SIDE-EFFECT",
+        "SESSION-EXPIRED",
+        "DIRECT-REPLAY"
+      ],
+      "implemented": false
+    },
+    {
+      "id": "ACTION-18",
+      "page_id": "PAGE-12",
+      "source": "src/main/webapp/admin/selectItinerary.xhtml",
+      "line": 11,
+      "attribute": "action",
+      "expression": "#{itinerarySelection.load}",
+      "bean_method": "itinerarySelection.load",
+      "domain_mutation": false,
+      "allowed_roles": [
+        "Operator",
+        "Administrator"
+      ],
+      "anonymous": false,
+      "direct_template_request_allowed": null,
+      "enforcement": "Authorize backing action/getter and business service before execution; never trust a hidden button",
+      "test_location": "candidate browser/action policy suite (KAN-14)",
+      "test_groups": [
+        "JSF-AJAX",
+        "SESSION-EXPIRED",
+        "DIRECT-REPLAY"
+      ],
+      "implemented": false
+    },
+    {
+      "id": "ACTION-19",
+      "page_id": "PAGE-12",
+      "source": "src/main/webapp/admin/selectItinerary.xhtml",
+      "line": 60,
+      "attribute": "action",
+      "expression": "#{itinerarySelection.assignItinerary(itineraryStatus.index)}",
+      "bean_method": "itinerarySelection.assignItinerary",
+      "domain_mutation": true,
+      "allowed_roles": [
+        "Operator",
+        "Administrator"
+      ],
+      "anonymous": false,
+      "direct_template_request_allowed": null,
+      "enforcement": "Authorize backing action/getter and business service before execution; never trust a hidden button",
+      "test_location": "candidate browser/action policy suite (KAN-14)",
+      "test_groups": [
+        "DENIED-NO-SIDE-EFFECT",
+        "SESSION-EXPIRED",
+        "DIRECT-REPLAY"
+      ],
+      "implemented": false
+    },
+    {
+      "id": "ACTION-20",
+      "page_id": "PAGE-13",
+      "source": "src/main/webapp/admin/show.xhtml",
+      "line": 22,
+      "attribute": "listener",
+      "expression": "#{cargoDetails.load()}",
+      "bean_method": "cargoDetails.load",
+      "domain_mutation": false,
+      "allowed_roles": [
+        "Reader",
+        "Operator",
+        "Administrator"
+      ],
+      "anonymous": false,
+      "direct_template_request_allowed": null,
+      "enforcement": "Authorize backing action/getter and business service before execution; never trust a hidden button",
+      "test_location": "candidate browser/action policy suite (KAN-14)",
+      "test_groups": [
+        "JSF-AJAX",
+        "SESSION-EXPIRED",
+        "DIRECT-REPLAY"
+      ],
+      "implemented": false
+    },
+    {
+      "id": "ACTION-21",
+      "page_id": "PAGE-13",
+      "source": "src/main/webapp/admin/show.xhtml",
+      "line": 63,
+      "attribute": "outcome",
+      "expression": "selectItinerary.xhtml?faces-redirect=true",
+      "bean_method": null,
+      "domain_mutation": false,
+      "allowed_roles": [
+        "Operator",
+        "Administrator"
+      ],
+      "anonymous": false,
+      "direct_template_request_allowed": null,
+      "enforcement": "Authorize backing action/getter and business service before execution; never trust a hidden button",
+      "test_location": "candidate browser/action policy suite (KAN-14)",
+      "test_groups": [
+        "JSF-AJAX",
+        "SESSION-EXPIRED",
+        "DIRECT-REPLAY"
+      ],
+      "implemented": false
+    },
+    {
+      "id": "ACTION-22",
+      "page_id": "PAGE-13",
+      "source": "src/main/webapp/admin/show.xhtml",
+      "line": 107,
+      "attribute": "outcome",
+      "expression": "selectItinerary.xhtml?faces-redirect=true",
+      "bean_method": null,
+      "domain_mutation": false,
+      "allowed_roles": [
+        "Operator",
+        "Administrator"
+      ],
+      "anonymous": false,
+      "direct_template_request_allowed": null,
+      "enforcement": "Authorize backing action/getter and business service before execution; never trust a hidden button",
+      "test_location": "candidate browser/action policy suite (KAN-14)",
+      "test_groups": [
+        "JSF-AJAX",
+        "SESSION-EXPIRED",
+        "DIRECT-REPLAY"
+      ],
+      "implemented": false
+    },
+    {
+      "id": "ACTION-23",
+      "page_id": "PAGE-14",
+      "source": "src/main/webapp/admin/track.xhtml",
+      "line": 19,
+      "attribute": "completeMethod",
+      "expression": "#{track.completeTracking}",
+      "bean_method": "track.completeTracking",
+      "domain_mutation": false,
+      "allowed_roles": [
+        "Reader",
+        "Operator",
+        "Administrator"
+      ],
+      "anonymous": false,
+      "direct_template_request_allowed": null,
+      "enforcement": "Authorize backing action/getter and business service before execution; never trust a hidden button",
+      "test_location": "candidate browser/action policy suite (KAN-14)",
+      "test_groups": [
+        "JSF-AJAX",
+        "SESSION-EXPIRED",
+        "DIRECT-REPLAY"
+      ],
+      "implemented": false
+    },
+    {
+      "id": "ACTION-24",
+      "page_id": "PAGE-14",
+      "source": "src/main/webapp/admin/track.xhtml",
+      "line": 20,
+      "attribute": "actionListener",
+      "expression": "#{track.onTrackById}",
+      "bean_method": "track.onTrackById",
+      "domain_mutation": false,
+      "allowed_roles": [
+        "Reader",
+        "Operator",
+        "Administrator"
+      ],
+      "anonymous": false,
+      "direct_template_request_allowed": null,
+      "enforcement": "Authorize backing action/getter and business service before execution; never trust a hidden button",
+      "test_location": "candidate browser/action policy suite (KAN-14)",
+      "test_groups": [
+        "JSF-AJAX",
+        "SESSION-EXPIRED",
+        "DIRECT-REPLAY"
+      ],
+      "implemented": false
+    },
+    {
+      "id": "ACTION-25",
+      "page_id": "PAGE-14",
+      "source": "src/main/webapp/admin/track.xhtml",
+      "line": 60,
+      "attribute": "listener",
+      "expression": "#{track.onPointSelect}",
+      "bean_method": "track.onPointSelect",
+      "domain_mutation": false,
+      "allowed_roles": [
+        "Reader",
+        "Operator",
+        "Administrator"
+      ],
+      "anonymous": false,
+      "direct_template_request_allowed": null,
+      "enforcement": "Authorize backing action/getter and business service before execution; never trust a hidden button",
+      "test_location": "candidate browser/action policy suite (KAN-14)",
+      "test_groups": [
+        "JSF-AJAX",
+        "SESSION-EXPIRED",
+        "DIRECT-REPLAY"
+      ],
+      "implemented": false
+    },
+    {
+      "id": "ACTION-26",
+      "page_id": "PAGE-15",
+      "source": "src/main/webapp/booking/booking-date.xhtml",
+      "line": 33,
+      "attribute": "listener",
+      "expression": "#{bookingBackingBean.deadlineUpdated}",
+      "bean_method": "bookingBackingBean.deadlineUpdated",
+      "domain_mutation": false,
+      "allowed_roles": [
+        "Operator",
+        "Administrator"
+      ],
+      "anonymous": false,
+      "direct_template_request_allowed": null,
+      "enforcement": "Authorize backing action/getter and business service before execution; never trust a hidden button",
+      "test_location": "candidate browser/action policy suite (KAN-14)",
+      "test_groups": [
+        "JSF-AJAX",
+        "SESSION-EXPIRED",
+        "DIRECT-REPLAY"
+      ],
+      "implemented": false
+    },
+    {
+      "id": "ACTION-27",
+      "page_id": "PAGE-15",
+      "source": "src/main/webapp/booking/booking-date.xhtml",
+      "line": 46,
+      "attribute": "action",
+      "expression": "booking-destination",
+      "bean_method": null,
+      "domain_mutation": false,
+      "allowed_roles": [
+        "Operator",
+        "Administrator"
+      ],
+      "anonymous": false,
+      "direct_template_request_allowed": null,
+      "enforcement": "Authorize backing action/getter and business service before execution; never trust a hidden button",
+      "test_location": "candidate browser/action policy suite (KAN-14)",
+      "test_groups": [
+        "JSF-AJAX",
+        "SESSION-EXPIRED",
+        "DIRECT-REPLAY"
+      ],
+      "implemented": false
+    },
+    {
+      "id": "ACTION-28",
+      "page_id": "PAGE-15",
+      "source": "src/main/webapp/booking/booking-date.xhtml",
+      "line": 47,
+      "attribute": "action",
+      "expression": "/admin/dashboard",
+      "bean_method": null,
+      "domain_mutation": false,
+      "allowed_roles": [
+        "Operator",
+        "Administrator"
+      ],
+      "anonymous": false,
+      "direct_template_request_allowed": null,
+      "enforcement": "Authorize backing action/getter and business service before execution; never trust a hidden button",
+      "test_location": "candidate browser/action policy suite (KAN-14)",
+      "test_groups": [
+        "JSF-AJAX",
+        "SESSION-EXPIRED",
+        "DIRECT-REPLAY"
+      ],
+      "implemented": false
+    },
+    {
+      "id": "ACTION-29",
+      "page_id": "PAGE-15",
+      "source": "src/main/webapp/booking/booking-date.xhtml",
+      "line": 48,
+      "attribute": "action",
+      "expression": "#{bookingBackingBean.register()}",
+      "bean_method": "bookingBackingBean.register",
+      "domain_mutation": true,
+      "allowed_roles": [
+        "Operator",
+        "Administrator"
+      ],
+      "anonymous": false,
+      "direct_template_request_allowed": null,
+      "enforcement": "Authorize backing action/getter and business service before execution; never trust a hidden button",
+      "test_location": "candidate browser/action policy suite (KAN-14)",
+      "test_groups": [
+        "DENIED-NO-SIDE-EFFECT",
+        "SESSION-EXPIRED",
+        "DIRECT-REPLAY"
+      ],
+      "implemented": false
+    },
+    {
+      "id": "ACTION-30",
+      "page_id": "PAGE-16",
+      "source": "src/main/webapp/booking/booking-destination.xhtml",
+      "line": 38,
+      "attribute": "action",
+      "expression": "booking",
+      "bean_method": null,
+      "domain_mutation": false,
+      "allowed_roles": [
+        "Operator",
+        "Administrator"
+      ],
+      "anonymous": false,
+      "direct_template_request_allowed": null,
+      "enforcement": "Authorize backing action/getter and business service before execution; never trust a hidden button",
+      "test_location": "candidate browser/action policy suite (KAN-14)",
+      "test_groups": [
+        "JSF-AJAX",
+        "SESSION-EXPIRED",
+        "DIRECT-REPLAY"
+      ],
+      "implemented": false
+    },
+    {
+      "id": "ACTION-31",
+      "page_id": "PAGE-16",
+      "source": "src/main/webapp/booking/booking-destination.xhtml",
+      "line": 39,
+      "attribute": "action",
+      "expression": "/admin/dashboard",
+      "bean_method": null,
+      "domain_mutation": false,
+      "allowed_roles": [
+        "Operator",
+        "Administrator"
+      ],
+      "anonymous": false,
+      "direct_template_request_allowed": null,
+      "enforcement": "Authorize backing action/getter and business service before execution; never trust a hidden button",
+      "test_location": "candidate browser/action policy suite (KAN-14)",
+      "test_groups": [
+        "JSF-AJAX",
+        "SESSION-EXPIRED",
+        "DIRECT-REPLAY"
+      ],
+      "implemented": false
+    },
+    {
+      "id": "ACTION-32",
+      "page_id": "PAGE-16",
+      "source": "src/main/webapp/booking/booking-destination.xhtml",
+      "line": 40,
+      "attribute": "action",
+      "expression": "booking-date",
+      "bean_method": null,
+      "domain_mutation": false,
+      "allowed_roles": [
+        "Operator",
+        "Administrator"
+      ],
+      "anonymous": false,
+      "direct_template_request_allowed": null,
+      "enforcement": "Authorize backing action/getter and business service before execution; never trust a hidden button",
+      "test_location": "candidate browser/action policy suite (KAN-14)",
+      "test_groups": [
+        "JSF-AJAX",
+        "SESSION-EXPIRED",
+        "DIRECT-REPLAY"
+      ],
+      "implemented": false
+    },
+    {
+      "id": "ACTION-33",
+      "page_id": "PAGE-17",
+      "source": "src/main/webapp/booking/booking.xhtml",
+      "line": 36,
+      "attribute": "action",
+      "expression": "/admin/dashboard",
+      "bean_method": null,
+      "domain_mutation": false,
+      "allowed_roles": [
+        "Operator",
+        "Administrator"
+      ],
+      "anonymous": false,
+      "direct_template_request_allowed": null,
+      "enforcement": "Authorize backing action/getter and business service before execution; never trust a hidden button",
+      "test_location": "candidate browser/action policy suite (KAN-14)",
+      "test_groups": [
+        "JSF-AJAX",
+        "SESSION-EXPIRED",
+        "DIRECT-REPLAY"
+      ],
+      "implemented": false
+    },
+    {
+      "id": "ACTION-34",
+      "page_id": "PAGE-17",
+      "source": "src/main/webapp/booking/booking.xhtml",
+      "line": 36,
+      "attribute": "action",
+      "expression": "booking-destination",
+      "bean_method": null,
+      "domain_mutation": false,
+      "allowed_roles": [
+        "Operator",
+        "Administrator"
+      ],
+      "anonymous": false,
+      "direct_template_request_allowed": null,
+      "enforcement": "Authorize backing action/getter and business service before execution; never trust a hidden button",
+      "test_location": "candidate browser/action policy suite (KAN-14)",
+      "test_groups": [
+        "JSF-AJAX",
+        "SESSION-EXPIRED",
+        "DIRECT-REPLAY"
+      ],
+      "implemented": false
+    },
+    {
+      "id": "ACTION-35",
+      "page_id": "PAGE-20",
+      "source": "src/main/webapp/eventLogger/eventLogger.xhtml",
+      "line": 24,
+      "attribute": "outcome",
+      "expression": "pm:secondScreen?transition=flip",
+      "bean_method": null,
+      "domain_mutation": false,
+      "allowed_roles": [
+        "Operator",
+        "Administrator"
+      ],
+      "anonymous": false,
+      "direct_template_request_allowed": null,
+      "enforcement": "Authorize backing action/getter and business service before execution; never trust a hidden button",
+      "test_location": "candidate browser/action policy suite (KAN-14)",
+      "test_groups": [
+        "JSF-AJAX",
+        "SESSION-EXPIRED",
+        "DIRECT-REPLAY"
+      ],
+      "implemented": false
+    },
+    {
+      "id": "ACTION-36",
+      "page_id": "PAGE-20",
+      "source": "src/main/webapp/eventLogger/eventLogger.xhtml",
+      "line": 38,
+      "attribute": "listener",
+      "expression": "#{eventBackingBean.updateVoyage}",
+      "bean_method": "eventBackingBean.updateVoyage",
+      "domain_mutation": false,
+      "allowed_roles": [
+        "Operator",
+        "Administrator"
+      ],
+      "anonymous": false,
+      "direct_template_request_allowed": null,
+      "enforcement": "Authorize backing action/getter and business service before execution; never trust a hidden button",
+      "test_location": "candidate browser/action policy suite (KAN-14)",
+      "test_groups": [
+        "JSF-AJAX",
+        "SESSION-EXPIRED",
+        "DIRECT-REPLAY"
+      ],
+      "implemented": false
+    },
+    {
+      "id": "ACTION-37",
+      "page_id": "PAGE-20",
+      "source": "src/main/webapp/eventLogger/eventLogger.xhtml",
+      "line": 47,
+      "attribute": "listener",
+      "expression": "#{eventBackingBean.updateListener}",
+      "bean_method": "eventBackingBean.updateListener",
+      "domain_mutation": false,
+      "allowed_roles": [
+        "Operator",
+        "Administrator"
+      ],
+      "anonymous": false,
+      "direct_template_request_allowed": null,
+      "enforcement": "Authorize backing action/getter and business service before execution; never trust a hidden button",
+      "test_location": "candidate browser/action policy suite (KAN-14)",
+      "test_groups": [
+        "JSF-AJAX",
+        "SESSION-EXPIRED",
+        "DIRECT-REPLAY"
+      ],
+      "implemented": false
+    },
+    {
+      "id": "ACTION-38",
+      "page_id": "PAGE-20",
+      "source": "src/main/webapp/eventLogger/eventLogger.xhtml",
+      "line": 61,
+      "attribute": "listener",
+      "expression": "#{eventBackingBean.updateListenerEvent}",
+      "bean_method": "eventBackingBean.updateListenerEvent",
+      "domain_mutation": false,
+      "allowed_roles": [
+        "Operator",
+        "Administrator"
+      ],
+      "anonymous": false,
+      "direct_template_request_allowed": null,
+      "enforcement": "Authorize backing action/getter and business service before execution; never trust a hidden button",
+      "test_location": "candidate browser/action policy suite (KAN-14)",
+      "test_groups": [
+        "JSF-AJAX",
+        "SESSION-EXPIRED",
+        "DIRECT-REPLAY"
+      ],
+      "implemented": false
+    },
+    {
+      "id": "ACTION-39",
+      "page_id": "PAGE-20",
+      "source": "src/main/webapp/eventLogger/eventLogger.xhtml",
+      "line": 68,
+      "attribute": "listener",
+      "expression": "#{eventBackingBean.updateListenerEvent}",
+      "bean_method": "eventBackingBean.updateListenerEvent",
+      "domain_mutation": false,
+      "allowed_roles": [
+        "Operator",
+        "Administrator"
+      ],
+      "anonymous": false,
+      "direct_template_request_allowed": null,
+      "enforcement": "Authorize backing action/getter and business service before execution; never trust a hidden button",
+      "test_location": "candidate browser/action policy suite (KAN-14)",
+      "test_groups": [
+        "JSF-AJAX",
+        "SESSION-EXPIRED",
+        "DIRECT-REPLAY"
+      ],
+      "implemented": false
+    },
+    {
+      "id": "ACTION-40",
+      "page_id": "PAGE-20",
+      "source": "src/main/webapp/eventLogger/eventLogger.xhtml",
+      "line": 86,
+      "attribute": "outcome",
+      "expression": "pm:firstScreen?transition=flip",
+      "bean_method": null,
+      "domain_mutation": false,
+      "allowed_roles": [
+        "Operator",
+        "Administrator"
+      ],
+      "anonymous": false,
+      "direct_template_request_allowed": null,
+      "enforcement": "Authorize backing action/getter and business service before execution; never trust a hidden button",
+      "test_location": "candidate browser/action policy suite (KAN-14)",
+      "test_groups": [
+        "JSF-AJAX",
+        "SESSION-EXPIRED",
+        "DIRECT-REPLAY"
+      ],
+      "implemented": false
+    },
+    {
+      "id": "ACTION-41",
+      "page_id": "PAGE-20",
+      "source": "src/main/webapp/eventLogger/eventLogger.xhtml",
+      "line": 90,
+      "attribute": "actionListener",
+      "expression": "#{eventBackingBean.handleEventSubmission}",
+      "bean_method": "eventBackingBean.handleEventSubmission",
+      "domain_mutation": true,
+      "allowed_roles": [
+        "Operator",
+        "Administrator"
+      ],
+      "anonymous": false,
+      "direct_template_request_allowed": null,
+      "enforcement": "Authorize backing action/getter and business service before execution; never trust a hidden button",
+      "test_location": "candidate browser/action policy suite (KAN-14)",
+      "test_groups": [
+        "DENIED-NO-SIDE-EFFECT",
+        "SESSION-EXPIRED",
+        "DIRECT-REPLAY"
+      ],
+      "implemented": false
+    },
+    {
+      "id": "ACTION-42",
+      "page_id": "PAGE-20",
+      "source": "src/main/webapp/eventLogger/eventLogger.xhtml",
+      "line": 107,
+      "attribute": "listener",
+      "expression": "#{eventBackingBean.timeSet()}",
+      "bean_method": "eventBackingBean.timeSet",
+      "domain_mutation": false,
+      "allowed_roles": [
+        "Operator",
+        "Administrator"
+      ],
+      "anonymous": false,
+      "direct_template_request_allowed": null,
+      "enforcement": "Authorize backing action/getter and business service before execution; never trust a hidden button",
+      "test_location": "candidate browser/action policy suite (KAN-14)",
+      "test_groups": [
+        "JSF-AJAX",
+        "SESSION-EXPIRED",
+        "DIRECT-REPLAY"
+      ],
+      "implemented": false
+    },
+    {
+      "id": "ACTION-43",
+      "page_id": "PAGE-23",
+      "source": "src/main/webapp/mobile.xhtml",
+      "line": 10,
+      "attribute": "action",
+      "expression": "#{holderBean.initFlow}",
+      "bean_method": "holderBean.initFlow",
+      "domain_mutation": false,
+      "allowed_roles": [
+        "Operator",
+        "Administrator"
+      ],
+      "anonymous": false,
+      "direct_template_request_allowed": null,
+      "enforcement": "Authorize backing action/getter and business service before execution; never trust a hidden button",
+      "test_location": "candidate browser/action policy suite (KAN-14)",
+      "test_groups": [
+        "JSF-AJAX",
+        "SESSION-EXPIRED",
+        "DIRECT-REPLAY"
+      ],
+      "implemented": false
+    },
+    {
+      "id": "ACTION-44",
+      "page_id": "PAGE-25",
+      "source": "src/main/webapp/public/track.xhtml",
+      "line": 17,
+      "attribute": "completeMethod",
+      "expression": "#{track.getTrackingIds}",
+      "bean_method": "track.getTrackingIds",
+      "domain_mutation": false,
+      "allowed_roles": [
+        "Reader",
+        "Operator",
+        "Administrator"
+      ],
+      "anonymous": false,
+      "direct_template_request_allowed": null,
+      "enforcement": "Authorize backing action/getter and business service before execution; never trust a hidden button",
+      "test_location": "candidate browser/action policy suite (KAN-14)",
+      "test_groups": [
+        "JSF-AJAX",
+        "SESSION-EXPIRED",
+        "DIRECT-REPLAY"
+      ],
+      "implemented": false
+    },
+    {
+      "id": "ACTION-45",
+      "page_id": "PAGE-25",
+      "source": "src/main/webapp/public/track.xhtml",
+      "line": 18,
+      "attribute": "actionListener",
+      "expression": "#{track.onTrackById}",
+      "bean_method": "track.onTrackById",
+      "domain_mutation": false,
+      "allowed_roles": [
+        "Reader",
+        "Operator",
+        "Administrator"
+      ],
+      "anonymous": false,
+      "direct_template_request_allowed": null,
+      "enforcement": "Authorize backing action/getter and business service before execution; never trust a hidden button",
+      "test_location": "candidate browser/action policy suite (KAN-14)",
+      "test_groups": [
+        "JSF-AJAX",
+        "SESSION-EXPIRED",
+        "DIRECT-REPLAY"
+      ],
+      "implemented": false
+    }
+  ],
+  "flows": [
+    {
+      "source": "src/main/webapp/booking/booking-flow.xml",
+      "path": "/cargo-tracker/booking/booking-flow.xml",
+      "allowed_roles": [],
+      "flow_entry_roles": [
+        "Operator",
+        "Administrator"
+      ],
+      "raw_metadata_http_allowed": false,
+      "anonymous": false,
+      "enforcement": "Deny direct XML metadata to every HTTP caller; protect flow entry and each view/callback; flow-return targets are navigation, not permissions",
+      "test_location": "candidate browser flow suite (KAN-14)",
+      "test_groups": [
+        "FLOW-BYPASS",
+        "SESSION-EXPIRED"
+      ],
+      "return_expressions": [
+        "#{bookingBean.returnValue}"
+      ]
+    },
+    {
+      "source": "src/main/webapp/eventLogger/eventLogger-flow.xml",
+      "path": "/cargo-tracker/eventLogger/eventLogger-flow.xml",
+      "allowed_roles": [],
+      "flow_entry_roles": [
+        "Operator",
+        "Administrator"
+      ],
+      "raw_metadata_http_allowed": false,
+      "anonymous": false,
+      "enforcement": "Deny direct XML metadata to every HTTP caller; protect flow entry and each view/callback; flow-return targets are navigation, not permissions",
+      "test_location": "candidate browser flow suite (KAN-14)",
+      "test_groups": [
+        "FLOW-BYPASS",
+        "SESSION-EXPIRED"
+      ],
+      "return_expressions": [
+        "#{bookingBean.returnValue}"
+      ]
+    }
+  ],
+  "interfaces": [
+    {
+      "id": "API-01",
+      "method": "GET/HEAD",
+      "path": "/cargo-tracker/rest/cargo",
+      "allowed_roles": [
+        "Reader",
+        "Operator",
+        "Administrator"
+      ],
+      "anonymous": false,
+      "entry": "CargoMonitoringService.getAllCargo",
+      "service": "Direct CargoRepository.findAll",
+      "test_groups": [
+        "API-READ",
+        "NO-LOGIN-HTML",
+        "RENDER-NO-LEAK"
+      ],
+      "enforcement": "Server HTTP/upgrade boundary plus application/repository/event boundary before access; no role claims from payload",
+      "test_location": "candidate API/WebSocket policy suite (KAN-14)",
+      "implemented": false
+    },
+    {
+      "id": "API-02",
+      "method": "POST",
+      "path": "/cargo-tracker/rest/handling/reports",
+      "allowed_roles": [
+        "Operator",
+        "Administrator"
+      ],
+      "anonymous": false,
+      "entry": "HandlingReportService.submitReport",
+      "service": "ApplicationEvents.receivedHandlingEventRegistrationAttempt -> registration consumer/service",
+      "test_groups": [
+        "API-WRITE",
+        "DENIED-NO-SIDE-EFFECT",
+        "CSRF",
+        "SESSION-EXPIRED"
+      ],
+      "enforcement": "Server HTTP/upgrade boundary plus application/repository/event boundary before access; no role claims from payload",
+      "test_location": "candidate API/WebSocket policy suite (KAN-14)",
+      "implemented": false
+    },
+    {
+      "id": "API-03",
+      "method": "GET",
+      "path": "/cargo-tracker/rest/graph-traversal/shortest-path",
+      "allowed_roles": [
+        "Operator",
+        "Administrator"
+      ],
+      "anonymous": false,
+      "entry": "GraphTraversalService.findShortestPath",
+      "service": "ExternalRoutingService.fetchRoutesForSpecification internal HTTP caller",
+      "internal_caller": "Scoped routing service identity; exact credential propagation/capability mapping to resolve in KAN-13/KAN-15",
+      "test_groups": [
+        "INTERNAL-CALLER",
+        "API-READ",
+        "LEAST-PRIVILEGE"
+      ],
+      "enforcement": "Server HTTP/upgrade boundary plus application/repository/event boundary before access; no role claims from payload",
+      "test_location": "candidate API/WebSocket policy suite (KAN-14)",
+      "implemented": false
+    },
+    {
+      "id": "WS-01",
+      "method": "HTTP Upgrade / send / close",
+      "path": "/cargo-tracker/tracking",
+      "allowed_roles": [
+        "Reader",
+        "Operator",
+        "Administrator"
+      ],
+      "anonymous": false,
+      "entry": "RealtimeCargoTrackingService.onOpen/onCargoInspected/onClose",
+      "test_groups": [
+        "WS-UPGRADE",
+        "WS-ORIGIN",
+        "WS-DATA",
+        "SESSION-EXPIRED",
+        "WS-DISCONNECT"
+      ],
+      "enforcement": "Server HTTP/upgrade boundary plus application/repository/event boundary before access; no role claims from payload",
+      "test_location": "candidate API/WebSocket policy suite (KAN-14)",
+      "implemented": false
+    }
+  ],
+  "background": [
+    {
+      "id": "BG-01",
+      "entry": "UploadDirectoryScanner.processFiles -> EventFilesProcessorJob",
+      "control": "Administrator controls enablement/trigger; disabled in candidate until controlled invocation is implemented",
+      "identity": "Trusted scheduler/batch worker; no implied logged-in human principal",
+      "test_groups": [
+        "BATCH-TRIGGER",
+        "BATCH-FS",
+        "DENIED-NO-SIDE-EFFECT"
+      ],
+      "allowed_roles": [
+        "Administrator"
+      ],
+      "human_roles_apply_to": "Controlled import initiation only; worker/deployment invocation has separate machine authority",
+      "anonymous": false,
+      "enforcement": "Admin control plane plus least-privilege scheduler/broker/filesystem/deployment controls; not a servlet-role check on an MDB",
+      "test_location": "candidate internal/batch/deployment policy suite (KAN-14 and later resilience tasks)",
+      "implemented": false
+    },
+    {
+      "id": "BG-02",
+      "entry": "/tmp/uploads -> EventItemReader -> EventItemWriter; /tmp/archive and /tmp/failed",
+      "control": "Administrator-controlled ingestion; OS/container filesystem ACLs restrict upload/archive/failed paths to dedicated worker and approved administration tooling",
+      "identity": "Trusted filesystem producer and batch worker, not untrusted HTTP caller",
+      "test_groups": [
+        "BATCH-FS",
+        "BATCH-REPLAY",
+        "LEAST-PRIVILEGE"
+      ],
+      "allowed_roles": [
+        "Administrator"
+      ],
+      "human_roles_apply_to": "Controlled import initiation only; worker/deployment invocation has separate machine authority",
+      "anonymous": false,
+      "enforcement": "Admin control plane plus least-privilege scheduler/broker/filesystem/deployment controls; not a servlet-role check on an MDB",
+      "test_location": "candidate internal/batch/deployment policy suite (KAN-14 and later resilience tasks)",
+      "implemented": false
+    },
+    {
+      "id": "BG-03",
+      "entry": "HandlingEventRegistrationAttemptQueue -> HandlingEventRegistrationAttemptConsumer",
+      "control": "Only authorized operator/admin submission adapters and trusted batch worker may enqueue; broker/JNDI access restricts arbitrary producers",
+      "identity": "Dedicated server worker authority; human identity does not automatically propagate through ObjectMessage",
+      "test_groups": [
+        "JMS-PRODUCER",
+        "DENIED-NO-SIDE-EFFECT",
+        "BATCH-REPLAY"
+      ],
+      "allowed_roles": [],
+      "human_roles_apply_to": "Controlled import initiation only; worker/deployment invocation has separate machine authority",
+      "anonymous": false,
+      "enforcement": "Admin control plane plus least-privilege scheduler/broker/filesystem/deployment controls; not a servlet-role check on an MDB",
+      "test_location": "candidate internal/batch/deployment policy suite (KAN-14 and later resilience tasks)",
+      "implemented": false
+    },
+    {
+      "id": "BG-04",
+      "entry": "CargoHandledQueue -> CargoHandledConsumer -> inspectCargo -> CargoInspected",
+      "control": "Trusted registration-service producer and inspection worker; no public direct invocation",
+      "identity": "Server worker; audit origin/correlation to be designed, not trusted role fields in payload",
+      "test_groups": [
+        "JMS-PRODUCER",
+        "WS-DATA",
+        "LEAST-PRIVILEGE"
+      ],
+      "allowed_roles": [],
+      "human_roles_apply_to": "Controlled import initiation only; worker/deployment invocation has separate machine authority",
+      "anonymous": false,
+      "enforcement": "Admin control plane plus least-privilege scheduler/broker/filesystem/deployment controls; not a servlet-role check on an MDB",
+      "test_location": "candidate internal/batch/deployment policy suite (KAN-14 and later resilience tasks)",
+      "implemented": false
+    },
+    {
+      "id": "BG-05",
+      "entry": "DeliveredCargoQueue / MisdirectedCargoQueue / RejectedRegistrationAttemptsQueue consumers",
+      "control": "Trusted producer/consumer bindings and sanitized restricted logs; rejection producer/final disposition still unverified",
+      "identity": "Server workers",
+      "test_groups": [
+        "JMS-PRODUCER",
+        "LOG-NO-LEAK"
+      ],
+      "allowed_roles": [],
+      "human_roles_apply_to": "Controlled import initiation only; worker/deployment invocation has separate machine authority",
+      "anonymous": false,
+      "enforcement": "Admin control plane plus least-privilege scheduler/broker/filesystem/deployment controls; not a servlet-role check on an MDB",
+      "test_location": "candidate internal/batch/deployment policy suite (KAN-14 and later resilience tasks)",
+      "implemented": false
+    },
+    {
+      "id": "BG-06",
+      "entry": "SampleDataGenerator.loadSampleData and ORM startup schema creation",
+      "control": "Disable destructive reseeding/schema creation in deployed candidate; controlled installation/migration process only",
+      "identity": "Deployment/migration identity separate from request users",
+      "test_groups": [
+        "STARTUP-NO-DELETE",
+        "LEAST-PRIVILEGE"
+      ],
+      "allowed_roles": [],
+      "human_roles_apply_to": "Controlled import initiation only; worker/deployment invocation has separate machine authority",
+      "anonymous": false,
+      "enforcement": "Admin control plane plus least-privilege scheduler/broker/filesystem/deployment controls; not a servlet-role check on an MDB",
+      "test_location": "candidate internal/batch/deployment policy suite (KAN-14 and later resilience tasks)",
+      "implemented": false
+    }
+  ],
+  "auxiliary_files": [
+    {
+      "path": "/cargo-tracker/WEB-INF/faces-config.xml",
+      "source": "src/main/webapp/WEB-INF/faces-config.xml",
+      "classification": "private-metadata-or-source-note",
+      "allowed_roles": [],
+      "anonymous": false,
+      "enforcement": "Deny direct access to metadata/source notes, including booking/todo.txt; no public default allow",
+      "test_location": "candidate resource policy suite (KAN-14)",
+      "test_groups": [
+        "RESOURCE-BYPASS"
+      ]
+    },
+    {
+      "path": "/cargo-tracker/WEB-INF/glassfish-web.xml",
+      "source": "src/main/webapp/WEB-INF/glassfish-web.xml",
+      "classification": "private-metadata-or-source-note",
+      "allowed_roles": [],
+      "anonymous": false,
+      "enforcement": "Deny direct access to metadata/source notes, including booking/todo.txt; no public default allow",
+      "test_location": "candidate resource policy suite (KAN-14)",
+      "test_groups": [
+        "RESOURCE-BYPASS"
+      ]
+    },
+    {
+      "path": "/cargo-tracker/WEB-INF/web.xml",
+      "source": "src/main/webapp/WEB-INF/web.xml",
+      "classification": "private-metadata-or-source-note",
+      "allowed_roles": [],
+      "anonymous": false,
+      "enforcement": "Deny direct access to metadata/source notes, including booking/todo.txt; no public default allow",
+      "test_location": "candidate resource policy suite (KAN-14)",
+      "test_groups": [
+        "RESOURCE-BYPASS"
+      ]
+    },
+    {
+      "path": "/cargo-tracker/WEB-INF/weblogic.xml",
+      "source": "src/main/webapp/WEB-INF/weblogic.xml",
+      "classification": "private-metadata-or-source-note",
+      "allowed_roles": [],
+      "anonymous": false,
+      "enforcement": "Deny direct access to metadata/source notes, including booking/todo.txt; no public default allow",
+      "test_location": "candidate resource policy suite (KAN-14)",
+      "test_groups": [
+        "RESOURCE-BYPASS"
+      ]
+    },
+    {
+      "path": "/cargo-tracker/booking/todo.txt",
+      "source": "src/main/webapp/booking/todo.txt",
+      "classification": "private-metadata-or-source-note",
+      "allowed_roles": [],
+      "anonymous": false,
+      "enforcement": "Deny direct access to metadata/source notes, including booking/todo.txt; no public default allow",
+      "test_location": "candidate resource policy suite (KAN-14)",
+      "test_groups": [
+        "RESOURCE-BYPASS"
+      ]
+    }
+  ],
+  "service_boundaries": [
+    {
+      "id": "SERVICE-01",
+      "entry": "BookingService.bookNewCargo / assignCargoToRoute / changeDestination",
+      "allowed_roles": [
+        "Operator",
+        "Administrator"
+      ],
+      "anonymous": false,
+      "enforcement": "BookingBackingBean, Registration, CargoAdmin, facade and direct business invocation",
+      "test_location": "candidate application boundary suite (KAN-14)",
+      "test_groups": [
+        "DENIED-NO-SIDE-EFFECT",
+        "LEAST-PRIVILEGE"
+      ],
+      "implemented": false
+    },
+    {
+      "id": "SERVICE-02",
+      "entry": "BookingService.requestPossibleRoutesForCargo and routing facade",
+      "allowed_roles": [
+        "Operator",
+        "Administrator"
+      ],
+      "anonymous": false,
+      "enforcement": "ItinerarySelection.load runs on GET/preRender as well as AJAX; internal routing identity required",
+      "test_location": "candidate application boundary suite (KAN-14)",
+      "test_groups": [
+        "INTERNAL-CALLER",
+        "LEAST-PRIVILEGE"
+      ],
+      "implemented": false
+    },
+    {
+      "id": "SERVICE-03",
+      "entry": "Read-only booking facade, CargoRepository/HandlingEventRepository reads",
+      "allowed_roles": [
+        "Reader",
+        "Operator",
+        "Administrator"
+      ],
+      "anonymous": false,
+      "enforcement": "CargoDetails, ListCargo, Track, CargoMonitoringService and read getters",
+      "test_location": "candidate application boundary suite (KAN-14)",
+      "test_groups": [
+        "RENDER-NO-LEAK",
+        "LEAST-PRIVILEGE"
+      ],
+      "implemented": false
+    },
+    {
+      "id": "SERVICE-04",
+      "entry": "HandlingEventService.registerHandlingEvent / CargoInspectionService.inspectCargo",
+      "allowed_roles": [],
+      "anonymous": false,
+      "enforcement": "Only trusted worker invocation; deny exposed request path; do not assume original caller roles propagate",
+      "test_location": "candidate application boundary suite (KAN-14)",
+      "test_groups": [
+        "JMS-PRODUCER",
+        "LEAST-PRIVILEGE"
+      ],
+      "implemented": false
+    }
+  ],
+  "annotation_inventory": [
+    {
+      "source": "src/main/java/net/java/cargotracker/application/util/RestConfiguration.java",
+      "line": 14,
+      "declaration": "@ApplicationPath(\"rest\")"
+    },
+    {
+      "source": "src/main/java/net/java/cargotracker/application/util/SampleDataGenerator.java",
+      "line": 32,
+      "declaration": "@Startup"
+    },
+    {
+      "source": "src/main/java/net/java/cargotracker/infrastructure/messaging/jms/CargoHandledConsumer.java",
+      "line": 22,
+      "declaration": "@MessageDriven(activationConfig = {"
+    },
+    {
+      "source": "src/main/java/net/java/cargotracker/infrastructure/messaging/jms/DeliveredCargoConsumer.java",
+      "line": 11,
+      "declaration": "@MessageDriven(activationConfig = {"
+    },
+    {
+      "source": "src/main/java/net/java/cargotracker/infrastructure/messaging/jms/HandlingEventRegistrationAttemptConsumer.java",
+      "line": 18,
+      "declaration": "@MessageDriven(activationConfig = {"
+    },
+    {
+      "source": "src/main/java/net/java/cargotracker/infrastructure/messaging/jms/MisdirectedCargoConsumer.java",
+      "line": 11,
+      "declaration": "@MessageDriven(activationConfig = {"
+    },
+    {
+      "source": "src/main/java/net/java/cargotracker/infrastructure/messaging/jms/RejectedRegistrationAttemptsConsumer.java",
+      "line": 11,
+      "declaration": "@MessageDriven(activationConfig = {"
+    },
+    {
+      "source": "src/main/java/net/java/cargotracker/interfaces/booking/rest/CargoMonitoringService.java",
+      "line": 17,
+      "declaration": "@Path(\"/cargo\")"
+    },
+    {
+      "source": "src/main/java/net/java/cargotracker/interfaces/booking/socket/RealtimeCargoTrackingService.java",
+      "line": 27,
+      "declaration": "@ServerEndpoint(\"/tracking\")"
+    },
+    {
+      "source": "src/main/java/net/java/cargotracker/interfaces/booking/socket/RealtimeCargoTrackingService.java",
+      "line": 35,
+      "declaration": "@OnOpen"
+    },
+    {
+      "source": "src/main/java/net/java/cargotracker/interfaces/booking/socket/RealtimeCargoTrackingService.java",
+      "line": 42,
+      "declaration": "@OnClose"
+    },
+    {
+      "source": "src/main/java/net/java/cargotracker/interfaces/booking/socket/RealtimeCargoTrackingService.java",
+      "line": 47,
+      "declaration": "public void onCargoInspected(@Observes @CargoInspected Cargo cargo) {"
+    },
+    {
+      "source": "src/main/java/net/java/cargotracker/interfaces/handling/file/UploadDirectoryScanner.java",
+      "line": 18,
+      "declaration": "@Schedule(minute = \"*/2\", hour = \"*\") // Runs every fifteen minutes"
+    },
+    {
+      "source": "src/main/java/net/java/cargotracker/interfaces/handling/rest/HandlingReportService.java",
+      "line": 29,
+      "declaration": "@Path(\"/handling\")"
+    },
+    {
+      "source": "src/main/java/net/java/cargotracker/interfaces/handling/rest/HandlingReportService.java",
+      "line": 39,
+      "declaration": "@Path(\"/reports\")"
+    },
+    {
+      "source": "src/main/java/net/java/pathfinder/api/GraphTraversalService.java",
+      "line": 15,
+      "declaration": "@Path(\"/graph-traversal\")"
+    },
+    {
+      "source": "src/main/java/net/java/pathfinder/api/GraphTraversalService.java",
+      "line": 25,
+      "declaration": "@Path(\"/shortest-path\")"
+    }
+  ],
+  "source_sha256": {
+    "src/main/webapp/WEB-INF/faces-config.xml": "d301465073fa8e3bde260f5fcf227bb238681d7f1a143b747eb70c39f749fc5b",
+    "src/main/webapp/WEB-INF/glassfish-web.xml": "7d18fecc42ae64a2aa448fe533b838af8014ea8664a6c5a35fa74388695aac26",
+    "src/main/webapp/WEB-INF/templates/common/admin.xhtml": "9498a8ea7362d95f0112d341211a2ec0f44ec348fdec98c672dab42a81c01448",
+    "src/main/webapp/WEB-INF/templates/common/public.xhtml": "7e915b7fe70398ab348fadf57c4e72a54c4aae95f41f1c420548726ec64683b5",
+    "src/main/webapp/WEB-INF/web.xml": "2fb266da311a325c076f2e60da08dacf9257f73c21eb79f56f88d60ed2193a9c",
+    "src/main/webapp/WEB-INF/weblogic.xml": "90601ff85bb31cf7dbc6eef225449ff5e1144ab09cd171e78abb6c5b80dde90b",
+    "src/main/webapp/admin/about.xhtml": "5817d1f0e81f64c548e89ecba42ae82afb6fe0b0561a6f61432b35a469567de4",
+    "src/main/webapp/admin/changeDestination.xhtml": "a8872c4de0279a27f14a0ec3f8827efdd576f1d0ad64e261a049544c5b981118",
+    "src/main/webapp/admin/dashboard.xhtml": "2b0c79aace875d6899e030b30b62e78e7b037a166fef39079e08e8ebf45d6f94",
+    "src/main/webapp/admin/listClaimed.xhtml": "b5453de9e887b2723153cb4fa99fe8ba0c78c3777a4f42d74d197f84e43858d7",
+    "src/main/webapp/admin/listNotRouted.xhtml": "4bb1e82d09ab0b8baa2e55fd4e82a868a826e2f3ece3c9137c4776324306a0a5",
+    "src/main/webapp/admin/listRouted.xhtml": "05e5525309e02212b0b20cfed1f29158df260f83d7fe280606c858bce02721b7",
+    "src/main/webapp/admin/map.xhtml": "dbd9b751eaf2f2f33cd747df5cadc8619fcccf9cc2755ede716c0d15c53928ec",
+    "src/main/webapp/admin/mapFrame.html": "1e2262d08790da168dc4f194bb559856821813bb02c1c1ac89153c57a58ddc59",
+    "src/main/webapp/admin/route.xhtml": "c71e952d684fd53f8f7bc592d777abf96fb8392130f5ce5ba45beb522197f515",
+    "src/main/webapp/admin/selectItinerary.xhtml": "73310a7704a0aa57c17cd236485d5fc259f0bcf853bf4fd4e7f3d78cee477269",
+    "src/main/webapp/admin/show.xhtml": "b36d0679083810fc856d33333f46fdec9b7416670f181f8a536e214a6e156645",
+    "src/main/webapp/admin/track.xhtml": "f9d40b19bd211ede601884b0057005932c74aefdc9e665154655eb26192e0e32",
+    "src/main/webapp/booking/booking-date.xhtml": "7d7246678a5520b0a5f7dcca22387a07c7be8095afc2116e61c4c81b0cb372b2",
+    "src/main/webapp/booking/booking-destination.xhtml": "7cef897d90ba372ad4fe865778d211a084de8db302c0ac02aa14679944b441bb",
+    "src/main/webapp/booking/booking-flow.xml": "84b7d7514319704c5ac76106aeeeb5cf262479df5bc724847073cfab43a07482",
+    "src/main/webapp/booking/booking.xhtml": "e5de5513a4a228af50a6d703a31f157af13d4fde7c36779d9a787f386f35d57d",
+    "src/main/webapp/error.xhtml": "a834cf1846c7cc2228d1fb3c829612741d1296a98eef25842c65e42cd0d712dd",
+    "src/main/webapp/error_404.xhtml": "a5210544a7d9dc82e075f02caf943247946d9c5a20d662db693b3f610c4db372",
+    "src/main/webapp/eventLogger/eventLogger-flow.xml": "9e5e7fe716a0d63638326d67e1adaf0afef7cc75a194f7d36e7db377b76c30a8",
+    "src/main/webapp/eventLogger/eventLogger.xhtml": "af162091836c165c96e43ba06b34a567558d45eb4c98af6d66284d71780c6a75",
+    "src/main/webapp/eventLogger/root.xhtml": "14253a25489cda63e66ca2a3f1707d78ad502b64ef5989779617f4a63b52e13a",
+    "src/main/webapp/index.xhtml": "5ad0d3b43a25e0aab539d0751b68f132355f56e19f52fa8266b68dffa8c59223",
+    "src/main/webapp/mobile.xhtml": "120f434ea63fef57b2c5810ed97baba74f270d9299a90b52b31a8106bdbf9b45",
+    "src/main/webapp/public/about.xhtml": "a53002e71e3b5424e38aa7f7410c16b667485bc125eade110512e846d2589d5e",
+    "src/main/webapp/public/track.xhtml": "9e36a35a1afc7d4035ddb48873f963c19e1b8f9a19ea6e889362ab24dd07b6eb",
+    "src/main/webapp/booking/todo.txt": "d3f6121089d10b297728386199841fec1f3f2e2eea7f96f9305a42209d4a382e",
+    "src/main/webapp/images/CTlogo128.png": "a69e151d42bf7df989a8e8ddd0ecfe16d2806301e8fc29cd92196850d439fc8c",
+    "src/main/webapp/images/CTlogobadge128.png": "ecdf9c53eafba8240a0e869dc8ca504c479d8bcf0ad090f1ba97a369f7be02d5",
+    "src/main/webapp/images/calendarTrigger.gif": "7c5ae277eef01254e4cb0f5e8924fe41426d6528696e72cee603583d62ca65c7",
+    "src/main/webapp/images/cargo-tracker-banner-small.png": "5e93b4fc6235f8ec92f1fa1e5568dd6ea660bbe5921b77c7d3c3d16e9058559d",
+    "src/main/webapp/images/cargo-tracker-banner.png": "f661465773d03c2c22a3e39ec71f44926d7c0fcc91b10514b0fef0024a39cb66",
+    "src/main/webapp/images/cargo-tracker-logo.png": "3735cfb14bb43b00d66d3180af7092afb874b89fabd2a61137142254cbaeb51a",
+    "src/main/webapp/images/cargoTug.jpg": "bf39f2002946ac4002772c5fa03e30a12dccabbc3ca368209ecbcca75cafdeb6",
+    "src/main/webapp/images/cross.png": "d04ecfc93ff86c44f6fc39e35945e3d8a7648ba8fcd97a2635920df2e88893b3",
+    "src/main/webapp/images/error.png": "011f4e33d86b448078a2bd56b7060770b2c079e86aad2b7298ab0db216758f34",
+    "src/main/webapp/images/tick.png": "644faffc659fb1e6778cf5290022fbcde177952c66881848e6380ed91211e878",
+    "src/main/webapp/resources/calendar.css": "6a025aa78e66421b3f771b3abb7d41193e3ce5d4248853160134dc8c86c4cbde",
+    "src/main/webapp/resources/cargotracker.css": "ea3f7018ad6051641513875bfb775c3a08c6e617c2d6957cee3ef59e96975923",
+    "src/main/webapp/resources/dd.css": "4c7e0f50521c92187404cc55e43c9667a4a72b9b88e2ef22756b34cc39e7f9b9",
+    "src/main/webapp/resources/foundation/css/foundation.css": "8ca92e0a33fd863622441ce38b7c6e07f7170e743eae13a7c8a7342c5e6f8e93",
+    "src/main/webapp/resources/foundation/css/foundation.min.css": "998e71ceb37f7d67e7487796279e07e75b6208ef99050a586a554f14e67f33cb",
+    "src/main/webapp/resources/foundation/css/normalize.css": "02e71a081ec1ba2141f4c6af915cf730c4c2ef31d761c437f9816a61a15497db",
+    "src/main/webapp/resources/foundation/img/.gitkeep": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "src/main/webapp/resources/foundation/js/foundation/foundation.abide.js": "bd3792f12f8265b819b60a9d91e4d1600e5d1320cd03f5d657dc570beb5b995f",
+    "src/main/webapp/resources/foundation/js/foundation/foundation.alerts.js": "ebb1ea7181095ab808a5f1080c58c8b1ec13a84fcb965ab6a84bc5bd1441fa32",
+    "src/main/webapp/resources/foundation/js/foundation/foundation.clearing.js": "eefe6876cabe45009fb3922a9c09121d8a3d2c8ddf096c2727f8a9dba389ada1",
+    "src/main/webapp/resources/foundation/js/foundation/foundation.cookie.js": "3c4f0e147d070871ecb721fb8456f39747ccc6f37f8e951767153eefc78619a2",
+    "src/main/webapp/resources/foundation/js/foundation/foundation.dropdown.js": "41b281c6aeb1e7f707e7710071c9e1cd2e54e449411caf70ceb0731330430793",
+    "src/main/webapp/resources/foundation/js/foundation/foundation.forms.js": "cff2eca65364b19cc1fe1f33732c6ea763baf60904854d91c55216b6ea07b1b1",
+    "src/main/webapp/resources/foundation/js/foundation/foundation.interchange.js": "5e4ba22e6416efaa8e28544fec9f701570ebfcf714cf9c4c6544e9e8b7aa58c6",
+    "src/main/webapp/resources/foundation/js/foundation/foundation.joyride.js": "8e2a13c10073c89adbf0c6e8d07026e01a0ea2b2b5cfc15be981a12552083b4f",
+    "src/main/webapp/resources/foundation/js/foundation/foundation.js": "db45b4e6aef3b1689e3ecb5bf90cfa5c9a27a032a7a9d1d2de96ad197f59684a",
+    "src/main/webapp/resources/foundation/js/foundation/foundation.magellan.js": "35344cc7c4812625a657a872f0144913f9d432e88709afece09fe2ce83ed1a78",
+    "src/main/webapp/resources/foundation/js/foundation/foundation.orbit.js": "f17aaf312631f8f68a1e43da4c0ae0f8b224d3fead51959fb336dcf6df1cb0f8",
+    "src/main/webapp/resources/foundation/js/foundation/foundation.placeholder.js": "b170704d2a3cd09f58e66257ad0225566f3805e5aba65aaae4f45bfef5ec7dcd",
+    "src/main/webapp/resources/foundation/js/foundation/foundation.reveal.js": "f0b29f61477b3ab017d2d19c280cc23ebe24104f7c42ce8a21015b3c8b9572c3",
+    "src/main/webapp/resources/foundation/js/foundation/foundation.section.js": "490b62c406891989d4039670cc64fc621f236183ca2147b19e1caf94f3498c10",
+    "src/main/webapp/resources/foundation/js/foundation/foundation.tooltips.js": "4ac21d2cb19278ff7d692ff70e6ffaab414fb9e2c9c29f676dcbd5cfcd6401da",
+    "src/main/webapp/resources/foundation/js/foundation/foundation.topbar.js": "f4f1e20abc4939f563b16067f24f73760b440a84de58b5fcb3ccc628145d3147",
+    "src/main/webapp/resources/foundation/js/foundation.min.js": "17d3a2fe9548547f7df43ac4f825c262da8ee5e2033a3eb36e1b8011d13d85b2",
+    "src/main/webapp/resources/foundation/js/vendor/custom.modernizr.js": "044d12b8bafd404c60fc17d525f6f89fc2acfa278dae63c686731dab15592578",
+    "src/main/webapp/resources/foundation/js/vendor/jquery.js": "8ef4cdedb9f8346b56439e92e6208b65c08b9e16f0e346d754dc25ddd2f48753",
+    "src/main/webapp/resources/foundation/js/vendor/zepto.js": "3bd552334940a818837770a2de8c71f20afad6cbf8501876c84d789b24e95127",
+    "src/main/webapp/resources/jquery-jvectormap-1.2.2.css": "55cfe67f6ec58fbc83f361a44fe501fb12df84f831f28026ad3649fd7bfdaeb2",
+    "src/main/webapp/resources/js/jquery-jvectormap-1.2.2.min.js": "df8ec33cb91637d19231cad7963e39a6d5302d6b63aad6eadd5227e5cd99885a",
+    "src/main/webapp/resources/js/jquery-jvectormap-world-mill-en.js": "7dd1d8ba9f4e4666603edefb2ae664b34ed632725a02f8dbd4533022ab2f96c5",
+    "src/main/webapp/resources/title.css": "7574a2ee1ec76927894d06c9db72591468c6560d8469b5f2a114b48a57b8f9db",
+    "src/main/java/net/java/cargotracker/application/ApplicationEvents.java": "04673930cc71b71d22ebd4ef79a98d74a7506a8fc0af9d49ade48b9ce5c5b3e1",
+    "src/main/java/net/java/cargotracker/application/BookingService.java": "f1fddf9c23f6b5baeec95517265dffd291c8fdb0080fc89d0cf45a1b8465903a",
+    "src/main/java/net/java/cargotracker/application/CargoInspectionService.java": "4253488618c0142a6dd1da28185f8fe7eb1478195396a36201e80df3b822e486",
+    "src/main/java/net/java/cargotracker/application/HandlingEventService.java": "f2710e38c923c8a340c62f7472138f1e5f88a99517d1efaafa37c1bee649df54",
+    "src/main/java/net/java/cargotracker/application/internal/DefaultBookingService.java": "a3048ab41d3ae1c175e8e4d92e15beea4133141272500aad177db86a98b25beb",
+    "src/main/java/net/java/cargotracker/application/internal/DefaultCargoInspectionService.java": "4c0df22143b732ed442cf6974605a80781ad8744bf32139e7cd203c932c9837e",
+    "src/main/java/net/java/cargotracker/application/internal/DefaultHandlingEventService.java": "8a8e8b45720e2c74c3a509448d39212d0fc727287bb0f088f436191506a07e47",
+    "src/main/java/net/java/cargotracker/application/util/DateUtil.java": "44cc7c302b131a4e0bae9a4c4570292afebdeabbff0f30bacc3eb7b874acbf4e",
+    "src/main/java/net/java/cargotracker/application/util/JsonMoxyConfigurationContextResolver.java": "6ba97fbdff8e764447c77bfc85c66ec8d3681ee78e11e6e3ecbca403311dc9b3",
+    "src/main/java/net/java/cargotracker/application/util/LocationUtil.java": "4c73f397c2df3abc9de817dca24a7b8851c1e4f91245cf255dfaa268318fb65e",
+    "src/main/java/net/java/cargotracker/application/util/RestConfiguration.java": "a6b9dfed00fc17f500ea52fd50c79343b5819478cefce51a97de73eea6c4fa52",
+    "src/main/java/net/java/cargotracker/application/util/SampleDataGenerator.java": "200896e04d5b3ade1cd50fc27ccb6e02246d824fc8d79d6ae66c54d1aa4d3e2b",
+    "src/main/java/net/java/cargotracker/domain/model/cargo/BookingBackingBean.java": "bdc2f0eb37f81452edcf0b4c78d9a757a671ec928b5878b76f4b158685fff9a0",
+    "src/main/java/net/java/cargotracker/domain/model/cargo/Cargo.java": "160a4d4c0d83cc550b141d13dd8f5effe25988e108825fa5bccbf323c90781fc",
+    "src/main/java/net/java/cargotracker/domain/model/cargo/CargoRepository.java": "957a4057ec0535ed196616aa19942a260c056ec4c91586181d16940b5100e6c2",
+    "src/main/java/net/java/cargotracker/domain/model/cargo/Delivery.java": "061d4ba0c98e5109c1d8ba6675f2bc07f30fa04d84577b18b57c30bd2b99bb75",
+    "src/main/java/net/java/cargotracker/domain/model/cargo/HandlingActivity.java": "a1d5bd665a4eafe31ed893c7ba86a8bf9a64116b1e20d51d3f4d7a0694505be2",
+    "src/main/java/net/java/cargotracker/domain/model/cargo/Itinerary.java": "46a46f4919161ef479f405b33ee5e1a227e5685724a50044f35bfc0d76b5f851",
+    "src/main/java/net/java/cargotracker/domain/model/cargo/Leg.java": "5633727a12aabfabbe4b60c55aa60ddb662f60b4035b94fc4152d65b4ae5f0de",
+    "src/main/java/net/java/cargotracker/domain/model/cargo/RouteSpecification.java": "32eee27d29cec81b45e999ed54f56b2d726aefb662021c1072dca079a16b4845",
+    "src/main/java/net/java/cargotracker/domain/model/cargo/RoutingStatus.java": "61d5a30ed5c2967a36d1e39f9153ae334a1b03475219a40c83a5ba6c0f4036d7",
+    "src/main/java/net/java/cargotracker/domain/model/cargo/TrackingId.java": "ab0909cd327c2be97482ee334af7cdeba4e8bbf33aff5c4bce716ebd5dc3d876",
+    "src/main/java/net/java/cargotracker/domain/model/cargo/TransportStatus.java": "bea7c1f4066e9135efd9966061d52b97dc76b5dfd07c2aa648ce6090b594a9b1",
+    "src/main/java/net/java/cargotracker/domain/model/handling/CannotCreateHandlingEventException.java": "276d2897e8fa5311b498de4fd6459ff656815ff33b4a77bd2a6af3334a67f4f3",
+    "src/main/java/net/java/cargotracker/domain/model/handling/HandlingEvent.java": "438ecb8ca887582c28ea0886509a125f73d5de8df5422a005d422d2b37798334",
+    "src/main/java/net/java/cargotracker/domain/model/handling/HandlingEventFactory.java": "7a5f439505f50bdc9e6ff1825efb257335a129d83305a61b4c1b771ad2123782",
+    "src/main/java/net/java/cargotracker/domain/model/handling/HandlingEventRepository.java": "74e2e03b69355bbc4d0aff621b8866743053a0c74501e3d2bec4f795b3f2a834",
+    "src/main/java/net/java/cargotracker/domain/model/handling/HandlingHistory.java": "5f2313bfae05bb97f11071e8a6e100d70e771df4ec1dba48ddcd058324dc9d28",
+    "src/main/java/net/java/cargotracker/domain/model/handling/UnknownCargoException.java": "3673048cc0288c0aaf46168a080888359880e1f5e46606a60657b2eb959f565a",
+    "src/main/java/net/java/cargotracker/domain/model/handling/UnknownLocationException.java": "f86f6927df83c938a2142f5288e438c0d15e489e520ac765fee2e92522234fe4",
+    "src/main/java/net/java/cargotracker/domain/model/handling/UnknownVoyageException.java": "83876ad96eea07700bcf215e7daad28e70b734e1cf2a2990ac22b3830c6e719f",
+    "src/main/java/net/java/cargotracker/domain/model/location/Location.java": "3c536c230e9e6a237baac6e23761e89836065844ec4982412b1356ccb7cbc8c6",
+    "src/main/java/net/java/cargotracker/domain/model/location/LocationRepository.java": "6f6b01719011960951f795bffeb0da60fe10465010b3e655da8483855c5f2cb8",
+    "src/main/java/net/java/cargotracker/domain/model/location/SampleLocations.java": "a48b3a65265caf68679d32be1c538254bbbeb45563104e0dd91c2c9f898bda92",
+    "src/main/java/net/java/cargotracker/domain/model/location/UnLocode.java": "a2841b87127c6323e08747affa27e3a9c0591398c1d7d2faf31109f0e46e09f2",
+    "src/main/java/net/java/cargotracker/domain/model/voyage/CarrierMovement.java": "8697e57a924bd867e91ec92defacd43707079817357d83f5aaa151e460ff41e1",
+    "src/main/java/net/java/cargotracker/domain/model/voyage/SampleVoyages.java": "ed84116916706e724eca56903462bd86d8e6257b90c46fbd20692be98393e96f",
+    "src/main/java/net/java/cargotracker/domain/model/voyage/Schedule.java": "4931a19d32b54ef47fbbed87a0b7c3b785b681b2aafc25a673b65708221954a4",
+    "src/main/java/net/java/cargotracker/domain/model/voyage/Voyage.java": "3df6f11c1bad83eb8c15b143e843076d00aec3d5c306f50a1dc624d7223db2c1",
+    "src/main/java/net/java/cargotracker/domain/model/voyage/VoyageNumber.java": "5da607a3ba38841786b02850784be382a917c992896727a8e5331b3f074ed760",
+    "src/main/java/net/java/cargotracker/domain/model/voyage/VoyageRepository.java": "78be4b067f0d25c0f9939696163d317e2f6cbc11646ddd36022df5bc671d0903",
+    "src/main/java/net/java/cargotracker/domain/service/RoutingService.java": "e8f05660845288789a147680e875fecbb13f8e36baf24707056a58417e0e0fd9",
+    "src/main/java/net/java/cargotracker/domain/shared/AbstractSpecification.java": "48e6070fc6ed63f826cbce45c8c013cc27d9f3cad8bfd435c3145696291f8b45",
+    "src/main/java/net/java/cargotracker/domain/shared/AndSpecification.java": "1f725c36f2039b81f3ff18e05874ac9ea423ba609c0a731366e3e7063c6a0559",
+    "src/main/java/net/java/cargotracker/domain/shared/DomainObjectUtils.java": "5b80940903fb9edb936f8de3a4851794300832c8a744fa8190340acc6331d883",
+    "src/main/java/net/java/cargotracker/domain/shared/NotSpecification.java": "7e5e3c0b3dabee5c60a9472d39ec877115af8206924a22b44de79c1f603dd9e6",
+    "src/main/java/net/java/cargotracker/domain/shared/OrSpecification.java": "977ae82fadb236ee1406e234603902d1e9faf7864dade2a0c0a0ec6c18e8c483",
+    "src/main/java/net/java/cargotracker/domain/shared/Specification.java": "d8dbcfb5226c10e64cddc7f87105225b936fca740b437e5e1c1947d1336d461b",
+    "src/main/java/net/java/cargotracker/infrastructure/events/cdi/CargoInspected.java": "f520293b5cb48323e90873fc5bc9d25c2c024b2eeed3e726a1c06db36ba9d9c8",
+    "src/main/java/net/java/cargotracker/infrastructure/messaging/jms/CargoHandledConsumer.java": "4d8257b998be1f0e2bb1f8040173e363b6bbea45a6a41ceff7b7cc98292524da",
+    "src/main/java/net/java/cargotracker/infrastructure/messaging/jms/DeliveredCargoConsumer.java": "52a559b3b301db3a9e0e3f891c8688152f68a6b6dedbf5e9926d8f34f38b1716",
+    "src/main/java/net/java/cargotracker/infrastructure/messaging/jms/HandlingEventRegistrationAttemptConsumer.java": "ecd8c8cd6e5b5d01fc9e220e4fa89b2a3783aa21bbf9b7eeb44f0d9f3e6522d9",
+    "src/main/java/net/java/cargotracker/infrastructure/messaging/jms/JmsApplicationEvents.java": "3ffd69364df8e58d3055c6d495ad78923568b3319163bb40cb39a1b164ff0a08",
+    "src/main/java/net/java/cargotracker/infrastructure/messaging/jms/MisdirectedCargoConsumer.java": "6f7e19d983badda96e97eaf545d40f910ad199af98f5f8a1a885dde930653114",
+    "src/main/java/net/java/cargotracker/infrastructure/messaging/jms/RejectedRegistrationAttemptsConsumer.java": "edc789b17ca1b8063623d73bab9a990bbdbd4b8277416869a2c6be709edf6162",
+    "src/main/java/net/java/cargotracker/infrastructure/persistence/jpa/JpaCargoRepository.java": "43edd653fb4e2e7c06aa215ddaec01a540ae9f3ad73a715b1707ca3046aa6c9c",
+    "src/main/java/net/java/cargotracker/infrastructure/persistence/jpa/JpaHandlingEventRepository.java": "faf835eb270ce4ec88a34a9f2ef98861a5ea415b20c3dc746c24e664c646f76a",
+    "src/main/java/net/java/cargotracker/infrastructure/persistence/jpa/JpaLocationRepository.java": "5f868ed9a93dc1c6771d8f8b161a12eec411944b1593dfb24842a1e710ca3e65",
+    "src/main/java/net/java/cargotracker/infrastructure/persistence/jpa/JpaVoyageRepository.java": "becce3b1cd9dc18dc8ce9f0b193b7067f92da76743321438c3332d682d070543",
+    "src/main/java/net/java/cargotracker/infrastructure/routing/ExternalRoutingService.java": "bfa5af1434fe42299b4f9495fac9fdf016ff22b574242e01caa3e2891a033a1b",
+    "src/main/java/net/java/cargotracker/interfaces/booking/facade/BookingServiceFacade.java": "ad38cc3d822a48e11015345356e7a6d655ba9ba11c9a385b65458dd0078845fa",
+    "src/main/java/net/java/cargotracker/interfaces/booking/facade/dto/CargoRoute.java": "106c56940bdc990849a6e5cddaefbf0fa3f11401133577993381173ceeb67ed2",
+    "src/main/java/net/java/cargotracker/interfaces/booking/facade/dto/Leg.java": "94d1fe23d35c08c1c8942f15276a90659e1672bb3faf620e45e8863d37f2ba11",
+    "src/main/java/net/java/cargotracker/interfaces/booking/facade/dto/Location.java": "6cb5b3d83813539e2261d8da1024b693ec7a54e4ac9c6bc9a5a4ed7c1b54cce0",
+    "src/main/java/net/java/cargotracker/interfaces/booking/facade/dto/RouteCandidate.java": "84ca7cd62e6575b6980fb9cd0dcbb19f0af290f42fe6773b7836d801019f2b4d",
+    "src/main/java/net/java/cargotracker/interfaces/booking/facade/internal/DefaultBookingServiceFacade.java": "bc305c9d79bed722f6191b00a762107745ce6459fc9bb6dc4a430071d9201ea7",
+    "src/main/java/net/java/cargotracker/interfaces/booking/facade/internal/assembler/CargoRouteDtoAssembler.java": "df476f532672fda5f58c976174fc5de75f30b19539b3e3c3874b1e319fd3ef18",
+    "src/main/java/net/java/cargotracker/interfaces/booking/facade/internal/assembler/ItineraryCandidateDtoAssembler.java": "b970201ea00c66faf54443db02ac7ed711a930f55801aed87fe5fbae1c371e84",
+    "src/main/java/net/java/cargotracker/interfaces/booking/facade/internal/assembler/LocationDtoAssembler.java": "c175019dab72644757e8eed800455d22eb353e67cd7740ca66ad41bdf78522a6",
+    "src/main/java/net/java/cargotracker/interfaces/booking/rest/CargoMonitoringService.java": "0431e502924f0de7cf46e994898c86e08708e24fa1b0d71d807157a7f2298901",
+    "src/main/java/net/java/cargotracker/interfaces/booking/socket/RealtimeCargoTrackingService.java": "50cee334f69fc633ccf21cb2c437d1bdef3f101656c2a9ac780a3f585cf06b1f",
+    "src/main/java/net/java/cargotracker/interfaces/booking/web/CargoAdmin.java": "cfda8435f8fd14cbdd2ad8518de879c3f2b62638593f277e46b1c2e55f44f6ab",
+    "src/main/java/net/java/cargotracker/interfaces/booking/web/CargoDetails.java": "39c1bcfc720f45db5fcc5701f0b7baaad35d9258c89ef420647dc6bfed9475b5",
+    "src/main/java/net/java/cargotracker/interfaces/booking/web/ChangeDestination.java": "f565877fc8812564a47153f27318b7396b19a2d46a6f5a5a9e9e0bb62b8bcfe3",
+    "src/main/java/net/java/cargotracker/interfaces/booking/web/ChangeDestinationDialog.java": "276a70b6c10de0b3933ebac1d1f86b4a78e4feeecd960e1bfc052caef2f5630f",
+    "src/main/java/net/java/cargotracker/interfaces/booking/web/DashboardView.java": "ca4b9f0869bc92d79c110ebd4730b0692a6cd0131d58088f5b83de887684389b",
+    "src/main/java/net/java/cargotracker/interfaces/booking/web/ItinerarySelection.java": "393b946f90d2bf35cf01ead1ab8254203fa5af67868566485337652469a9c9f5",
+    "src/main/java/net/java/cargotracker/interfaces/booking/web/ListCargo.java": "9efa52c4ab191b2d0051b50cc4be95a2742cab1f198577943abef4df4aa538de",
+    "src/main/java/net/java/cargotracker/interfaces/booking/web/Registration.java": "20d0cd75f97487cb427a28ea28081ee965f2af0b23d2ec1ad48bea9717a54cb2",
+    "src/main/java/net/java/cargotracker/interfaces/handling/HandlingEventRegistrationAttempt.java": "57c938a1bee465325fe8cf98a4cef4f8ff11dd6d56176145eda208f93661b78c",
+    "src/main/java/net/java/cargotracker/interfaces/handling/file/EventFilesCheckpoint.java": "d90fc1ccc7ed4b7906568e27af0900d711715d032a34dcf461c2b71ded9cefcc",
+    "src/main/java/net/java/cargotracker/interfaces/handling/file/EventItemReader.java": "509d1380062019b9bce9cbd368ed22f8eb7daac0258e03a2ff4743b364534b49",
+    "src/main/java/net/java/cargotracker/interfaces/handling/file/EventItemWriter.java": "7e025432ef43433913e8e1b7f5c28a9cdf36ef9d3a5051008e28be00ea4705e3",
+    "src/main/java/net/java/cargotracker/interfaces/handling/file/EventLineParseException.java": "70033c5b8339471f2fa7ecc8c81a9f2be33eae2c2ddc6b49d6cb0ae6fe7856ef",
+    "src/main/java/net/java/cargotracker/interfaces/handling/file/FileProcessorJobListener.java": "ecebb14c8ec30f359540d4e61a4a96127be167f664a07da17e0edc6764d77cfc",
+    "src/main/java/net/java/cargotracker/interfaces/handling/file/LineParseExceptionListener.java": "bd81991941dcfffb1ee7075df78ac90da27a8d9e55b3c1ab3b531bcdf5ca9f0f",
+    "src/main/java/net/java/cargotracker/interfaces/handling/file/UploadDirectoryScanner.java": "f895903ad04f55c63358cf4909477fe4eafb02a7c5fee6892f5f0ab8ce5cc81e",
+    "src/main/java/net/java/cargotracker/interfaces/handling/mobile/EventBackingBean.java": "b0f9974e5cdf241649a9a8571d8bc0c03eaafee252eee5475a9dae3bd39fdf86",
+    "src/main/java/net/java/cargotracker/interfaces/handling/mobile/HolderBean.java": "d6d62b8c264c47b4cbd82c38983958681c42763adefb90970ba357f6368dc03d",
+    "src/main/java/net/java/cargotracker/interfaces/handling/rest/HandlingReport.java": "4e30147c6bb8484d750c9ffd0133314177f136ca1fba5a13e385620ceecd26a6",
+    "src/main/java/net/java/cargotracker/interfaces/handling/rest/HandlingReportService.java": "5d9ebd13512e3a1fe020acb20eb27d3036e565b4ff44ce3459154f1f3dd6173c",
+    "src/main/java/net/java/cargotracker/interfaces/tracking/web/CargoTrackingViewAdapter.java": "c665b4adce6b300a78f449a1ace98dc280fc100b468c92a9fe0b0a61a44ee629",
+    "src/main/java/net/java/cargotracker/interfaces/tracking/web/Track.java": "4268ab4111ff486c13e63cd3005092a792ad448f97a812f32bb6bae838688cd9",
+    "src/main/java/net/java/pathfinder/api/GraphTraversalService.java": "1cf35703bac0ab6997ff5c881c7b0be5d47416d5dff354d143a7721c83b74733",
+    "src/main/java/net/java/pathfinder/api/TransitEdge.java": "2ad07ae3ff7587901b3c93b0ac22cddc5c9d553ca4d8f25f8fa1b21c97724366",
+    "src/main/java/net/java/pathfinder/api/TransitPath.java": "ee1a32ed9a1f473f993f7ec9839518fb0f676b87fb7e5e8a3f6bfdc1f6e707d2",
+    "src/main/java/net/java/pathfinder/internal/GraphDao.java": "439c55361256b03cab31eac846cd3b913bcc6f9577cb25a016c745f5eb513f86",
+    "pom.xml": "9c841d743d38167ba6ee58cfe5633c9b3666226f51cf085c60a82c5d1c6bf634",
+    "src/main/resources/META-INF/batch-jobs/EventFilesProcessorJob.xml": "9d662176c0bc696d7abb8ecb6fbf0ba59d4eb181e8890de0fc2b3ec702339177",
+    "src/main/resources/META-INF/persistence.xml": "3ecd44b15184493049a498340eef5b1c956c0fca08eb4c79c23e1425a18874c9",
+    "src/main/resources/handling_events.csv": "8bc3fd3d887c2ebc90d5494499b8f71cb8cdd055bcfdf5438e65631515dd5080",
+    "src/main/resources/net/java/cargotracker/messages.properties": "490f66d147553f680105ce9298196f2857a092f214982d1fcf4fb8d8a9a3bd37"
+  },
+  "resource_policy": {
+    "source_paths": [
+      "images/CTlogo128.png",
+      "images/CTlogobadge128.png",
+      "images/calendarTrigger.gif",
+      "images/cargo-tracker-banner-small.png",
+      "images/cargo-tracker-banner.png",
+      "images/cargo-tracker-logo.png",
+      "images/cargoTug.jpg",
+      "images/cross.png",
+      "images/error.png",
+      "images/tick.png",
+      "resources/calendar.css",
+      "resources/cargotracker.css",
+      "resources/dd.css",
+      "resources/foundation/css/foundation.css",
+      "resources/foundation/css/foundation.min.css",
+      "resources/foundation/css/normalize.css",
+      "resources/foundation/img/.gitkeep",
+      "resources/foundation/js/foundation/foundation.abide.js",
+      "resources/foundation/js/foundation/foundation.alerts.js",
+      "resources/foundation/js/foundation/foundation.clearing.js",
+      "resources/foundation/js/foundation/foundation.cookie.js",
+      "resources/foundation/js/foundation/foundation.dropdown.js",
+      "resources/foundation/js/foundation/foundation.forms.js",
+      "resources/foundation/js/foundation/foundation.interchange.js",
+      "resources/foundation/js/foundation/foundation.joyride.js",
+      "resources/foundation/js/foundation/foundation.js",
+      "resources/foundation/js/foundation/foundation.magellan.js",
+      "resources/foundation/js/foundation/foundation.orbit.js",
+      "resources/foundation/js/foundation/foundation.placeholder.js",
+      "resources/foundation/js/foundation/foundation.reveal.js",
+      "resources/foundation/js/foundation/foundation.section.js",
+      "resources/foundation/js/foundation/foundation.tooltips.js",
+      "resources/foundation/js/foundation/foundation.topbar.js",
+      "resources/foundation/js/foundation.min.js",
+      "resources/foundation/js/vendor/custom.modernizr.js",
+      "resources/foundation/js/vendor/jquery.js",
+      "resources/foundation/js/vendor/zepto.js",
+      "resources/jquery-jvectormap-1.2.2.css",
+      "resources/js/jquery-jvectormap-1.2.2.min.js",
+      "resources/js/jquery-jvectormap-world-mill-en.js",
+      "resources/title.css"
+    ],
+    "enforcement": "Public only after verifying static non-sensitive content required for login/public views; dynamic JSF resources must not bypass bean/action authentication",
+    "test_location": "candidate resource policy suite (KAN-14)",
+    "test_groups": [
+      "STATIC-ALLOWLIST",
+      "RESOURCE-BYPASS"
+    ]
+  },
+  "default_policy": "Deny unclassified application entrypoints; require deliberate classification when source inventory changes"
+}
