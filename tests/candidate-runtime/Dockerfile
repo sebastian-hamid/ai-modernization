@@ -8,7 +8,7 @@ COPY candidate/cargotracker/pom.xml .
 COPY candidate/cargotracker/src src
 # Lab-only descriptor replaces safe default only in this disposable fixture image.
 COPY tests/candidate-runtime/persistence-lab.xml src/main/resources/META-INF/persistence.xml
-RUN mvn -B -ntp package
+RUN mvn -B -ntp package -Dsession.timeout.minutes=1
 FROM quay.io/wildfly/wildfly@sha256:3fc71f6c4fe1075ac942dbb652799840ecd5424458def6039f829bf3221a8daf
 # Official WildFly base currently includes 25.0.4.1; use the pinned current JDK 25.0.5.
 # The assembled runtime is tested by this spike; no EE-on-Java-25 TCK claim is made.

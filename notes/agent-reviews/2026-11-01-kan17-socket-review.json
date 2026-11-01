@@ -1,0 +1,19 @@
+{
+  "task": "KAN-17",
+  "reviewer": "/root/review_kan17_socket",
+  "date": "2026-11-01",
+  "verdict": "Approved code/docs/evidence; no remaining material findings",
+  "input_hashes_verified": 255,
+  "results_inspected": {
+    "browser": 89,
+    "application": 47,
+    "domain": 35
+  },
+  "reviewer_runtime_rerun": false,
+  "limits": [
+    "Map UI disabled",
+    "Malformed-origin/correlation and abrupt disconnect source-only review",
+    "Previously queued frames cannot be retracted",
+    "No full candidate security acceptance"
+  ]
+}

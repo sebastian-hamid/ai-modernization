@@ -135,3 +135,7 @@
 
 - Standing user authorization applied after separate agent approval and passing checks. Verified253 reviewed input hashes and selected sanitized evidence; seven cleanup regressions pass. Included reviewed source/tests/docs, retained assignment failure and exact review record. No private realm/client credential files, raw logs or browser state included.
 - No runtime redeployment/full CI rerun during publication. KAN-15/KAN-18/KAN-19 remain In Progress and KAN-14 remains502 BLOCKED for outstanding scope; earlier pending-publication snapshots are historical.
+
+## 1 November 2026 — KAN-17 endpoint session security
+
+Implemented authenticated/origin-allowlisted session-bound sockets, logout and HTTP-idle closure, and safe send failure isolation. Actual89 browser/47 application/35 domain PASS (one inherited empty TODO). Independent reviewer /root/review_kan17_socket approved code/docs/evidence, verified255 hashes; no remaining material findings. Map UI remains disabled; malformed/abrupt variants source-review only. Task runtime/network/private files removed; original services preserved. Published under standing authorization; full candidate/KAN-14 acceptance remains open. Human effort/cost unavailable.

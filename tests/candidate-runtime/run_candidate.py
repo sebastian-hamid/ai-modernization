@@ -106,7 +106,7 @@ def main(after_checks=None):
         check("Anonymous monitoring denied",request(anonymous,"rest/cargo")[0]==401)
         check("Anonymous handling denied",request(anonymous,"rest/handling/reports",b"{}")[0]==401)
         check("Anonymous operational page navigates to login",request(anonymous,"admin/dashboard.xhtml")[0]==303)
-        check("WebSocket not enabled before lifecycle security",request(anonymous,"tracking")[0]==404)
+        check("Anonymous tracking endpoint denied",request(anonymous,"tracking")[0]==401)
         check("Private source note denied",request(anonymous,"booking/todo.txt")[0]==404)
         sessions={who:login(who) for who in credentials}
         route_path="rest/graph-traversal/shortest-path?origin=CNHKG&destination=FIHEL&deadline=2030-12-31"

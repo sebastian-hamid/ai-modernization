@@ -30,18 +30,19 @@ public class RealtimeCargoTrackingService {
     private static final Logger logger = Logger.getLogger(
             RealtimeCargoTrackingService.class.getName());
 
-    private final Set<Session> sessions = new HashSet<>();
+    @jakarta.inject.Inject private SocketSessions sessions;
 
     @OnOpen
     public void onOpen(final Session session) {
         // Infinite by default on GlassFish. We need this principally for WebLogic.
         session.setMaxIdleTimeout(5 * 60 * 1000);
-        sessions.add(session);
+        java.util.List<String> ids=session.getRequestParameterMap().get("connection");
+        sessions.opened(ids==null || ids.size()!=1 ? "" : ids.get(0),session);
     }
 
     @OnClose
     public void onClose(final Session session) {
-        sessions.remove(session);
+        sessions.closed(session);
     }
 
     public void onCargoInspected(@Observes @CargoInspected Cargo cargo) {
@@ -60,13 +61,6 @@ public class RealtimeCargoTrackingService {
 
         String jsonValue = writer.toString();
 
-        for (Session session : sessions) {
-            try {
-                session.getBasicRemote().sendText(jsonValue);
-            } catch (IOException ex) {
-                logger.log(Level.WARNING, "Unable to publish WebSocket message", ex);
-            }
-        }
-
+        sessions.publish(jsonValue);
     }
 }
