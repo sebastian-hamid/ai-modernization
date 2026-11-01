@@ -1,0 +1,514 @@
+{
+  "scope": "Real Chromium cargo read/booking/destination/routing/live/handling workflows",
+  "checks": [
+    {
+      "name": "Anonymous page goes to login",
+      "passed": true
+    },
+    {
+      "name": "Login does not leak cargo",
+      "passed": true
+    },
+    {
+      "name": "Browser login reader",
+      "passed": true
+    },
+    {
+      "name": "Reader sees seeded cargo",
+      "passed": true
+    },
+    {
+      "name": "Reader does not see booking control",
+      "passed": true
+    },
+    {
+      "name": "Reader sees details",
+      "passed": true
+    },
+    {
+      "name": "Reader does not see destination control",
+      "passed": true
+    },
+    {
+      "name": "Reader does not see routing control",
+      "passed": true
+    },
+    {
+      "name": "Reader direct denial admin/book.xhtml",
+      "passed": true
+    },
+    {
+      "name": "Reader direct denial admin/changeDestination.xhtml?trackingId=ABC123",
+      "passed": true
+    },
+    {
+      "name": "Reader direct denial admin/route.xhtml?trackingId=ABC123",
+      "passed": true
+    },
+    {
+      "name": "Controlled invalid link admin/show.xhtml",
+      "passed": true
+    },
+    {
+      "name": "Controlled invalid link admin/show.xhtml?trackingId=UNKNOWN",
+      "passed": true
+    },
+    {
+      "name": "Controlled invalid link admin/show.xhtml?trackingId=%3Cscript%3E",
+      "passed": true
+    },
+    {
+      "name": "Browser login operator",
+      "passed": true
+    },
+    {
+      "name": "Same-location booking rejected",
+      "passed": true
+    },
+    {
+      "name": "Invalid calendar date rejected",
+      "passed": true
+    },
+    {
+      "name": "Booking persists new tracking ID",
+      "passed": true
+    },
+    {
+      "name": "Destination change persisted",
+      "passed": true
+    },
+    {
+      "name": "Independent Reader sees persisted destination",
+      "passed": true
+    },
+    {
+      "name": "Sample routing candidates rendered",
+      "passed": true
+    },
+    {
+      "name": "Missing route selection rejected",
+      "passed": true
+    },
+    {
+      "name": "Reader forged route assignment denied",
+      "passed": true
+    },
+    {
+      "name": "Route assignment requires CSRF",
+      "passed": true
+    },
+    {
+      "name": "Unknown route index rejected",
+      "passed": true
+    },
+    {
+      "name": "Denied selections leave cargo unrouted",
+      "passed": true
+    },
+    {
+      "name": "Stale route after destination change rejected",
+      "passed": true
+    },
+    {
+      "name": "Stale selection does not assign old itinerary",
+      "passed": true
+    },
+    {
+      "name": "Real route assignment is ROUTED",
+      "passed": true
+    },
+    {
+      "name": "Selected itinerary leg count persisted",
+      "passed": true
+    },
+    {
+      "name": "Exact selected voyage/location/time sequence persisted",
+      "passed": true
+    },
+    {
+      "name": "Separate Reader sees persisted route",
+      "passed": true
+    },
+    {
+      "name": "Separate Reader verifies exact itinerary sequence",
+      "passed": true
+    },
+    {
+      "name": "Rerouting existing cargo persists owned collection",
+      "passed": true
+    },
+    {
+      "name": "Exact replacement route sequence persisted",
+      "passed": true
+    },
+    {
+      "name": "Real Faces ViewState rendered",
+      "passed": true
+    },
+    {
+      "name": "Reader forged booking POST denied",
+      "passed": true
+    },
+    {
+      "name": "Missing CSRF booking POST denied",
+      "passed": true
+    },
+    {
+      "name": "Browser login admin",
+      "passed": true
+    },
+    {
+      "name": "Same-location booking rejected",
+      "passed": true
+    },
+    {
+      "name": "Invalid calendar date rejected",
+      "passed": true
+    },
+    {
+      "name": "Booking persists new tracking ID",
+      "passed": true
+    },
+    {
+      "name": "Destination change persisted",
+      "passed": true
+    },
+    {
+      "name": "Independent Reader sees persisted destination",
+      "passed": true
+    },
+    {
+      "name": "Sample routing candidates rendered",
+      "passed": true
+    },
+    {
+      "name": "Missing route selection rejected",
+      "passed": true
+    },
+    {
+      "name": "Reader forged route assignment denied",
+      "passed": true
+    },
+    {
+      "name": "Route assignment requires CSRF",
+      "passed": true
+    },
+    {
+      "name": "Unknown route index rejected",
+      "passed": true
+    },
+    {
+      "name": "Denied selections leave cargo unrouted",
+      "passed": true
+    },
+    {
+      "name": "Stale route after destination change rejected",
+      "passed": true
+    },
+    {
+      "name": "Stale selection does not assign old itinerary",
+      "passed": true
+    },
+    {
+      "name": "Real route assignment is ROUTED",
+      "passed": true
+    },
+    {
+      "name": "Selected itinerary leg count persisted",
+      "passed": true
+    },
+    {
+      "name": "Exact selected voyage/location/time sequence persisted",
+      "passed": true
+    },
+    {
+      "name": "Separate Reader sees persisted route",
+      "passed": true
+    },
+    {
+      "name": "Separate Reader verifies exact itinerary sequence",
+      "passed": true
+    },
+    {
+      "name": "Rerouting existing cargo persists owned collection",
+      "passed": true
+    },
+    {
+      "name": "Exact replacement route sequence persisted",
+      "passed": true
+    },
+    {
+      "name": "No candidates for expired deadline handled",
+      "passed": true
+    },
+    {
+      "name": "Reader direct handling UI denied",
+      "passed": true
+    },
+    {
+      "name": "Mobile handling form fits viewport",
+      "passed": true
+    },
+    {
+      "name": "Reader forged mobile POST denied",
+      "passed": true
+    },
+    {
+      "name": "Mobile mutation requires CSRF",
+      "passed": true
+    },
+    {
+      "name": "Mobile invalid calendar rejected",
+      "passed": true
+    },
+    {
+      "name": "Mobile missing required voyage rejected",
+      "passed": true
+    },
+    {
+      "name": "Mobile handling accepts asynchronous submission",
+      "passed": true
+    },
+    {
+      "name": "Mobile handling actual persistence readback",
+      "passed": true
+    },
+    {
+      "name": "Mobile LOAD with voyage accepted",
+      "passed": true
+    },
+    {
+      "name": "Mobile LOAD actually changes transport state",
+      "passed": true
+    },
+    {
+      "name": "Mobile handling form fits viewport",
+      "passed": true
+    },
+    {
+      "name": "Reader forged mobile POST denied",
+      "passed": true
+    },
+    {
+      "name": "Mobile mutation requires CSRF",
+      "passed": true
+    },
+    {
+      "name": "Mobile invalid calendar rejected",
+      "passed": true
+    },
+    {
+      "name": "Mobile missing required voyage rejected",
+      "passed": true
+    },
+    {
+      "name": "Mobile handling accepts asynchronous submission",
+      "passed": true
+    },
+    {
+      "name": "Mobile handling actual persistence readback",
+      "passed": true
+    },
+    {
+      "name": "Mobile LOAD with voyage accepted",
+      "passed": true
+    },
+    {
+      "name": "Mobile LOAD actually changes transport state",
+      "passed": true
+    },
+    {
+      "name": "Cargo details fit mobile viewport",
+      "passed": true
+    },
+    {
+      "name": "Dynamic resource bypass denied",
+      "passed": true
+    },
+    {
+      "name": "Anonymous upgrade is HTTP401",
+      "passed": true
+    },
+    {
+      "name": "Browser login reader",
+      "passed": true
+    },
+    {
+      "name": "Authenticated wrong-origin upgrade denied reader",
+      "passed": true
+    },
+    {
+      "name": "Authorized upgrade reader",
+      "passed": true
+    },
+    {
+      "name": "Browser login operator",
+      "passed": true
+    },
+    {
+      "name": "Authenticated wrong-origin upgrade denied operator",
+      "passed": true
+    },
+    {
+      "name": "Authorized upgrade operator",
+      "passed": true
+    },
+    {
+      "name": "Live UI snapshot operator",
+      "passed": true
+    },
+    {
+      "name": "Live UI has geographic marker operator",
+      "passed": true
+    },
+    {
+      "name": "Browser login admin",
+      "passed": true
+    },
+    {
+      "name": "Authenticated wrong-origin upgrade denied admin",
+      "passed": true
+    },
+    {
+      "name": "Authorized upgrade admin",
+      "passed": true
+    },
+    {
+      "name": "Live UI snapshot admin",
+      "passed": true
+    },
+    {
+      "name": "Live UI has geographic marker admin",
+      "passed": true
+    },
+    {
+      "name": "Actual handling trigger 1",
+      "passed": true
+    },
+    {
+      "name": "Actual authorized data frame reader",
+      "passed": true
+    },
+    {
+      "name": "Legacy socket fields remain names reader",
+      "passed": true
+    },
+    {
+      "name": "Actual live UI update reader",
+      "passed": true
+    },
+    {
+      "name": "Actual live marker moves reader",
+      "passed": true
+    },
+    {
+      "name": "Delayed old snapshot cannot undo live update",
+      "passed": true
+    },
+    {
+      "name": "Actual authorized data frame operator",
+      "passed": true
+    },
+    {
+      "name": "Legacy socket fields remain names operator",
+      "passed": true
+    },
+    {
+      "name": "Actual live UI update operator",
+      "passed": true
+    },
+    {
+      "name": "Actual live marker moves operator",
+      "passed": true
+    },
+    {
+      "name": "Actual authorized data frame admin",
+      "passed": true
+    },
+    {
+      "name": "Legacy socket fields remain names admin",
+      "passed": true
+    },
+    {
+      "name": "Actual live UI update admin",
+      "passed": true
+    },
+    {
+      "name": "Actual live marker moves admin",
+      "passed": true
+    },
+    {
+      "name": "Socket owner logout",
+      "passed": true
+    },
+    {
+      "name": "Logout closes existing socket",
+      "passed": true
+    },
+    {
+      "name": "Logout clears UI cargo data",
+      "passed": true
+    },
+    {
+      "name": "Actual handling trigger 2",
+      "passed": true
+    },
+    {
+      "name": "No new data after logout",
+      "passed": true
+    },
+    {
+      "name": "Actual handling trigger 3",
+      "passed": true
+    },
+    {
+      "name": "Actual handling trigger 4",
+      "passed": true
+    },
+    {
+      "name": "Actual handling trigger 5",
+      "passed": true
+    },
+    {
+      "name": "Actual handling trigger 6",
+      "passed": true
+    },
+    {
+      "name": "Actual handling trigger 7",
+      "passed": true
+    },
+    {
+      "name": "HTTP idle expiry closes active socket",
+      "passed": true
+    },
+    {
+      "name": "Idle expiry clears UI cargo data",
+      "passed": true
+    },
+    {
+      "name": "Actual handling trigger 8",
+      "passed": true
+    },
+    {
+      "name": "Post-expiry event reaches authorized UI",
+      "passed": true
+    },
+    {
+      "name": "Revoked UI remains empty",
+      "passed": true
+    },
+    {
+      "name": "No new data after idle expiry",
+      "passed": true
+    },
+    {
+      "name": "No page or asset errors",
+      "passed": true
+    }
+  ],
+  "last_navigation": {
+    "path": "/cargo-tracker/session",
+    "status": 200
+  },
+  "resource_errors": []
+}

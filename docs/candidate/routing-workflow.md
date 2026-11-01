@@ -46,3 +46,7 @@ References: [WildFly42 Elytron](https://docs.wildfly.org/42/WildFly_Elytron_Secu
 ## Subsequent live UI increment
 
 The authenticated [live tracking view](live-tracking-ui.md) now provides actual rows/markers and session-end clearing. Earlier disabled-map/live-UI statements are historical; the raw legacy map client remains blocked. KAN-19 still requires the mobile event logger. KAN-17 endpoint work is Done in Jira.
+
+## Subsequent mobile workflow increment
+
+The [responsive handling form](mobile-handling.md) now replaces the legacy mobile flow for supported handling work. Earlier mobile-disabled/pending statements describe prior checkpoints. Full platform/security/resilience acceptance remains separate.

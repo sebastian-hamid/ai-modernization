@@ -152,7 +152,50 @@ function check(name,ok){stage=name;checks.push({name,passed:!!ok});if(!ok)throw 
   await operator.page.getByRole("link",{name:"Assign route",exact:true}).click();
   await operator.page.getByText("No sample routes meet this cargo's arrival deadline.",{exact:true}).waitFor();
   check("No candidates for expired deadline handled",await operator.page.getByRole("button",{name:"Assign selected route",exact:true}).count()===0);
-  // Mobile viewport verifies this responsive increment; old mobile event logger remains disabled.
+  const readerMobile=await reader.context.request.get(base+"mobile.xhtml");
+  check("Reader direct handling UI denied",readerMobile.status()===403);
+  for(const actor of [operator,admin]){
+   await actor.page.setViewportSize({width:390,height:844});
+   await actor.page.goto(base+"mobile.xhtml");
+   await actor.page.getByRole("heading",{name:"Report handling",exact:true}).waitFor();
+   check("Mobile handling form fits viewport",await actor.page.evaluate(()=>document.documentElement.scrollWidth<=window.innerWidth));
+   const mobileState=await actor.page.locator('input[name="jakarta.faces.ViewState"]').first().inputValue();
+   const readerMobileToken=(await (await reader.context.request.get(base+"session")).json()).csrf;
+   const readerPost=await reader.context.request.post(base+"mobile.xhtml",{form:{"csrf":readerMobileToken,"handling":"handling","handling:submit":"","jakarta.faces.ViewState":mobileState}});
+   check("Reader forged mobile POST denied",readerPost.status()===403);
+   const mobileNoToken=await actor.context.request.post(base+"mobile.xhtml",{form:{"handling":"handling","handling:submit":"","jakarta.faces.ViewState":mobileState}});
+   check("Mobile mutation requires CSRF",mobileNoToken.status()===403);
+   await actor.page.getByLabel("Cargo",{exact:true}).selectOption(id);
+   await actor.page.getByLabel("Event",{exact:true}).selectOption("LOAD");
+   const handlingLocation=actor===operator?"USCHI":"DEHAM";
+   await actor.page.getByLabel("Location",{exact:true}).selectOption(handlingLocation);
+   await actor.page.getByLabel("Completion time (YYYY-MM-DD HH:mm)").fill("2032-02-30 10:00");
+   await actor.page.getByRole("button",{name:"Submit handling report",exact:true}).click();
+   await actor.page.getByText("Enter a valid completion time in YYYY-MM-DD HH:mm format.",{exact:true}).waitFor();
+   check("Mobile invalid calendar rejected",true);
+   await actor.page.getByLabel("Completion time (YYYY-MM-DD HH:mm)").fill(actor===operator?"2032-02-01 10:00":"2032-02-03 10:00");
+   await actor.page.getByRole("button",{name:"Submit handling report",exact:true}).click();
+   await actor.page.getByText("Choose a voyage for LOAD or UNLOAD.",{exact:true}).waitFor();
+   check("Mobile missing required voyage rejected",true);
+   await actor.page.getByLabel("Event",{exact:true}).selectOption("CUSTOMS");
+   await actor.page.getByRole("button",{name:"Submit handling report",exact:true}).click();
+   await actor.page.getByText("Accepted for processing. Check cargo details for the result.",{exact:true}).waitFor();
+   check("Mobile handling accepts asynchronous submission",true);
+   await reader.context.request.get(base+"session");
+   let changed=false;
+   for(let retry=0;retry<40;retry++){const response=await reader.context.request.get(base+"rest/cargo");const cargos=await response.json();if(cargos.find(c=>c.trackingId===id).lastKnownLocation===handlingLocation){changed=true;break;}await actor.page.waitForTimeout(250);}
+   check("Mobile handling actual persistence readback",changed);
+   await actor.page.getByLabel("Event",{exact:true}).selectOption("LOAD");
+   await actor.page.getByLabel("Voyage (required for LOAD/UNLOAD)").selectOption("0100S");
+   await actor.page.getByLabel("Completion time (YYYY-MM-DD HH:mm)").fill(actor===operator?"2032-02-02 10:00":"2032-02-04 10:00");
+   await actor.page.getByRole("button",{name:"Submit handling report",exact:true}).click();
+   await actor.page.getByText("Accepted for processing. Check cargo details for the result.",{exact:true}).waitFor();
+   check("Mobile LOAD with voyage accepted",true);
+   let loaded=false;
+   for(let retry=0;retry<40;retry++){const response=await reader.context.request.get(base+"rest/cargo");const cargo=(await response.json()).find(c=>c.trackingId===id);if(cargo.transportStatus==="ONBOARD_CARRIER"&&cargo.lastKnownLocation===handlingLocation){loaded=true;break;}await actor.page.waitForTimeout(250);}
+   check("Mobile LOAD actually changes transport state",loaded);
+  }
+
   await operator.page.setViewportSize({width:390,height:844});
   await operator.page.goto(base+"admin/show.xhtml?trackingId="+id);
   check("Cargo details fit mobile viewport",await operator.page.evaluate(()=>document.documentElement.scrollWidth<=window.innerWidth));
@@ -231,5 +274,5 @@ function check(name,ok){stage=name;checks.push({name,passed:!!ok});if(!ok)throw 
   check("No new data after idle expiry",await sockets.operator.page.evaluate(()=>window.framesReceived.length)===expiredCount);
   check("No page or asset errors",failures.length===0);
  } catch(error){checks.push({name:stage+" failed ("+error.name+")",outcome:"FAIL",passed:false});process.exitCode=1;}
- finally{await browser.close();fs.writeFileSync("/out/results.json",JSON.stringify({scope:"Real Chromium Faces cargo read/booking/destination/routing workflows; not full KAN-19",checks,last_navigation:navigation,resource_errors:failures},null,2)+"\n");}
+ finally{await browser.close();fs.writeFileSync("/out/results.json",JSON.stringify({scope:"Real Chromium cargo read/booking/destination/routing/live/handling workflows",checks,last_navigation:navigation,resource_errors:failures},null,2)+"\n");}
 })();

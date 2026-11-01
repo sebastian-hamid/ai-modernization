@@ -1,15 +1,10 @@
-<?xml version='1.0' encoding='UTF-8' ?>
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-<html xmlns="http://www.w3.org/1999/xhtml"
-      xmlns:h="http://xmlns.jcp.org/jsf/html"
-      xmlns:f="http://xmlns.jcp.org/jsf/core">
-    <h:head></h:head>
-    <h:body>
-        
-        <f:metadata>
-            <f:viewAction action="#{holderBean.initFlow}" />
-        </f:metadata>
-        
-    </h:body>
-</html>
-
+<ui:composition xmlns="http://www.w3.org/1999/xhtml" xmlns:ui="jakarta.faces.facelets" xmlns:h="jakarta.faces.html" xmlns:f="jakarta.faces.core" xmlns:p="http://primefaces.org/ui" template="/WEB-INF/templates/candidate.xhtml">
+<ui:define name="title">Report handling</ui:define><ui:define name="content"><h1>Report handling</h1><p>Only routed, unclaimed cargo can be selected. Times use the application server's local time.</p><h:messages id="handlingMessages"/>
+<h:form id="handling"><input type="hidden" name="csrf" value="#{handlingPages.csrf}"/>
+<h:outputLabel for="cargo" value="Cargo"/><h:selectOneMenu id="cargo" value="#{handlingPages.trackingId}" required="true"><f:selectItem itemValue="" itemLabel="Choose cargo"/><f:selectItems value="#{handlingPages.cargos}" var="cargo" itemLabel="#{cargo.trackingId}" itemValue="#{cargo.trackingId}"/></h:selectOneMenu>
+<h:outputLabel for="type" value="Event"/><h:selectOneMenu id="type" value="#{handlingPages.eventType}" required="true"><f:selectItem itemValue="" itemLabel="Choose event"/><f:selectItems value="#{handlingPages.types}"/></h:selectOneMenu>
+<h:outputLabel for="location" value="Location"/><h:selectOneMenu id="location" value="#{handlingPages.location}" required="true"><f:selectItem itemValue="" itemLabel="Choose location"/><f:selectItems value="#{handlingPages.locations}" var="location" itemLabel="#{location.name}" itemValue="#{location.unLocode}"/></h:selectOneMenu>
+<h:outputLabel for="time" value="Completion time (YYYY-MM-DD HH:mm)"/><h:inputText id="time" value="#{handlingPages.completionTime}" required="true"/>
+<h:outputLabel for="voyage" value="Voyage (required for LOAD/UNLOAD)"/><h:selectOneMenu id="voyage" value="#{handlingPages.voyage}"><f:selectItem itemValue="" itemLabel="No voyage"/><f:selectItems value="#{handlingPages.voyages}"/></h:selectOneMenu>
+<p:commandButton id="submit" value="Submit handling report" action="#{handlingPages.submit}" ajax="false"/></h:form>
+</ui:define></ui:composition>

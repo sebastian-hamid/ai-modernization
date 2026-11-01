@@ -23,3 +23,4 @@
 /tracking	Reader,Operator,Administrator
 /admin/live.xhtml	Reader,Operator,Administrator
 /resources/js/live-tracking.js	PUBLIC
+/mobile.xhtml	Operator,Administrator

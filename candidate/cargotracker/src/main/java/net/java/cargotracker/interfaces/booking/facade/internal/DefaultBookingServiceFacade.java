@@ -28,6 +28,9 @@ import net.java.cargotracker.interfaces.booking.facade.internal.assembler.Locati
 public class DefaultBookingServiceFacade implements BookingServiceFacade,
         Serializable {
 
+    @Override
+    public List<String> listVoyageNumbers(){return voyageRepository.findAll().stream().map(v->v.getVoyageNumber().getIdString()).sorted().toList();}
+
     private static final long serialVersionUID = 1L;
     @Inject
     private BookingService bookingService;

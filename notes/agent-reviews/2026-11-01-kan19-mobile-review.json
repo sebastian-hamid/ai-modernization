@@ -1,0 +1,16 @@
+{
+  "task": "KAN-19 mobile/scopedUI completion",
+  "reviewer": "/root/review_kan19_mobile",
+  "base": "3cdba4665aee2534f014d44bf2c1644e2993d711",
+  "verdict": "Approved scopedUI publication; no remaining material findings",
+  "input_hashes_verified": 263,
+  "browser": 126,
+  "application": 47,
+  "domain": 35,
+  "reviewer_live_execution": false,
+  "limits": [
+    "Inherited empty domain TODO",
+    "Full platform/security and independent effects acceptance separate",
+    "Legacy aliases KAN-20"
+  ]
+}

@@ -13,3 +13,7 @@ Verification uses the real candidate and actual JMS-derived events for all three
 Run python3 tests/browser-workflows/run_browser.py. Exact counts/hashes and cleanup are in notes/evidence/kan-19-live/validation.json; underlying35 domain cases retain one inherited empty TODO. Seven mocked harness cleanup regressions remain separate from product coverage. Shared historical services/source are unchanged.
 
 KAN-19 remains In Progress for the legacy mobile event logger; full KAN-15/KAN-18 and independent KAN-14 database/queue/audit absence remain open. KAN-17 endpoint acceptance is Done; it does not imply the old map client was ported.
+
+## Subsequent mobile workflow increment
+
+The [responsive handling form](mobile-handling.md) now replaces the legacy mobile flow for supported handling work. Earlier mobile-disabled/pending statements describe prior checkpoints. Full platform/security/resilience acceptance remains separate.

@@ -125,9 +125,9 @@
       "type": "Story",
       "title": "[PLAT-03] Modernize Faces/PrimeFaces and verify browser workflows",
       "parent": "KAN-6",
-      "last_verified_status": "In Progress",
-      "evidence": "notes/evidence/kan-19-live/validation.json",
-      "remaining_blocker": "Mobile event logger and full candidate/security acceptance"
+      "last_verified_status": "Done",
+      "evidence": "notes/evidence/kan-19-mobile/validation.json",
+      "remaining_blocker": "None for scoped supported UI; full platform/security and KAN-20 aliases remain separate"
     },
     "BUG-03": {
       "key": "KAN-20",

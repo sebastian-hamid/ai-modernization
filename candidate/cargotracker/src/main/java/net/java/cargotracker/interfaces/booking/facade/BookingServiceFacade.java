@@ -11,6 +11,7 @@ import net.java.cargotracker.interfaces.booking.facade.dto.RouteCandidate;
  * concerns about such things as the user interface and remoting.
  */
 public interface BookingServiceFacade {
+    java.util.List<String> listVoyageNumbers();
 
     String bookNewCargo(String origin, String destination, Date arrivalDeadline);
 
