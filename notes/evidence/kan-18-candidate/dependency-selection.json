@@ -1,0 +1,20 @@
+{
+  "checked": "2026-11-01",
+  "dependencies": {
+    "primefaces": {
+      "selected": "16.0.1",
+      "official_release_at_check": "16.0.1",
+      "metadata_last_updated": "20261016142834",
+      "metadata_sha256": "d2a538eee2126aa0eea1a17dcc1e6bbc66bfb9349bdfa97860e2eb95a42a5132",
+      "source": "https://repo.maven.apache.org/maven2/org/primefaces/primefaces/maven-metadata.xml"
+    },
+    "commons-lang3": {
+      "selected": "3.20.0",
+      "official_release_at_check": "3.21.0",
+      "metadata_last_updated": "20260929180843",
+      "metadata_sha256": "f9eb651b28423ff404e5c843275f9c7365b0bcaef0b2e03576aa6b5394147cc8",
+      "source": "https://repo.maven.apache.org/maven2/org/apache/commons/commons-lang3/maven-metadata.xml"
+    }
+  },
+  "runtime_build_foundation": "Same immutable image digests and Java25.0.5 from independently reviewed KAN-13; no new TCK claim"
+}

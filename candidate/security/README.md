@@ -1,6 +1,6 @@
 # KAN-15 local identity/session foundation — work in progress
 
-This reusable Java 25/Jakarta EE 11 security library is **not yet integrated into Cargo Tracker**. KAN-15 is In Progress, not accepted or complete. The historical application remains insecure and unchanged. The 502 KAN-14 candidate cases remain BLOCKED; integration-fixture success does not change their outcomes.
+The original foundation increment was verified separately from Cargo Tracker. A subsequent [real candidate bootstrap](../cargotracker/README.md) now integrates login/session and monitoring/handling HTTP roles; full application integration remains incomplete. KAN-15 is In Progress, not accepted or complete. The historical application remains insecure and unchanged. The 502 KAN-14 candidate cases remain BLOCKED; integration-fixture success does not change their outcomes.
 
 ## Implemented components
 
@@ -23,7 +23,7 @@ The harness builds only copied library/fixture inputs in ignored .work/kan15/con
 
 ## Integration blockers and next work
 
-1. Bootstrap the actual Cargo Tracker candidate from pinned read-only legacy source onto the approved runtime (minimum platform work overlaps KAN-18). Source inspection confirms Java EE javax APIs, GlassFish/Jersey registration, Derby/JMS resources and PrimeFaces 5.2 bindings; a modern-server capability WAR alone cannot run that application. Preserve original source and shared GlassFish.
+1. A limited real Cargo Tracker bootstrap now exists in candidate/cargotracker (KAN-18 overlap); complete the remaining platform and workflow integration before full acceptance. Source inspection confirms Java EE javax APIs, GlassFish/Jersey registration, Derby/JMS resources and PrimeFaces 5.2 bindings; a modern-server capability WAR alone cannot run that application. Preserve original source and shared GlassFish.
 2. Bind every KAN-12 page, API, safe asset and direct/AJAX callback to reviewed permissions. Exact route checks cannot authorize callbacks on mixed Reader/Operator pages. Apply method guards to real business actions/services and EJB roles where appropriate; do not treat hiding controls as enforcement. Adapt denial responses deliberately.
 3. Keep worker identities, broker/filesystem ACLs, scoped internal routing, controlled import and deployment/migration authority separate from human roles. This request-bound CDI guard must not be used to invent human authority for MDB/batch execution.
 4. Add WebSocket identity/Origin validation and close live sockets on logout/expiry; no post-revocation data. These controls are not implemented by a servlet filter alone.

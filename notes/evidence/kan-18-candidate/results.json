@@ -1,0 +1,178 @@
+{
+  "task": "KAN-18/KAN-15",
+  "scope": "Real Cargo Tracker bootstrap; only monitoring/handling/session routes enabled",
+  "checks": [
+    {
+      "name": "Pinned runtime fixture builds",
+      "passed": true
+    },
+    {
+      "name": "Disposable image refuses absent opt-in",
+      "passed": true
+    },
+    {
+      "name": "34 candidate domain tests execute",
+      "passed": true
+    },
+    {
+      "name": "Anonymous monitoring denied",
+      "passed": true
+    },
+    {
+      "name": "Anonymous handling denied",
+      "passed": true
+    },
+    {
+      "name": "Unintegrated operational page denied",
+      "passed": true
+    },
+    {
+      "name": "WebSocket not enabled before lifecycle security",
+      "passed": true
+    },
+    {
+      "name": "Private source note denied",
+      "passed": true
+    },
+    {
+      "name": "Login form with token: reader",
+      "passed": true
+    },
+    {
+      "name": "Container login succeeds: reader",
+      "passed": true
+    },
+    {
+      "name": "Session ID rotates: reader",
+      "passed": true
+    },
+    {
+      "name": "Server principal and role: reader",
+      "passed": true
+    },
+    {
+      "name": "Login form with token: operator",
+      "passed": true
+    },
+    {
+      "name": "Container login succeeds: operator",
+      "passed": true
+    },
+    {
+      "name": "Session ID rotates: operator",
+      "passed": true
+    },
+    {
+      "name": "Server principal and role: operator",
+      "passed": true
+    },
+    {
+      "name": "Login form with token: admin",
+      "passed": true
+    },
+    {
+      "name": "Container login succeeds: admin",
+      "passed": true
+    },
+    {
+      "name": "Session ID rotates: admin",
+      "passed": true
+    },
+    {
+      "name": "Server principal and role: admin",
+      "passed": true
+    },
+    {
+      "name": "Authenticated monitoring",
+      "passed": true
+    },
+    {
+      "name": "Authenticated monitoring",
+      "passed": true
+    },
+    {
+      "name": "Authenticated monitoring",
+      "passed": true
+    },
+    {
+      "name": "Original four seeded cargos",
+      "passed": true
+    },
+    {
+      "name": "Reader handling denied",
+      "passed": true
+    },
+    {
+      "name": "Operator handling requires CSRF",
+      "passed": true
+    },
+    {
+      "name": "Authenticated monitoring",
+      "passed": true
+    },
+    {
+      "name": "Denied report leaves monitor unchanged",
+      "passed": true
+    },
+    {
+      "name": "Operator report accepted",
+      "passed": true
+    },
+    {
+      "name": "Real JPA/JMS handling changes cargo",
+      "passed": true
+    },
+    {
+      "name": "Administrator fixture starts away from FIHEL",
+      "passed": true
+    },
+    {
+      "name": "Administrator report accepted",
+      "passed": true
+    },
+    {
+      "name": "Administrator real asynchronous handling effect",
+      "passed": true
+    },
+    {
+      "name": "Logout succeeds",
+      "passed": true
+    },
+    {
+      "name": "Old authenticated cookie revoked",
+      "passed": true
+    }
+  ],
+  "status": "PASS",
+  "image_id": "sha256:51d56fb162591a207d4c4bcaab37c8337295a188aaea2e4787a2e1f56a8c30d6",
+  "domain_tests": {
+    "tests": 34,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0,
+    "empty_legacy_todo_retained": true
+  },
+  "denied_write_absence_verified": false,
+  "cargo_before": {
+    "trackingId": "DEF789",
+    "routingStatus": "NOT_ROUTED",
+    "misdirected": false,
+    "transportStatus": "NOT_RECEIVED",
+    "atDestination": false,
+    "origin": "CNHKG",
+    "lastKnownLocation": "Unknown"
+  },
+  "cargo_after": {
+    "trackingId": "DEF789",
+    "routingStatus": "MISROUTED",
+    "misdirected": false,
+    "transportStatus": "IN_PORT",
+    "atDestination": false,
+    "origin": "CNHKG",
+    "lastKnownLocation": "FIHEL"
+  },
+  "owned_container_removed": true,
+  "private_files_removed": true,
+  "cleanup_errors": [],
+  "count": 35
+}

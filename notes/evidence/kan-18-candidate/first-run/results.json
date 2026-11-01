@@ -1,0 +1,118 @@
+{
+  "task": "KAN-18/KAN-15",
+  "scope": "Real Cargo Tracker bootstrap; only monitoring/handling/session routes enabled",
+  "checks": [
+    {
+      "name": "Pinned runtime fixture builds",
+      "passed": true
+    },
+    {
+      "name": "Anonymous monitoring denied",
+      "passed": true
+    },
+    {
+      "name": "Anonymous handling denied",
+      "passed": true
+    },
+    {
+      "name": "Unintegrated operational page denied",
+      "passed": true
+    },
+    {
+      "name": "WebSocket not enabled before lifecycle security",
+      "passed": true
+    },
+    {
+      "name": "Private source note denied",
+      "passed": true
+    },
+    {
+      "name": "Login form with token: reader",
+      "passed": true
+    },
+    {
+      "name": "Container login succeeds: reader",
+      "passed": true
+    },
+    {
+      "name": "Session ID rotates: reader",
+      "passed": true
+    },
+    {
+      "name": "Server principal and role: reader",
+      "passed": true
+    },
+    {
+      "name": "Login form with token: operator",
+      "passed": true
+    },
+    {
+      "name": "Container login succeeds: operator",
+      "passed": true
+    },
+    {
+      "name": "Session ID rotates: operator",
+      "passed": true
+    },
+    {
+      "name": "Server principal and role: operator",
+      "passed": true
+    },
+    {
+      "name": "Login form with token: admin",
+      "passed": true
+    },
+    {
+      "name": "Container login succeeds: admin",
+      "passed": true
+    },
+    {
+      "name": "Session ID rotates: admin",
+      "passed": true
+    },
+    {
+      "name": "Server principal and role: admin",
+      "passed": true
+    },
+    {
+      "name": "Authenticated monitoring",
+      "passed": true
+    },
+    {
+      "name": "Original four seeded cargos",
+      "passed": true
+    },
+    {
+      "name": "Reader handling denied",
+      "passed": true
+    },
+    {
+      "name": "Operator handling requires CSRF",
+      "passed": true
+    },
+    {
+      "name": "Authenticated monitoring",
+      "passed": true
+    },
+    {
+      "name": "Denied report leaves monitor unchanged",
+      "passed": true
+    },
+    {
+      "name": "Operator report accepted",
+      "passed": true
+    },
+    {
+      "name": "Real JPA/JMS handling changes cargo",
+      "passed": false
+    }
+  ],
+  "status": "FAIL",
+  "image_id": "sha256:497f03551e081f961778c7c3f1491ccd8d99e01708de74e9509e5b6ad1f0924e",
+  "denied_write_absence_verified": false,
+  "error_type": "AssertionError",
+  "owned_container_removed": true,
+  "private_files_removed": true,
+  "cleanup_errors": [],
+  "count": 26
+}

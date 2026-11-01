@@ -1,0 +1,7 @@
+/login	PUBLIC
+/index.xhtml	PUBLIC
+/public/about.xhtml	PUBLIC
+/rest/cargo	Reader,Operator,Administrator
+/rest/handling/reports	Operator,Administrator
+/logout	Reader,Operator,Administrator
+/session	Reader,Operator,Administrator

@@ -1,0 +1,33 @@
+{
+  "tasks": [
+    "KAN-18",
+    "KAN-15"
+  ],
+  "reviewer": "/root/review_kan18_bootstrap",
+  "date": "2026-11-01",
+  "repository_base": "e5ef3ea6cd52d085aa8f26a21a77f8b65cd8ad9e",
+  "verdict": "No remaining material findings for limited work-in-progress bootstrap; not full task acceptance",
+  "checks": {
+    "original_provenance_hashes_verified": 218,
+    "final_input_hashes_verified": 237,
+    "runtime_records_inspected": 35,
+    "domain_tests": 34,
+    "independently_rerun_mocked_cleanup_regressions": 3,
+    "live_runtime_rerun_by_reviewer": false,
+    "historical_source_clean": true
+  },
+  "non_material_finding": "Reused copytree build context can retain deleted stale files",
+  "resolution": "Fresh mkdtemp selected-input context each run; reviewer rechecked",
+  "additional_hardening": "Lab opt-in guard before credential copy with actual refusal assertion",
+  "evidence_sha256": {
+    "validation.json": "3a330449c99f99dbb713adf7924cfb51babe304cf5a8e065c78765aaadda8faf",
+    "results.json": "92e3e323004ec551f1b7c906e6c01d0f4cbc4fe494a1af26aafd0149f956a2b2"
+  },
+  "full_acceptance": false,
+  "remaining": [
+    "UI/actions/routing/WebSocket/machine security",
+    "PostgreSQL/Flyway",
+    "Independent denied-write database/queue/business-audit absence",
+    "KAN-14 502 cases still BLOCKED"
+  ]
+}

@@ -94,8 +94,8 @@
       "title": "[SEC-03] Implement local identities and authorization on candidate surfaces",
       "parent": "KAN-5",
       "last_verified_status": "In Progress",
-      "evidence": "notes/evidence/kan-15-security-foundation/validation.json",
-      "remaining_blocker": "Real Cargo Tracker candidate platform/bootstrap and full mapped enforcement/observers still required"
+      "evidence": "notes/evidence/kan-18-candidate/validation.json",
+      "remaining_blocker": "Real monitoring/handling/session integration verified; remaining mapped UI/action/worker/routing/WS controls and independent effects observers"
     },
     "BUG-01": {
       "key": "KAN-16",
@@ -113,7 +113,10 @@
       "key": "KAN-18",
       "type": "Story",
       "title": "[PLAT-02] Modernize the application platform and dependencies",
-      "parent": "KAN-6"
+      "parent": "KAN-6",
+      "last_verified_status": "In Progress",
+      "evidence": "notes/evidence/kan-18-candidate/validation.json",
+      "remaining_blocker": "Full candidate functional/security acceptance: UI/actions/routing/WS, machine boundaries, independent effect observers, later DB mapping"
     },
     "PLAT-03": {
       "key": "KAN-19",

@@ -11,3 +11,9 @@ Dockerfile text eol=lf
 # Preserve captured diagnostics; source whitespace checks remain enabled.
 notes/evidence/** -whitespace
 notes/evidence/**/*.diff -text
+
+# Preserve exact reviewed upstream bytes in the initial candidate export.
+candidate/cargotracker/src/main/resources/net/java/cargotracker/messages.properties -text
+candidate/cargotracker/src/main/webapp/resources/calendar.css -text
+candidate/cargotracker/src/test/soapui/CargoTracker_soapUI_project.xml -text
+candidate/cargotracker/src/test/soapui/report_json_sample.txt -text

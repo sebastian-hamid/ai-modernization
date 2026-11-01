@@ -8,6 +8,7 @@ Windows 11 + WSL2 Ubuntu development environment, local Jenkins and a preserved 
 - [Legacy functional, architecture and technical documentation](docs/baseline/README.md)
 - [Prepared Jira backlog](specifications/jira-backlog.md)
 - [Entrypoint permissions and security test map](specifications/access-policy-map.md)
+- [Real Cargo Tracker candidate bootstrap and limitations](candidate/cargotracker/README.md)
 - [Local identity/session foundation and integration blockers](candidate/security/README.md)
 - [Desired access test contracts and current gaps](tests/security/README.md)
 - [Separate-agent review workflow](docs/agent-review-workflow.md)
