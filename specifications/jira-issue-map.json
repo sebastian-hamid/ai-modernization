@@ -133,7 +133,11 @@
       "key": "KAN-20",
       "type": "Task",
       "title": "[BUG-03] Fix broken tracking view and uncontrolled direct-link errors",
-      "parent": "KAN-6"
+      "parent": "KAN-6",
+      "last_verified_status": "In Progress",
+      "evidence": "notes/evidence/kan-20-navigation/validation.json",
+      "review": "notes/agent-reviews/2026-11-01-kan20-navigation-review.json",
+      "remaining_blocker": "Reviewed and verified; publication/Jira closure pending"
     },
     "DB-01": {
       "key": "KAN-21",

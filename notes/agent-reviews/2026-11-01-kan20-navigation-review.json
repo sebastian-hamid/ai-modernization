@@ -1,0 +1,25 @@
+{
+  "task": "KAN-20 tracking and legacy navigation",
+  "reviewer": "/root/review_kan20_links",
+  "base": "1c4cdacc8d7bfabe2238a6399ae3b52a07c0aef7",
+  "verdict": "Approved scoped KAN-20 publication; no remaining material findings",
+  "input_hashes_verified": 265,
+  "browser": 210,
+  "application": 47,
+  "domain": 35,
+  "independently_executed_mocked_cleanup_tests": 7,
+  "reviewer_live_execution": false,
+  "initial_finding": "Initial root welcome assertion failed; author corrected exact root permission and login link before final static/evidence review",
+  "remaining_findings": [],
+  "limits": [
+    "Inherited empty domain TODO",
+    "Chromium only",
+    "Full platform/security and independent DB/queue/audit absence acceptance separate"
+  ],
+  "evidence_sha256": {
+    "application-results.json": "9fba9ce587c1b9a69d6b66874d344bc289ce336942a8086dac2659a6a8b9f0bd",
+    "validation.json": "4622ae17e5445004dd83fb8f6cea9a9c9a72b72906459f0fe3a613821cdfddb0",
+    "browser-results.json": "1f55eb518ee99fb487c4b60709f32838a0f3aa823c877148cacbaeeb2d495287",
+    "initial-home-failure.json": "5bda6097bc7fc9310459938ccc3d6cf3339a653871c5a67d671f724b37375ea1"
+  }
+}

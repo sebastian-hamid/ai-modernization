@@ -24,7 +24,48 @@ function check(name,ok){stage=name;checks.push({name,passed:!!ok});if(!ok)throw 
    check("Browser login "+who,(await page.textContent("body")).includes('"principal":"'+who+'"'));
    return {context,page};
   }
+
+  const aliasesRead=["public/track.xhtml","admin/map.xhtml","admin/mapFrame.html"];
+  const aliasesWrite=["admin/selectItinerary.xhtml","eventLogger/eventLogger.xhtml","eventLogger/root.xhtml","booking/booking.xhtml","booking/booking-date.xhtml","booking/booking-destination.xhtml"];
+  const home=await anon.request.get(base);
+  check("Public home links to current tracking view",home.status()===200 && (await home.text()).includes("admin/track.xhtml"));
+  for(const path of [...aliasesRead,...aliasesWrite]){
+   const response=await anon.request.get(base+path+"?trackingId=UNKNOWN",{maxRedirects:0});
+   check("Authentication precedes legacy lookup "+path,response.status()===303 && response.headers().location.endsWith("/login"));
+  }
   const reader=await login("reader");
+  await reader.page.goto(base+"admin/track.xhtml");
+  await reader.page.getByLabel("Tracking ID",{exact:true}).fill("UNKNOWN");
+  await reader.page.getByRole("button",{name:"Track cargo",exact:true}).click();
+  await reader.page.getByText("Cargo not found.",{exact:true}).waitFor();
+  check("Tracking form unknown cargo controlled",reader.page.url().includes("/admin/track.xhtml"));
+  await reader.page.getByLabel("Tracking ID",{exact:true}).fill("<script>");
+  await reader.page.getByRole("button",{name:"Track cargo",exact:true}).click();
+  await reader.page.getByText("Enter a valid tracking ID.",{exact:true}).waitFor();
+  check("Tracking form malformed ID controlled",true);
+  await reader.page.getByLabel("Tracking ID",{exact:true}).fill("ABC123");
+  await reader.page.getByRole("button",{name:"Track cargo",exact:true}).click();
+  await reader.page.waitForURL(/admin\/show.xhtml\?trackingId=ABC123/);
+  check("Tracking form valid cargo navigation",await reader.page.locator("#trackingId").textContent()==="ABC123");
+  for(const path of ["admin/track.xhtml?trackingId=UNKNOWN","admin/track.xhtml?trackingId=%3Cscript%3E","public/track.xhtml?trackingId=UNKNOWN","public/track.xhtml?trackingId=ABC123&trackingId=DEF789","public/track.xhtml?trackingId=%3Cscript%3E"]){
+   const response=await reader.context.request.get(base+path);
+   check("Tracking direct invalid ID controlled "+path,response.status()===404);
+  }
+  const publicTrack=await reader.context.request.get(base+"public/track.xhtml?trackingId=ABC123");
+  check("Legacy tracking reaches actual cargo",publicTrack.status()===200 && (await publicTrack.text()).includes('id="trackingId">ABC123'));
+  const noId=await reader.context.request.get(base+"public/track.xhtml");
+  check("Legacy tracking without ID shows lookup",noId.status()===200 && (await noId.text()).includes("Tracking ID"));
+  for(const path of ["admin/map.xhtml","admin/mapFrame.html"]){
+   const response=await reader.context.request.get(base+path+"?redirect=https://untrusted.example",{maxRedirects:0});
+   check("Fixed local legacy map redirect "+path,response.status()===303 && response.headers().location.endsWith("/admin/live.xhtml"));
+   const target=await reader.context.request.get(base+path);
+   check("Legacy map reaches supported live view "+path,target.status()===200 && (await target.text()).includes('id="live-cargos"'));
+  }
+  for(const path of aliasesWrite){
+   const response=await reader.context.request.get(base+path+"?trackingId=%3Cscript%3E");
+   check("Reader denied before legacy input handling "+path,response.status()===403);
+  }
+
   await reader.page.goto(base+"admin/dashboard.xhtml");
   await reader.page.getByRole("heading",{name:"Cargo list",exact:true}).waitFor();
   check("Reader sees seeded cargo",await reader.page.getByRole("link",{name:"ABC123",exact:true}).count()===1);
@@ -142,7 +183,27 @@ function check(name,ok){stage=name;checks.push({name,passed:!!ok});if(!ok)throw 
   check("Reader forged booking POST denied",forged.status()===403);
   const noCsrf=await operator.context.request.post(base+"admin/book.xhtml",{form:{"booking":"booking","booking:submit":"","jakarta.faces.ViewState":view[1]}});
   check("Missing CSRF booking POST denied",noCsrf.status()===403);
+
   const admin=await login("admin");await book(admin);
+  for(const actor of [operator,admin]){
+   for(const path of aliasesWrite){
+    const response=await actor.context.request.get(base+path+(path.includes("selectItinerary")?"?trackingId="+id:""));
+    const heading=path.includes("selectItinerary")?"Assign route":path.startsWith("booking/")?"Book cargo":"Report handling";
+    check("Authorized legacy navigation "+path,response.status()===200 && (await response.text()).includes("<h1>"+heading+"</h1>"));
+   }
+   for(const path of ["admin/selectItinerary.xhtml","admin/selectItinerary.xhtml?trackingId=UNKNOWN","admin/selectItinerary.xhtml?trackingId=%3Cscript%3E","admin/show.xhtml","admin/show.xhtml?trackingId=UNKNOWN","admin/changeDestination.xhtml","admin/changeDestination.xhtml?trackingId=UNKNOWN","admin/route.xhtml","admin/route.xhtml?trackingId=UNKNOWN"]){
+    const response=await actor.context.request.get(base+path);
+    check("Authorized invalid direct link controlled "+path,response.status()===404);
+   }
+   const token=(await (await actor.context.request.get(base+"session")).json()).csrf;
+   for(const path of aliasesWrite){
+    const noCsrf=await actor.context.request.post(base+path,{form:{trackingId:id},maxRedirects:0});
+    check("Retired callback requires CSRF "+path,noCsrf.status()===403);
+    const post=await actor.context.request.post(base+path,{form:{csrf:token,trackingId:id},maxRedirects:0});
+    check("Retired callback never replays mutations "+path,post.status()===405);
+   }
+  }
+
   await operator.page.goto(base+"admin/book.xhtml");
   await operator.page.getByLabel("Origin",{exact:true}).selectOption("CNHKG");
   await operator.page.getByLabel("Destination",{exact:true}).selectOption("FIHEL");

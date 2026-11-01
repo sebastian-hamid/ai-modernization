@@ -43,8 +43,13 @@ References checked: [Faces4.1 metadata placement](https://jakarta.ee/specificati
 
 ## Subsequent live UI increment
 
-The authenticated [live tracking view](live-tracking-ui.md) now provides actual rows/markers and session-end clearing. Earlier disabled-map/live-UI statements are historical; the raw legacy map client remains blocked. KAN-19 still requires the mobile event logger. KAN-17 endpoint work is Done in Jira.
+The authenticated [live tracking view](live-tracking-ui.md) now provides actual rows/markers and session-end clearing. Earlier disabled-map/live-UI statements are historical; the raw legacy map client remains blocked. Later increments below supersede the mobile-pending statement. KAN-17 endpoint work is Done in Jira.
 
 ## Subsequent mobile workflow increment
 
 The [responsive handling form](mobile-handling.md) now replaces the legacy mobile flow for supported handling work. Earlier mobile-disabled/pending statements describe prior checkpoints. Full platform/security/resilience acceptance remains separate.
+
+
+## Subsequent legacy navigation correction
+
+KAN-20 adds the [tracking lookup and explicit legacy entry-point redirects](legacy-navigation.md), including safe map and event-flow entry points. Earlier blocked-alias statements are historical; the obsolete raw map client is still not served. Full platform/security/effect-observer acceptance remains separate.

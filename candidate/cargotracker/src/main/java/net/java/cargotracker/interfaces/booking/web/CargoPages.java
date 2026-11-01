@@ -26,6 +26,16 @@ public class CargoPages implements Serializable {
     public String getDeadline(){return deadline;}
     public void setDeadline(String value){deadline=value;}
     public CargoRoute getCargo(){return cargo;}
+    public String lookupOnGet()throws IOException{
+        if(trackingId==null)return null;
+        load();return cargo==null?null:"/admin/show.xhtml?faces-redirect=true&trackingId="+cargo.getTrackingId();
+    }
+    public String lookup(){
+        if(trackingId==null || !trackingId.matches("[A-Z0-9]{6,8}")){message("Enter a valid tracking ID.");return null;}
+        try{cargo=facade.loadCargoForRouting(trackingId);}
+        catch(net.java.cargotracker.interfaces.booking.facade.CargoNotFoundException missing){message("Cargo not found.");return null;}
+        return "/admin/show.xhtml?faces-redirect=true&trackingId="+cargo.getTrackingId();
+    }
     public void load() throws IOException {
         if(trackingId==null || !trackingId.matches("[A-Z0-9]{6,8}")){notFound();return;}
         try {cargo=facade.loadCargoForRouting(trackingId);}

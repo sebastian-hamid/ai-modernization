@@ -1,3 +1,4 @@
+/	PUBLIC
 /login	PUBLIC
 /index.xhtml	PUBLIC
 /public/about.xhtml	PUBLIC
@@ -24,3 +25,13 @@
 /admin/live.xhtml	Reader,Operator,Administrator
 /resources/js/live-tracking.js	PUBLIC
 /mobile.xhtml	Operator,Administrator
+/admin/track.xhtml	Reader,Operator,Administrator
+/public/track.xhtml	Reader,Operator,Administrator
+/admin/map.xhtml	Reader,Operator,Administrator
+/admin/mapFrame.html	Reader,Operator,Administrator
+/admin/selectItinerary.xhtml	Operator,Administrator
+/eventLogger/eventLogger.xhtml	Operator,Administrator
+/eventLogger/root.xhtml	Operator,Administrator
+/booking/booking.xhtml	Operator,Administrator
+/booking/booking-date.xhtml	Operator,Administrator
+/booking/booking-destination.xhtml	Operator,Administrator

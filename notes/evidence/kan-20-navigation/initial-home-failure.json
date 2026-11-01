@@ -1,0 +1,24 @@
+{
+  "scope": "Real Chromium cargo read/booking/destination/routing/live/handling workflows",
+  "checks": [
+    {
+      "name": "Anonymous page goes to login",
+      "passed": true
+    },
+    {
+      "name": "Login does not leak cargo",
+      "passed": true
+    },
+    {
+      "name": "Public home links to current tracking view",
+      "passed": false
+    },
+    {
+      "name": "Public home links to current tracking view failed (Error)",
+      "outcome": "FAIL",
+      "passed": false
+    }
+  ],
+  "last_navigation": null,
+  "resource_errors": []
+}

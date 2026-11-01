@@ -1,30 +1,4 @@
-<?xml version='1.0' encoding='UTF-8' ?>
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-<html xmlns="http://www.w3.org/1999/xhtml"
-      xmlns:h="http://xmlns.jcp.org/jsf/html">
-
-    <h:head>
-        <title>Cargo Tracker</title>
-        <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-        <h:outputStylesheet name="title.css"/>
-        <link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/font-awesome/4.3.0/css/font-awesome.min.css"></link>
-        <link href="http://fonts.googleapis.com/css?family=Lato:300,400,700,300italic,400italic,700italic" rel="stylesheet" type="text/css"/>
-    </h:head>
-
-    <h:body>
-        <div class="intro-header">
-            <div class="row">
-                <div class="intro-message">
-                    <hr class="intro-divider"/>
-                    <h1 class="shadowme">Cargo Tracker</h1><a href="https://github.com/javaee/cargotracker/"><img src="images/CTlogobadge128.png" height="64" /></a> 
-                    <h2 class="shadowme">Applied domain-driven design blueprints for Java EE</h2>
-                    <h2><a class="shadowme" style="color:orange;text-decoration:none;" href="public/track.xhtml">Public Tracking Interface</a></h2>
-                    <h2><a class="shadowme" style="color:orange;text-decoration:none;" href="admin/dashboard.xhtml">Administration Interface</a></h2>
-                    <h2><a class="shadowme" style="color:orange;text-decoration:none;" href="javascript:void(0)" onClick="window.open('mobile.xhtml', 'mobile.xhtml', 'width=320,height=440')">Mobile Event Logger</a></h2>
-                    <hr class="intro-divider"/>
-                </div>
-            </div>
-        </div>
-    </h:body>      
-</html>
+<!DOCTYPE html><html xmlns="http://www.w3.org/1999/xhtml" xmlns:h="jakarta.faces.html">
+<h:head><title>Cargo Tracker</title><meta name="viewport" content="width=device-width,initial-scale=1"/><style>body{font:18px system-ui;max-width:800px;margin:auto;padding:24px;line-height:1.6}nav{display:grid;gap:12px}a{color:#174ea6}</style></h:head>
+<h:body><h1>Cargo Tracker</h1><p>Cargo operations require sign-in. Readers can view cargo; Operators and Administrators can book, route and report handling.</p>
+<nav><h:outputLink value="#{request.contextPath}/login">Sign in</h:outputLink><h:link outcome="/admin/track.xhtml" value="Track cargo"/><h:link outcome="/admin/dashboard.xhtml" value="Cargo list"/><h:link outcome="/admin/live.xhtml" value="Live tracking"/><h:link outcome="/mobile.xhtml" value="Report handling"/></nav></h:body></html>

@@ -30,7 +30,7 @@ public class AccessFilter implements Filter {
         Set<String> roles=routes.get(path);
         if(roles==null){res.sendError(404);return;}
         if(req.getUserPrincipal()==null) {
-            if(path.endsWith(".xhtml")) {res.setStatus(303);res.setHeader("Location",req.getContextPath()+"/login");}
+            if(path.endsWith(".xhtml") || path.endsWith(".html")) {res.setStatus(303);res.setHeader("Location",req.getContextPath()+"/login");}
             else res.sendError(401);
             return;
         }
