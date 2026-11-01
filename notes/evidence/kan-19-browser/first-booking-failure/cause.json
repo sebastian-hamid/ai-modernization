@@ -1,0 +1,1 @@
+{"finding":"Hibernate orphan-delete collection owner changed because Cargo constructor shared the same EMPTY_ITINERARY embeddable","correction":"Each new Cargo owns a distinct empty Itinerary; real browser persistence of multiple bookings provides regression coverage"}

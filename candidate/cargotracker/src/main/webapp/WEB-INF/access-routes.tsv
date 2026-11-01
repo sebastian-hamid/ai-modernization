@@ -5,3 +5,16 @@
 /rest/handling/reports	Operator,Administrator
 /logout	Reader,Operator,Administrator
 /session	Reader,Operator,Administrator
+/admin/dashboard.xhtml	Reader,Operator,Administrator
+/admin/show.xhtml	Reader,Operator,Administrator
+/admin/book.xhtml	Operator,Administrator
+/admin/changeDestination.xhtml	Operator,Administrator
+/jakarta.faces.resource/faces.js.xhtml	PUBLIC
+/jakarta.faces.resource/components.css.xhtml	PUBLIC
+/jakarta.faces.resource/components.js.xhtml	PUBLIC
+/jakarta.faces.resource/core.js.xhtml	PUBLIC
+/jakarta.faces.resource/jquery/jquery.js.xhtml	PUBLIC
+/jakarta.faces.resource/jquery/jquery-plugins.js.xhtml	PUBLIC
+/jakarta.faces.resource/primeicons/primeicons.css.xhtml	PUBLIC
+/jakarta.faces.resource/primeicons/fonts/primeicons.woff2.xhtml	PUBLIC
+/jakarta.faces.resource/locales/locale-en.js.xhtml	PUBLIC

@@ -1,0 +1,43 @@
+#!/usr/bin/env python3
+"""Owned app + Chromium fixture; no shared services, no browser credential persistence."""
+from pathlib import Path
+import importlib.util,json,subprocess,uuid,hashlib
+ROOT=Path(__file__).resolve().parents[2]
+spec=importlib.util.spec_from_file_location("candidate_runtime",ROOT/"tests/candidate-runtime/run_candidate.py")
+app=importlib.util.module_from_spec(spec);spec.loader.exec_module(app)
+WORK=ROOT/".work/kan19"
+def main():
+    WORK.mkdir(parents=True,exist_ok=True)
+    name="ai-modernization-kan19-browser"
+    if subprocess.run(["docker","inspect",name],stdout=subprocess.DEVNULL,stderr=subprocess.DEVNULL).returncode==0:raise RuntimeError("Browser container already exists")
+    with (WORK/"browser-build.log").open("w") as log:
+        build=subprocess.run(["docker","build","-t","ai-modernization-kan19:browser",str(ROOT/"tests/browser-workflows")],stdout=log,stderr=subprocess.STDOUT)
+    if build.returncode:raise RuntimeError("Browser build failed")
+    # Browser credentials travel over stdin to tmpfs, not env/argv/image or bind-mounted results.
+    def browser(container,base,credentials,report):
+        network=None;bid=None
+        try:
+            network=subprocess.check_output(["docker","network","create","--internal","ai-modernization-kan19-"+uuid.uuid4().hex[:12]],text=True).strip()
+            subprocess.run(["docker","network","connect",network,container],check=True,capture_output=True)
+            bid=subprocess.check_output(["docker","create","--name",name,"--init","--network",network,"--shm-size=512m","--tmpfs","/run:rw,noexec,nosuid,size=1m","--tmpfs","/out:rw,noexec,nosuid,size=8m","-i","ai-modernization-kan19:browser","sleep","infinity"],text=True).strip()
+            subprocess.run(["docker","start",bid],check=True,capture_output=True)
+            proc=subprocess.run(["docker","exec","-i",bid,"bash","-c","umask 077; cat > /run/credentials.json; node workflows.cjs"],input=json.dumps({"base":"http://"+app.NAME+":8080/cargo-tracker/","credentials":credentials}),text=True,stdout=subprocess.PIPE,stderr=subprocess.STDOUT,timeout=240)
+            # Store raw diagnostics privately; never publish browser HTML/traces/session dumps.
+            (WORK/"browser.log").write_text(proc.stdout)
+            (WORK/"results.json").write_text(subprocess.check_output(["docker","exec",bid,"cat","/out/results.json"],text=True))
+            results=json.loads((WORK/"results.json").read_text())
+            report["browser_checks"]={"count":len(results["checks"]),"passed":all(c["passed"] for c in results["checks"])}
+            if proc.returncode or not report["browser_checks"]["passed"]:raise AssertionError("Real browser workflow failed; inspect sanitized .work/kan19/results.json")
+        finally:
+            cleanup=[]
+            if bid:
+                result=subprocess.run(["docker","rm","-f",bid],capture_output=True)
+                if result.returncode:cleanup.append("browser removal")
+            if network:
+                subprocess.run(["docker","network","disconnect","-f",network,container],capture_output=True)
+                result=subprocess.run(["docker","network","rm",network],capture_output=True)
+                if result.returncode:cleanup.append("private network removal")
+            report["browser_cleanup"]={"container_removed":bool(bid) and "browser removal" not in cleanup,"network_removed":bool(network) and "private network removal" not in cleanup,"errors":cleanup}
+            if cleanup:raise RuntimeError("Browser fixture cleanup incomplete: "+",".join(cleanup))
+    app.main(after_checks=browser)
+if __name__=="__main__":main()

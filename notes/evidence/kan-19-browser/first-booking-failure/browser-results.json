@@ -1,0 +1,75 @@
+{
+  "scope": "Real Chromium Faces cargo read/booking/destination workflows; not full KAN-19",
+  "checks": [
+    {
+      "name": "Anonymous page goes to login",
+      "passed": true
+    },
+    {
+      "name": "Login does not leak cargo",
+      "passed": true
+    },
+    {
+      "name": "Browser login reader",
+      "passed": true
+    },
+    {
+      "name": "Reader sees seeded cargo",
+      "passed": true
+    },
+    {
+      "name": "Reader does not see booking control",
+      "passed": true
+    },
+    {
+      "name": "Reader sees details",
+      "passed": true
+    },
+    {
+      "name": "Reader does not see destination control",
+      "passed": true
+    },
+    {
+      "name": "Reader direct denial admin/book.xhtml",
+      "passed": true
+    },
+    {
+      "name": "Reader direct denial admin/changeDestination.xhtml?trackingId=ABC123",
+      "passed": true
+    },
+    {
+      "name": "Controlled invalid link admin/show.xhtml",
+      "passed": true
+    },
+    {
+      "name": "Controlled invalid link admin/show.xhtml?trackingId=UNKNOWN",
+      "passed": true
+    },
+    {
+      "name": "Controlled invalid link admin/show.xhtml?trackingId=%3Cscript%3E",
+      "passed": true
+    },
+    {
+      "name": "Browser login operator",
+      "passed": true
+    },
+    {
+      "name": "Same-location booking rejected",
+      "passed": true
+    },
+    {
+      "name": "Invalid calendar date rejected",
+      "passed": true
+    },
+    {
+      "name": "Invalid calendar date rejected failed (TimeoutError)",
+      "outcome": "FAIL",
+      "passed": false
+    }
+  ],
+  "last_navigation": {
+    "path": "/cargo-tracker/admin/book.xhtml",
+    "status": 500
+  },
+  "resource_errors": []
+}

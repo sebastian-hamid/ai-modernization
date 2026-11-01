@@ -22,6 +22,8 @@ import net.java.cargotracker.interfaces.booking.facade.internal.assembler.CargoR
 import net.java.cargotracker.interfaces.booking.facade.internal.assembler.ItineraryCandidateDtoAssembler;
 import net.java.cargotracker.interfaces.booking.facade.internal.assembler.LocationDtoAssembler;
 
+@lab.modernization.security.RequiresRoles({"Reader","Operator","Administrator"})
+@jakarta.transaction.Transactional
 @ApplicationScoped
 public class DefaultBookingServiceFacade implements BookingServiceFacade,
         Serializable {
@@ -44,6 +46,7 @@ public class DefaultBookingServiceFacade implements BookingServiceFacade,
     }
 
     @Override
+    @lab.modernization.security.RequiresRoles({"Operator","Administrator"})
     public String bookNewCargo(String origin, String destination,
             Date arrivalDeadline) {
         TrackingId trackingId = bookingService.bookNewCargo(
@@ -55,11 +58,13 @@ public class DefaultBookingServiceFacade implements BookingServiceFacade,
     @Override
     public CargoRoute loadCargoForRouting(String trackingId) {
         Cargo cargo = cargoRepository.find(new TrackingId(trackingId));
+        if(cargo==null)throw new net.java.cargotracker.interfaces.booking.facade.CargoNotFoundException();
         CargoRouteDtoAssembler assembler = new CargoRouteDtoAssembler();
         return assembler.toDto(cargo);
     }
 
     @Override
+    @lab.modernization.security.RequiresRoles({"Operator","Administrator"})
     public void assignCargoToRoute(String trackingIdStr,
             RouteCandidate routeCandidateDTO) {
         Itinerary itinerary = new ItineraryCandidateDtoAssembler()
@@ -71,6 +76,7 @@ public class DefaultBookingServiceFacade implements BookingServiceFacade,
     }
 
     @Override
+    @lab.modernization.security.RequiresRoles({"Operator","Administrator"})
     public void changeDestination(String trackingId, String destinationUnLocode) {
         bookingService.changeDestination(new TrackingId(trackingId),
                 new UnLocode(destinationUnLocode));
@@ -91,6 +97,7 @@ public class DefaultBookingServiceFacade implements BookingServiceFacade,
     }
 
     @Override
+    @lab.modernization.security.RequiresRoles({"Operator","Administrator"})
     public List<RouteCandidate> requestPossibleRoutesForCargo(String trackingId) {
         List<Itinerary> itineraries = bookingService
                 .requestPossibleRoutesForCargo(new TrackingId(trackingId));

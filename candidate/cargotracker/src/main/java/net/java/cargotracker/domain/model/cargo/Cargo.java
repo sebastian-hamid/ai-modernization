@@ -135,7 +135,7 @@ public class Cargo implements Serializable {
 
         this.delivery = Delivery.derivedFrom(this.routeSpecification,
                 this.itinerary, HandlingHistory.EMPTY);
-        this.itinerary = Itinerary.EMPTY_ITINERARY;
+        this.itinerary = new Itinerary();
     }
 
     public TrackingId getTrackingId() {

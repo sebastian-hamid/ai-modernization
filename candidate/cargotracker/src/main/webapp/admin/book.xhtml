@@ -1,0 +1,8 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml" xmlns:ui="jakarta.faces.facelets" xmlns:h="jakarta.faces.html" xmlns:f="jakarta.faces.core" xmlns:p="http://primefaces.org/ui" template="/WEB-INF/templates/candidate.xhtml">
+<ui:define name="title">Book cargo</ui:define><ui:define name="content"><h1>Book cargo</h1>
+<h:messages styleClass="error"/><h:form id="booking"><input type="hidden" name="csrf" value="#{cargoPages.csrf}"/>
+<h:outputLabel for="origin" value="Origin"/><h:selectOneMenu id="origin" value="#{cargoPages.origin}" required="true"><f:selectItem itemValue="" itemLabel="Choose origin"/><f:selectItems value="#{cargoPages.locations}" var="location" itemLabel="#{location.name}" itemValue="#{location.unLocode}"/></h:selectOneMenu>
+<h:outputLabel for="destination" value="Destination"/><h:selectOneMenu id="destination" value="#{cargoPages.destination}" required="true"><f:selectItem itemValue="" itemLabel="Choose destination"/><f:selectItems value="#{cargoPages.locations}" var="location" itemLabel="#{location.name}" itemValue="#{location.unLocode}"/></h:selectOneMenu>
+<h:outputLabel for="deadline" value="Arrival deadline (YYYY-MM-DD)"/><h:inputText id="deadline" value="#{cargoPages.deadline}" required="true"/>
+<p:commandButton id="submit" value="Book cargo" action="#{cargoPages.book}" ajax="false"/>
+</h:form></ui:define></ui:composition>

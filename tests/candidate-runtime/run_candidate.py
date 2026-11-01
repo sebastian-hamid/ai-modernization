@@ -33,7 +33,7 @@ def finalize(container,paths,report):
     print(json.dumps({"status":report["status"],"checks":report["count"],"private_files_removed":report["private_files_removed"]}))
     return not errors
 
-def main():
+def main(after_checks=None):
     WORK.mkdir(parents=True,exist_ok=True)
     private=WORK/"secrets";private.mkdir(exist_ok=True,mode=0o700);private.chmod(0o700)
     users=private/"application-users.properties";roles=private/"application-roles.properties"
@@ -41,7 +41,7 @@ def main():
     if subprocess.run(["docker","inspect",NAME],stdout=subprocess.DEVNULL,stderr=subprocess.DEVNULL).returncode==0:raise RuntimeError("Task container already exists")
     credentials={who:secrets.token_urlsafe(28) for who in ["reader","operator","admin"]}
     container=None;checks=[]
-    report={"task":"KAN-18/KAN-15","scope":"Real Cargo Tracker bootstrap; only monitoring/handling/session routes enabled","checks":checks,"status":"FAIL"}
+    report={"task":"KAN-18/KAN-15","scope":"Real Cargo Tracker candidate: monitoring/handling/session plus Faces list/booking/details/destination routes","checks":checks,"status":"FAIL"}
     def check(name,condition):
         checks.append({"name":name,"passed":bool(condition)})
         if not condition:raise AssertionError(name)
@@ -90,7 +90,7 @@ def main():
             suites=[ET.parse(path).getroot() for path in Path(temporary).rglob("TEST-*.xml")]
             report["domain_tests"]={key:sum(int(suite.get(key,"0")) for suite in suites) for key in ["tests","failures","errors","skipped"]}
             report["domain_tests"]["empty_legacy_todo_retained"]=True
-            check("34 candidate domain tests execute",report["domain_tests"]["tests"]==34 and all(report["domain_tests"][key]==0 for key in ["failures","errors","skipped"]))
+            check("35 candidate domain tests execute",report["domain_tests"]["tests"]==35 and all(report["domain_tests"][key]==0 for key in ["failures","errors","skipped"]))
         port=int(command("docker","port",container,"8080/tcp").rsplit(":",1)[1])
         base=f"http://127.0.0.1:{port}/cargo-tracker/"
         deadline=time.monotonic()+150
@@ -103,7 +103,7 @@ def main():
         else:raise RuntimeError("Fixture deployment not ready")
         check("Anonymous monitoring denied",request(anonymous,"rest/cargo")[0]==401)
         check("Anonymous handling denied",request(anonymous,"rest/handling/reports",b"{}")[0]==401)
-        check("Unintegrated operational page denied",request(anonymous,"admin/dashboard.xhtml")[0]==404)
+        check("Anonymous operational page navigates to login",request(anonymous,"admin/dashboard.xhtml")[0]==303)
         check("WebSocket not enabled before lifecycle security",request(anonymous,"tracking")[0]==404)
         check("Private source note denied",request(anonymous,"booking/todo.txt")[0]==404)
         sessions={who:login(who) for who in credentials}
@@ -151,6 +151,7 @@ def main():
         stale=client()[1];stale.addheaders=[("Cookie","JSESSIONID="+next(c.value for c in jar if c.name=="JSESSIONID"))]
         check("Logout succeeds",request(reader,"logout",b"",csrf)[0]==204)
         check("Old authenticated cookie revoked",request(stale,"rest/cargo")[0]==401)
+        if after_checks:after_checks(container,base,credentials,report)
         report["status"]="PASS"
     except Exception as error:
         report["error_type"]=type(error).__name__

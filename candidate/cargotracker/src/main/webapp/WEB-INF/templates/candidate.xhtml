@@ -1,0 +1,6 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:h="jakarta.faces.html" xmlns:ui="jakarta.faces.facelets" xmlns:f="jakarta.faces.core">
+<ui:insert name="metadata"/><h:head><title><ui:insert name="title">Cargo Tracker</ui:insert></title>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<style>body{font:16px system-ui;margin:0;color:#172b4d;background:#f6f8fa}main,nav{max-width:1000px;margin:auto;padding:20px}nav{display:flex;gap:20px;background:#e7eef8}table{border-collapse:collapse;width:100%;background:white}td,th{padding:12px;text-align:left;border-bottom:1px solid #ddd}form label{display:block;margin-top:16px}input,select{font:inherit;padding:8px;max-width:100%;box-sizing:border-box}button{margin-top:20px}a{color:#174ea6}.error{color:#a01818}</style></h:head>
+<h:body><nav><h:link outcome="/admin/dashboard.xhtml" value="Cargo list"/><h:link outcome="/admin/book.xhtml" value="Book cargo" rendered="#{cargoPages.operator}"/></nav><main><ui:insert name="content"/></main></h:body></html>

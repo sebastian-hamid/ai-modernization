@@ -1,0 +1,1 @@
+{"finding":"LazyInitializationException while assembling cargo DTO outside active persistence transaction","correction":"Transactional facade encloses repository queries and DTO assembly; no open-session-in-view"}

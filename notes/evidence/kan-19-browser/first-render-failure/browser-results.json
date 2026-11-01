@@ -1,0 +1,23 @@
+{
+  "scope": "Real Chromium Faces cargo read/booking/destination workflows; not full KAN-19",
+  "checks": [
+    {
+      "name": "Anonymous page goes to login",
+      "passed": true
+    },
+    {
+      "name": "Login does not leak cargo",
+      "passed": true
+    },
+    {
+      "name": "Browser login reader",
+      "passed": true
+    },
+    {
+      "name": "Browser login reader failed (TimeoutError)",
+      "outcome": "FAIL",
+      "passed": false
+    }
+  ],
+  "resource_errors": []
+}

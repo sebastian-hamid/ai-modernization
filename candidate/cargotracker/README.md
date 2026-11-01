@@ -1,6 +1,6 @@
 # Real Cargo Tracker candidate bootstrap — KAN-18 / KAN-15
 
-Work in progress, 1 November 2026. This module contains real application source ported from pinned Cargo Tracker, not the KAN-13 capability WAR or KAN-15 counter fixture. The original checkout, GlassFish service and synced sources remain read-only/unchanged. KAN-18 and KAN-15 remain In Progress; full intended functional/security acceptance is not met.
+Work in progress, 1 November 2026. The subsequent [browser workflow increment](../../docs/candidate/browser-workflows.md) enables cargo list/details/booking/destination pages; full acceptance remains open. This module contains real application source ported from pinned Cargo Tracker, not the KAN-13 capability WAR or KAN-15 counter fixture. The original checkout, GlassFish service and synced sources remain read-only/unchanged. KAN-18 and KAN-15 remain In Progress; full intended functional/security acceptance is not met.
 
 ## Source and build
 
@@ -24,8 +24,10 @@ Enabled operational routes:
 - /rest/cargo: Reader, Operator, Administrator; real four-cargo data.
 - /rest/handling/reports: Operator/Administrator with session CSRF, plus EJB roles.
 - /login, /session and /logout support actual container local identities/session revocation.
+- /admin/dashboard.xhtml and /admin/show.xhtml: Reader/Operator/Administrator.
+- /admin/book.xhtml and /admin/changeDestination.xhtml: Operator/Administrator with CSRF and facade/EJB roles.
 
-Only landing/About are public. **Every other operational page, callback/navigation target, graph routing API, WebSocket and non-allowlisted asset is deliberately unavailable (404)** pending complete integration. Denying these routes does not satisfy authorized-workflow expectations. Mobile/screens/booking/routing/destination/import/live updates are not claimed working. Rendering/layout/public resource completeness remain unverified.
+Only landing/About are public. **Other unported operational pages/callbacks, graph routing API, WebSocket and non-allowlisted assets are deliberately unavailable (404)** pending complete integration. Denying these routes does not satisfy authorized-workflow expectations. Booking/destination/list/details have the bounded Chromium coverage linked above. Routing/import/live updates and legacy mobile logger remain unavailable; full rendering/resource/mobile completeness is not claimed.
 
 The HTTP role check rejects denied reports before the real submission bean; EJB annotations add a server-side service check. MDBs run under HandlingWorker, which no human test account receives. Full direct-call/role-escalation/broker/filesystem/session/WebSocket validation remains required; do not infer it from annotation declarations.
 
@@ -40,7 +42,7 @@ The **default application descriptor** uses a separately provisioned CargoTracke
 
 The **test-only image** overlays persistence-lab.xml using isolated in-memory ExampleDS/H2 and drop-and-create. It requires DISPOSABLE_CANDIDATE_LAB=true and sets the seed flag; it is not a production image. Do not use it with retained/real data. Restart/recovery, durable storage, Flyway and PostgreSQL acceptance remain later work.
 
-The harness checks 34 domain cases (one original empty TODO retained), server principal/role/session rotation, Reader/anonymous handling denials and Operator CSRF, reads for all three roles, actual Operator and Administrator asynchronous persisted cargo changes and logout cookie replay. Three mocked harness tests cover partial-secret initialization and Docker log/removal failures. It checks unchanged monitoring state after denied requests, but **does not establish independent database/queue/business-audit absence**; KAN-14 remains blocked and no global security pass is claimed.
+The current harness checks35 domain cases (bootstrap evidence originally had34) (one original empty TODO retained), server principal/role/session rotation, Reader/anonymous handling denials and Operator CSRF, reads for all three roles, actual Operator and Administrator asynchronous persisted cargo changes and logout cookie replay. Three mocked harness tests cover partial-secret initialization and Docker log/removal failures. It checks unchanged monitoring state after denied requests, but **does not establish independent database/queue/business-audit absence**; KAN-14 remains blocked and no global security pass is claimed.
 
 ## Next integration work
 

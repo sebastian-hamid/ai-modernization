@@ -51,8 +51,11 @@ public class CargoTest {
         Cargo cargo = new Cargo(new TrackingId("XYZ"), new RouteSpecification(
                 SampleLocations.STOCKHOLM, SampleLocations.MELBOURNE,
                 new Date()));
-        final Itinerary good = new Itinerary();
-        Itinerary bad = new Itinerary();
+        // Assigned-route fixtures must contain actual legs; empty is the unrouted value.
+        final Itinerary good = new Itinerary(Collections.singletonList(new Leg(
+                voyage, SampleLocations.STOCKHOLM, SampleLocations.MELBOURNE,
+                new Date(), new Date())));
+        Itinerary bad = new Itinerary(good.getLegs());
         @SuppressWarnings("serial")
         RouteSpecification acceptOnlyGood = new RouteSpecification(
                 cargo.getOrigin(), cargo.getRouteSpecification()
@@ -76,6 +79,15 @@ public class CargoTest {
         cargo.assignToRoute(good);
         assertEquals(RoutingStatus.ROUTED, cargo.getDelivery()
                 .getRoutingStatus());
+    }
+
+    @Test
+    public void testIndependentEmptyItineraryIsNotRouted() {
+        RouteSpecification specification = new RouteSpecification(
+                SampleLocations.STOCKHOLM, SampleLocations.MELBOURNE, new Date());
+        Delivery delivery = Delivery.derivedFrom(specification, new Itinerary(),
+                HandlingHistory.EMPTY);
+        assertEquals(RoutingStatus.NOT_ROUTED, delivery.getRoutingStatus());
     }
 
     @Test

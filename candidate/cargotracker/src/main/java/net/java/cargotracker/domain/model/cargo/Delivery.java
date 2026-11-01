@@ -314,7 +314,7 @@ public class Delivery implements Serializable {
 
     private RoutingStatus calculateRoutingStatus(Itinerary itinerary,
             RouteSpecification routeSpecification) {
-        if (itinerary == null || itinerary == Itinerary.EMPTY_ITINERARY) {
+        if (itinerary == null || itinerary.getLegs().isEmpty()) {
             return NOT_ROUTED;
         } else {
             if (routeSpecification.isSatisfiedBy(itinerary)) {

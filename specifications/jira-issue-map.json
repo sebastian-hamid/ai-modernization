@@ -122,7 +122,10 @@
       "key": "KAN-19",
       "type": "Story",
       "title": "[PLAT-03] Modernize Faces/PrimeFaces and verify browser workflows",
-      "parent": "KAN-6"
+      "parent": "KAN-6",
+      "last_verified_status": "In Progress",
+      "evidence": "notes/evidence/kan-19-browser/validation.json",
+      "remaining_blocker": "Routing/tracking/legacy mobile flows and full candidate security/independent observers remain unverified"
     },
     "BUG-03": {
       "key": "KAN-20",

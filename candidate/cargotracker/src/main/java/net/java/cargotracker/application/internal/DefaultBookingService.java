@@ -18,6 +18,7 @@ import net.java.cargotracker.domain.model.location.LocationRepository;
 import net.java.cargotracker.domain.model.location.UnLocode;
 import net.java.cargotracker.domain.service.RoutingService;
 
+@jakarta.annotation.security.RolesAllowed({"Operator","Administrator"})
 @Stateless
 public class DefaultBookingService implements BookingService {
 

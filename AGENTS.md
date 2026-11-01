@@ -5,3 +5,4 @@
 - Resolve material findings and record review evidence in repository/Jira before task completion/publication. Do not claim historical work was independently reviewed when it was not.
 - Minor non-semantic wording/formatting changes can use the documented lighter check. Do not create extra user approval steps for routine corrections; escalate actual scope/business/access-policy changes or accepted material limitations.
 - Publishing, deployment and service changes still require the task's applicable authorization. Never include secrets, caches, ignored source clones or private runtime data in Git/review evidence.
+- Standing publication authorization from the user (1 November 2026): after independent agent review approves the changes and required checks pass, commit and push without asking again. Report the independent review outcome and publication result. Preserve other task-specific deployment restrictions.
