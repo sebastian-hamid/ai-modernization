@@ -94,8 +94,8 @@
       "title": "[SEC-03] Implement local identities and authorization on candidate surfaces",
       "parent": "KAN-5",
       "last_verified_status": "In Progress",
-      "evidence": "notes/evidence/kan-18-candidate/validation.json",
-      "remaining_blocker": "Real monitoring/handling/session integration verified; remaining mapped UI/action/worker/routing/WS controls and independent effects observers"
+      "evidence": "notes/evidence/kan-19-routing/validation.json",
+      "remaining_blocker": "Scoped native routing identity verified; remaining live/session/worker/machine controls and independent effects observers"
     },
     "BUG-01": {
       "key": "KAN-16",
@@ -124,8 +124,8 @@
       "title": "[PLAT-03] Modernize Faces/PrimeFaces and verify browser workflows",
       "parent": "KAN-6",
       "last_verified_status": "In Progress",
-      "evidence": "notes/evidence/kan-19-browser/validation.json",
-      "remaining_blocker": "Routing/tracking/legacy mobile flows and full candidate security/independent observers remain unverified"
+      "evidence": "notes/evidence/kan-19-routing/validation.json",
+      "remaining_blocker": "Live tracking/WebSocket lifecycle, legacy mobile logger and full candidate security/independent effects observers"
     },
     "BUG-03": {
       "key": "KAN-20",

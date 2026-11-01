@@ -1,6 +1,6 @@
 # Real Cargo Tracker candidate bootstrap — KAN-18 / KAN-15
 
-Work in progress, 1 November 2026. The subsequent [browser workflow increment](../../docs/candidate/browser-workflows.md) enables cargo list/details/booking/destination pages; full acceptance remains open. This module contains real application source ported from pinned Cargo Tracker, not the KAN-13 capability WAR or KAN-15 counter fixture. The original checkout, GlassFish service and synced sources remain read-only/unchanged. KAN-18 and KAN-15 remain In Progress; full intended functional/security acceptance is not met.
+Work in progress, 1 November 2026. The subsequent [browser workflow increment](../../docs/candidate/browser-workflows.md) enables cargo list/details/booking/destination pages; the [routing extension](../../docs/candidate/routing-workflow.md) adds secured sample route selection; full acceptance remains open. This module contains real application source ported from pinned Cargo Tracker, not the KAN-13 capability WAR or KAN-15 counter fixture. The original checkout, GlassFish service and synced sources remain read-only/unchanged. KAN-18 and KAN-15 remain In Progress; full intended functional/security acceptance is not met.
 
 ## Source and build
 
@@ -10,7 +10,7 @@ Pinned foundation: Java 25.0.5 / Jakarta EE 11 / standard WildFly 42 and the sam
 
 Portability changes:
 - Jakarta EE package migration; Java SE namespaces such as javax.naming retained.
-- Standard Jakarta REST Application replaces Jersey ResourceConfig/MOXY registrations. JSON-P monitoring and JSON request handling are executed; route-client response compatibility remains unverified.
+- Standard Jakarta REST Application replaces Jersey ResourceConfig/MOXY registrations. JSON-P monitoring and JSON request handling are executed; route-client JSON/date mapping now has real loopback and browser coverage in the routing extension.
 - Removed JAXB root annotations from the two JSON DTOs: JAXB is no longer part of the EE 11 API. XML representation compatibility is not claimed.
 - PrimeFaces dashboard/widget and dialog/AJAX Java APIs adapted; old managed bean moved to CDI. Full rendered/mobile/flow/browser conversion remains KAN-19.
 - Hibernate uses existing standard cascade/orphanRemoval rather than EclipseLink PrivateOwned; actual sample mappings and two handling effects tested. PostgreSQL mapping/schema migration is still KAN-21/22.
@@ -25,9 +25,10 @@ Enabled operational routes:
 - /rest/handling/reports: Operator/Administrator with session CSRF, plus EJB roles.
 - /login, /session and /logout support actual container local identities/session revocation.
 - /admin/dashboard.xhtml and /admin/show.xhtml: Reader/Operator/Administrator.
-- /admin/book.xhtml and /admin/changeDestination.xhtml: Operator/Administrator with CSRF and facade/EJB roles.
+- /admin/book.xhtml, /admin/changeDestination.xhtml and /admin/route.xhtml: Operator/Administrator with CSRF and facade/EJB roles.
+- /rest/graph-traversal/shortest-path: Operator/Administrator sessions plus the separately scoped RoutingService internal account.
 
-Only landing/About are public. **Other unported operational pages/callbacks, graph routing API, WebSocket and non-allowlisted assets are deliberately unavailable (404)** pending complete integration. Denying these routes does not satisfy authorized-workflow expectations. Booking/destination/list/details have the bounded Chromium coverage linked above. Routing/import/live updates and legacy mobile logger remain unavailable; full rendering/resource/mobile completeness is not claimed.
+Only landing/About are public. **Other unported operational pages/callbacks and WebSocket and non-allowlisted assets are deliberately unavailable (404)** pending complete integration. Denying these routes does not satisfy authorized-workflow expectations. Booking/destination/list/details have the bounded Chromium coverage linked above. Controlled import/live updates and legacy mobile logger remain unavailable; full rendering/resource/mobile completeness is not claimed.
 
 The HTTP role check rejects denied reports before the real submission bean; EJB annotations add a server-side service check. MDBs run under HandlingWorker, which no human test account receives. Full direct-call/role-escalation/broker/filesystem/session/WebSocket validation remains required; do not infer it from annotation declarations.
 
@@ -46,6 +47,6 @@ The current harness checks35 domain cases (bootstrap evidence originally had34) 
 
 ## Next integration work
 
-Complete page/action bindings and browser workflows, scoped routing, controlled batch/worker ACLs, live WebSocket logout/expiry behavior and independent side-effect observers. Expand real candidate adapters, then execute KAN-14 desired cases. Keep the two synthetic fixture results separate from this application's evidence. Both KAN-15 and KAN-18 stay open until their full acceptance is verified.
+Complete remaining page/action/browser workflows, controlled batch/worker ACLs, live WebSocket logout/expiry behavior and independent side-effect observers. Expand real candidate adapters, then execute KAN-14 desired cases. Keep the two synthetic fixture results separate from this application's evidence. Both KAN-15 and KAN-18 stay open until their full acceptance is verified.
 
 References: [WildFly 42 developer guide](https://docs.wildfly.org/42/Developer_Guide.html), [PrimeFaces 16 migration](https://github.com/primefaces/primefaces/blob/master/docs/migrationguide/16_0_0.md), [official artifact metadata](https://repo.maven.apache.org/maven2/org/primefaces/primefaces/maven-metadata.xml).

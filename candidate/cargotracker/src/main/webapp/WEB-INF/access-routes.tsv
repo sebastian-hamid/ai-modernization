@@ -18,3 +18,5 @@
 /jakarta.faces.resource/primeicons/primeicons.css.xhtml	PUBLIC
 /jakarta.faces.resource/primeicons/fonts/primeicons.woff2.xhtml	PUBLIC
 /jakarta.faces.resource/locales/locale-en.js.xhtml	PUBLIC
+/admin/route.xhtml	Operator,Administrator
+/rest/graph-traversal/shortest-path	Operator,Administrator,RoutingService

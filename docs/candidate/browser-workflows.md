@@ -1,6 +1,6 @@
 # Candidate cargo browser workflows — KAN-19
 
-1 November 2026. Limited increment, not full KAN-19 acceptance. Routing, authenticated live tracking/WebSocket lifecycle and replacement of the legacy mobile event logger are not implemented. KAN-15/KAN-18/KAN-19 remain In Progress; KAN-14's complete desired-access adapter remains blocked.
+1 November 2026. Limited increment, not full KAN-19 acceptance. The [routing extension](routing-workflow.md) now adds secured sample routing. Authenticated live tracking/WebSocket lifecycle and replacement of the legacy mobile event logger remain unimplemented. KAN-15/KAN-18/KAN-19 remain In Progress; KAN-14's complete desired-access adapter remains blocked.
 
 ## Functional behavior
 
@@ -34,7 +34,7 @@ The wrapper runs the actual candidate harness with a browser callback. Applicati
 
 Credentials go over stdin to private tmpfs. Browser storage state, cookies, traces, form HTML and credentials are not published. Sanitized results are read while the browser container is running, then container/network are removed. Logs remain ignored. The first harness used docker cp on a tmpfs path and failed report collection; corrected to docker exec while running. Failure/timeout/removal tests check cleanup and false-success handling.
 
-Final run: 30 real browser assertions pass;35 application runtime checks pass;35 domain cases pass (one inherited empty TODO);3 browser and3 application mocked cleanup regressions pass. Browser report has no page/resource errors. Evidence is under notes/evidence/kan-19-browser. This is Chromium-only verification; Firefox/WebKit and exhaustive accessibility/concurrency/restart/session-expiry behavior are not established here.
+Initial booking/destination increment final run:30 real browser assertions pass;35 application runtime checks pass;35 domain cases pass (one inherited empty TODO);3 browser and3 application mocked cleanup regressions pass. Browser report has no page/resource errors. Evidence is under notes/evidence/kan-19-browser. This is Chromium-only verification; Firefox/WebKit and exhaustive accessibility/concurrency/restart/session-expiry behavior are not established here.
 
 The browser validates actual new cargo creation and destination readback in another authenticated session. Denied mutation checks establish HTTP denial; independent database/queue/business-audit absence remains unverified. Full KAN-14 results are not silently converted to PASS. Historical GlassFish/Jenkins/source and synced references remain unchanged.
 

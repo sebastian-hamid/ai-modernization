@@ -1,0 +1,1 @@
+{"finding":"Hibernate orphan-delete collection wrapper was replaced during route assignment","correction":"Update the aggregate-owned collection in place; defensive-copy itinerary inputs and preserve immediate delivery calculation from the supplied route value"}

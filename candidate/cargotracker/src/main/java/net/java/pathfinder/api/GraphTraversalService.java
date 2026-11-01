@@ -11,6 +11,7 @@ import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.QueryParam;
 import net.java.pathfinder.internal.GraphDao;
 
+@jakarta.annotation.security.RolesAllowed({"Operator","Administrator","RoutingService"})
 @Stateless
 @Path("/graph-traversal")
 public class GraphTraversalService {
@@ -29,6 +30,13 @@ public class GraphTraversalService {
             @NotNull @Size(min = 5, max = 5) @QueryParam("origin") String originUnLocode,
             @NotNull @Size(min = 5, max = 5) @QueryParam("destination") String destinationUnLocode,
             @QueryParam("deadline") String deadline) {
+        if(originUnLocode==null || destinationUnLocode==null || originUnLocode.equals(destinationUnLocode)
+                || !dao.listLocations().contains(originUnLocode) || !dao.listLocations().contains(destinationUnLocode))
+            throw new jakarta.ws.rs.BadRequestException("Choose different known locations");
+        if(deadline!=null){
+            try{java.time.LocalDate.parse(deadline);}
+            catch(java.time.format.DateTimeParseException invalid){throw new jakarta.ws.rs.BadRequestException("Invalid deadline");}
+        }
         Date date = nextDate(new Date());
 
         List<String> allVertices = dao.listLocations();

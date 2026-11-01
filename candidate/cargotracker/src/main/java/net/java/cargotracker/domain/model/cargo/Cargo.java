@@ -69,8 +69,8 @@ import org.apache.commons.lang3.Validate;
  *
  * A cargo can be re-routed during transport, on demand of the customer, in
  * which case a new route is specified for the cargo and a new route is
- * requested. The old itinerary, being a value object, is discarded and a new
- * one is attached.
+ * requested. The aggregate updates its owned leg collection in place to keep
+ * persistence ownership while applying the newly assigned itinerary value.
  *
  * It may also happen that a cargo is accidentally misrouted, which should
  * notify the proper personnel and also trigger a re-routing procedure.
@@ -184,10 +184,11 @@ public class Cargo implements Serializable {
     public void assignToRoute(Itinerary itinerary) {
         Validate.notNull(itinerary, "Itinerary is required for assignment");
 
-        this.itinerary = itinerary;
+        if(this.itinerary==null || this.itinerary==Itinerary.EMPTY_ITINERARY)this.itinerary=new Itinerary();
+        this.itinerary.replaceLegs(itinerary.getLegs());
         // Handling consistency within the Cargo aggregate synchronously
         this.delivery = delivery.updateOnRouting(this.routeSpecification,
-                this.itinerary);
+                itinerary);
     }
 
     /**

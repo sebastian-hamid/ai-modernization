@@ -66,6 +66,8 @@ public class DefaultBookingService implements BookingService {
     public void assignCargoToRoute(Itinerary itinerary, TrackingId trackingId) {
         Cargo cargo = cargoRepository.find(trackingId);
 
+        if(cargo==null || !cargo.getRouteSpecification().isSatisfiedBy(itinerary))
+            throw new net.java.cargotracker.application.RouteSelectionException();
         cargo.assignToRoute(itinerary);
         cargoRepository.store(cargo);
 

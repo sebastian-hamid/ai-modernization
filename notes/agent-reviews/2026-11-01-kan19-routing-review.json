@@ -1,0 +1,34 @@
+{
+  "task": "KAN-19 routing / KAN-15 scoped identity",
+  "reviewer": "/root/review_kan19_routing",
+  "date": "2026-11-01",
+  "base": "450a95de0c826d2f20d0a8919ce33a8faef23bdc",
+  "verdict": "Approved for publication; no remaining material findings for bounded routing increment",
+  "checks": {
+    "input_hashes_independently_verified": 253,
+    "browser_records_inspected": 63,
+    "application_records_inspected": 47,
+    "domain_record_cases": 35,
+    "mocked_cleanup_tests_independently_rerun": 7,
+    "git_diff_check": "PASS",
+    "live_Docker_or_domain_build_rerun_by_reviewer": false
+  },
+  "notes_resolved": [
+    "Exact selected/replacement voyage/location/time sequence readback",
+    "Separate Reader sequence readback",
+    "Empty-candidate case",
+    "Contradictory Cargo Javadoc"
+  ],
+  "evidence_sha256_recorded_by_author": {
+    "validation.json": "a46b2258fd6d566e8df1653b2535a6f21fe6882b887c78e852e71ce2e7383594",
+    "browser-results.json": "827605aa88ba4d5fa3fcdb2f649bcced7fd0302a5c483aa31c10c95acaa7c336",
+    "application-results.json": "e6dbd8b432fd9ce021791dd709ea8e895ab52ce4a11b6a1ce58a3d0675671f92"
+  },
+  "full_task_acceptance": false,
+  "remaining": [
+    "Live tracking/WebSocket lifecycle",
+    "Legacy mobile logger",
+    "Independent DB/queue/business-audit absence; KAN-14 still502BLOCKED",
+    "Full candidate/machine/restart/concurrency acceptance"
+  ]
+}

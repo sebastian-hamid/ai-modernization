@@ -1,0 +1,262 @@
+{
+  "scope": "Real Chromium Faces cargo read/booking/destination/routing workflows; not full KAN-19",
+  "checks": [
+    {
+      "name": "Anonymous page goes to login",
+      "passed": true
+    },
+    {
+      "name": "Login does not leak cargo",
+      "passed": true
+    },
+    {
+      "name": "Browser login reader",
+      "passed": true
+    },
+    {
+      "name": "Reader sees seeded cargo",
+      "passed": true
+    },
+    {
+      "name": "Reader does not see booking control",
+      "passed": true
+    },
+    {
+      "name": "Reader sees details",
+      "passed": true
+    },
+    {
+      "name": "Reader does not see destination control",
+      "passed": true
+    },
+    {
+      "name": "Reader does not see routing control",
+      "passed": true
+    },
+    {
+      "name": "Reader direct denial admin/book.xhtml",
+      "passed": true
+    },
+    {
+      "name": "Reader direct denial admin/changeDestination.xhtml?trackingId=ABC123",
+      "passed": true
+    },
+    {
+      "name": "Reader direct denial admin/route.xhtml?trackingId=ABC123",
+      "passed": true
+    },
+    {
+      "name": "Controlled invalid link admin/show.xhtml",
+      "passed": true
+    },
+    {
+      "name": "Controlled invalid link admin/show.xhtml?trackingId=UNKNOWN",
+      "passed": true
+    },
+    {
+      "name": "Controlled invalid link admin/show.xhtml?trackingId=%3Cscript%3E",
+      "passed": true
+    },
+    {
+      "name": "Browser login operator",
+      "passed": true
+    },
+    {
+      "name": "Same-location booking rejected",
+      "passed": true
+    },
+    {
+      "name": "Invalid calendar date rejected",
+      "passed": true
+    },
+    {
+      "name": "Booking persists new tracking ID",
+      "passed": true
+    },
+    {
+      "name": "Destination change persisted",
+      "passed": true
+    },
+    {
+      "name": "Independent Reader sees persisted destination",
+      "passed": true
+    },
+    {
+      "name": "Sample routing candidates rendered",
+      "passed": true
+    },
+    {
+      "name": "Missing route selection rejected",
+      "passed": true
+    },
+    {
+      "name": "Reader forged route assignment denied",
+      "passed": true
+    },
+    {
+      "name": "Route assignment requires CSRF",
+      "passed": true
+    },
+    {
+      "name": "Unknown route index rejected",
+      "passed": true
+    },
+    {
+      "name": "Denied selections leave cargo unrouted",
+      "passed": true
+    },
+    {
+      "name": "Stale route after destination change rejected",
+      "passed": true
+    },
+    {
+      "name": "Stale selection does not assign old itinerary",
+      "passed": true
+    },
+    {
+      "name": "Real route assignment is ROUTED",
+      "passed": true
+    },
+    {
+      "name": "Selected itinerary leg count persisted",
+      "passed": true
+    },
+    {
+      "name": "Exact selected voyage/location/time sequence persisted",
+      "passed": true
+    },
+    {
+      "name": "Separate Reader sees persisted route",
+      "passed": true
+    },
+    {
+      "name": "Separate Reader verifies exact itinerary sequence",
+      "passed": true
+    },
+    {
+      "name": "Rerouting existing cargo persists owned collection",
+      "passed": true
+    },
+    {
+      "name": "Exact replacement route sequence persisted",
+      "passed": true
+    },
+    {
+      "name": "Real Faces ViewState rendered",
+      "passed": true
+    },
+    {
+      "name": "Reader forged booking POST denied",
+      "passed": true
+    },
+    {
+      "name": "Missing CSRF booking POST denied",
+      "passed": true
+    },
+    {
+      "name": "Browser login admin",
+      "passed": true
+    },
+    {
+      "name": "Same-location booking rejected",
+      "passed": true
+    },
+    {
+      "name": "Invalid calendar date rejected",
+      "passed": true
+    },
+    {
+      "name": "Booking persists new tracking ID",
+      "passed": true
+    },
+    {
+      "name": "Destination change persisted",
+      "passed": true
+    },
+    {
+      "name": "Independent Reader sees persisted destination",
+      "passed": true
+    },
+    {
+      "name": "Sample routing candidates rendered",
+      "passed": true
+    },
+    {
+      "name": "Missing route selection rejected",
+      "passed": true
+    },
+    {
+      "name": "Reader forged route assignment denied",
+      "passed": true
+    },
+    {
+      "name": "Route assignment requires CSRF",
+      "passed": true
+    },
+    {
+      "name": "Unknown route index rejected",
+      "passed": true
+    },
+    {
+      "name": "Denied selections leave cargo unrouted",
+      "passed": true
+    },
+    {
+      "name": "Stale route after destination change rejected",
+      "passed": true
+    },
+    {
+      "name": "Stale selection does not assign old itinerary",
+      "passed": true
+    },
+    {
+      "name": "Real route assignment is ROUTED",
+      "passed": true
+    },
+    {
+      "name": "Selected itinerary leg count persisted",
+      "passed": true
+    },
+    {
+      "name": "Exact selected voyage/location/time sequence persisted",
+      "passed": true
+    },
+    {
+      "name": "Separate Reader sees persisted route",
+      "passed": true
+    },
+    {
+      "name": "Separate Reader verifies exact itinerary sequence",
+      "passed": true
+    },
+    {
+      "name": "Rerouting existing cargo persists owned collection",
+      "passed": true
+    },
+    {
+      "name": "Exact replacement route sequence persisted",
+      "passed": true
+    },
+    {
+      "name": "No candidates for expired deadline handled",
+      "passed": true
+    },
+    {
+      "name": "Cargo details fit mobile viewport",
+      "passed": true
+    },
+    {
+      "name": "Dynamic resource bypass denied",
+      "passed": true
+    },
+    {
+      "name": "No page or asset errors",
+      "passed": true
+    }
+  ],
+  "last_navigation": {
+    "path": "/cargo-tracker/admin/show.xhtml",
+    "status": 200
+  },
+  "resource_errors": []
+}

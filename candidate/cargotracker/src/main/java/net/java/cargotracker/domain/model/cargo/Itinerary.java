@@ -2,6 +2,7 @@ package net.java.cargotracker.domain.model.cargo;
 
 import java.io.Serializable;
 import java.util.Collections;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -32,7 +33,7 @@ public class Itinerary implements Serializable {
     @OrderBy("loadTime")
 
     @Size(min = 1)
-    private List<Leg> legs = Collections.emptyList();
+    private List<Leg> legs = new ArrayList<>();
 
     public Itinerary() {
         // Nothing to initialize.
@@ -42,7 +43,14 @@ public class Itinerary implements Serializable {
         Validate.notEmpty(legs);
         Validate.noNullElements(legs);
 
-        this.legs = legs;
+        this.legs = new ArrayList<>(legs);
+    }
+
+    // Preserve an ORM-owned collection wrapper when the aggregate assigns a new value.
+    void replaceLegs(List<Leg> replacement) {
+        List<Leg> copy = new ArrayList<>(replacement);
+        legs.clear();
+        legs.addAll(copy);
     }
 
     public List<Leg> getLegs() {

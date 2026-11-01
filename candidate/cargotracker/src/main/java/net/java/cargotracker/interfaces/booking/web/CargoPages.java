@@ -11,6 +11,8 @@ public class CargoPages implements Serializable {
     @Inject HttpServletRequest request;
     private String trackingId,origin,destination,deadline;
     private CargoRoute cargo;
+    private List<RouteCandidate> routes=Collections.emptyList();
+    private int selectedRoute=-1;
     public List<CargoRoute> getCargos(){return facade.listAllCargos();}
     public List<Location> getLocations(){return facade.listShippingLocations();}
     public boolean isOperator(){return request.isUserInRole("Operator") || request.isUserInRole("Administrator");}
@@ -29,6 +31,26 @@ public class CargoPages implements Serializable {
         try {cargo=facade.loadCargoForRouting(trackingId);}
         catch(net.java.cargotracker.interfaces.booking.facade.CargoNotFoundException missing){notFound();return;}
         destination=cargo.getFinalDestinationCode();
+    }
+    public void loadRouting()throws IOException{
+        load();
+        if(FacesContext.getCurrentInstance().getResponseComplete())return;
+        routes=facade.requestPossibleRoutesForCargo(cargo.getTrackingId());
+        if(routes.isEmpty())message("No sample routes meet this cargo's arrival deadline.");
+    }
+    public List<RouteCandidate> getRoutes(){return routes;}
+    public int getSelectedRoute(){return selectedRoute;}
+    public void setSelectedRoute(int value){selectedRoute=value;}
+    public List<jakarta.faces.model.SelectItem> getRouteChoices(){
+        List<jakarta.faces.model.SelectItem> choices=new ArrayList<>();
+        for(int i=0;i<routes.size();i++)choices.add(new jakarta.faces.model.SelectItem(i,"Route "+(i+1)+" ("+routes.get(i).getLegs().size()+" legs)"));
+        return choices;
+    }
+    public String assignRoute(){
+        if(cargo==null || selectedRoute<0 || selectedRoute>=routes.size()){message("Choose a valid route.");return null;}
+        try{facade.assignCargoToRoute(cargo.getTrackingId(),routes.get(selectedRoute));}
+        catch(net.java.cargotracker.application.RouteSelectionException stale){message(stale.getMessage());return null;}
+        return "/admin/show.xhtml?faces-redirect=true&trackingId="+cargo.getTrackingId();
     }
     private void notFound()throws IOException {
         FacesContext context=FacesContext.getCurrentInstance();

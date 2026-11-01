@@ -36,10 +36,11 @@ def finalize(container,paths,report):
 def main(after_checks=None):
     WORK.mkdir(parents=True,exist_ok=True)
     private=WORK/"secrets";private.mkdir(exist_ok=True,mode=0o700);private.chmod(0o700)
-    users=private/"application-users.properties";roles=private/"application-roles.properties"
-    if users.exists() or roles.exists():raise RuntimeError("Private files exist; inspect before reuse")
+    users=private/"application-users.properties";roles=private/"application-roles.properties";routing=private/"routing-client.properties"
+    if users.exists() or roles.exists() or routing.exists():raise RuntimeError("Private files exist; inspect before reuse")
     if subprocess.run(["docker","inspect",NAME],stdout=subprocess.DEVNULL,stderr=subprocess.DEVNULL).returncode==0:raise RuntimeError("Task container already exists")
     credentials={who:secrets.token_urlsafe(28) for who in ["reader","operator","admin"]}
+    routing_password=secrets.token_urlsafe(28)
     container=None;checks=[]
     report={"task":"KAN-18/KAN-15","scope":"Real Cargo Tracker candidate: monitoring/handling/session plus Faces list/booking/details/destination routes","checks":checks,"status":"FAIL"}
     def check(name,condition):
@@ -71,9 +72,10 @@ def main(after_checks=None):
         check("Server principal and role: "+who,code==200 and json.loads(body)["principal"]==who and role in json.loads(body)["roles"])
         return jar,opener,json.loads(body)["csrf"]
     try:
-        users.write_text("#$REALM_NAME=ApplicationRealm$\n"+"".join(who+"="+hashlib.md5((who+":ApplicationRealm:"+pw).encode()).hexdigest()+"\n" for who,pw in credentials.items()))
-        roles.write_text("reader=Reader\noperator=Operator\nadmin=Administrator\n")
-        users.chmod(0o600);roles.chmod(0o600)
+        users.write_text("#$REALM_NAME=ApplicationRealm$\n"+"".join(who+"="+hashlib.md5((who+":ApplicationRealm:"+pw).encode()).hexdigest()+"\n" for who,pw in {**credentials,"routing":routing_password}.items()))
+        roles.write_text("reader=Reader\noperator=Operator\nadmin=Administrator\nrouting=RoutingService\n")
+        routing.write_text("username=routing\npassword="+routing_password+"\n")
+        users.chmod(0o600);roles.chmod(0o600);routing.chmod(0o600)
         context=Path(tempfile.mkdtemp(prefix="context-",dir=WORK))
         for relative in ["candidate/security","candidate/cargotracker","tests/candidate-runtime"]:
             target=context/relative
@@ -107,6 +109,36 @@ def main(after_checks=None):
         check("WebSocket not enabled before lifecycle security",request(anonymous,"tracking")[0]==404)
         check("Private source note denied",request(anonymous,"booking/todo.txt")[0]==404)
         sessions={who:login(who) for who in credentials}
+        route_path="rest/graph-traversal/shortest-path?origin=CNHKG&destination=FIHEL&deadline=2030-12-31"
+        check("Anonymous routing API denied",request(anonymous,route_path)[0]==401)
+        check("Reader routing API denied",request(sessions["reader"][1],route_path)[0]==403)
+        check("Operator routing API allowed",request(sessions["operator"][1],route_path)[0]==200)
+        check("Administrator routing API allowed",request(sessions["admin"][1],route_path)[0]==200)
+        def basic_route(username,password,path=route_path,raw_header=None):
+            import base64
+            header=raw_header or "Basic "+base64.b64encode((username+":"+password).encode()).decode()
+            req=urllib.request.Request(base+path,headers={"Authorization":header})
+            try:res=urllib.request.build_opener(NoRedirect()).open(req,timeout=10)
+            except urllib.error.HTTPError as failure:res=failure
+            with res:return res.status,res.read(),res.headers
+        code,_,route_headers=basic_route("routing",routing_password)
+        check("Native scoped routing account allowed",code==200)
+        from http.cookies import SimpleCookie
+        cookie=SimpleCookie();cookie.load(route_headers.get("Set-Cookie",""))
+        reusable=False
+        if "JSESSIONID" in cookie:
+            req=urllib.request.Request(base+route_path,headers={"Cookie":"JSESSIONID="+cookie["JSESSIONID"].value})
+            try:res=urllib.request.build_opener(NoRedirect()).open(req,timeout=10)
+            except urllib.error.HTTPError as rejected:res=rejected
+            with res:reusable=res.status!=401
+        check("Routing Basic retains no usable session",not reusable)
+        check("Wrong routing service password denied",basic_route("routing","incorrect")[0]==401)
+        check("Human Basic credentials cannot impersonate service",basic_route("operator",credentials["operator"])[0]==403)
+        check("Malformed Basic rejected",basic_route("","",raw_header="Basic !!!")[0]==401)
+        check("Routing identity cannot use monitoring API",basic_route("routing",routing_password,path="rest/cargo")[0]==401)
+        check("Invalid route locations controlled",request(sessions["operator"][1],"rest/graph-traversal/shortest-path?origin=XXXXX&destination=FIHEL")[0]==400)
+        check("Invalid route deadline controlled",request(sessions["operator"][1],"rest/graph-traversal/shortest-path?origin=CNHKG&destination=FIHEL&deadline=2030-02-30")[0]==400)
+
         def cargos(opener):
             code,body,_=request(opener,"rest/cargo")
             check("Authenticated monitoring",code==200)
@@ -157,7 +189,7 @@ def main(after_checks=None):
         report["error_type"]=type(error).__name__
         raise
     finally:
-        if not finalize(container,[users,roles],report):
+        if not finalize(container,[users,roles,routing],report):
             raise RuntimeError("Fixture cleanup incomplete; inspect sanitized results")
 
 if __name__=="__main__":main()

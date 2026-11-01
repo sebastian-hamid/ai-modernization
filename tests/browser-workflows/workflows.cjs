@@ -33,7 +33,8 @@ function check(name,ok){stage=name;checks.push({name,passed:!!ok});if(!ok)throw 
   await reader.page.getByRole("heading",{name:"Cargo details",exact:true}).waitFor();
   check("Reader sees details",await reader.page.locator("#trackingId").textContent()==="ABC123");
   check("Reader does not see destination control",await reader.page.getByRole("link",{name:"Change destination"}).count()===0);
-  for(const path of ["admin/book.xhtml","admin/changeDestination.xhtml?trackingId=ABC123"]){
+  check("Reader does not see routing control",await reader.page.getByRole("link",{name:"Assign route",exact:true}).count()===0);
+  for(const path of ["admin/book.xhtml","admin/changeDestination.xhtml?trackingId=ABC123","admin/route.xhtml?trackingId=ABC123"]){
    const response=await reader.context.request.get(base+path);check("Reader direct denial "+path,response.status()===403);
   }
   for(const path of ["admin/show.xhtml","admin/show.xhtml?trackingId=UNKNOWN","admin/show.xhtml?trackingId=%3Cscript%3E"]){
@@ -66,7 +67,71 @@ function check(name,ok){stage=name;checks.push({name,passed:!!ok});if(!ok)throw 
    check("Destination change persisted",(await page.locator("#destination").textContent()).includes("New York"));
    const read=await reader.context.request.get(base+"admin/show.xhtml?trackingId="+id);
    check("Independent Reader sees persisted destination",read.status()===200 && (await read.text()).includes("New York"));
+   await routeCargo(actor,id);
    return id;
+  }
+  async function tableRows(table){
+   return table.locator("tbody tr").evaluateAll(rows=>rows.map(row=>Array.from(row.cells).map(cell=>cell.textContent.trim())));
+  }
+  async function routeCargo(actor,id){
+   const page=actor.page;
+   await page.getByRole("link",{name:"Assign route",exact:true}).click();
+   await page.getByRole("heading",{name:"Assign route",exact:true}).waitFor();
+   check("Sample routing candidates rendered",await page.locator('select[id="routing:choice"] option').count()>1);
+   await page.getByRole("button",{name:"Assign selected route",exact:true}).click();
+   await page.getByText("Choose a valid route.",{exact:true}).waitFor();
+   check("Missing route selection rejected",page.url().includes("/admin/route.xhtml"));
+   const csrf=await page.locator('input[name="csrf"]').inputValue();
+   const state=await page.locator('input[name="jakarta.faces.ViewState"]').first().inputValue();
+   const routeUrl=base+"admin/route.xhtml?trackingId="+id;
+   const readerCsrf=(await (await reader.context.request.get(base+"session")).json()).csrf;
+   const denied=await reader.context.request.post(routeUrl,{form:{"csrf":readerCsrf,"routing":"routing","routing:choice":"0","routing:submit":"","jakarta.faces.ViewState":state}});
+   check("Reader forged route assignment denied",denied.status()===403);
+   const noToken=await actor.context.request.post(routeUrl,{form:{"routing":"routing","routing:choice":"0","routing:submit":"","jakarta.faces.ViewState":state}});
+   check("Route assignment requires CSRF",noToken.status()===403);
+   const tampered=await actor.context.request.post(routeUrl,{form:{"csrf":csrf,"routing":"routing","routing:choice":"99999","routing:submit":"","jakarta.faces.ViewState":state}});
+   check("Unknown route index rejected",tampered.status()===200 && (await tampered.text()).includes("Value is not valid"));
+   let observed=await reader.context.request.get(base+"admin/show.xhtml?trackingId="+id);
+   check("Denied selections leave cargo unrouted",(await observed.text()).includes('id="routingStatus">NOT_ROUTED'));
+   // A different real view changes destination while the original candidate view remains open.
+   await page.reload();
+   const other=await actor.context.newPage();
+   await other.goto(base+"admin/changeDestination.xhtml?trackingId="+id);
+   await other.getByLabel("Destination",{exact:true}).selectOption("FIHEL");
+   await other.getByRole("button",{name:"Save destination",exact:true}).click();
+   await other.waitForURL(/admin\/show.xhtml\?trackingId=/);
+   await other.close();
+   await page.getByLabel("Route",{exact:true}).selectOption("0");
+   await page.getByRole("button",{name:"Assign selected route",exact:true}).click();
+   await page.getByText("The selected route no longer matches this cargo. Request routes again.",{exact:true}).waitFor();
+   check("Stale route after destination change rejected",page.url().includes("/admin/route.xhtml"));
+   observed=await reader.context.request.get(base+"admin/show.xhtml?trackingId="+id);
+   check("Stale selection does not assign old itinerary",(await observed.text()).includes('id="routingStatus">NOT_ROUTED'));
+   await page.getByRole("link",{name:"Request fresh routes",exact:true}).click();
+   const label=await page.locator('select[id="routing:choice"] option[value="0"]').textContent();
+   const expectedLegs=Number(label.match(/\((\d+) legs\)/)[1]);
+   const selectedRows=await tableRows(page.locator("table.route-candidate").first());
+   await page.getByLabel("Route",{exact:true}).selectOption("0");
+   await page.getByRole("button",{name:"Assign selected route",exact:true}).click();
+   await page.waitForURL(/admin\/show.xhtml\?trackingId=/);
+   check("Real route assignment is ROUTED",await page.locator("#routingStatus").textContent()==="ROUTED");
+   check("Selected itinerary leg count persisted",await page.locator("#itinerary tbody tr").count()===expectedLegs);
+   check("Exact selected voyage/location/time sequence persisted",JSON.stringify(await tableRows(page.locator("#itinerary")))===JSON.stringify(selectedRows));
+   observed=await reader.context.request.get(base+"admin/show.xhtml?trackingId="+id);
+   const html=await observed.text();
+   check("Separate Reader sees persisted route",observed.status()===200 && html.includes('id="routingStatus">ROUTED') && html.includes('id="itinerary"'));
+   await reader.page.goto(base+"admin/show.xhtml?trackingId="+id);
+   check("Separate Reader verifies exact itinerary sequence",JSON.stringify(await tableRows(reader.page.locator("#itinerary")))===JSON.stringify(selectedRows));
+   await page.getByRole("link",{name:"Assign route",exact:true}).click();
+   await page.getByRole("heading",{name:"Assign route",exact:true}).waitFor();
+   const replacementLabel=await page.locator('select[id="routing:choice"] option[value="0"]').textContent();
+   const replacementLegs=Number(replacementLabel.match(/\((\d+) legs\)/)[1]);
+   const replacementRows=await tableRows(page.locator("table.route-candidate").first());
+   await page.getByLabel("Route",{exact:true}).selectOption("0");
+   await page.getByRole("button",{name:"Assign selected route",exact:true}).click();
+   await page.waitForURL(/admin\/show.xhtml\?trackingId=/);
+   check("Rerouting existing cargo persists owned collection",await page.locator("#routingStatus").textContent()==="ROUTED" && await page.locator("#itinerary tbody tr").count()===replacementLegs);
+   check("Exact replacement route sequence persisted",JSON.stringify(await tableRows(page.locator("#itinerary")))===JSON.stringify(replacementRows));
   }
   const id=await book(operator);
   const form=await operator.context.request.get(base+"admin/book.xhtml");
@@ -78,6 +143,15 @@ function check(name,ok){stage=name;checks.push({name,passed:!!ok});if(!ok)throw 
   const noCsrf=await operator.context.request.post(base+"admin/book.xhtml",{form:{"booking":"booking","booking:submit":"","jakarta.faces.ViewState":view[1]}});
   check("Missing CSRF booking POST denied",noCsrf.status()===403);
   const admin=await login("admin");await book(admin);
+  await operator.page.goto(base+"admin/book.xhtml");
+  await operator.page.getByLabel("Origin",{exact:true}).selectOption("CNHKG");
+  await operator.page.getByLabel("Destination",{exact:true}).selectOption("FIHEL");
+  await operator.page.getByLabel("Arrival deadline (YYYY-MM-DD)").fill("2000-01-01");
+  await operator.page.getByRole("button",{name:"Book cargo",exact:true}).click();
+  await operator.page.waitForURL(/admin\/show.xhtml\?trackingId=/);
+  await operator.page.getByRole("link",{name:"Assign route",exact:true}).click();
+  await operator.page.getByText("No sample routes meet this cargo's arrival deadline.",{exact:true}).waitFor();
+  check("No candidates for expired deadline handled",await operator.page.getByRole("button",{name:"Assign selected route",exact:true}).count()===0);
   // Mobile viewport verifies this responsive increment; old mobile event logger remains disabled.
   await operator.page.setViewportSize({width:390,height:844});
   await operator.page.goto(base+"admin/show.xhtml?trackingId="+id);
@@ -86,5 +160,5 @@ function check(name,ok){stage=name;checks.push({name,passed:!!ok});if(!ok)throw 
   check("Dynamic resource bypass denied",malicious.status()===404);
   check("No page or asset errors",failures.length===0);
  } catch(error){checks.push({name:stage+" failed ("+error.name+")",outcome:"FAIL",passed:false});process.exitCode=1;}
- finally{await browser.close();fs.writeFileSync("/out/results.json",JSON.stringify({scope:"Real Chromium Faces cargo read/booking/destination workflows; not full KAN-19",checks,last_navigation:navigation,resource_errors:failures},null,2)+"\n");}
+ finally{await browser.close();fs.writeFileSync("/out/results.json",JSON.stringify({scope:"Real Chromium Faces cargo read/booking/destination/routing workflows; not full KAN-19",checks,last_navigation:navigation,resource_errors:failures},null,2)+"\n");}
 })();

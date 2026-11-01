@@ -17,6 +17,19 @@ class CleanupTests(unittest.TestCase):
             report=json.loads((work/"results.json").read_text())
             self.assertEqual(report["status"],"FAIL")
             self.assertTrue(report["private_files_removed"])
+    def test_partial_routing_credential_write_is_removed(self):
+        with tempfile.TemporaryDirectory() as temp:
+            work=Path(temp)/"work";original=Path.write_text
+            def fail(path,*args,**kwargs):
+                value=original(path,*args,**kwargs)
+                if path.name=="routing-client.properties":raise OSError("injected partial routing secret write")
+                return value
+            with patch.object(harness,"WORK",work),patch.object(harness.subprocess,"run",return_value=subprocess.CompletedProcess([],1)),patch.object(Path,"write_text",fail),contextlib.redirect_stdout(io.StringIO()):
+                with self.assertRaises(OSError):harness.main()
+            self.assertFalse(any((work/"secrets").glob("*.properties")))
+            report=json.loads((work/"results.json").read_text())
+            self.assertEqual(report["status"],"FAIL")
+            self.assertTrue(report["private_files_removed"])
     def cleanup_failure(self,operation):
         with tempfile.TemporaryDirectory() as temp:
             work=Path(temp);users=work/"users";roles=work/"roles"
