@@ -119,6 +119,27 @@ class LiveSubsetTests(unittest.TestCase):
         for field,new in [("method","GET"),("callback","other"),("page_id","PAGE-99"),("write",False),("source","other"),("session_state","logged_out")]:
             changed={**case,field:new}
             with self.subTest(field=field),self.assertRaises(UnsupportedCase):value.execute(changed)
+    def test_route_action_requires_correct_entry_and_exact_selected_effects(self):
+        for surface,entry in [("ACTION-17","admin/route.xhtml"),("ACTION-19","admin/selectItinerary.xhtml")]:
+            case=adapter.bound_contracts()[surface+"::Operator::active"];value=self.prepared()
+            proof={"supported":True,"status":200,"action_method":"POST","action_path":"/cargo-tracker/admin/route.xhtml?trackingId=ABCDEFGH","tracking_id":"ABCDEFGH","entry_page":entry+"?trackingId=ABCDEFGH","source_entry_verified":True,"real_form_verified":True,"post_status":303,"processing_evidence":{"database_changed":True,"assign_route_invocation_delta":1,"queue_unchanged":True,"independent_reader_persistence":True,"independent_reader_deadline":True,"selected_itinerary_matches":True,"other_cargos_unchanged":True}}
+            value.observations[case["id"]]=proof;self.assertEqual(value.execute(case),proof)
+            for field,new in [("action_path","/other"),("entry_page","admin/other.xhtml?trackingId=ABCDEFGH"),("source_entry_verified",False),("real_form_verified",False),("post_status",500),("processing_evidence",{})]:
+                value.observations[case["id"]]={**proof,field:new}
+                with self.subTest(surface=surface,field=field),self.assertRaises(UnsupportedCase):value.execute(case)
+            for field in ["selected_itinerary_matches","queue_unchanged","independent_reader_deadline","other_cargos_unchanged"]:
+                value.observations[case["id"]]={**proof,"processing_evidence":{**proof["processing_evidence"],field:False}}
+                with self.subTest(surface=surface,field=field),self.assertRaises(UnsupportedCase):value.execute(case)
+    def test_route_session_requires_owned_form_and_preserves_contract(self):
+        for surface,entry in [("ACTION-17","admin/route.xhtml"),("ACTION-19","admin/selectItinerary.xhtml")]:
+            case=adapter.bound_contracts()[surface+"::Administrator::expired"];value=self.prepared()
+            proof={"supported":True,"action_method":"POST","action_path":"/cargo-tracker/admin/route.xhtml?trackingId=ABCDEFGH","tracking_id":"ABCDEFGH","entry_page":entry+"?trackingId=ABCDEFGH","source_entry_verified":True,"real_form_verified":True}
+            value.observations[case["id"]]=proof
+            with self.assertRaises(UnsupportedCase):value.execute(case)
+            proof["form_owned_before_revocation"]=True;self.assertEqual(value.execute(case),proof)
+            for field,new in [("method","GET"),("callback","other"),("page_id","PAGE-99"),("session_state","logged_out")]:
+                changed={**case,field:new}
+                with self.subTest(surface=surface,field=field),self.assertRaises(UnsupportedCase):value.execute(changed)
     def test_unknown_case_remains_blocked(self):
         case=self.case();case["id"]="API-02::Administrator::expired"
         with self.assertRaises(UnsupportedCase):self.prepared().execute(case)

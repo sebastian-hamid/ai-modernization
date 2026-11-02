@@ -1,0 +1,32 @@
+{
+  "task": "KAN-15 ACTION-17/ACTION-19 route assignments",
+  "base": "0f4bb8d55eac6c2e5928fd1c1b35a9267faff430",
+  "author": "/root",
+  "reviewer": "/root/review_kan15_route_actions",
+  "verdict": "Approved bounded increment; no remaining material findings. Full KAN-15 incomplete.",
+  "input_hashes_verified": 337,
+  "independently_executed_unit_tests": 24,
+  "independent_unit_scope": "3 route helper and21 adapter tests",
+  "author_unit_tests": 77,
+  "reviewer_live_fixture_execution": false,
+  "application": 523,
+  "browser": 431,
+  "domain_reported": 35,
+  "empty_legacy_todo": 1,
+  "route_cases": 16,
+  "prior_write_cases_preserved": 16,
+  "catalogue": {
+    "PASS": 316,
+    "BLOCKED": 186,
+    "native_exit": 2
+  },
+  "findings": [],
+  "checks": "All337hashes/four evidence bytecopies; all16 actual observations and unchanged denied snapshots/eight revoked-owned forms; four chosen==Reader itineraries, exact assignment delta1/noJMS, initial and genuinely different replacement routes; cleanup/docs/notes/diffcheck verified.",
+  "evidence_sha256": {
+    "application-results.json": "a43e6b972fd627d633af6234c26ac26e231e2ea6f1e8a9934a6b4e841ab98db9",
+    "browser-results.json": "7bda266475593e1acf73f52ade01c45238a1e74b83c942e08c0636d5c627a71c",
+    "catalogue-results.json": "8c4e299a062cb609976a0cdb2f756d0bb0eb7e49f0358bd399df74ebd947a0cd",
+    "unit-tests.json": "06af65955fb20298d75c159c68d675b4a9a20d1998d4cd6c0b073c478f72497b",
+    "validation.json": "43a0aea5c44644a022eb76f2b3dd846923fd2c73c6a3fbee10644e61549cd6e8"
+  }
+}

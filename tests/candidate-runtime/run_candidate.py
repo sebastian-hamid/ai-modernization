@@ -117,6 +117,45 @@ def destination_positive(before,after,old,cargo,tracking_id):
     delta=sum(n for key,n in after["business_invocations"].items() if key.endswith("#changeDestination"))-sum(n for key,n in before["business_invocations"].items() if key.endswith("#changeDestination"))
     return before["tables"]!=after["tables"] and before["queues"]==after["queues"] and delta==1 and old.get("trackingId")==tracking_id and cargo.get("trackingId")==tracking_id and old.get("destinationCode")=="FIHEL" and cargo.get("destinationCode")=="USNYC" and old.get("originCode")==cargo.get("originCode")=="CNHKG" and old.get("routingStatus")==cargo.get("routingStatus")=="NOT_ROUTED" and old.get("transportStatus")==cargo.get("transportStatus")=="NOT_RECEIVED" and old.get("lastKnownLocationCode")==cargo.get("lastKnownLocationCode")
 
+def route_tables(body,attribute="class",value="route-candidate"):
+    from html.parser import HTMLParser
+    class Tables(HTMLParser):
+        def __init__(self):super().__init__();self.tables=[];self.table=None;self.depth=0;self.tbody=False;self.row=None;self.cell=None
+        def handle_starttag(self,tag,attrs):
+            attrs=dict(attrs)
+            if tag=="table":
+                if self.table is not None:self.depth+=1
+                elif (value in attrs.get("class","").split() if attribute=="class" else attrs.get(attribute)==value):self.table=[];self.depth=1
+            if self.table is None:return
+            if tag=="tbody":self.tbody=True
+            elif tag=="tr" and self.tbody:self.row=[]
+            elif tag=="td" and self.row is not None:self.cell=[]
+        def handle_data(self,data):
+            if self.cell is not None:self.cell.append(data)
+        def handle_endtag(self,tag):
+            if self.table is None:return
+            if tag=="td" and self.cell is not None:self.row.append("".join(self.cell).strip());self.cell=None
+            elif tag=="tr" and self.row is not None:
+                if self.row:self.table.append(self.row)
+                self.row=None
+            elif tag=="tbody":self.tbody=False
+            elif tag=="table":
+                self.depth-=1
+                if self.depth==0:self.tables.append(self.table);self.table=None
+    parser=Tables();parser.feed(body);return parser.tables
+
+def routing_form(body,csrf,choice):
+    state=re.search(r'name="jakarta.faces.ViewState"[^>]*value="([^"]+)"',body)
+    tables=route_tables(body)
+    if not state or type(choice) is not int or choice<0 or choice>=len(tables) or not tables[choice] or any(len(row)!=5 for row in tables[choice]) or not all('id="'+key+'"' in body for key in ["routing","routing:choice","routing:submit"]) or re.search(r'<option\b[^>]*\bvalue="'+str(choice)+'"',body) is None:raise AssertionError("Missing real route choice/form")
+    import html
+    return {"csrf":csrf,"routing":"routing","routing:choice":str(choice),"routing:submit":"","jakarta.faces.ViewState":html.unescape(state[1])},tables[choice]
+
+def routing_positive(before,after,old,cargo,tracking_id):
+    validate_effects(before);validate_effects(after)
+    delta=sum(n for key,n in after["business_invocations"].items() if key.endswith("#assignCargoToRoute"))-sum(n for key,n in before["business_invocations"].items() if key.endswith("#assignCargoToRoute"))
+    return before["tables"]!=after["tables"] and before["queues"]==after["queues"] and delta==1 and old.get("trackingId")==cargo.get("trackingId")==tracking_id and old.get("originCode")==cargo.get("originCode")=="CNHKG" and old.get("destinationCode")==cargo.get("destinationCode")=="USNYC" and cargo.get("routingStatus")=="ROUTED" and old.get("transportStatus")==cargo.get("transportStatus")=="NOT_RECEIVED" and old.get("lastKnownLocationCode")==cargo.get("lastKnownLocationCode")
+
 def main(after_checks=None):
     WORK.mkdir(parents=True,exist_ok=True)
     private=WORK/"secrets";private.mkdir(exist_ok=True,mode=0o700);private.chmod(0o700)
@@ -545,6 +584,74 @@ def main(after_checks=None):
             report["destination_action_effects"][who]={"before":start,"after":end,"tracking_id":target_id,"reader_before":old,"reader_after":fresh,"reader_deadline_preserved":deadline_verified,"no_jms_expected":True}
             report["access_observations"]["ACTION-09::"+role+"::active"]={"supported":True,"status":detail_status,"post_status":status,"identity":report["identities"][who],"semantic_success":True,"authorized_effect_verified":True,"action_method":"POST","action_path":"/cargo-tracker/"+path,"real_form_verified":True,"tracking_id":target_id,"processing_evidence":{"database_changed":True,"change_destination_invocation_delta":1,"queue_unchanged":True,"independent_reader_persistence":True,"independent_reader_deadline":deadline_verified,"other_cargos_unchanged":True}}
 
+        # Separate original entries converge on one modern route form, with traceability.
+        report["routing_action_effects"]={}
+        def route_entry(opener,surface,target_id,who):
+            source=("admin/route.xhtml" if surface=="ACTION-17" else "admin/selectItinerary.xhtml")+"?trackingId="+target_id
+            path="admin/route.xhtml?trackingId="+target_id
+            code,body,headers=request(opener,source)
+            if who in {"operator","admin"}:
+                if surface=="ACTION-19":
+                    check("Legacy itinerary entry fixed target: "+str(who),code==303 and headers.get("Location")=="/cargo-tracker/"+path)
+                    code,body,_=request(opener,path)
+                check("Actual route entry rendered: "+surface+" "+str(who),code==200)
+            else:
+                check("Route entry denies before cargo load: "+surface+" "+str(who),code==(403 if who=="reader" else 303) and payload_absent(body) and (who=="reader" or headers.get("Location")=="/cargo-tracker/login"))
+            return path,body,source
+        def route_denial(opener,form,who,state,surface,target_id,source):
+            path="admin/route.xhtml?trackingId="+target_id
+            result=denied_form(opener,form,who,state,path,"Routing "+surface)
+            result.update({"entry_page":source,"source_entry_verified":True})
+            return result
+        for surface in ["ACTION-17","ACTION-19"]:
+            target_id=report["booking_action_effects"]["operator"]["tracking_id"]
+            path,body,source=route_entry(sessions["operator"][1],surface,target_id,"operator")
+            forged,_=routing_form(body,sessions["operator"][2],0)
+            for who,role in [(None,"anonymous"),("reader","Reader")]:
+                opener=anonymous if who is None else sessions[who][1]
+                route_entry(opener,surface,target_id,who)
+                form={**forged,"csrf":sessions[who][2] if who else sessions["operator"][2]}
+                report["access_observations"][surface+"::"+role+"::active"]=route_denial(opener,form,who,None,surface,target_id,source)
+            for who,role in [("operator","Operator"),("admin","Administrator")]:
+                target_id=report["booking_action_effects"][who]["tracking_id"]
+                path,body,source=route_entry(sessions[who][1],surface,target_id,who)
+                old_values={cargo["trackingId"]:cargo for cargo in cargos(sessions["reader"][1])};old=old_values[target_id]
+                code,detail,_=request(sessions["reader"][1],"admin/show.xhtml?trackingId="+target_id)
+                deadline_before=re.search(r"<dt>Arrival deadline</dt><dd>([^<]+)</dd>",detail)
+                old_tables=route_tables(detail,"id","itinerary")
+                choices=route_tables(body);choice=0
+                check("Route fixture initial state: "+surface+" "+role,old.get("routingStatus")==("NOT_ROUTED" if surface=="ACTION-17" else "ROUTED"))
+                if surface=="ACTION-19":
+                    check("Existing itinerary available before replacement: "+role,len(old_tables)==1 and bool(old_tables[0]))
+                    different=[i for i,rows in enumerate(choices) if not old_tables or rows!=old_tables[0]]
+                    check("Rerouting has a genuinely different candidate: "+role,bool(different))
+                    choice=next((i for i in different if i!=0),different[0])
+                form,selected=routing_form(body,sessions[who][2],choice)
+                check("Route fixture deadline observed: "+surface+" "+role,code==200 and deadline_before is not None and deadline_before[1].split()[0]=="12/31/2030")
+                start=settled()
+                status,_,headers=request(sessions[who][1],path,form)
+                redirected=booking_tracking_id(base,status,headers.get("Location",""))
+                check("Route result preserves tracking ID: "+surface+" "+role,redirected==target_id)
+                detail_status,detail,_=request(sessions[who][1],"admin/show.xhtml?trackingId="+target_id)
+                values={cargo["trackingId"]:cargo for cargo in cargos(sessions["reader"][1])};fresh=values.get(target_id,{})
+                reader_status,reader_detail,_=request(sessions["reader"][1],"admin/show.xhtml?trackingId="+target_id)
+                deadline_after=re.search(r"<dt>Arrival deadline</dt><dd>([^<]+)</dd>",reader_detail)
+                persisted=route_tables(reader_detail,"id","itinerary")
+                deadline_verified=reader_status==200 and deadline_after is not None and deadline_after[1]==deadline_before[1]
+                exact_legs=reader_status==200 and len(persisted)==1 and persisted[0]==selected
+                end=settled()
+                check("Exact selected itinerary independently persisted: "+surface+" "+role,detail_status==200 and 'id="trackingId">'+target_id in detail and deadline_verified and exact_legs and set(values)==set(old_values) and all(values[k]==old_values[k] for k in values if k!=target_id))
+                check("Route specific SQL audit effect and no JMS: "+surface+" "+role,routing_positive(start,end,old,fresh,target_id))
+                report["routing_action_effects"][surface+"::"+who]={"before":start,"after":end,"tracking_id":target_id,"selected_index":choice,"selected_rows":selected,"reader_rows":persisted[0],"reader_before":old,"reader_after":fresh,"deadline_preserved":deadline_verified,"no_jms_expected":True}
+                report["access_observations"][surface+"::"+role+"::active"]={"supported":True,"status":detail_status,"post_status":status,"identity":report["identities"][who],"semantic_success":True,"authorized_effect_verified":True,"action_method":"POST","action_path":"/cargo-tracker/"+path,"real_form_verified":True,"tracking_id":target_id,"entry_page":source,"source_entry_verified":True,"processing_evidence":{"database_changed":True,"assign_route_invocation_delta":1,"queue_unchanged":True,"independent_reader_persistence":True,"independent_reader_deadline":deadline_verified,"selected_itinerary_matches":exact_legs,"other_cargos_unchanged":True}}
+        def owned_route_forms(opener,token,who):
+            forms=[]
+            for surface in ["ACTION-17","ACTION-19"]:
+                target_id=report["booking_action_effects"][who]["tracking_id"]
+                path,body,source=route_entry(opener,surface,target_id,who)
+                form,_=routing_form(body,token,0);forms.append((surface,target_id,source,form))
+            return forms
+
         def stale_client(jar):
             saved=client()[1];saved.addheaders=[("Cookie","JSESSIONID="+next(c.value for c in jar if c.name=="JSESSIONID"))]
             return saved
@@ -582,13 +689,14 @@ def main(after_checks=None):
         report["lifecycle_effects"]={}
         for actor,who in actors:
             jar,opener,token=login(who);saved=stale_client(jar)
-            lifecycle_form=None;lifecycle_destination=None
+            lifecycle_form=None;lifecycle_destination=None;lifecycle_routes=[]
             if who!="reader":
                 code,body,_=request(opener,"admin/book.xhtml");check("Logout booking form owned: "+actor,code==200)
                 lifecycle_form=booking_form(body,token)
                 path="admin/changeDestination.xhtml?trackingId="+report["booking_action_effects"][who]["tracking_id"]
                 code,body,_=request(opener,path);check("Logout destination form owned: "+actor,code==200)
                 lifecycle_destination=(path,destination_form(body,token,"FIHEL"))
+                lifecycle_routes=owned_route_forms(opener,token,who)
             check("Role lifecycle positive monitoring: "+actor,request(opener,"rest/cargo")[0]==200)
             check("Actual role logout: "+actor,request(opener,"logout",b"",token)[0]==204)
             baseline=settled()
@@ -600,23 +708,26 @@ def main(after_checks=None):
                 report["access_observations"]["ACTION-29::"+actor+"::logged_out"]=denied_booking(saved,lifecycle_form,who,"logged_out")
                 path,form=lifecycle_destination
                 report["access_observations"]["ACTION-09::"+actor+"::logged_out"]=denied_form(saved,form,who,"logged_out",path,"Destination")
+                for surface,target_id,source,form in lifecycle_routes:
+                    report["access_observations"][surface+"::"+actor+"::logged_out"]=route_denial(saved,form,who,"logged_out",surface,target_id,source)
             report["lifecycle_effects"][who+"_logged_out"]={"before":baseline,"after":after_sample}
         expiring={}
         for actor,who in actors:
             jar,opener,token=login(who)
             check("Expiry lifecycle positive monitoring: "+actor,request(opener,"rest/cargo")[0]==200)
-            form=None;destination=None
+            form=None;destination=None;routes=[]
             if who!="reader":
                 code,body,_=request(opener,"admin/book.xhtml");check("Expiry booking form owned: "+actor,code==200)
                 form=booking_form(body,token)
                 path="admin/changeDestination.xhtml?trackingId="+report["booking_action_effects"][who]["tracking_id"]
                 code,body,_=request(opener,path);check("Expiry destination form owned: "+actor,code==200)
                 destination=(path,destination_form(body,token,"FIHEL"))
-            expiring[who]=(stale_client(jar),token,form,destination)
+                routes=owned_route_forms(opener,token,who)
+            expiring[who]=(stale_client(jar),token,form,destination,routes)
         # Every saved identity is left idle for at least75s after the last login.
         for unused in range(5):time.sleep(15)
         for actor,who in actors:
-            saved,token,lifecycle_form,lifecycle_destination=expiring[who]
+            saved,token,lifecycle_form,lifecycle_destination,lifecycle_routes=expiring[who]
             baseline=settled()
             pending=revoked_api_requests(actor,who,saved,token,"expired",baseline)
             after_sample=settled()
@@ -626,6 +737,8 @@ def main(after_checks=None):
                 report["access_observations"]["ACTION-29::"+actor+"::expired"]=denied_booking(saved,lifecycle_form,who,"expired")
                 path,form=lifecycle_destination
                 report["access_observations"]["ACTION-09::"+actor+"::expired"]=denied_form(saved,form,who,"expired",path,"Destination")
+                for surface,target_id,source,form in lifecycle_routes:
+                    report["access_observations"][surface+"::"+actor+"::expired"]=route_denial(saved,form,who,"expired",surface,target_id,source)
             report["lifecycle_effects"][who+"_expired"]={"before":baseline,"after":after_sample,"idle_wait_seconds_minimum":75}
         if after_checks:after_checks(container,base,credentials,report)
         report["status"]="PASS"

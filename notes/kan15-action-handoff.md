@@ -2,7 +2,7 @@
 
 ## Current verified checkpoint
 
-KAN-15 remains In Progress. Current fresh coverage is 300 PASS / 202 BLOCKED: seven navigation mappings (28 cases), ACTION-29 booking (eight cases) and ACTION-09 destination change (eight cases). Latest verification passed 442 application / 431 browser checks, 35 reported domain cases (one inherited empty TODO), and 72 tooling checks. Evidence is notes/evidence/kan-15-destination-action; review records are under notes/agent-reviews. Remaining 202 contracts comprise 144 active actions (132 read-only / 12 write), 12 write-action session cases and 46 internal/worker definitions. Full security acceptance is incomplete.
+KAN-15 remains In Progress. Current fresh coverage is 316 PASS / 186 BLOCKED: seven navigation mappings (28 cases), booking (eight), destination change (eight), and initial/replacement route actions (sixteen). Latest verification passed 523 application / 431 browser checks, 35 reported domain cases (one inherited empty TODO), and 77 tooling checks. Evidence is notes/evidence/kan-15-routing-actions; review records are under notes/agent-reviews. Remaining 186 contracts comprise 136 active actions (132 read-only / 4 handling writes), 4 handling-action session cases and 46 internal/worker definitions. Full security acceptance is incomplete.
 
 KAN-26 is Done at febde7a4de7294ec6ff0d714cdd11e175b2ac341. The candidate protocol heartbeat keeps the original connection live beyond the measured 90-second listener timeout without HTTP renewal. Reset isolation, unrelated cargo persistence, normal close response and all-role logout/expiry were verified. General slow-peer/pool-saturation behavior remains unverified.
 
@@ -20,7 +20,7 @@ Exit2 is expected while unsupported cases remain. Require actual successful appl
 
 ## Remaining action priorities
 
-ACTION-29 booking and ACTION-09 destination change are now bound with independent per-POST effects, native role/session checks and permitted action-specific controls. Remaining write callbacks are ACTION-17/ACTION-19 route selection and ACTION-41 handling submission: 12 active actor and 12 logout/expiry definitions. Modern replacements already have real happy/invalid/Reader-forgery/CSRF browser scenarios, but those assertions alone do not satisfy every catalogue write definition.
+ACTION-29 booking, ACTION-09 destination change and ACTION-17/ACTION-19 initial/replacement route selection are now bound with independent per-POST effects, native role/session checks and action-specific controls. The remaining write callback is ACTION-41 handling submission: 4 active actor and 4 logout/expiry definitions. Modern replacements already have real happy/invalid/Reader-forgery/CSRF browser scenarios, but those assertions alone do not satisfy every catalogue write definition.
 
 The authoritative generator and checked inventory now explicitly mark all five mutation callbacks as POST. Regeneration is tested for exact equality; only method metadata changed in40 of502desired definitions, preserving IDs/roles/outcomes. A successful GET page render must never stand in for execution of a write callback. Preserve the approved roles and effects requirements when refining transport metadata.
 
@@ -44,3 +44,5 @@ Other remaining definitions include read-only legacy callbacks that need explici
 - docs/candidate/booking-action-matrix.md and notes/evidence/kan-15-booking-action: exact POST mapping and booking effects/session proof.
 
 - docs/candidate/destination-action-matrix.md and notes/evidence/kan-15-destination-action: exact target, preserved state and destination effects/session proof.
+
+- docs/candidate/routing-action-matrix.md and notes/evidence/kan-15-routing-actions: exact selected/persisted itinerary, initial/replacement state and route effects/session proofs.
