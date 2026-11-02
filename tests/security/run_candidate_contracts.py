@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """Execute fresh candidate bindings; unsupported access contracts remain blocked."""
-import argparse,json,importlib.util
+import argparse,json,importlib.util,re
 from collections import Counter
 from pathlib import Path
 from contracts import UnsupportedCase,run_cases,exit_code
@@ -25,6 +25,12 @@ class LiveSubsetCandidate:
         if canonical is None or canonical!=case:raise UnsupportedCase()
         observation=self.observations.get(case["id"])
         if observation is None:raise UnsupportedCase()
+        if case["surface_id"]=="ACTION-29":
+            if observation.get("action_method")!="POST" or observation.get("action_path")!="/cargo-tracker/admin/book.xhtml" or observation.get("real_form_verified") is not True:raise UnsupportedCase()
+            if case["channel"]=="session" and observation.get("form_owned_before_revocation") is not True:raise UnsupportedCase()
+            if case["expected"]=="allow":
+                proof=observation.get("processing_evidence",{})
+                if observation.get("post_status") not in {302,303} or not isinstance(observation.get("tracking_id"),str) or re.fullmatch("[A-Z0-9]{8}",observation["tracking_id"]) is None or proof.get("database_changed") is not True or proof.get("book_new_cargo_invocation_delta")!=1 or proof.get("queue_unchanged") is not True or proof.get("independent_reader_persistence") is not True or proof.get("independent_reader_deadline") is not True:raise UnsupportedCase()
         return observation
 
 def bound_contracts():
@@ -75,6 +81,9 @@ def bound_contracts():
         if row and case["channel"]=="action" and case.get("callback")==row["callback"] and case.get("page_id")==row["page_id"] and case.get("method")=="GET" and case.get("path") is None and case.get("write") is False:
             allowed=row["anonymous"] if case["actor"]=="anonymous" else case["actor"] in row["allowed_roles"]
             if case["expected"]==("allow" if allowed else "deny"):bound[case["id"]]=case
+    for case in cases:
+        if case["surface_id"]=="ACTION-29" and case.get("callback")=="#{bookingBackingBean.register()}" and case.get("page_id")=="PAGE-15" and case.get("method")=="POST" and case.get("path") is None and case.get("write") is True and (case["channel"]=="action" or case["channel"]=="session" and case.get("original_channel")=="action"):
+            bound[case["id"]]=case
     return bound
 
 if __name__=="__main__":

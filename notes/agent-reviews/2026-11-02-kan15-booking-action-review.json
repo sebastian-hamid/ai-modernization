@@ -1,0 +1,41 @@
+{
+  "task": "KAN-15 ACTION-29 booking",
+  "base": "5835638f77d65d79a167fcb7fe6ac674aad5e945",
+  "author": "/root",
+  "reviewer": "/root/review_kan15_booking_actions",
+  "verdict": "Approved bounded increment; no remaining material findings. Full KAN-15 incomplete.",
+  "input_hashes_verified": 326,
+  "independently_executed_unit_tests": 68,
+  "reviewer_live_fixture_execution": false,
+  "application": 411,
+  "browser": 431,
+  "domain_reported": 35,
+  "empty_legacy_todo": 1,
+  "booking_cases": 8,
+  "catalogue": {
+    "PASS": 292,
+    "BLOCKED": 210,
+    "native_exit": 2
+  },
+  "findings": [
+    {
+      "severity": "P2",
+      "issue": "Authoritative inventory regeneration would discard explicit POST metadata.",
+      "resolution": "Generator assigns POST inside mutation callback loop; exact regeneration test passed. One intermediate indentation defect was caught and corrected."
+    }
+  ],
+  "additional_corrections": [
+    "Concrete positive redirect/SQL/audit/Reader evidence required by adapter.",
+    "Independent Reader persisted arrival-deadline assertion added."
+  ],
+  "remaining_material_findings": [],
+  "checks": "Reviewer inspected all326hashes, current evidence, six unchanged per-request denial snapshots and two unique persisted booking controls; independently68units and current adapter/oracle eight-case replay passed.",
+  "evidence_sha256": {
+    "application-results.json": "db92c1530f4dcf40a989f42b78f406fccc7dc264886434443d48c8bcf9cd362c",
+    "browser-results.json": "7ae6aeea69571cd5e45eef999ef50c543f96c6ff09d9a1653f2477ee9518972a",
+    "catalogue-results.json": "a3ed3528b033dd0c38755c103e090ba5a8c2c101f6827dde3a01c1b145db3a59",
+    "provisional-attempt.json": "15406cfc426571b96799b1c6b3296705bc363289cf8af73171138d00f20fdbcb",
+    "unit-tests.json": "c7d6ffda8ee0b0c7c74fd419c0e051cbc99f57c41f68c3ba8835dd81d04f0ff3",
+    "validation.json": "b30ba37be8d49477e9b0e6e4cce8e9a16b7fa23f0dae22f7754da2753cf9e119"
+  }
+}

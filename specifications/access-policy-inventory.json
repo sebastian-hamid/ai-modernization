@@ -707,7 +707,8 @@
         "SESSION-EXPIRED",
         "DIRECT-REPLAY"
       ],
-      "implemented": false
+      "implemented": false,
+      "method": "POST"
     },
     {
       "id": "ACTION-10",
@@ -901,7 +902,8 @@
         "SESSION-EXPIRED",
         "DIRECT-REPLAY"
       ],
-      "implemented": false
+      "implemented": false,
+      "method": "POST"
     },
     {
       "id": "ACTION-18",
@@ -949,7 +951,8 @@
         "SESSION-EXPIRED",
         "DIRECT-REPLAY"
       ],
-      "implemented": false
+      "implemented": false,
+      "method": "POST"
     },
     {
       "id": "ACTION-20",
@@ -1193,7 +1196,8 @@
         "SESSION-EXPIRED",
         "DIRECT-REPLAY"
       ],
-      "implemented": false
+      "implemented": false,
+      "method": "POST"
     },
     {
       "id": "ACTION-30",
@@ -1481,7 +1485,8 @@
         "SESSION-EXPIRED",
         "DIRECT-REPLAY"
       ],
-      "implemented": false
+      "implemented": false,
+      "method": "POST"
     },
     {
       "id": "ACTION-42",

@@ -1,0 +1,23 @@
+{
+  "status": "PASS",
+  "execution": "Author observed actual unittest command results after generator correction; stdout not separately captured.",
+  "groups": [
+    {
+      "directory": "tests/security",
+      "tests": 33,
+      "exit": 0
+    },
+    {
+      "directory": "tests/candidate-runtime",
+      "tests": 18,
+      "exit": 0
+    },
+    {
+      "directory": "tests/browser-workflows",
+      "tests": 17,
+      "exit": 0
+    }
+  ],
+  "total": 68,
+  "inventory_regeneration": "Exact generated/checked JSON equality passed; only method fields changed in40 of502 cases."
+}

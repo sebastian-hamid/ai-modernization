@@ -59,6 +59,47 @@ class LiveSubsetTests(unittest.TestCase):
         for field,new in [("callback","other"),("method","POST"),("write",True),("page_id","PAGE-99"),("source","other"),("source_line",999),("path","/other")]:
             case=dict(canonical);case[field]=new
             with self.subTest(field=field),self.assertRaises(UnsupportedCase):value.execute(case)
+    def test_booking_action_requires_post_driver_and_concrete_positive_evidence(self):
+        case=adapter.bound_contracts()["ACTION-29::Operator::active"]
+        value=self.prepared();proof={"supported":True,"status":200,"action_method":"POST","action_path":"/cargo-tracker/admin/book.xhtml","real_form_verified":True,"post_status":303,"tracking_id":"ABCDEFGH","processing_evidence":{"database_changed":True,"book_new_cargo_invocation_delta":1,"queue_unchanged":True,"independent_reader_persistence":True,"independent_reader_deadline":True}}
+        value.observations[case["id"]]=proof
+        self.assertEqual(value.execute(case),proof)
+        for field,new in [("action_method","GET"),("action_path","/other"),("real_form_verified",False),("post_status",500),("tracking_id","short"),("processing_evidence",{})]:
+            altered=dict(proof);altered[field]=new;value.observations[case["id"]]=altered
+            with self.subTest(field=field),self.assertRaises(UnsupportedCase):value.execute(case)
+    def test_revoked_booking_needs_original_owned_form_and_canonical_session(self):
+        case=adapter.bound_contracts()["ACTION-29::Operator::expired"];value=self.prepared()
+        value.observations[case["id"]]={"supported":True,"action_method":"POST","action_path":"/cargo-tracker/admin/book.xhtml","real_form_verified":True}
+        with self.assertRaises(UnsupportedCase):value.execute(case)
+        value.observations[case["id"]]["form_owned_before_revocation"]=True
+        self.assertEqual(value.execute(case)["form_owned_before_revocation"],True)
+        changed=dict(case);changed["method"]="GET"
+        with self.assertRaises(UnsupportedCase):value.execute(changed)
+    def test_only_mutation_transport_metadata_changes_in_502_case_inventory(self):
+        import copy,json
+        from generate_cases import build,ROOT
+        inventory=json.loads((ROOT/"specifications/access-policy-inventory.json").read_text());old=copy.deepcopy(inventory)
+        writes={"ACTION-09","ACTION-17","ACTION-19","ACTION-29","ACTION-41"}
+        for row in old["view_callbacks"]:
+            if row["id"] in writes:row.pop("method",None)
+        current=build(inventory);previous=build(old)
+        self.assertEqual(len(current),502);self.assertEqual([c["id"] for c in current],[c["id"] for c in previous])
+        changed=0
+        for now,before in zip(current,previous):
+            if now!=before:
+                self.assertEqual(now["method"],"POST");self.assertEqual(before["method"],"GET")
+                self.assertIn(now["surface_id"],writes)
+                self.assertEqual({k:v for k,v in now.items() if k!="method"},{k:v for k,v in before.items() if k!="method"});changed+=1
+        self.assertEqual(changed,40)
+    def test_inventory_regeneration_preserves_reviewed_post_descriptors(self):
+        import contextlib,io,json,tempfile
+        path=adapter.ROOT/"scripts/build-access-inventory.py"
+        spec=importlib.util.spec_from_file_location("inventory_generator",path)
+        generator=importlib.util.module_from_spec(spec);spec.loader.exec_module(generator)
+        with tempfile.TemporaryDirectory() as temporary:
+            output=Path(temporary)/"inventory.json"
+            with patch.object(generator,"OUT",output),contextlib.redirect_stdout(io.StringIO()):generator.main()
+            self.assertEqual(json.loads(output.read_text()),json.loads((adapter.ROOT/"specifications/access-policy-inventory.json").read_text()))
     def test_unknown_case_remains_blocked(self):
         case=self.case();case["id"]="API-02::Administrator::expired"
         with self.assertRaises(UnsupportedCase):self.prepared().execute(case)

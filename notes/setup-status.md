@@ -84,3 +84,7 @@ Six modern navigation mappings now have24active-actor proofs. Fresh367applicatio
 ## Latest access checkpoint — 2 November 2026 (KAN-15 routed details)
 
 ACTION-14 adds four verified routed-list detail cases: native roles click the exact cargo link and verify its ID/routing/transport status; anonymous direct access denies before data disclosure. Fresh367application/431browser/35reported domain cases PASS(one inherited emptyTODO),61toolingchecksPASS. Current catalogue284PASS/218BLOCKED, full KAN-15 incomplete. Task cleanup passed; see [action handoff](kan15-action-handoff.md) for remaining effect-observer and callback-method gaps.
+
+## Latest access checkpoint — 2 November 2026 (KAN-15 booking)
+
+ACTION-29 now has eight actual POST/role/logout/expiry proofs with independent per-request SQL/queue/audit observations. Permitted booking has real unique cargo/Reader deadline readback, one bookNewCargo invocation and no JMS expectation. Fresh411application/431browser/35reported domain cases PASS(one inherited emptyTODO),68tooling checks PASS; catalogue292PASS/210BLOCKED/nativeexit2. Full KAN-15 remains incomplete. The authoritative generator preserves explicit POST for five mutation callbacks. Task resources/private files removed; see [booking matrix](../docs/candidate/booking-action-matrix.md) and [action handoff](kan15-action-handoff.md).

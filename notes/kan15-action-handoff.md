@@ -2,7 +2,7 @@
 
 ## Current verified checkpoint
 
-KAN-15 remains In Progress. Published 18098b8548e7ff1c65f233ead643a81fb9240724 has 280 PASS / 222 BLOCKED desired contracts: ACTION-01 through ACTION-06 cover 24 active actor cases. Its fresh evidence has 367 application checks, 417 browser checks, 35 reported domain cases (one inherited empty TODO) and 60 tooling checks. Independent review approved publication. ACTION-14 routed-list details now additionally passed four fresh cases. Current coverage is284PASS/218BLOCKED, with367application/431browser/35reported domain cases(one inherited emptyTODO) and61tooling checks. Its evidence is notes/evidence/kan-15-routed-detail-action. Remaining218 contracts comprise152active actions(132read-only and20write),20write-action session cases and46internal/worker definitions. Publication requires the separate review record.
+KAN-15 remains In Progress. Current fresh coverage is292PASS/210BLOCKED: seven navigation mappings (28 cases) plus ACTION-29 booking (eight active/logout/expiry cases). Booking verification passed411application/431browser checks,35reported domain cases(one inherited emptyTODO),68tooling checks. Evidence is notes/evidence/kan-15-booking-action; independent review records are under notes/agent-reviews. Remaining210 contracts comprise148active actions(132read-only/16write),16write-action session cases and46internal/worker definitions. This is not full security acceptance.
 
 KAN-26 is Done at febde7a4de7294ec6ff0d714cdd11e175b2ac341. The candidate protocol heartbeat keeps the original connection live beyond the measured 90-second listener timeout without HTTP renewal. Reset isolation, unrelated cargo persistence, normal close response and all-role logout/expiry were verified. General slow-peer/pool-saturation behavior remains unverified.
 
@@ -20,13 +20,13 @@ Exit2 is expected while unsupported cases remain. Require actual successful appl
 
 ## Remaining action priorities
 
-Five original write callbacks are ACTION-09 destination change, ACTION-17/ACTION-19 route selection, ACTION-29 booking and ACTION-41 handling submission. They account for 20 active actor and 20 logout/expiry definitions. Modern replacements already have real happy/invalid/Reader-forgery/CSRF browser scenarios, but those assertions alone do not satisfy every catalogue write definition.
+ACTION-29 booking is now bound with independent per-POST effects, native role/session checks and permitted booking-specific controls. Remaining original write callbacks are ACTION-09 destination change, ACTION-17/ACTION-19 route selection and ACTION-41 handling submission:16active actor and16logout/expiry definitions. Modern replacements already have real happy/invalid/Reader-forgery/CSRF browser scenarios, but those assertions alone do not satisfy every catalogue write definition.
 
-The generator currently gives callback descriptors a default GET method when the inventory row has no method; existing modern Faces mutation drivers actually submit POST. Treat this as a descriptor/driver mapping gap to resolve and independently review before write binding. A successful GET page render must never stand in for execution of a write callback. Preserve the approved roles and effects requirements when refining transport metadata.
+The authoritative generator and checked inventory now explicitly mark all five mutation callbacks as POST. Regeneration is tested for exact equality; only method metadata changed in40 of502desired definitions, preserving IDs/roles/outcomes. A successful GET page render must never stand in for execution of a write callback. Preserve the approved roles and effects requirements when refining transport metadata.
 
 For denied write promotion, the contract oracle requires settled independent database, queue and business-audit snapshots from the same fixture before and after the actual specific action request. Verify native role/session lifecycle and include a permitted positive control that demonstrably changes the intended state/worker channels. Do not reuse REST-handling denial evidence as proof of a different Faces booking/destination/routing action.
 
-The host's existing lab-only AttachObserver and settled effects helpers are in tests/candidate-runtime/run_candidate.py. The browser callback currently does not bracket each browser action with those snapshots. A host/browser checkpoint coordinator is a possible implementation approach, not an implemented or verified capability. Preserve isolation and avoid exposing a new observer endpoint or secrets.
+The host's existing lab-only AttachObserver and settled effects helpers are in tests/candidate-runtime/run_candidate.py. ACTION-29 reuses the native HTTP Faces form driver in the same process, so it can bracket actual POSTs directly without a browser coordinator or new observer endpoint. Prefer this proven integration for the next native form drivers where feasible. The browser callback still does not bracket each browser action with independent snapshots; do not claim otherwise.
 
 Other remaining definitions include read-only legacy callbacks that need explicit modern-behavior mappings and trusted internal/worker drivers. Retired booking/mobile flow steps must not be counted as executed old callback code merely because their modern page opens. Document the equivalence or leave the case BLOCKED.
 
@@ -40,3 +40,5 @@ Other remaining definitions include read-only legacy callbacks that need explici
 - notes/evidence/kan-15-routed-detail-action: routed-list detail action and current verification.
 - notes/agent-reviews: independent review records.
 - notes/setup-status.md: latest dated verified coverage, distinct from historical host setup.
+
+- docs/candidate/booking-action-matrix.md and notes/evidence/kan-15-booking-action: exact POST mapping and booking effects/session proof.
