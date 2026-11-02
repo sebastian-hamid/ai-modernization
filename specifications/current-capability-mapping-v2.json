@@ -1,0 +1,626 @@
+{
+  "schema_version": 2,
+  "approval_record": "notes/decisions/2026-11-02-current-ui-acceptance.md",
+  "approved_proposal_sha256": "710b00d37001276e8bd60d806f9fe21ea66a39b7b47ae465122ca78da931da5a",
+  "legacy_inventory_sha256": "fdde15304f5629fa356d4ac9f0462ac7d89b21c65b87c1e841680d23746303ea",
+  "mapped_actions": [
+    {
+      "legacy_id": "ACTION-01",
+      "capability_id": "navigation-action-01",
+      "modern_source": "admin/dashboard.xhtml",
+      "modern_target": "/cargo-tracker/admin/dashboard.xhtml",
+      "modern_method": "GET"
+    },
+    {
+      "legacy_id": "ACTION-02",
+      "capability_id": "navigation-action-02",
+      "modern_source": "admin/dashboard.xhtml",
+      "modern_target": "/cargo-tracker/admin/book.xhtml",
+      "modern_method": "GET"
+    },
+    {
+      "legacy_id": "ACTION-03",
+      "capability_id": "navigation-action-03",
+      "modern_source": "admin/dashboard.xhtml",
+      "modern_target": "/cargo-tracker/admin/track.xhtml",
+      "modern_method": "GET"
+    },
+    {
+      "legacy_id": "ACTION-04",
+      "capability_id": "navigation-action-04",
+      "modern_source": "admin/dashboard.xhtml",
+      "modern_target": "/cargo-tracker/admin/live.xhtml",
+      "modern_method": "GET"
+    },
+    {
+      "legacy_id": "ACTION-05",
+      "capability_id": "navigation-action-05",
+      "modern_source": "admin/dashboard.xhtml",
+      "modern_target": "/cargo-tracker/admin/about.xhtml",
+      "modern_method": "GET"
+    },
+    {
+      "legacy_id": "ACTION-06",
+      "capability_id": "navigation-action-06",
+      "modern_source": "index.xhtml",
+      "modern_target": "/cargo-tracker/public/about.xhtml",
+      "modern_method": "GET"
+    },
+    {
+      "legacy_id": "ACTION-14",
+      "capability_id": "navigation-action-14",
+      "modern_source": "admin/listRouted.xhtml",
+      "modern_target": "/cargo-tracker/admin/show.xhtml?trackingId=ABC123",
+      "modern_method": "GET"
+    },
+    {
+      "legacy_id": "ACTION-09",
+      "capability_id": "write-action-09",
+      "modern_source": "admin/show.xhtml",
+      "modern_target": "/cargo-tracker/admin/changeDestination.xhtml?trackingId={cargo}",
+      "modern_method": "POST"
+    },
+    {
+      "legacy_id": "ACTION-17",
+      "capability_id": "write-action-17",
+      "modern_source": "admin/route.xhtml",
+      "modern_target": "/cargo-tracker/admin/route.xhtml?trackingId={cargo}",
+      "modern_method": "POST"
+    },
+    {
+      "legacy_id": "ACTION-19",
+      "capability_id": "write-action-19",
+      "modern_source": "admin/selectItinerary.xhtml",
+      "modern_target": "/cargo-tracker/admin/route.xhtml?trackingId={cargo}",
+      "modern_method": "POST"
+    },
+    {
+      "legacy_id": "ACTION-29",
+      "capability_id": "write-action-29",
+      "modern_source": "admin/book.xhtml",
+      "modern_target": "/cargo-tracker/admin/book.xhtml",
+      "modern_method": "POST"
+    },
+    {
+      "legacy_id": "ACTION-41",
+      "capability_id": "write-action-41",
+      "modern_source": "eventLogger/eventLogger.xhtml",
+      "modern_target": "/cargo-tracker/mobile.xhtml",
+      "modern_method": "POST"
+    }
+  ],
+  "pending_current_actions": [
+    {
+      "legacy_id": "ACTION-07",
+      "capability_id": "behavior-action-07",
+      "modern_source": "admin/changeDestination.xhtml",
+      "modern_target": "/cargo-tracker/admin/changeDestination.xhtml?trackingId={cargo}",
+      "modern_method": "GET"
+    },
+    {
+      "legacy_id": "ACTION-10",
+      "capability_id": "behavior-action-10",
+      "modern_source": "admin/listClaimed.xhtml",
+      "modern_target": "/cargo-tracker/admin/show.xhtml?trackingId={cargo}",
+      "modern_method": "GET"
+    },
+    {
+      "legacy_id": "ACTION-11",
+      "capability_id": "behavior-action-11",
+      "modern_source": "admin/listNotRouted.xhtml",
+      "modern_target": "/cargo-tracker/admin/route.xhtml?trackingId={cargo}",
+      "modern_method": "GET"
+    },
+    {
+      "legacy_id": "ACTION-12",
+      "capability_id": "behavior-action-12",
+      "modern_source": "admin/listNotRouted.xhtml",
+      "modern_target": "/cargo-tracker/admin/changeDestination.xhtml?trackingId={cargo}",
+      "modern_method": "GET"
+    },
+    {
+      "legacy_id": "ACTION-13",
+      "capability_id": "behavior-action-13",
+      "modern_source": "admin/changeDestination.xhtml",
+      "modern_target": "/cargo-tracker/admin/show.xhtml?trackingId={cargo}",
+      "modern_method": "GET"
+    },
+    {
+      "legacy_id": "ACTION-15",
+      "capability_id": "behavior-action-15",
+      "modern_source": "admin/route.xhtml",
+      "modern_target": "/cargo-tracker/admin/route.xhtml?trackingId={cargo}",
+      "modern_method": "GET"
+    },
+    {
+      "legacy_id": "ACTION-16",
+      "capability_id": "behavior-action-16",
+      "modern_source": "admin/route.xhtml",
+      "modern_target": "/cargo-tracker/admin/route.xhtml?trackingId={cargo}",
+      "modern_method": "GET"
+    },
+    {
+      "legacy_id": "ACTION-18",
+      "capability_id": "behavior-action-18",
+      "modern_source": "admin/selectItinerary.xhtml",
+      "modern_target": "/cargo-tracker/admin/route.xhtml?trackingId={cargo}",
+      "modern_method": "GET"
+    },
+    {
+      "legacy_id": "ACTION-20",
+      "capability_id": "behavior-action-20",
+      "modern_source": "admin/show.xhtml",
+      "modern_target": "/cargo-tracker/admin/show.xhtml?trackingId={cargo}",
+      "modern_method": "GET"
+    },
+    {
+      "legacy_id": "ACTION-21",
+      "capability_id": "behavior-action-21",
+      "modern_source": "admin/show.xhtml",
+      "modern_target": "/cargo-tracker/admin/route.xhtml?trackingId={cargo}",
+      "modern_method": "GET"
+    },
+    {
+      "legacy_id": "ACTION-22",
+      "capability_id": "behavior-action-22",
+      "modern_source": "admin/show.xhtml",
+      "modern_target": "/cargo-tracker/admin/route.xhtml?trackingId={cargo}",
+      "modern_method": "GET"
+    },
+    {
+      "legacy_id": "ACTION-24",
+      "capability_id": "behavior-action-24",
+      "modern_source": "admin/track.xhtml",
+      "modern_target": "/cargo-tracker/admin/track.xhtml",
+      "modern_method": "POST"
+    },
+    {
+      "legacy_id": "ACTION-25",
+      "capability_id": "behavior-action-25",
+      "modern_source": "admin/live.xhtml",
+      "modern_target": "/cargo-tracker/admin/show.xhtml?trackingId={cargo}",
+      "modern_method": "GET"
+    },
+    {
+      "legacy_id": "ACTION-45",
+      "capability_id": "behavior-action-45",
+      "modern_source": "public/track.xhtml",
+      "modern_target": "/cargo-tracker/admin/track.xhtml",
+      "modern_method": "POST"
+    }
+  ],
+  "replacement_capabilities": [
+    {
+      "id": "cancel-editor",
+      "legacy_ids": [
+        "ACTION-08"
+      ],
+      "allowed_roles": [
+        "Operator",
+        "Administrator"
+      ],
+      "anonymous": false,
+      "modern_method": "GET",
+      "requirement": "Leave destination editing without applying a change.",
+      "driver": "pending"
+    },
+    {
+      "id": "tracking-discovery",
+      "legacy_ids": [
+        "ACTION-23",
+        "ACTION-44"
+      ],
+      "allowed_roles": [
+        "Reader",
+        "Operator",
+        "Administrator"
+      ],
+      "anonymous": false,
+      "modern_method": "POST",
+      "requirement": "Authorized cargo discovery and valid/invalid typed tracking lookup.",
+      "driver": "pending"
+    },
+    {
+      "id": "booking-deadline",
+      "legacy_ids": [
+        "ACTION-26",
+        "ACTION-32"
+      ],
+      "allowed_roles": [
+        "Operator",
+        "Administrator"
+      ],
+      "anonymous": false,
+      "modern_method": "POST",
+      "requirement": "Strict deadline validation on the current booking form.",
+      "driver": "pending"
+    },
+    {
+      "id": "booking-single-page",
+      "legacy_ids": [
+        "ACTION-27",
+        "ACTION-30",
+        "ACTION-34"
+      ],
+      "allowed_roles": [
+        "Operator",
+        "Administrator"
+      ],
+      "anonymous": false,
+      "modern_method": "POST",
+      "requirement": "Origin/destination/deadline entry on one current booking page.",
+      "driver": "pending"
+    },
+    {
+      "id": "booking-cancel",
+      "legacy_ids": [
+        "ACTION-28",
+        "ACTION-31",
+        "ACTION-33"
+      ],
+      "allowed_roles": [
+        "Operator",
+        "Administrator"
+      ],
+      "anonymous": false,
+      "modern_method": "GET",
+      "requirement": "Leave booking without creating a cargo.",
+      "driver": "pending"
+    },
+    {
+      "id": "handling-single-page",
+      "legacy_ids": [
+        "ACTION-35",
+        "ACTION-40",
+        "ACTION-43"
+      ],
+      "allowed_roles": [
+        "Operator",
+        "Administrator"
+      ],
+      "anonymous": false,
+      "modern_method": "GET",
+      "requirement": "Authorized single-page handling entry and editing.",
+      "driver": "pending"
+    },
+    {
+      "id": "handling-cargo-voyage",
+      "legacy_ids": [
+        "ACTION-36"
+      ],
+      "allowed_roles": [
+        "Operator",
+        "Administrator"
+      ],
+      "anonymous": false,
+      "modern_method": "POST",
+      "requirement": "Valid selected cargo and available known-voyage choices; LOAD/UNLOAD requirements.",
+      "driver": "pending"
+    },
+    {
+      "id": "handling-location",
+      "legacy_ids": [
+        "ACTION-37"
+      ],
+      "allowed_roles": [
+        "Operator",
+        "Administrator"
+      ],
+      "anonymous": false,
+      "modern_method": "POST",
+      "requirement": "Valid required location selection.",
+      "driver": "pending"
+    },
+    {
+      "id": "handling-event",
+      "legacy_ids": [
+        "ACTION-38"
+      ],
+      "allowed_roles": [
+        "Operator",
+        "Administrator"
+      ],
+      "anonymous": false,
+      "modern_method": "POST",
+      "requirement": "Event validation, LOAD/UNLOAD voyage requirement and non-load voyage clearing.",
+      "driver": "pending"
+    },
+    {
+      "id": "handling-voyage",
+      "legacy_ids": [
+        "ACTION-39"
+      ],
+      "allowed_roles": [
+        "Operator",
+        "Administrator"
+      ],
+      "anonymous": false,
+      "modern_method": "POST",
+      "requirement": "Known-voyage validation, LOAD/UNLOAD requirements and non-load voyage clearing.",
+      "driver": "pending"
+    },
+    {
+      "id": "handling-completion",
+      "legacy_ids": [
+        "ACTION-42"
+      ],
+      "allowed_roles": [
+        "Operator",
+        "Administrator"
+      ],
+      "anonymous": false,
+      "modern_method": "POST",
+      "requirement": "Strict completion-time validation.",
+      "driver": "pending"
+    }
+  ],
+  "retirement_candidates": [
+    {
+      "legacy_id": "ACTION-08",
+      "replacement_id": "cancel-editor",
+      "status": "candidate",
+      "required_evidence": [
+        "replacement-per-actor",
+        "specific-negative-entry",
+        "native-role-session",
+        "no-protected-payload",
+        "required-independent-effects",
+        "independent-review"
+      ],
+      "negative_driver": "pending"
+    },
+    {
+      "legacy_id": "ACTION-23",
+      "replacement_id": "tracking-discovery",
+      "status": "candidate",
+      "required_evidence": [
+        "replacement-per-actor",
+        "specific-negative-entry",
+        "native-role-session",
+        "no-protected-payload",
+        "required-independent-effects",
+        "independent-review"
+      ],
+      "negative_driver": "pending"
+    },
+    {
+      "legacy_id": "ACTION-44",
+      "replacement_id": "tracking-discovery",
+      "status": "candidate",
+      "required_evidence": [
+        "replacement-per-actor",
+        "specific-negative-entry",
+        "native-role-session",
+        "no-protected-payload",
+        "required-independent-effects",
+        "independent-review"
+      ],
+      "negative_driver": "pending"
+    },
+    {
+      "legacy_id": "ACTION-26",
+      "replacement_id": "booking-deadline",
+      "status": "candidate",
+      "required_evidence": [
+        "replacement-per-actor",
+        "specific-negative-entry",
+        "native-role-session",
+        "no-protected-payload",
+        "required-independent-effects",
+        "independent-review"
+      ],
+      "negative_driver": "pending"
+    },
+    {
+      "legacy_id": "ACTION-32",
+      "replacement_id": "booking-deadline",
+      "status": "candidate",
+      "required_evidence": [
+        "replacement-per-actor",
+        "specific-negative-entry",
+        "native-role-session",
+        "no-protected-payload",
+        "required-independent-effects",
+        "independent-review"
+      ],
+      "negative_driver": "pending"
+    },
+    {
+      "legacy_id": "ACTION-27",
+      "replacement_id": "booking-single-page",
+      "status": "candidate",
+      "required_evidence": [
+        "replacement-per-actor",
+        "specific-negative-entry",
+        "native-role-session",
+        "no-protected-payload",
+        "required-independent-effects",
+        "independent-review"
+      ],
+      "negative_driver": "pending"
+    },
+    {
+      "legacy_id": "ACTION-30",
+      "replacement_id": "booking-single-page",
+      "status": "candidate",
+      "required_evidence": [
+        "replacement-per-actor",
+        "specific-negative-entry",
+        "native-role-session",
+        "no-protected-payload",
+        "required-independent-effects",
+        "independent-review"
+      ],
+      "negative_driver": "pending"
+    },
+    {
+      "legacy_id": "ACTION-34",
+      "replacement_id": "booking-single-page",
+      "status": "candidate",
+      "required_evidence": [
+        "replacement-per-actor",
+        "specific-negative-entry",
+        "native-role-session",
+        "no-protected-payload",
+        "required-independent-effects",
+        "independent-review"
+      ],
+      "negative_driver": "pending"
+    },
+    {
+      "legacy_id": "ACTION-28",
+      "replacement_id": "booking-cancel",
+      "status": "candidate",
+      "required_evidence": [
+        "replacement-per-actor",
+        "specific-negative-entry",
+        "native-role-session",
+        "no-protected-payload",
+        "required-independent-effects",
+        "independent-review"
+      ],
+      "negative_driver": "pending"
+    },
+    {
+      "legacy_id": "ACTION-31",
+      "replacement_id": "booking-cancel",
+      "status": "candidate",
+      "required_evidence": [
+        "replacement-per-actor",
+        "specific-negative-entry",
+        "native-role-session",
+        "no-protected-payload",
+        "required-independent-effects",
+        "independent-review"
+      ],
+      "negative_driver": "pending"
+    },
+    {
+      "legacy_id": "ACTION-33",
+      "replacement_id": "booking-cancel",
+      "status": "candidate",
+      "required_evidence": [
+        "replacement-per-actor",
+        "specific-negative-entry",
+        "native-role-session",
+        "no-protected-payload",
+        "required-independent-effects",
+        "independent-review"
+      ],
+      "negative_driver": "pending"
+    },
+    {
+      "legacy_id": "ACTION-35",
+      "replacement_id": "handling-single-page",
+      "status": "candidate",
+      "required_evidence": [
+        "replacement-per-actor",
+        "specific-negative-entry",
+        "native-role-session",
+        "no-protected-payload",
+        "required-independent-effects",
+        "independent-review"
+      ],
+      "negative_driver": "pending"
+    },
+    {
+      "legacy_id": "ACTION-40",
+      "replacement_id": "handling-single-page",
+      "status": "candidate",
+      "required_evidence": [
+        "replacement-per-actor",
+        "specific-negative-entry",
+        "native-role-session",
+        "no-protected-payload",
+        "required-independent-effects",
+        "independent-review"
+      ],
+      "negative_driver": "pending"
+    },
+    {
+      "legacy_id": "ACTION-43",
+      "replacement_id": "handling-single-page",
+      "status": "candidate",
+      "required_evidence": [
+        "replacement-per-actor",
+        "specific-negative-entry",
+        "native-role-session",
+        "no-protected-payload",
+        "required-independent-effects",
+        "independent-review"
+      ],
+      "negative_driver": "pending"
+    },
+    {
+      "legacy_id": "ACTION-36",
+      "replacement_id": "handling-cargo-voyage",
+      "status": "candidate",
+      "required_evidence": [
+        "replacement-per-actor",
+        "specific-negative-entry",
+        "native-role-session",
+        "no-protected-payload",
+        "required-independent-effects",
+        "independent-review"
+      ],
+      "negative_driver": "pending"
+    },
+    {
+      "legacy_id": "ACTION-37",
+      "replacement_id": "handling-location",
+      "status": "candidate",
+      "required_evidence": [
+        "replacement-per-actor",
+        "specific-negative-entry",
+        "native-role-session",
+        "no-protected-payload",
+        "required-independent-effects",
+        "independent-review"
+      ],
+      "negative_driver": "pending"
+    },
+    {
+      "legacy_id": "ACTION-38",
+      "replacement_id": "handling-event",
+      "status": "candidate",
+      "required_evidence": [
+        "replacement-per-actor",
+        "specific-negative-entry",
+        "native-role-session",
+        "no-protected-payload",
+        "required-independent-effects",
+        "independent-review"
+      ],
+      "negative_driver": "pending"
+    },
+    {
+      "legacy_id": "ACTION-39",
+      "replacement_id": "handling-voyage",
+      "status": "candidate",
+      "required_evidence": [
+        "replacement-per-actor",
+        "specific-negative-entry",
+        "native-role-session",
+        "no-protected-payload",
+        "required-independent-effects",
+        "independent-review"
+      ],
+      "negative_driver": "pending"
+    },
+    {
+      "legacy_id": "ACTION-42",
+      "replacement_id": "handling-completion",
+      "status": "candidate",
+      "required_evidence": [
+        "replacement-per-actor",
+        "specific-negative-entry",
+        "native-role-session",
+        "no-protected-payload",
+        "required-independent-effects",
+        "independent-review"
+      ],
+      "negative_driver": "pending"
+    }
+  ],
+  "retirement_policy": "Never PASS; remain BLOCKED until replacement, specific negative-entry and independent-review evidence have a supported fresh runtime verifier."
+}

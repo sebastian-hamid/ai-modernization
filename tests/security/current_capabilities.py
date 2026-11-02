@@ -1,0 +1,200 @@
+"""Versioned current-capability contracts; historical definitions remain untouched."""
+from pathlib import Path
+from copy import deepcopy
+from collections import Counter
+import hashlib,json,subprocess,re
+from urllib.parse import urlsplit,parse_qs,parse_qsl
+from generate_cases import ROOT,build
+from contracts import UnsupportedCase,run_cases,exit_code
+import run_candidate_contracts as legacy
+MANIFEST=ROOT/"specifications/current-capability-mapping-v2.json"
+INVENTORY=ROOT/"specifications/access-policy-inventory.json"
+ACTORS=["anonymous","Reader","Operator","Administrator"]
+USERS={"Reader":"reader","Operator":"operator","Administrator":"admin"}
+
+# Version-2 approval boundary: changes require explicit policy/code review.
+APPROVED_INVENTORY_SHA256="fdde15304f5629fa356d4ac9f0462ac7d89b21c65b87c1e841680d23746303ea"
+APPROVED_MAPPED=frozenset("ACTION-"+i for i in ["01","02","03","04","05","06","09","14","17","19","29","41"])
+APPROVED_PENDING=frozenset("ACTION-"+i for i in ["07","10","11","12","13","15","16","18","20","21","22","24","25","45"])
+APPROVED_GROUPS={'cancel-editor': {'legacy_ids': ['ACTION-08'], 'modern_method': 'GET', 'requirement': 'Leave destination editing without applying a change.'}, 'tracking-discovery': {'legacy_ids': ['ACTION-23', 'ACTION-44'], 'modern_method': 'POST', 'requirement': 'Authorized cargo discovery and valid/invalid typed tracking lookup.'}, 'booking-deadline': {'legacy_ids': ['ACTION-26', 'ACTION-32'], 'modern_method': 'POST', 'requirement': 'Strict deadline validation on the current booking form.'}, 'booking-single-page': {'legacy_ids': ['ACTION-27', 'ACTION-30', 'ACTION-34'], 'modern_method': 'POST', 'requirement': 'Origin/destination/deadline entry on one current booking page.'}, 'booking-cancel': {'legacy_ids': ['ACTION-28', 'ACTION-31', 'ACTION-33'], 'modern_method': 'GET', 'requirement': 'Leave booking without creating a cargo.'}, 'handling-single-page': {'legacy_ids': ['ACTION-35', 'ACTION-40', 'ACTION-43'], 'modern_method': 'GET', 'requirement': 'Authorized single-page handling entry and editing.'}, 'handling-cargo-voyage': {'legacy_ids': ['ACTION-36'], 'modern_method': 'POST', 'requirement': 'Valid selected cargo and available known-voyage choices; LOAD/UNLOAD requirements.'}, 'handling-location': {'legacy_ids': ['ACTION-37'], 'modern_method': 'POST', 'requirement': 'Valid required location selection.'}, 'handling-event': {'legacy_ids': ['ACTION-38'], 'modern_method': 'POST', 'requirement': 'Event validation, LOAD/UNLOAD voyage requirement and non-load voyage clearing.'}, 'handling-voyage': {'legacy_ids': ['ACTION-39'], 'modern_method': 'POST', 'requirement': 'Known-voyage validation, LOAD/UNLOAD requirements and non-load voyage clearing.'}, 'handling-completion': {'legacy_ids': ['ACTION-42'], 'modern_method': 'POST', 'requirement': 'Strict completion-time validation.'}}
+APPROVED_RETIREMENT_POLICY='Never PASS; remain BLOCKED until replacement, specific negative-entry and independent-review evidence have a supported fresh runtime verifier.'
+APPROVED_RETIREMENT_GROUP={ident:group for group,row in APPROVED_GROUPS.items() for ident in row["legacy_ids"]}
+SCOPED_SOURCES={"/cargo-tracker/admin/show.xhtml","/cargo-tracker/admin/changeDestination.xhtml","/cargo-tracker/admin/route.xhtml","/cargo-tracker/admin/selectItinerary.xhtml"}
+
+def local_uri(value):
+    """Normalize context-relative proof metadata without discarding semantic query."""
+    if not isinstance(value,str) or not value:raise UnsupportedCase()
+    parsed=urlsplit(value)
+    path=parsed.path if parsed.path.startswith("/") else "/cargo-tracker/"+parsed.path
+    if parsed.scheme or parsed.netloc or parsed.fragment or not path.startswith("/cargo-tracker/") or chr(92) in path or any(x in path for x in ["..","%",";","//"]):raise UnsupportedCase()
+    try:pairs=parse_qsl(parsed.query,keep_blank_values=True,strict_parsing=True)
+    except ValueError:raise UnsupportedCase()
+    keys=[key for key,value in pairs]
+    if len(keys)!=len(set(keys)) or set(keys)-{"trackingId","jfwid"} or any(not value for key,value in pairs):raise UnsupportedCase()
+    return path,dict(pairs)
+
+def verify_action_proof(case,observation):
+    tracking=observation.get("tracking_id")
+    if "{cargo}" in case["path"] and re.fullmatch("[A-Z0-9]{8}",str(tracking)) is None:raise UnsupportedCase()
+    target=case["path"].replace("{cargo}",str(tracking))
+    target_path,target_query=local_uri(target)
+    if case["method"]=="POST":
+        if observation.get("action_method")!="POST" or observation.get("action_path")!=target or observation.get("source_entry_verified") is not True:raise UnsupportedCase()
+        source=observation.get("entry_page") or observation.get("source_page")
+    else:
+        keys=observation.get("query_keys")
+        if observation.get("driver") not in {"click","direct"} or observation.get("action_executed") is not True or observation.get("target_origin_verified") is not True or observation.get("actual_target_path")!=target_path:raise UnsupportedCase()
+        if not isinstance(keys,list) or any(not isinstance(k,str) for k in keys) or len(keys)!=len(set(keys)) or set(keys)-set(target_query)-{"jfwid"} or set(keys)-{"jfwid"}!=set(target_query):raise UnsupportedCase()
+        if tracking!=target_query.get("trackingId"):raise UnsupportedCase()
+        source=observation.get("source_page")
+    expected_path,expected_query=local_uri(case["current_source"])
+    if expected_path in SCOPED_SOURCES and "trackingId" not in expected_query and "trackingId" in target_query:
+        expected_query["trackingId"]=target_query["trackingId"]
+    source_path,source_query=local_uri(source)
+    source_query.pop("jfwid",None)
+    if source_path!=expected_path or source_query!=expected_query:raise UnsupportedCase()
+
+
+def load_model():
+    raw=INVENTORY.read_bytes();inventory=json.loads(raw);model=json.loads(MANIFEST.read_text())
+    validate_model(model,inventory,hashlib.sha256(raw).hexdigest())
+    return model,inventory
+
+def validate_model(model,inventory,inventory_hash):
+    if set(model)!={"schema_version","approval_record","approved_proposal_sha256","legacy_inventory_sha256","mapped_actions","pending_current_actions","replacement_capabilities","retirement_candidates","retirement_policy"}:raise ValueError("Unknown or missing model field")
+    if model.get("schema_version")!=2 or model.get("legacy_inventory_sha256")!=inventory_hash:raise ValueError("Unknown version or inventory drift")
+    if model.get("approval_record")!="notes/decisions/2026-11-02-current-ui-acceptance.md" or model.get("approved_proposal_sha256")!="710b00d37001276e8bd60d806f9fe21ea66a39b7b47ae465122ca78da931da5a":raise ValueError("Unbound approval")
+    if inventory_hash!=APPROVED_INVENTORY_SHA256:raise ValueError("Approved inventory changed")
+    if {r["legacy_id"] for r in model["mapped_actions"]}!=APPROVED_MAPPED or {r["legacy_id"] for r in model["pending_current_actions"]}!=APPROVED_PENDING or {r["legacy_id"] for r in model["retirement_candidates"]}!=set(APPROVED_RETIREMENT_GROUP):raise ValueError("Approved mapping partition changed")
+    if model["retirement_policy"]!=APPROVED_RETIREMENT_POLICY:raise ValueError("Approved retirement policy changed")
+    if {r["id"] for r in model["replacement_capabilities"]}!=set(APPROVED_GROUPS):raise ValueError("Approved replacement groups changed")
+    for row in model["replacement_capabilities"]:
+        approved=APPROVED_GROUPS[row["id"]]
+        if row.get("legacy_ids")!=approved["legacy_ids"] or row.get("modern_method")!=approved["modern_method"] or row.get("requirement")!=approved["requirement"]:raise ValueError("Approved replacement requirements changed")
+    for row in model["retirement_candidates"]:
+        if row.get("replacement_id")!=APPROVED_RETIREMENT_GROUP[row["legacy_id"]]:raise ValueError("Approved retirement membership changed")
+    callbacks={r["id"]:r for r in inventory["view_callbacks"]}
+    actions=model.get("mapped_actions",[])+model.get("pending_current_actions",[])
+    retire=model.get("retirement_candidates",[])
+    identifiers=[r["legacy_id"] for r in actions+retire]
+    if len(identifiers)!=len(set(identifiers)) or set(identifiers)!=set(callbacks):raise ValueError("Missing duplicate or unknown callback mapping")
+    capids=[r["capability_id"] for r in actions]
+    groups=model.get("replacement_capabilities",[]);group_ids=[r["id"] for r in groups]
+    if len(capids)!=len(set(capids)) or len(group_ids)!=len(set(group_ids)) or set(capids)&set(group_ids):raise ValueError("Duplicate capability")
+    group_map={r["id"]:r for r in groups};used=[]
+    for row in actions:
+        if set(row)!={"legacy_id","capability_id","modern_source","modern_target","modern_method"}:raise ValueError("Unknown or missing mapping field")
+        target=urlsplit(row["modern_target"]);query=parse_qs(target.query,keep_blank_values=True)
+        if row.get("modern_method") not in {"GET","POST"} or target.scheme or target.netloc or target.fragment or not target.path.startswith("/cargo-tracker/") or any(x in target.path for x in ["..","%","\\\\",";","//"]) or set(query)-{"trackingId"} or any(len(v)!=1 or not v[0] for v in query.values()):raise ValueError("Unsafe current target")
+        try:
+            source_path,source_query=local_uri(row["modern_source"])
+            if set(source_query)-{"trackingId"}:raise UnsupportedCase()
+        except UnsupportedCase:raise ValueError("Unsafe current source")
+        if callbacks[row["legacy_id"]]["domain_mutation"] and row["modern_method"]!="POST":raise ValueError("Mutation transport weakened")
+    for row in retire:
+        if set(row)!={"legacy_id","replacement_id","status","required_evidence","negative_driver"}:raise ValueError("Unknown or missing retirement field")
+        old=callbacks[row["legacy_id"]];group=group_map.get(row.get("replacement_id"))
+        if old["domain_mutation"] or row.get("status")!="candidate" or row.get("negative_driver")!="pending" or group is None or row["legacy_id"] not in group.get("legacy_ids",[]):raise ValueError("Premature or unbound retirement")
+        if set(row.get("required_evidence",[]))!={"replacement-per-actor","specific-negative-entry","native-role-session","no-protected-payload","required-independent-effects","independent-review"}:raise ValueError("Retirement evidence weakened")
+        used.append(row["legacy_id"])
+    declared=[]
+    for group in groups:
+        if set(group)!={"id","legacy_ids","allowed_roles","anonymous","modern_method","requirement","driver"}:raise ValueError("Unknown or missing replacement field")
+        if group.get("driver")!="pending" or group.get("modern_method") not in {"GET","POST"} or not group.get("requirement") or not group.get("legacy_ids"):raise ValueError("Unsupported replacement driver")
+        for ident in group["legacy_ids"]:
+            old=callbacks.get(ident)
+            if old is None or old["domain_mutation"] or old["allowed_roles"]!=group.get("allowed_roles") or old["anonymous"]!=group.get("anonymous"):raise ValueError("Replacement policy drift")
+            declared.append(ident)
+    if len(declared)!=len(set(declared)) or set(declared)!=set(used):raise ValueError("Incomplete replacement traceability")
+
+def build_current(model,inventory):
+    mapped={r["legacy_id"]:r for r in model["mapped_actions"]}
+    pending={r["legacy_id"]:r for r in model["pending_current_actions"]}
+    retired={r["legacy_id"] for r in model["retirement_candidates"]}
+    cases=[]
+    for old in build(inventory):
+        if old["surface_id"] in retired:continue
+        row=mapped.get(old["surface_id"]) or pending.get(old["surface_id"])
+        case=deepcopy(old)
+        case.update(id="CURRENT::"+old["id"],contract_version=2,kind="current",legacy_case_id=old["id"],legacy_contract=deepcopy(old),capability_id=row["capability_id"] if row else old["surface_id"].lower(),binding_status="pending" if old["surface_id"] in pending else "existing-runtime-driver")
+        if row:
+            source="index.xhtml" if old["actor"]=="anonymous" and old["expected"]=="deny" and row["modern_method"]=="GET" else row["modern_source"]
+            case.update(path=row["modern_target"],method=row["modern_method"],current_source=source)
+        cases.append(case)
+    for group in model["replacement_capabilities"]:
+        for actor in ACTORS:
+            allowed=group["anonymous"] if actor=="anonymous" else actor in group["allowed_roles"]
+            cases.append({"id":"REPLACEMENT::"+group["id"]+"::"+actor,"contract_version":2,"kind":"replacement","capability_id":group["id"],"channel":"capability","actor":actor,"expected":"allow" if allowed else "deny","write":False,"method":group["modern_method"],"semantic_requirement":group["requirement"],"requires_specific_driver":True,"legacy_ids":deepcopy(group["legacy_ids"])})
+    if len({c["id"] for c in cases})!=len(cases):raise ValueError("Duplicate current case")
+    return cases
+
+def source_fingerprint():
+    paths=subprocess.check_output(["git","ls-files","-co","--exclude-standard","--","candidate","tests/candidate-runtime","tests/browser-workflows","tests/security","specifications/access-policy-inventory.json","specifications/current-capability-mapping-v2.json","notes/decisions/2026-11-02-current-ui-acceptance.md"],cwd=ROOT,text=True).splitlines()
+    digest=hashlib.sha256()
+    for name in sorted(set(paths)):
+        path=ROOT/name
+        if path.is_file():digest.update(name.encode()+b"\0"+hashlib.sha256(path.read_bytes()).digest())
+    return digest.hexdigest()
+
+class CurrentAdapter:
+    def __init__(self,live=False):
+        # Snapshot before loading definitions so the cache and receipt share one baseline.
+        before=source_fingerprint() if live else None
+        self.model,self.inventory=load_model()
+        self.contracts={c["id"]:deepcopy(c) for c in build_current(self.model,self.inventory)}
+        self.legacy_contracts=deepcopy(build(self.inventory))
+        self._retirement_model=deepcopy(self.model)
+        definitions={"current":list(self.contracts.values()),"legacy":self.legacy_contracts,"retirements":self._retirement_model["retirement_candidates"]}
+        self._contracts_fingerprint=hashlib.sha256(json.dumps(definitions,sort_keys=True,separators=(",",":")).encode()).hexdigest()
+        self.provenance=None;self.legacy=None;self._run_fingerprint=None
+        if live:
+            if source_fingerprint()!=before:raise RuntimeError("Inputs changed while loading canonical contracts")
+            self.legacy=legacy.LiveSubsetCandidate()
+            if source_fingerprint()!=before:raise RuntimeError("Runtime or contract inputs changed during fixture")
+            self._run_fingerprint=before
+            self.provenance={"kind":"fresh-owned-runtime","inputs_fingerprint":before,"canonical_contracts_sha256":self._contracts_fingerprint,"legacy_fixture_cleanup_verified":True,"imported_code_attested":False,"fingerprint_scope":"On-disk inputs and constructed canonical contracts; already imported Python code identity is not attested."}
+    def execute(self,case):
+        canonical=self.contracts.get(case.get("id"))
+        if canonical is None or canonical!=case:raise UnsupportedCase()
+        if case["kind"]!="current" or case.get("binding_status")!="existing-runtime-driver" or self.legacy is None or self.provenance is None:raise UnsupportedCase()
+        if not isinstance(self.provenance,dict) or self.provenance.get("kind")!="fresh-owned-runtime" or self.provenance.get("legacy_fixture_cleanup_verified") is not True or self.provenance.get("inputs_fingerprint")!=self._run_fingerprint or re.fullmatch("[0-9a-f]{64}",str(self._run_fingerprint)) is None:raise UnsupportedCase()
+        observation=deepcopy(self.legacy.execute(deepcopy(canonical["legacy_contract"])))
+        actor=case["actor"]
+        if actor in USERS:
+            identity=observation.get("identity",{})
+            if identity.get("server_verified") is not True or identity.get("principal")!=USERS[actor] or identity.get("roles")!=[actor]:raise UnsupportedCase()
+        elif actor=="anonymous":
+            if observation.get("identity") is not None:raise UnsupportedCase()
+        elif actor=="routing-service":
+            identity=observation.get("native_identity",{})
+            if identity.get("principal")!="routing" or identity.get("roles")!=["RoutingService"] or observation.get("machine_identity_verified") is not True or observation.get("machine_scope")!=case.get("required_machine_scope"):raise UnsupportedCase()
+        else:raise UnsupportedCase()
+        if canonical["legacy_contract"]["channel"]=="action" or canonical["legacy_contract"].get("original_channel")=="action":
+            verify_action_proof(case,observation)
+        observation["current_provenance"]=deepcopy(self.provenance)
+        return observation
+    def execute_retirement(self,case,replacement_results):
+        # No specific fresh negative-entry/review verifier exists yet.
+        # Even a fabricated all-PASS replacement summary cannot retire anything.
+        raise UnsupportedCase()
+
+def retirement_results(model,adapter,current_results):
+    results=[]
+    for row in model["retirement_candidates"]:
+        for actor in ACTORS:
+            case={"id":"RETIREMENT::"+row["legacy_id"]+"::"+actor,"legacy_id":row["legacy_id"],"actor":actor,"replacement_case_id":"REPLACEMENT::"+row["replacement_id"]+"::"+actor}
+            try:
+                adapter.execute_retirement(case,current_results)
+                raise RuntimeError("No supported retirement verifier")
+            except UnsupportedCase:
+                results.append({"case":case["id"],"legacy_case_id":row["legacy_id"]+"::"+actor+"::active","replacement_case_id":case["replacement_case_id"],"outcome":"BLOCKED","reason":"Replacement and specific fresh negative-entry/review verifier pending; not RETIRED or PASS"})
+    return results
+
+def report(live=False):
+    adapter=CurrentAdapter(live=live)
+    cases=deepcopy(list(adapter.contracts.values()))
+    current=run_cases(cases,adapter);retirements=retirement_results(adapter._retirement_model,adapter,current)
+    audit=run_cases(deepcopy(adapter.legacy_contracts),adapter.legacy if live else legacy.PendingCandidate())
+    status=exit_code(current)
+    if status==0 and any(r["outcome"]!="RETIRED" for r in retirements):status=2
+    return {"schema_version":2,"execution":"fresh-owned-runtime" if live else "not executed","current_counts":dict(Counter(r["outcome"] for r in current)),"current_results":current,"retirement_counts":dict(Counter(r["outcome"] for r in retirements)),"retirement_results":retirements,"legacy_audit":{"total":len(audit),"counts":dict(Counter(r["outcome"] for r in audit)),"results":audit},"gate_exit":status,"provenance":adapter.provenance}

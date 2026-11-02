@@ -1,0 +1,49 @@
+{
+  "task": "KAN-15 current-capability gate review corrections",
+  "author": "/root",
+  "reviewer": "/root/review_current_capability_gate",
+  "base": "e3cb96bfcd85ad3ab9f644bca271a34814e12d8a",
+  "status": "Corrected locally; no remaining material finding identified in supplied static correction scope; full verification/publication pending",
+  "corrections": [
+    {
+      "finding": "P1 complete GET cargo/query/source evidence binding",
+      "response": "Exact semantic trackingId query and source checks, ambiguity/unknown-key rejection, POST source evidence required; missing proof blocks."
+    },
+    {
+      "finding": "P2 approved mapping/retirement boundary",
+      "response": "Pinned12mapped/14pending/19retirement ID partition,11groups/memberships/methods/requirements, inventory hash and retirement policy."
+    },
+    {
+      "finding": "P2 definition-load provenance race",
+      "response": "Fingerprint before load, after canonical cache before fixture and after fixture; immutable report snapshots and canonical-contract digest. Imported Python code explicitly not attested."
+    }
+  ],
+  "author_verification": {
+    "first_regression_run": "10 failing counterexample subcases before P1/P2 fix",
+    "first_corrected_security_tests": 51,
+    "provenance_regression_run": "2 failing tests before snapshot/cache fix; mock fixture incorrectly launched and report count changed",
+    "final_security_tests": 54,
+    "final_result": "PASS",
+    "git_diff_check": "PASS",
+    "new_live_fixture_run": false
+  },
+  "review_limits": [
+    "Correction review used supplied text only.",
+    "No independent filesystem/hash verification or test execution.",
+    "Original JSON bytes not independently inspected.",
+    "Reviewer explicitly did not provide runtime or publication approval."
+  ],
+  "source_sha256": {
+    "specifications/current-capability-mapping-v2.json": "0964e3b55c8059a0f73cb68f51982cc1e0811055473c9d567a3695ec862ad7b1",
+    "tests/security/current_capabilities.py": "c9978d374e8f9ceaf7d82afc9bc76e95ebba4641bc0c1bbdcdb6b54dfd563d95",
+    "tests/security/run_current_capabilities.py": "440aa077e5644512e6de00542c04f537eab285411cde782a9a0a757b79b46af1",
+    "tests/security/test_current_capabilities.py": "738c8d27bbb40377e768b02ef83f1f1c61d99fd2ff300926153c01ba26315b07"
+  },
+  "publication": "User explicitly requested a local checkpoint commit on 2026-11-02 after disclosure of review limits. Push and full verification remain pending.",
+  "remaining": [
+    "Restore independent execution verification when service availability permits, without retries/workarounds.",
+    "Review the complete current files and run appropriate live integration before publication.",
+    "Some legacy POST observations lack the new required source evidence and must remain BLOCKED until producer support and fresh evidence exist.",
+    "Retirement verifier remains unsupported; all76 retirement checks stay BLOCKED."
+  ]
+}

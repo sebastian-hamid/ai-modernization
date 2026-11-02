@@ -1,0 +1,47 @@
+{
+  "task": "KAN-15 current-capability gate scaffold",
+  "base": "e3cb96bfcd85ad3ab9f644bca271a34814e12d8a",
+  "author": "/root",
+  "reviewer": "/root/review_current_capability_gate",
+  "verdict": "Changes requested; no publication approval",
+  "review_mode": "Independent text-only static review of author-supplied Python sources and complete semantic construction of mapping JSON",
+  "verification_limits": [
+    "Reviewer read-only WSL command was rejected before execution by automatic approval review because usage limit was reached, not because the command was deemed unsafe.",
+    "No independent filesystem, original JSON byte/hash, or test execution verification.",
+    "47 passing security tests were author-reported, not independently rerun.",
+    "No fixtures, edits or publication performed by reviewer."
+  ],
+  "findings": [
+    {
+      "severity": "P1",
+      "file": "tests/security/current_capabilities.py",
+      "location": "CurrentAdapter.execute GET target binding",
+      "issue": "GET proof compares only pathname; a changed ACTION-14 trackingId can accept the original ABC123 evidence for a different declared cargo. modern_source is not bound to driver evidence.",
+      "correction": "Bind complete normalized target/query and explicit source semantics; reject unavailable/mismatched proof. Add wrong-cargo and wrong-source regressions."
+    },
+    {
+      "severity": "P2",
+      "file": "tests/security/current_capabilities.py",
+      "location": "validate_model mapping classification",
+      "issue": "Approved mapped/pending/retirement classifications and replacement memberships are not pinned; same-policy moves can change required coverage or mark unapproved actions eligible for retirement.",
+      "correction": "Enforce the approved versioned ID sets/group membership and driver eligibility; add unauthorized classification/membership change regressions."
+    }
+  ],
+  "nonblocking_observations": [
+    {
+      "location": "validate_model retirement_policy",
+      "issue": "Policy field value is unchecked; retirement is currently unconditionally blocked, so this does not itself promote retirement."
+    }
+  ],
+  "positive_observations": [
+    "Separate current/retirement/historical reporting retained.",
+    "Unsupported replacement and retirement execution stays blocked."
+  ],
+  "source_hash_provenance": "Author-supplied checkpoint hashes; not independently verified by reviewer",
+  "supplied_source_sha256": {
+    "specifications/current-capability-mapping-v2.json": "0964e3b55c8059a0f73cb68f51982cc1e0811055473c9d567a3695ec862ad7b1",
+    "tests/security/current_capabilities.py": "94cea972f171b1923e88d4c2c3a954abfa21bf116dfce3c99176448e03196a57",
+    "tests/security/run_current_capabilities.py": "440aa077e5644512e6de00542c04f537eab285411cde782a9a0a757b79b46af1",
+    "tests/security/test_current_capabilities.py": "475c58b4da7a8325a2546e8f2d14c2470aedeb4ef9abb5c363df0878942c8414"
+  }
+}
