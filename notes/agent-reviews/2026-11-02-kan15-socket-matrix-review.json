@@ -1,0 +1,40 @@
+{
+  "task": "KAN-15 structured socket bindings and window-scoped witness correction",
+  "reviewer": "/root/review_kan15_witness_fix",
+  "base": "f921e87da89158152fb472e3d122d61a3155bea7",
+  "verdict": "Approved bounded increment; no remaining material findings within scope. KAN-15 incomplete; long-lived transport issue excluded.",
+  "input_hashes_verified": 289,
+  "independently_executed_unit_tests": 54,
+  "application": 367,
+  "browser": 337,
+  "domain": 35,
+  "catalogue": {
+    "PASS": 256,
+    "BLOCKED": 246,
+    "native_exit": 2
+  },
+  "socket_proofs": 13,
+  "page_proofs": 6,
+  "reviewer_live_execution": false,
+  "diagnosis": "Original control closed1006 near90057ms while producer identity stayed valid; final frame wait reused an already closed connection. Underlying long-lived transport cause unconfirmed.",
+  "correction": "Fresh second-window witness uses same original native HTTP session, explicit saved-cookie producer, pre-data and bounded frame/location progression, then OPEN/new matching post-revocation event; target controls preserved.",
+  "remaining_findings_within_scope": [],
+  "excluded_open_work": [
+    "KAN-26 abrupt long-lived1006 closure investigation",
+    "246 unsupported action/internal-worker definitions and full KAN-15 completion",
+    "H2/Chromium scope and one inherited empty domain TODO"
+  ],
+  "evidence_sha256": {
+    "catalogue-results.json": "9a75a199dade0e434c92679c5c61d15065ead50d4e520233a8569351b990f6b3",
+    "application-results.json": "c29340975ee9dccb5b5d4d2e94b2e782eee88506708a24de7c70b578cdd3a9f4",
+    "validation.json": "a02807f422a8b5310a2c626f4da9be3dbdb1e0b14bc4d688c11bdbb3895821a4",
+    "diagnostic-failed-application-results.json": "9a0c04e691a46188f8e0ea0a91894c70728f11a3e026259385198bd04134a53b",
+    "witness-diagnosis.json": "2eb2737b83aa8c194b3ce4e71e970d184d5d4e2a984350abedeebd57db324741",
+    "browser-results.json": "ab50352103148df146de0e36a05789684ff6b33dee74a338405864912b50894b",
+    "failure-summary.json": "463b2ee8e8abe35263ec4673b156daca24bd4bfd9ed9955e5758aeb74735213f",
+    "failed-application-results.json": "dfcad9888274cc80b13453ab1e2187bf9cdacf4ec91f312bae3c5aadf6d7544a",
+    "diagnostic-failed-browser-results.json": "b6749deaa81b4a33d7055657f1a618a618b3a5b5664f1f95836a6ccd03616292",
+    "failed-browser-results.json": "4aa958699b3b6883798cb04be1cad3790d250d6d30504d630db9df224d23ad28",
+    "catalogue-exit.json": "63b7df8c1fa081a25c4f09a2b468ed516cb2ed96b8898679d812eb3bb261c520"
+  }
+}

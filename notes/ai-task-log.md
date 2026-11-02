@@ -191,3 +191,15 @@ Bound all25 inventoried page GETs with specific content/fixed aliases plus96 all
 Initial error-page semantic assertion failed; literal HTML replaced unnecessary Faces components and a fresh run verified it. Final367 runtime/272 browser/35domain PASS(one inherited emptyTODO),50 unit PASS. Actual catalogue243PASS/259BLOCKED, nativeexit2. Corrected preliminary page-lifecycle arithmetic to96, not94. Reviewer /root/review_kan15_all_pages independently verified287input hashes, all final reports/oracle counts and50unit checks; no remaining material findings for bounded publication.
 
 Task resources/private files removed; historicalHTTP200/source/Jenkins preserved. FullKAN15 incomplete:180actions,20action-session,7socket,6socket-session,46internal definitions remain. Publishing under standing authorization; no production deployment. Human effort/cost unavailable.
+
+## 1 November 2026 — KAN-15 socket extension stopped at task limit
+
+After published f921e87, attempted thirteen structured WS bindings.54author unit checks pass but fresh integrated execution FAILED at final authorized Admin witness frame wait after accepted trigger15. All extra triggers were accepted and worker counters show23registered/handled, but delivery cause remains unconfirmed. Socket extension remains uncommitted/unpushed; no final independent runtime approval, no verified256/246 result. Published243/259 remains authoritative. Failed artifacts and next diagnostics preserved in notes/evidence/kan-15-socket-matrix and notes/kan15-socket-handoff.md. All task resources/private files removed; pause for user input under30minute rule.
+
+## 2 November 2026 — KAN-15 witness diagnosis and structured socket bindings
+
+Sanitized trace proved the original control socket closed1006 near90,057ms after9frames while producer native identity remained valid; it was still open immediately after concurrent Admin logout. Getter bytecode inspection showed direct last-access delegation, not a cached HttpSessionImpl timestamp. No product root cause asserted or server behavior changed.
+
+Corrected test uses a fresh transport per independent observation window on the SAME verified Admin HTTP session; producer explicitly replays original saved cookie. It requires pre-revocation delivery, bounded idle-window frame/location progression and OPEN/new matching post-revocation event. Target logout/expiry, old-cookie denial and no-new-frame controls remain. Long-lived1006 availability remains open under existing KAN-26.
+
+Final367 application/337browser/35reported domain PASS(one inherited emptyTODO),54unit PASS; thirteen socket cases bound, catalogue256PASS/246BLOCKED, nativeexit2. Reviewer /root/review_kan15_witness_fix independently inspected289hashes/finalreports/oracle counts, ran54units and approved bounded increment with no remaining material findings; no reviewer liveDocker run. All task resources/private files removed; historicalHTTP200/source/Jenkins preserved. FullKAN15 incomplete. Publication under standing authorization; no production deployment. Human effort/cost unavailable.

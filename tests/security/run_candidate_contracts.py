@@ -29,6 +29,8 @@ class LiveSubsetCandidate:
 
 def bound_contracts():
     paths={
+        "WS-01":("/cargo-tracker/tracking","HTTP Upgrade / send / close"),
+        "WS-ORIGIN":("/cargo-tracker/tracking","HTTP Upgrade / send / close"),
         "API-01":("/cargo-tracker/rest/cargo","GET/HEAD"),
         "API-02":("/cargo-tracker/rest/handling/reports","POST"),
         "API-03":("/cargo-tracker/rest/graph-traversal/shortest-path","GET"),

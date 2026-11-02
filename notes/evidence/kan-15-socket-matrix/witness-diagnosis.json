@@ -1,0 +1,15 @@
+{
+  "witness_close_age_ms": 90057,
+  "close_code": 1006,
+  "close_reason": "",
+  "last_frame_count": 9,
+  "before_extra_admin_logout_open": true,
+  "immediately_after_extra_admin_logout_open": true,
+  "producer_native_identity_checks_passed": true,
+  "conclusion": "Original witness closed abnormally near90seconds; later event wait reused a closed connection. No product root-cause assertion.",
+  "http_listener_timeout_attributes": [
+    {
+      "name": "default"
+    }
+  ]
+}

@@ -20,6 +20,28 @@ def promote_live_pages(report,results):
     for observation in validated:observation.update({"supported":True,"semantic_success":True,"browser_semantics_verified":True})
     report["browser_page_proofs"]=proofs
 
+def promote_socket_cases(report,results):
+    proofs=results.get("socket_observations",{})
+    expected={"WS-01::anonymous::active":("anonymous","active")}
+    for role in ["Reader","Operator","Administrator"]:
+        for state in ["active","logged_out","expired"]:expected["WS-01::"+role+"::"+state]=(role,state)
+        expected["WS-ORIGIN::"+role+"::active"]=(role,"origin")
+    if set(proofs)!=set(expected):raise AssertionError("Missing or unexpected socket observation")
+    users={"Reader":"reader","Operator":"operator","Administrator":"admin"}
+    for case,(role,state) in expected.items():
+        proof=proofs[case]
+        if proof.get("supported") is not True:raise AssertionError("Unsupported socket observation")
+        if role!="anonymous":
+            identity=proof.get("identity",{})
+            if identity.get("server_verified") is not True or identity.get("principal")!=users[role] or role not in identity.get("roles",[]):raise AssertionError("Invalid native socket identity")
+        if state=="active" and role!="anonymous":
+            if proof.get("status")!=101 or proof.get("socket_open_observed") is not True or proof.get("semantic_success") is not True or proof.get("authorized_frame_received") is not True:raise AssertionError("Missing actual socket delivery")
+        else:
+            if proof.get("status")!=(403 if state=="origin" else 401) or proof.get("upgraded") is not False or proof.get("protected_payload_absent") is not True:raise AssertionError("Invalid socket denial")
+            if state in {"logged_out","expired"} and not (proof.get("authenticated_before_revocation") is True and proof.get("revocation_verified") is True and proof.get("existing_socket_closed") is True and proof.get("post_revocation_frame_received") is False and proof.get("stale_cookie_replay_verified") is True):raise AssertionError("Incomplete socket revocation evidence")
+    report["access_observations"].update(proofs)
+    report["socket_contract_observations"]=proofs
+
 def main():
     WORK.mkdir(parents=True,exist_ok=True)
     name="ai-modernization-kan19-browser"
@@ -35,7 +57,7 @@ def main():
             subprocess.run(["docker","network","connect",network,container],check=True,capture_output=True)
             bid=subprocess.check_output(["docker","create","--name",name,"--init","--network",network,"--shm-size=512m","--tmpfs","/run:rw,noexec,nosuid,size=1m","--tmpfs","/out:rw,noexec,nosuid,size=8m","-i","ai-modernization-kan19:browser","sleep","infinity"],text=True).strip()
             subprocess.run(["docker","start",bid],check=True,capture_output=True)
-            proc=subprocess.run(["docker","exec","-i",bid,"bash","-c","umask 077; cat > /run/credentials.json; node workflows.cjs"],input=json.dumps({"base":"http://"+app.NAME+":8080/cargo-tracker/","credentials":credentials}),text=True,stdout=subprocess.PIPE,stderr=subprocess.STDOUT,timeout=240)
+            proc=subprocess.run(["docker","exec","-i",bid,"bash","-c","umask 077; cat > /run/credentials.json; node workflows.cjs"],input=json.dumps({"base":"http://"+app.NAME+":8080/cargo-tracker/","credentials":credentials}),text=True,stdout=subprocess.PIPE,stderr=subprocess.STDOUT,timeout=300)
             # Store raw diagnostics privately; never publish browser HTML/traces/session dumps.
             (WORK/"browser.log").write_text(proc.stdout)
             (WORK/"results.json").write_text(subprocess.check_output(["docker","exec",bid,"cat","/out/results.json"],text=True))
@@ -43,6 +65,7 @@ def main():
             report["browser_checks"]={"count":len(results["checks"]),"passed":all(c["passed"] for c in results["checks"])}
             if proc.returncode or not report["browser_checks"]["passed"]:raise AssertionError("Real browser workflow failed; inspect sanitized .work/kan19/results.json")
             promote_live_pages(report,results)
+            promote_socket_cases(report,results)
         finally:
             cleanup=[]
             if bid:

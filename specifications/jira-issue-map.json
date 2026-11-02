@@ -94,8 +94,8 @@
       "title": "[SEC-03] Implement local identities and authorization on candidate surfaces",
       "parent": "KAN-5",
       "last_verified_status": "In Progress",
-      "evidence": "notes/evidence/kan-15-all-pages/validation.json",
-      "remaining_blocker": "243 HTTP page/session/API/private bindings;259 unsupported action/socket/internal-worker definitions"
+      "evidence": "notes/evidence/kan-15-socket-matrix/validation.json",
+      "remaining_blocker": "256 bound HTTP/API/private/socket definitions;246 action/internal-worker definitions unsupported; KAN-26 long-lived transport availability investigation open"
     },
     "BUG-01": {
       "key": "KAN-16",

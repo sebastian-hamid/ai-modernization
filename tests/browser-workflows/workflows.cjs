@@ -1,12 +1,18 @@
-const {chromium}=require("playwright");
+const {chromium,request:requestFactory}=require("playwright");
 const fs=require("fs");
 const cfg=JSON.parse(fs.readFileSync("/run/credentials.json","utf8"));
 const base=cfg.base;
-const checks=[];const failures=[];const pageSemantics={};let stage="initialize";let navigation=null;
+const checks=[];const failures=[];const pageSemantics={};const socketObservations={};const socketTrace=[];let witnessForDiagnostics=null;let stage="initialize";let navigation=null;
 function check(name,ok){stage=name;checks.push({name,passed:!!ok});if(!ok)throw new Error(name);}
+async function traceSocket(label,actor){
+ if(!actor)return;
+ const state=await actor.page.evaluate(()=>({readyState:window.liveSocket?.readyState,closed:window.socketClosed,frameCount:window.framesReceived?.length,lastFrameLocation:window.framesReceived?.at(-1)?.lastKnownLocationCode,openedAt:window.socketOpenedAt,close:window.socketCloseInfo??null}));
+ socketTrace.push({label,role:actor.who,at:Date.now(),...state});
+}
 (async()=>{
- const browser=await chromium.launch({headless:true});
+ const browser=await chromium.launch({headless:true});let replayClient;
  try {
+  replayClient=await requestFactory.newContext();
   const anon=await browser.newContext();const ap=await anon.newPage();
   await ap.goto(base+"admin/dashboard.xhtml");
   check("Anonymous page goes to login",ap.url().endsWith("/login"));
@@ -316,22 +322,40 @@ function check(name,ok){stage=name;checks.push({name,passed:!!ok});if(!ok)throw 
   check("Cargo details fit mobile viewport",await operator.page.evaluate(()=>document.documentElement.scrollWidth<=window.innerWidth));
   const malicious=await ap.request.get(base+"jakarta.faces.resource/core.js.xhtml?ln=primefaces&pfdrid=forged");
   check("Dynamic resource bypass denied",malicious.status()===404);
+  const roles={reader:"Reader",operator:"Operator",admin:"Administrator"};
+  const noSocketPayload=body=>!["trackingId","ABC123","DEF789","transportStatus","originName"].some(marker=>body.includes(marker));
+  const nativeIdentity=actor=>({server_verified:true,principal:actor.identity.principal,roles:actor.identity.roles});
+  async function saveSocketCookie(actor){
+   const cookie=(await actor.context.cookies(base)).find(c=>c.name==="JSESSIONID");
+   check("Saved native socket cookie "+actor.who,!!cookie);return "JSESSIONID="+cookie.value;
+  }
+  async function revokedSocket(actor,state,closed,noFrames){
+   const identity=await replayClient.get(base+"session",{headers:{Cookie:actor.savedCookie}});
+   check("Saved socket cookie identity revoked "+actor.who+" "+state,identity.status()===401);
+   const denial=await replayClient.get(base+"tracking?connection="+require("crypto").randomUUID(),{headers:{...wsHeaders,Cookie:actor.savedCookie}});
+   const absent=noSocketPayload(await denial.text());
+   check("Saved cookie upgrade denied "+actor.who+" "+state,denial.status()===401&&absent);
+   check("Closed socket receives no post-revocation frame "+actor.who+" "+state,closed&&noFrames);
+   return {supported:true,status:denial.status(),upgraded:false,protected_payload_absent:absent,identity:nativeIdentity(actor),authenticated_before_revocation:true,revocation_verified:true,existing_socket_closed:closed,post_revocation_frame_received:!noFrames,stale_cookie_replay_verified:true};
+  }
   const wsHeaders={"Upgrade":"websocket","Connection":"Upgrade","Sec-WebSocket-Version":"13","Sec-WebSocket-Key":Buffer.from("0123456789abcdef").toString("base64"),"Origin":new URL(base).origin};
-  let denied=await ap.request.get(base+"tracking?connection="+require("crypto").randomUUID(),{headers:wsHeaders});
+  let denied=await replayClient.get(base+"tracking?connection="+require("crypto").randomUUID(),{headers:wsHeaders});
   check("Anonymous upgrade is HTTP401",denied.status()===401);
+  socketObservations["WS-01::anonymous::active"]={supported:true,status:denied.status(),upgraded:false,protected_payload_absent:noSocketPayload(await denied.text())};
   const sockets={};const livePages={};
   let snapshotReadyResolve,releaseSnapshot;
   const snapshotReady=new Promise(resolve=>snapshotReadyResolve=resolve);
   const snapshotRelease=new Promise(resolve=>releaseSnapshot=resolve);
   for(const who of ["reader","operator","admin"]){
-   sockets[who]=await login(who);
+   sockets[who]=await login(who);if(who==="admin")witnessForDiagnostics=sockets[who];sockets[who].savedCookie=await saveSocketCookie(sockets[who]);
    const bad=await sockets[who].context.request.get(base+"tracking?connection="+require("crypto").randomUUID(),{headers:{...wsHeaders,Origin:"https://untrusted.example"}});
    check("Authenticated wrong-origin upgrade denied "+who,bad.status()===403);
+   socketObservations["WS-ORIGIN::"+roles[who]+"::active"]={supported:true,status:bad.status(),upgraded:false,protected_payload_absent:noSocketPayload(await bad.text()),identity:nativeIdentity(sockets[who])};
    await sockets[who].page.evaluate(url=>{
-    window.framesReceived=[];window.socketClosed=false;
+    window.framesReceived=[];window.socketClosed=false;window.socketOpenedAt=Date.now();window.socketCloseInfo=null;
     window.liveSocket=new WebSocket(url);
     window.liveSocket.onmessage=e=>window.framesReceived.push(JSON.parse(e.data));
-    window.liveSocket.onclose=()=>window.socketClosed=true;
+    window.liveSocket.onclose=e=>{window.socketClosed=true;window.socketCloseInfo={code:e.code,reason:e.reason,at:Date.now()};};
    },base.replace("http:","ws:")+"tracking?connection="+require("crypto").randomUUID());
    await sockets[who].page.waitForFunction(()=>window.liveSocket.readyState===WebSocket.OPEN);
    check("Authorized upgrade "+who,true);
@@ -348,14 +372,18 @@ function check(name,ok){stage=name;checks.push({name,passed:!!ok});if(!ok)throw 
    check("Live UI has geographic marker "+who,await livePages[who].locator('#live-markers a[aria-label^="ABC123 "]').count()===1);
   }
   async function trigger(sequence){
-   const csrf=(await (await sockets.admin.context.request.get(base+"session")).json()).csrf;
-   const response=await sockets.admin.context.request.post(base+"rest/handling/reports",{headers:{"X-CSRF-Token":csrf},data:{trackingId:"DEF789",eventType:"CUSTOMS",unLocode:sequence===8?"USNYC":sequence%2===1?"SESTO":"FIHEL",completionTime:"2031-01-"+String(sequence).padStart(2,"0")+" 10:00"}});
+   const producer=await (await replayClient.get(base+"session",{headers:{Cookie:sockets.admin.savedCookie}})).json();
+   check("Producer native identity "+sequence,producer.principal==="admin"&&producer.roles.includes("Administrator"));
+   const csrf=producer.csrf;await traceSocket("before-trigger-"+sequence,witnessForDiagnostics);
+   const response=await replayClient.post(base+"rest/handling/reports",{headers:{Cookie:sockets.admin.savedCookie,"X-CSRF-Token":csrf},data:{trackingId:"DEF789",eventType:"CUSTOMS",unLocode:sequence===8?"USNYC":sequence%2===1?"SESTO":"FIHEL",completionTime:"2031-01-"+String(sequence).padStart(2,"0")+" 10:00"}});
    check("Actual handling trigger "+sequence,response.status()===204);
+   await traceSocket("after-trigger-"+sequence,witnessForDiagnostics);
   }
   await trigger(1);
   for(const who of ["reader","operator","admin"]){
    await sockets[who].page.waitForFunction(()=>window.framesReceived.some(e=>e.trackingId==="DEF789"));
    check("Actual authorized data frame "+who,true);
+   socketObservations["WS-01::"+roles[who]+"::active"]={supported:true,status:101,semantic_success:true,authorized_frame_received:true,identity:nativeIdentity(sockets[who]),socket_open_observed:true};
    check("Legacy socket fields remain names "+who,await sockets[who].page.evaluate(()=>window.framesReceived.find(e=>e.trackingId==="DEF789").origin==="Hong Kong"));
    await livePages[who].locator('tr[data-tracking-id="DEF789"]').getByText("Stockholm",{exact:true}).waitFor();
    check("Actual live UI update "+who,true);
@@ -375,6 +403,7 @@ function check(name,ok){stage=name;checks.push({name,passed:!!ok});if(!ok)throw 
   await trigger(2);
   await sockets.admin.page.waitForFunction(()=>window.framesReceived.length>=2);
   check("No new data after logout",await sockets.reader.page.evaluate(()=>window.framesReceived.length)===readerCount);
+  socketObservations["WS-01::Reader::logged_out"]=await revokedSocket(sockets.reader,"logged_out",await sockets.reader.page.evaluate(()=>window.socketClosed),await sockets.reader.page.evaluate(()=>window.framesReceived.length)===readerCount);
   // No HTTP requests refresh the Operator session; socket traffic must not keep it alive.
   for(let i=0;i<5;i++){await sockets.admin.page.waitForTimeout(15000);await trigger(3+i);}
   await sockets.operator.page.waitForFunction(()=>window.socketClosed);
@@ -387,7 +416,66 @@ function check(name,ok){stage=name;checks.push({name,passed:!!ok});if(!ok)throw 
   check("Post-expiry event reaches authorized UI",true);
   check("Revoked UI remains empty",await livePages.reader.locator("#live-cargos tbody tr").count()===0 && await livePages.operator.locator("#live-cargos tbody tr").count()===0);
   check("No new data after idle expiry",await sockets.operator.page.evaluate(()=>window.framesReceived.length)===expiredCount);
+  socketObservations["WS-01::Operator::expired"]=await revokedSocket(sockets.operator,"expired",await sockets.operator.page.evaluate(()=>window.socketClosed),await sockets.operator.page.evaluate(()=>window.framesReceived.length)===expiredCount);
+  // Each independent observation window starts with a live positive control.
+  // Do not reuse a transport that may have closed during the preceding window.
+  await sockets.admin.page.evaluate(()=>window.liveSocket.close());
+  await sockets.admin.page.waitForFunction(()=>window.socketClosed);
+  check("First-window witness closed deliberately",true);
+  const secondWitnessPage=await sockets.admin.context.newPage();
+  await secondWitnessPage.goto(base+"session");
+  const secondIdentity=JSON.parse(await secondWitnessPage.textContent("body"));
+  check("Second-window witness native identity",secondIdentity.principal==="admin"&&secondIdentity.roles.includes("Administrator"));
+  check("Second-window witness preserves original native session",(await saveSocketCookie(sockets.admin))===sockets.admin.savedCookie);
+  const secondWitness={...sockets.admin,page:secondWitnessPage,identity:secondIdentity};
+  witnessForDiagnostics=secondWitness;
+  await secondWitness.page.evaluate(url=>{
+   window.framesReceived=[];window.socketClosed=false;window.socketOpenedAt=Date.now();window.socketCloseInfo=null;
+   window.liveSocket=new WebSocket(url);window.liveSocket.onmessage=e=>window.framesReceived.push(JSON.parse(e.data));
+   window.liveSocket.onclose=e=>{window.socketClosed=true;window.socketCloseInfo={code:e.code,reason:e.reason,at:Date.now()};};
+  },base.replace("http:","ws:")+"tracking?connection="+require("crypto").randomUUID());
+  await secondWitness.page.waitForFunction(()=>window.liveSocket.readyState===WebSocket.OPEN);
+  check("Second-window witness socket opened",true);
+  const extraTargets=[];
+  for(const [who,state] of [["reader","expired"],["operator","logged_out"],["admin","logged_out"],["admin","expired"]]){
+   const actor=await login(who);actor.state=state;actor.savedCookie=await saveSocketCookie(actor);
+   await actor.page.evaluate(url=>{
+    window.framesReceived=[];window.socketClosed=false;window.socketOpenedAt=Date.now();window.socketCloseInfo=null;window.liveSocket=new WebSocket(url);
+    window.liveSocket.onmessage=e=>window.framesReceived.push(JSON.parse(e.data));
+    window.liveSocket.onclose=e=>{window.socketClosed=true;window.socketCloseInfo={code:e.code,reason:e.reason,at:Date.now()};};
+   },base.replace("http:","ws:")+"tracking?connection="+require("crypto").randomUUID());
+   await actor.page.waitForFunction(()=>window.liveSocket.readyState===WebSocket.OPEN);extraTargets.push(actor);
+  }
+  await trigger(9);
+  await secondWitness.page.waitForFunction(()=>window.framesReceived.some(e=>e.trackingId==="DEF789"));
+  check("Second-window witness delivered pre-revocation data",true);
+  for(const actor of extraTargets){
+   await actor.page.waitForFunction(()=>window.framesReceived.some(e=>e.trackingId==="DEF789"));
+   check("Lifecycle socket delivered authorized frame "+actor.who+" "+actor.state,true);
+   if(actor.state==="logged_out"){
+    await traceSocket("before-extra-logout-"+actor.who,secondWitness);
+    const token=(await (await actor.context.request.get(base+"session")).json()).csrf;
+    check("Lifecycle real logout "+actor.who,(await actor.context.request.post(base+"logout",{headers:{"X-CSRF-Token":token},data:""})).status()===204);
+    await actor.page.waitForFunction(()=>window.socketClosed);actor.closedCount=await actor.page.evaluate(()=>window.framesReceived.length);
+    await traceSocket("after-extra-logout-"+actor.who,secondWitness);
+   }
+  }
+  // Remaining Reader/Admin sessions receive only WS traffic, never HTTP keepalive.
+  for(let index=0;index<5;index++){await secondWitness.page.waitForTimeout(15000);await trigger(10+index);}
+  for(const actor of extraTargets){
+   await actor.page.waitForFunction(()=>window.socketClosed);
+   if(actor.state==="expired")actor.closedCount=await actor.page.evaluate(()=>window.framesReceived.length);
+  }
+  await secondWitness.page.waitForFunction(()=>window.framesReceived.filter(e=>e.trackingId==="DEF789").length>=6&&window.framesReceived.at(-1).lastKnownLocationCode==="FIHEL");
+  check("Second-window witness received last idle-window event",true);
+  const witnessCount=await secondWitness.page.evaluate(()=>window.framesReceived.length);
+  await trigger(15);await secondWitness.page.waitForFunction(n=>window.liveSocket.readyState===WebSocket.OPEN&&window.framesReceived.length>n&&window.framesReceived.at(-1).lastKnownLocationCode==="SESTO",witnessCount);
+  check("Fresh authorized witness receives post-revocation event",true);
+  for(const actor of extraTargets){
+   const noFrames=await actor.page.evaluate(()=>window.framesReceived.length)===actor.closedCount;
+   socketObservations["WS-01::"+roles[actor.who]+"::"+actor.state]=await revokedSocket(actor,actor.state,await actor.page.evaluate(()=>window.socketClosed),noFrames);
+  }
   check("No page or asset errors",failures.length===0);
- } catch(error){checks.push({name:stage+" failed ("+error.name+")",outcome:"FAIL",passed:false});process.exitCode=1;}
- finally{await browser.close();fs.writeFileSync("/out/results.json",JSON.stringify({scope:"Real Chromium cargo read/booking/destination/routing/live/handling workflows",checks,last_navigation:navigation,resource_errors:failures,page_semantics:pageSemantics},null,2)+"\n");}
+ } catch(error){try{await traceSocket("failure",witnessForDiagnostics);}catch(ignored){}checks.push({name:stage+" failed ("+error.name+")",outcome:"FAIL",passed:false});process.exitCode=1;}
+ finally{if(replayClient)await replayClient.dispose();await browser.close();fs.writeFileSync("/out/results.json",JSON.stringify({scope:"Real Chromium cargo read/booking/destination/routing/live/handling workflows",checks,last_navigation:navigation,resource_errors:failures,page_semantics:pageSemantics,socket_observations:socketObservations,socket_diagnostics:socketTrace},null,2)+"\n");}
 })();

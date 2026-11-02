@@ -1,0 +1,43 @@
+{
+  "task": "KAN-15 socket continuation",
+  "status": "FAILED; uncommitted/unpushed; full review pending",
+  "last_published_commit": "f921e87da89158152fb472e3d122d61a3155bea7",
+  "runtime_checks": 367,
+  "runtime_status": "FAIL",
+  "browser_checks": 302,
+  "last_browser_checks": [
+    {
+      "name": "Actual handling trigger 14",
+      "passed": true
+    },
+    {
+      "name": "Actual handling trigger 15",
+      "passed": true
+    },
+    {
+      "name": "Actual handling trigger 15 failed (TimeoutError)",
+      "outcome": "FAIL",
+      "passed": false
+    }
+  ],
+  "socket_observations_written": 9,
+  "new_catalogue_result_available": false,
+  "last_published_catalogue": {
+    "PASS": 243,
+    "BLOCKED": 259
+  },
+  "author_unit_tests": 54,
+  "app_removed": true,
+  "private_files_removed": true,
+  "browser_cleanup": {
+    "container_removed": true,
+    "network_removed": true,
+    "errors": []
+  },
+  "sanitized_worker_counts": {
+    "registered_handling_events": 23,
+    "cargo_was_handled": 23,
+    "processing_message_errors": 0
+  },
+  "next": "Inspect witness readyState/close reason/time and session binding/last-access before/after concurrent Admin logout and second expiry window. Do not weaken frame assertion or mark256 cases PASS."
+}
