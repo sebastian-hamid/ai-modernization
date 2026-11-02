@@ -10,7 +10,7 @@ KAN-26 is Done at febde7a4de7294ec6ff0d714cdd11e175b2ac341. The candidate protoc
 
 Work in WSL Ubuntu-24.04 at /home/yasinrdp/projects/ai-modernization. Read AGENTS.md and docs/agent-review-workflow.md. Synced sources and experiments/legacy-cargotracker are read-only. Preserve shared ai-modernization-cargotracker, ai-modernization-jenkins and ai-modernization-baseline-agent containers. Fixtures own only their candidate/browser containers, private network and generated realm files.
 
-Use a separate reviewer agent before publication. After independent approval and required checks, commit and push under standing authorization. Keep the same task timer across increments: stop by 30 minutes, record exact state and wait for user input; do not reset an incomplete ticket's timer through sub-increments.
+Use a separate reviewer agent before publication. After independent approval and required checks, commit and push under standing authorization. The user superseded the blanket 30-minute cutoff on 2 November 2026. Use an independent progress monitor under docs/progress-monitoring.md; continue while measurable progress is being made, pause loops/stalled steps and retain bounded commands/retries. No new task window approval is required merely because 30 minutes elapsed.
 
 The full fresh gate is:
 
