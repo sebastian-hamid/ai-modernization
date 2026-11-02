@@ -1,0 +1,28 @@
+{
+  "task": "KAN-15",
+  "revision": "7186ab98a719c197c8052c568b1d2e75c575516f",
+  "date": "2026-11-02",
+  "reviewer": "/root/review_current_capability_gate",
+  "scope": "All six checkpoint files; independent original-file inspection, hashes and security unit tests; no live fixture execution by reviewer.",
+  "verdict": "No remaining material findings for scaffold and unit-test scope",
+  "checks": {
+    "security_tests": 54,
+    "security_result": "PASS",
+    "git_diff_check": "PASS",
+    "worktree_at_review": "clean",
+    "historical_files": "unchanged"
+  },
+  "resolved": [
+    "GET target/query/source binding",
+    "Approved mapping and retirement boundary",
+    "Definition-load provenance race"
+  ],
+  "remaining": [
+    "Fresh v2 integration evidence pending",
+    "Missing source metadata must stay BLOCKED",
+    "Pending current and replacement behaviors unsupported",
+    "All 76 retirement checks unsupported/BLOCKED",
+    "Imported Python code identity explicitly unattested"
+  ],
+  "supersedes": "The filesystem/hash/test access limitation in earlier static review records is resolved for revision 7186ab9; historical records preserve the earlier limited scope."
+}

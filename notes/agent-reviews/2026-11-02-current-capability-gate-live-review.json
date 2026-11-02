@@ -1,0 +1,22 @@
+{
+  "task": "KAN-15 first v2 live gate",
+  "reviewer": "/root/review_current_capability_gate",
+  "revision": "7186ab98a719c197c8052c568b1d2e75c575516f",
+  "verdict": "No unjustified result promotion; all replayed arrays match",
+  "checks": [
+    "Independently replayed existing observations without launching a duplicate fixture",
+    "Current308PASS162BLOCKED; legacy324PASS178BLOCKED all502 retained; retirement76BLOCKED",
+    "Native565/browser431 checks PASS; recorded cleanup flags true and errors empty",
+    "Exactly16 additional blocks are ACTION09/ACTION29 lacking source evidence",
+    "Disk input and canonical contract fingerprints match provenance"
+  ],
+  "limits": [
+    "Cleanup verified through recorded evidence, not independently observed during execution",
+    "Full acceptance incomplete",
+    "Imported code identity unattested"
+  ],
+  "evidence_sha256": {
+    ".work/kan15-current-capabilities/first-live-results.json": "2e0bf56ab8b1b3edf2566009ec5603c160ba138faf0f03b24ca27e7012f99389",
+    ".work/kan18/results.json": "a3a529ab0dd6086d171ca1f4994436e9078ad4b460394a11901a5786f6317d9a"
+  }
+}
