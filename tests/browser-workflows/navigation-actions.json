@@ -93,5 +93,21 @@
       "Administrator"
     ],
     "anonymous": true
+  },
+  {
+    "id": "ACTION-14",
+    "page_id": "PAGE-08",
+    "callback": "show.xhtml?faces-redirect=true",
+    "target": "admin/show.xhtml?trackingId=ABC123",
+    "label": "ABC123",
+    "heading": "Cargo details",
+    "kind": "routed-detail",
+    "source_page": "admin/listRouted.xhtml",
+    "allowed_roles": [
+      "Reader",
+      "Operator",
+      "Administrator"
+    ],
+    "anonymous": false
   }
 ]

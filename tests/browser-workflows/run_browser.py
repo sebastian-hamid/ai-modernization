@@ -46,15 +46,17 @@ def promote_navigation_actions(report,results):
     mapping=json.loads((ROOT/"tests/browser-workflows/navigation-actions.json").read_text())
     expected={row["id"]+"::"+role+"::active":(row,role) for row in mapping for role in ["anonymous","Reader","Operator","Administrator"]}
     proofs=results.get("navigation_actions",{})
-    if len(mapping)!=6 or len(expected)!=24 or set(proofs)!=set(expected):raise AssertionError("Missing or unexpected navigation action proof")
+    if len(mapping)!=7 or len(expected)!=28 or set(proofs)!=set(expected):raise AssertionError("Missing or unexpected navigation action proof")
     users={"Reader":"reader","Operator":"operator","Administrator":"admin"}
     for key,(row,role) in expected.items():
         proof=proofs[key];allowed=row["anonymous"] if role=="anonymous" else role in row["allowed_roles"]
         source="index.xhtml" if role=="anonymous" and not row["anonymous"] else row["source_page"]
-        direct=not allowed and (row["id"] in {"ACTION-02","ACTION-05"})
+        direct=not allowed and (row["id"] in {"ACTION-02","ACTION-05","ACTION-14"})
         if not (proof.get("supported") is True and proof.get("action_executed") is True and proof.get("target")==row["target"] and proof.get("source_page")==source and proof.get("driver")==("direct" if direct else "click")):raise AssertionError("Invalid navigation action driver")
         keys=proof.get("query_keys")
-        if proof.get("target_origin_verified") is not True or proof.get("actual_target_path")!="/cargo-tracker/"+row["target"] or keys not in [[],["jfwid"]]:raise AssertionError("Unexpected navigation response URL")
+        detail=row["kind"]=="routed-detail"
+        allowed_keys=[["trackingId"],["jfwid","trackingId"]] if detail else [[],["jfwid"]]
+        if proof.get("target_origin_verified") is not True or proof.get("actual_target_path")!="/cargo-tracker/"+row["target"].split("?")[0] or not isinstance(keys,list) or sorted(keys) not in allowed_keys or proof.get("tracking_id")!=("ABC123" if detail else None):raise AssertionError("Unexpected navigation response URL")
         if direct and proof.get("control_hidden") is not True:raise AssertionError("Forbidden navigation control was exposed")
         if role!="anonymous":
             identity=proof.get("identity",{})
@@ -63,6 +65,7 @@ def promote_navigation_actions(report,results):
             if proof.get("status")!=200 or proof.get("semantic_success") is not True:raise AssertionError("Missing navigation destination semantics")
             if row["kind"] in {"list","live"} and proof.get("cargo_observed")!="ABC123":raise AssertionError("Missing actual cargo after navigation")
             if row["kind"]=="live" and proof.get("socket_live") is not True:raise AssertionError("Missing live navigation transport")
+            if detail and not (proof.get("cargo_observed")=="ABC123" and proof.get("routing_status")=="ROUTED" and proof.get("transport_status") in {"NOT_RECEIVED","IN_PORT","ONBOARD_CARRIER"}):raise AssertionError("Missing routed-list details")
             if row["kind"] in {"booking","lookup"} and proof.get("form_observed") is not True:raise AssertionError("Missing navigation form")
             if role=="anonymous" and proof.get("protected_payload_absent") is not True:raise AssertionError("Public navigation leakage unchecked")
         elif proof.get("status")!=(303 if role=="anonymous" else 403) or proof.get("protected_payload_absent") is not True or role=="anonymous" and proof.get("redirect_is_configured_login") is not True:raise AssertionError("Invalid navigation denial")

@@ -80,3 +80,7 @@ The disposable candidate passed 367 application / 348 browser checks and 35 repo
 ## Access coverage update — 2 November 2026 (KAN-15)
 
 Six modern navigation mappings now have24active-actor proofs. Fresh367application/417browser/35reported domain cases PASS(one inherited emptyTODO),60toolingchecksPASS. Catalogue280PASS/222BLOCKED, full KAN-15 incomplete. See [navigation action matrix](../docs/candidate/navigation-action-matrix.md). Task resources/private files removed; original host setup claims are not rerun by this increment.
+
+## Latest access checkpoint — 2 November 2026 (KAN-15 routed details)
+
+ACTION-14 adds four verified routed-list detail cases: native roles click the exact cargo link and verify its ID/routing/transport status; anonymous direct access denies before data disclosure. Fresh367application/431browser/35reported domain cases PASS(one inherited emptyTODO),61toolingchecksPASS. Current catalogue284PASS/218BLOCKED, full KAN-15 incomplete. Task cleanup passed; see [action handoff](kan15-action-handoff.md) for remaining effect-observer and callback-method gaps.

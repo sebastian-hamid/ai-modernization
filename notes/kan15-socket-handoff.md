@@ -1,3 +1,7 @@
+# Current action coverage — 2 November 2026
+
+KAN-15 now has284PASS/218BLOCKED desired contracts, with seven navigation mappings/28active actor proofs. KAN-26 is Done; the earlier socket investigation below is historical. Continue with [the action handoff](kan15-action-handoff.md), which records write-effect observer and callback-method mapping gaps. No full security acceptance is claimed.
+
 # KAN-26 update — 2 November 2026
 
 The earlier 90-second availability symptom is addressed in the candidate by protocol PING/PONG without HTTP keepalive. Before: code1006 at90,055ms; after: original transport OPEN at152,127ms with15actual cargo events. Reset isolation, unrelated cargo persistence, normal1000response and all-role logout/expiry passed. Independent review approved. See [regression and limits](../docs/candidate/disconnect-regression.md). KAN-15 remains incomplete at256PASS/246BLOCKED; the historical investigation below is retained.

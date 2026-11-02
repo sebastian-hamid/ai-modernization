@@ -83,8 +83,9 @@ async function traceSocket(label,actor){
   }
   function navigationTarget(url,target){
    const parsed=new URL(url);const expected=new URL(base+target);const keys=[...parsed.searchParams.keys()];
-   return parsed.origin===expected.origin&&parsed.pathname===expected.pathname&&
-    (keys.length===0||(keys.length===1&&keys[0]==="jfwid"&&parsed.searchParams.get("jfwid").length>0));
+   if(parsed.origin!==expected.origin||parsed.pathname!==expected.pathname||new Set(keys).size!==keys.length)return false;
+   for(const [key,value] of expected.searchParams)if(parsed.searchParams.getAll(key).length!==1||parsed.searchParams.get(key)!==value)return false;
+   return keys.every(key=>expected.searchParams.has(key)||(key==="jfwid"&&parsed.searchParams.get(key).length>0));
   }
   async function navigationProofs(actor){
    const who=actor?actor.who:"anonymous";const role=actor?{reader:"Reader",operator:"Operator",admin:"Administrator"}[who]:"anonymous";
@@ -110,16 +111,21 @@ async function traceSocket(label,actor){
      let first=response;
      while(first.request().redirectedFrom())first=await first.request().redirectedFrom().response();
      const original=new URL(first.url());
-     const proof={supported:true,status:first.status(),target:spec.target,source_page:source,driver,action_executed:true,control_hidden:!visible,target_origin_verified:original.origin===new URL(base).origin,actual_target_path:original.pathname,query_keys:[...original.searchParams.keys()]};
+     const proof={supported:true,status:first.status(),target:spec.target,source_page:source,driver,action_executed:true,control_hidden:!visible,target_origin_verified:original.origin===new URL(base).origin,actual_target_path:original.pathname,query_keys:[...original.searchParams.keys()],tracking_id:original.searchParams.get("trackingId")};
      if(actor)proof.identity={server_verified:true,principal:actor.identity.principal,roles:actor.identity.roles};
      if(allowed){
       await page.getByRole("heading",{name:spec.heading,exact:true}).waitFor();
-      check("Navigation destination "+spec.id+" "+role,new URL(page.url()).pathname==="/cargo-tracker/"+spec.target&&first.status()===200);
+      check("Navigation destination "+spec.id+" "+role,new URL(page.url()).pathname==="/cargo-tracker/"+spec.target.split("?")[0]&&first.status()===200);
       if(spec.kind==="live"){
        await page.locator("#live-status").getByText("Live",{exact:true}).waitFor();
        await page.locator('tr[data-tracking-id="ABC123"]').waitFor();proof.socket_live=true;proof.cargo_observed="ABC123";
       }else if(spec.kind==="list"){
        await page.getByRole("link",{name:"ABC123",exact:true}).waitFor();proof.cargo_observed="ABC123";
+      }else if(spec.kind==="routed-detail"){
+       proof.cargo_observed=await page.locator("#trackingId").textContent();
+       proof.routing_status=await page.locator("#routingStatus").textContent();
+       proof.transport_status=await page.locator("dt").filter({hasText:/^Status$/}).locator("xpath=following-sibling::dd[1]").textContent();
+       check("Routed list opens actual unclaimed cargo "+role,proof.cargo_observed==="ABC123"&&proof.routing_status==="ROUTED"&&["NOT_RECEIVED","IN_PORT","ONBOARD_CARRIER"].includes(proof.transport_status));
       }else if(spec.kind==="booking"){
        await page.getByLabel("Origin",{exact:true}).waitFor();await page.getByLabel("Destination",{exact:true}).waitFor();proof.form_observed=true;
       }else if(spec.kind==="lookup"){

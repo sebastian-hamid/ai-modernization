@@ -1,0 +1,32 @@
+{
+  "task": "KAN-15 routed-list detail action",
+  "base": "18098b8548e7ff1c65f233ead643a81fb9240724",
+  "author": "/root",
+  "reviewer": "/root/review_kan15_navigation_actions",
+  "date": "2026-11-02",
+  "verdict": "Approved bounded increment; no remaining material findings. Full KAN-15 incomplete.",
+  "input_hashes_verified": 318,
+  "independently_executed_unit_tests": 61,
+  "reviewer_live_fixture_execution": false,
+  "application": 367,
+  "browser": 431,
+  "domain_reported": 35,
+  "empty_legacy_todo": 1,
+  "navigation_proofs": 28,
+  "new_action_cases": 4,
+  "catalogue": {
+    "PASS": 284,
+    "BLOCKED": 218,
+    "native_exit": 2
+  },
+  "findings": [],
+  "checks": "Exact known cargo query and optional single jfwid checked; actual list click/details status, all318hashes/four evidence bytecopies, cleanup and docs/notes verified. Independent61units and diffcheck passed.",
+  "remaining": "152active actions(132read-only/20write),20write-action sessions,46internal/worker; write transport metadata and independent effects remain unbound.",
+  "evidence_sha256": {
+    "application-results.json": "d1a52570153beb53a6255d3848adde82701095d471301d7fdecd0ece749f80d7",
+    "browser-results.json": "3a7c9b09d6d505bbc5b386862c764c91cc748d42e4ab060016535bfa8e08dd40",
+    "catalogue-results.json": "7ca78c6b7fba265f12677007561bdacbf6ff3849d1e9ca88bfb35e3bfdd9bc13",
+    "unit-tests.json": "634c51c18ffe6e2c7f994a74365c94440c4fe26c96d10df90b3686aa16837cc9",
+    "validation.json": "ff70674838f0811b716f46a23786a7372d2a905dc7b8046f5e022aedd852782a"
+  }
+}

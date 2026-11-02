@@ -9,14 +9,14 @@ class NavigationProofTests(unittest.TestCase):
         for row in rows:
             for role,user in [("anonymous",None),("Reader","reader"),("Operator","operator"),("Administrator","admin")]:
                 allowed=row["anonymous"] if role=="anonymous" else role in row["allowed_roles"]
-                direct=not allowed and row["id"] in {"ACTION-02","ACTION-05"}
-                proof={"supported":True,"action_executed":True,"target_origin_verified":True,"actual_target_path":"/cargo-tracker/"+row["target"],"query_keys":["jfwid"],"target":row["target"],"source_page":"index.xhtml" if role=="anonymous" and not row["anonymous"] else row["source_page"],"driver":"direct" if direct else "click","control_hidden":direct,"status":200 if allowed else 303 if role=="anonymous" else 403,"semantic_success":allowed,"protected_payload_absent":True,"redirect_is_configured_login":not allowed and role=="anonymous","cargo_observed":"ABC123","socket_live":True,"form_observed":True}
+                direct=not allowed and row["id"] in {"ACTION-02","ACTION-05","ACTION-14"}
+                proof={"supported":True,"action_executed":True,"target_origin_verified":True,"actual_target_path":"/cargo-tracker/"+row["target"].split("?")[0],"query_keys":["trackingId","jfwid"] if row["kind"]=="routed-detail" else ["jfwid"],"tracking_id":"ABC123" if row["kind"]=="routed-detail" else None,"routing_status":"ROUTED","transport_status":"IN_PORT","target":row["target"],"source_page":"index.xhtml" if role=="anonymous" and not row["anonymous"] else row["source_page"],"driver":"direct" if direct else "click","control_hidden":direct,"status":200 if allowed else 303 if role=="anonymous" else 403,"semantic_success":allowed,"protected_payload_absent":True,"redirect_is_configured_login":not allowed and role=="anonymous","cargo_observed":"ABC123","socket_live":True,"form_observed":True}
                 if user:proof["identity"]={"server_verified":True,"principal":user,"roles":[role]}
                 proofs[row["id"]+"::"+role+"::active"]=proof
         return {"access_observations":{"existing":{"supported":True}}},{"navigation_actions":proofs}
-    def test_complete_native_actions_promote_all_twenty_four(self):
+    def test_complete_native_actions_promote_all_twenty_eight(self):
         report,result=self.fixture();h.promote_navigation_actions(report,result)
-        self.assertEqual(len(report["access_observations"]),25)
+        self.assertEqual(len(report["access_observations"]),29)
     def test_missing_extra_or_wrong_driver_never_partially_promotes(self):
         for mode in ["missing","extra","driver","target","source","hidden"]:
             report,result=self.fixture();before=copy.deepcopy(report)
@@ -38,6 +38,11 @@ class NavigationProofTests(unittest.TestCase):
     def test_only_local_target_and_single_faces_window_parameter_pass(self):
         for field,value in [("target_origin_verified",False),("actual_target_path","/other"),("query_keys",["redirect"]),("query_keys",["jfwid","jfwid"]),("query_keys",None)]:
             report,result=self.fixture();result["navigation_actions"]["ACTION-01::Reader::active"][field]=value
+            with self.subTest(field=field,value=value),self.assertRaises(AssertionError):h.promote_navigation_actions(report,result)
+            self.assertEqual(len(report["access_observations"]),1)
+    def test_routed_detail_requires_exact_cargo_status_and_query(self):
+        for field,value in [("tracking_id","DEF789"),("query_keys",["trackingId","trackingId"]),("query_keys",["trackingId","redirect"]),("routing_status","NOT_ROUTED"),("transport_status","CLAIMED"),("cargo_observed","DEF789")]:
+            report,result=self.fixture();result["navigation_actions"]["ACTION-14::Reader::active"][field]=value
             with self.subTest(field=field,value=value),self.assertRaises(AssertionError):h.promote_navigation_actions(report,result)
             self.assertEqual(len(report["access_observations"]),1)
     def test_arbitrary_redirect_success_or_leak_is_not_denial(self):
