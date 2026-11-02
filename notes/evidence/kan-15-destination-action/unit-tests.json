@@ -1,0 +1,22 @@
+{
+  "status": "PASS",
+  "execution": "Author observed actual unittest command results; stdout not separately captured.",
+  "groups": [
+    {
+      "directory": "tests/security",
+      "tests": 35,
+      "exit": 0
+    },
+    {
+      "directory": "tests/candidate-runtime",
+      "tests": 20,
+      "exit": 0
+    },
+    {
+      "directory": "tests/browser-workflows",
+      "tests": 17,
+      "exit": 0
+    }
+  ],
+  "total": 72
+}

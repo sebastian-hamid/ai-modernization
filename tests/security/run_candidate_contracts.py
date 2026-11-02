@@ -31,6 +31,13 @@ class LiveSubsetCandidate:
             if case["expected"]=="allow":
                 proof=observation.get("processing_evidence",{})
                 if observation.get("post_status") not in {302,303} or not isinstance(observation.get("tracking_id"),str) or re.fullmatch("[A-Z0-9]{8}",observation["tracking_id"]) is None or proof.get("database_changed") is not True or proof.get("book_new_cargo_invocation_delta")!=1 or proof.get("queue_unchanged") is not True or proof.get("independent_reader_persistence") is not True or proof.get("independent_reader_deadline") is not True:raise UnsupportedCase()
+        if case["surface_id"]=="ACTION-09":
+            tracking_id=observation.get("tracking_id")
+            if not isinstance(tracking_id,str) or re.fullmatch("[A-Z0-9]{8}",tracking_id) is None or observation.get("action_method")!="POST" or observation.get("action_path")!="/cargo-tracker/admin/changeDestination.xhtml?trackingId="+tracking_id or observation.get("real_form_verified") is not True:raise UnsupportedCase()
+            if case["channel"]=="session" and observation.get("form_owned_before_revocation") is not True:raise UnsupportedCase()
+            if case["expected"]=="allow":
+                proof=observation.get("processing_evidence",{})
+                if observation.get("post_status") not in {302,303} or proof.get("database_changed") is not True or proof.get("change_destination_invocation_delta")!=1 or proof.get("queue_unchanged") is not True or proof.get("independent_reader_persistence") is not True or proof.get("independent_reader_deadline") is not True or proof.get("other_cargos_unchanged") is not True:raise UnsupportedCase()
         return observation
 
 def bound_contracts():
@@ -83,6 +90,9 @@ def bound_contracts():
             if case["expected"]==("allow" if allowed else "deny"):bound[case["id"]]=case
     for case in cases:
         if case["surface_id"]=="ACTION-29" and case.get("callback")=="#{bookingBackingBean.register()}" and case.get("page_id")=="PAGE-15" and case.get("method")=="POST" and case.get("path") is None and case.get("write") is True and (case["channel"]=="action" or case["channel"]=="session" and case.get("original_channel")=="action"):
+            bound[case["id"]]=case
+    for case in cases:
+        if case["surface_id"]=="ACTION-09" and case.get("callback")=="#{changeDestination.changeDestination()}" and case.get("page_id")=="PAGE-04" and case.get("method")=="POST" and case.get("path") is None and case.get("write") is True and (case["channel"]=="action" or case["channel"]=="session" and case.get("original_channel")=="action"):
             bound[case["id"]]=case
     return bound
 

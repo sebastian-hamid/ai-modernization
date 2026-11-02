@@ -100,6 +100,25 @@ class LiveSubsetTests(unittest.TestCase):
             output=Path(temporary)/"inventory.json"
             with patch.object(generator,"OUT",output),contextlib.redirect_stdout(io.StringIO()):generator.main()
             self.assertEqual(json.loads(output.read_text()),json.loads((adapter.ROOT/"specifications/access-policy-inventory.json").read_text()))
+    def test_destination_binding_requires_exact_target_and_specific_positive_evidence(self):
+        case=adapter.bound_contracts()["ACTION-09::Operator::active"];value=self.prepared()
+        proof={"supported":True,"status":200,"action_method":"POST","action_path":"/cargo-tracker/admin/changeDestination.xhtml?trackingId=ABCDEFGH","tracking_id":"ABCDEFGH","real_form_verified":True,"post_status":303,"processing_evidence":{"database_changed":True,"change_destination_invocation_delta":1,"queue_unchanged":True,"independent_reader_persistence":True,"independent_reader_deadline":True,"other_cargos_unchanged":True}}
+        value.observations[case["id"]]=proof;self.assertEqual(value.execute(case),proof)
+        for field,new in [("action_method","GET"),("action_path","/cargo-tracker/admin/changeDestination.xhtml?trackingId=OTHERID1"),("tracking_id","short"),("post_status",500),("real_form_verified",False),("processing_evidence",{})]:
+            value.observations[case["id"]]={**proof,field:new}
+            with self.subTest(field=field),self.assertRaises(UnsupportedCase):value.execute(case)
+        for field in ["independent_reader_deadline","other_cargos_unchanged","queue_unchanged"]:
+            value.observations[case["id"]]={**proof,"processing_evidence":{**proof["processing_evidence"],field:False}}
+            with self.subTest(field=field),self.assertRaises(UnsupportedCase):value.execute(case)
+    def test_destination_session_requires_owned_form_and_unmodified_contract(self):
+        case=adapter.bound_contracts()["ACTION-09::Administrator::expired"];value=self.prepared()
+        proof={"supported":True,"action_method":"POST","action_path":"/cargo-tracker/admin/changeDestination.xhtml?trackingId=ABCDEFGH","tracking_id":"ABCDEFGH","real_form_verified":True}
+        value.observations[case["id"]]=proof
+        with self.assertRaises(UnsupportedCase):value.execute(case)
+        proof["form_owned_before_revocation"]=True;self.assertEqual(value.execute(case),proof)
+        for field,new in [("method","GET"),("callback","other"),("page_id","PAGE-99"),("write",False),("source","other"),("session_state","logged_out")]:
+            changed={**case,field:new}
+            with self.subTest(field=field),self.assertRaises(UnsupportedCase):value.execute(changed)
     def test_unknown_case_remains_blocked(self):
         case=self.case();case["id"]="API-02::Administrator::expired"
         with self.assertRaises(UnsupportedCase):self.prepared().execute(case)

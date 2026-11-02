@@ -88,3 +88,7 @@ ACTION-14 adds four verified routed-list detail cases: native roles click the ex
 ## Latest access checkpoint — 2 November 2026 (KAN-15 booking)
 
 ACTION-29 now has eight actual POST/role/logout/expiry proofs with independent per-request SQL/queue/audit observations. Permitted booking has real unique cargo/Reader deadline readback, one bookNewCargo invocation and no JMS expectation. Fresh411application/431browser/35reported domain cases PASS(one inherited emptyTODO),68tooling checks PASS; catalogue292PASS/210BLOCKED/nativeexit2. Full KAN-15 remains incomplete. The authoritative generator preserves explicit POST for five mutation callbacks. Task resources/private files removed; see [booking matrix](../docs/candidate/booking-action-matrix.md) and [action handoff](kan15-action-handoff.md).
+
+## Latest access checkpoint — 2 November 2026 (KAN-15 destination change)
+
+ACTION-09 adds eight actual POST/role/logout/expiry proofs with independent per-request SQL/queue/audit observations. O/A change only their own booking-control cargo FIHEL→USNYC, preserving ID/origin/deadline/state and all other cargos; exactly one destination invocation and no JMS are required. Fresh 442 application / 431 browser / 35 reported domain cases PASS (one inherited empty TODO), 72 tooling checks PASS; catalogue 300 PASS / 202 BLOCKED, native exit 2. Full KAN-15 remains incomplete; see the [destination matrix](../docs/candidate/destination-action-matrix.md). Task resources/private files removed; historical runtime/source and shared services preserved.

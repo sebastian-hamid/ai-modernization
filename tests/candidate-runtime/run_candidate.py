@@ -106,6 +106,17 @@ def booking_positive(before,after,cargo,tracking_id):
     booked=sum(n for key,n in counts_after.items() if key.endswith("#bookNewCargo"))-sum(n for key,n in counts_before.items() if key.endswith("#bookNewCargo"))
     return before["tables"]!=after["tables"] and before["queues"]==after["queues"] and booked==1 and cargo.get("trackingId")==tracking_id and cargo.get("originCode")=="CNHKG" and cargo.get("destinationCode")=="FIHEL" and cargo.get("routingStatus")=="NOT_ROUTED" and cargo.get("transportStatus")=="NOT_RECEIVED"
 
+def destination_form(body,csrf,destination="USNYC"):
+    state=re.search(r'name="jakarta.faces.ViewState"[^>]*value="([^"]+)"',body)
+    if not state or not all('id="'+key+'"' in body for key in ["change","change:destination","change:submit"]):raise AssertionError("Missing real destination form")
+    import html
+    return {"csrf":csrf,"change":"change","change:destination":destination,"change:submit":"","jakarta.faces.ViewState":html.unescape(state[1])}
+
+def destination_positive(before,after,old,cargo,tracking_id):
+    validate_effects(before);validate_effects(after)
+    delta=sum(n for key,n in after["business_invocations"].items() if key.endswith("#changeDestination"))-sum(n for key,n in before["business_invocations"].items() if key.endswith("#changeDestination"))
+    return before["tables"]!=after["tables"] and before["queues"]==after["queues"] and delta==1 and old.get("trackingId")==tracking_id and cargo.get("trackingId")==tracking_id and old.get("destinationCode")=="FIHEL" and cargo.get("destinationCode")=="USNYC" and old.get("originCode")==cargo.get("originCode")=="CNHKG" and old.get("routingStatus")==cargo.get("routingStatus")=="NOT_ROUTED" and old.get("transportStatus")==cargo.get("transportStatus")=="NOT_RECEIVED" and old.get("lastKnownLocationCode")==cargo.get("lastKnownLocationCode")
+
 def main(after_checks=None):
     WORK.mkdir(parents=True,exist_ok=True)
     private=WORK/"secrets";private.mkdir(exist_ok=True,mode=0o700);private.chmod(0o700)
@@ -465,17 +476,18 @@ def main(after_checks=None):
 
         # ACTION-29 is a real Faces POST driver, independently observed per request.
         report["booking_action_effects"]={}
-        def denied_booking(opener,form,who=None,state=None):
+        def denied_form(opener,form,who=None,state=None,path="admin/book.xhtml",label="Booking"):
             start=settled()
-            status,body,headers=request(opener,"admin/book.xhtml",form)
+            status,body,headers=request(opener,path,form)
             end=settled()
             fixed=headers.get("Location")=="/cargo-tracker/login"
             expected=403 if who=="reader" and state is None else 303
-            check("Booking POST authorization denial: "+str(who)+" "+str(state),status==expected and payload_absent(body) and (expected!=303 or fixed))
-            check("Booking POST independent effects unchanged: "+str(who)+" "+str(state),start==end)
-            result=denial_observation({"status":status,"protected_payload_absent":payload_absent(body),"redirect_is_configured_login":fixed,"action_method":"POST","action_path":"/cargo-tracker/admin/book.xhtml","real_form_verified":True},start,end,who,state is not None)
+            check(label+" POST authorization denial: "+str(who)+" "+str(state),status==expected and payload_absent(body) and (expected!=303 or fixed))
+            check(label+" POST independent effects unchanged: "+str(who)+" "+str(state),start==end)
+            result=denial_observation({"status":status,"protected_payload_absent":payload_absent(body),"redirect_is_configured_login":fixed,"action_method":"POST","action_path":"/cargo-tracker/"+path,"tracking_id":urllib.parse.parse_qs(urllib.parse.urlsplit(path).query).get("trackingId",[None])[0],"real_form_verified":True},start,end,who,state is not None)
             result["form_owned_before_revocation"]=state is not None
             return result
+        def denied_booking(opener,form,who=None,state=None):return denied_form(opener,form,who,state)
         report["access_observations"]["ACTION-29::anonymous::active"]=denied_booking(anonymous,{**book_form,"csrf":sessions["operator"][2]})
         report["access_observations"]["ACTION-29::Reader::active"]=denied_booking(sessions["reader"][1],{**book_form,"csrf":sessions["reader"][2]},"reader")
         for who,role in [("operator","Operator"),("admin","Administrator")]:
@@ -499,6 +511,39 @@ def main(after_checks=None):
             report["booking_action_effects"][who]={"before":start,"after":end,"tracking_id":created,"reader_readback":fresh,"reader_deadline_verified":deadline_verified,"no_jms_expected":True}
             report["access_observations"]["ACTION-29::"+role+"::active"]={"supported":True,"status":detail_status,"post_status":status,"identity":report["identities"][who],"semantic_success":True,"authorized_effect_verified":True,"action_method":"POST","action_path":"/cargo-tracker/admin/book.xhtml","real_form_verified":True,"processing_evidence":{"database_changed":True,"book_new_cargo_invocation_delta":1,"queue_unchanged":True,"independent_reader_persistence":True,"independent_reader_deadline":deadline_verified},"tracking_id":created}
 
+
+        # ACTION-09 changes only the two fresh, unreceived booking-control cargos.
+        report["destination_action_effects"]={}
+        target_id=report["booking_action_effects"]["operator"]["tracking_id"]
+        target_path="admin/changeDestination.xhtml?trackingId="+target_id
+        code,body,_=request(sessions["operator"][1],target_path)
+        check("Destination forged form fixture rendered",code==200)
+        forged=destination_form(body,sessions["operator"][2])
+        report["access_observations"]["ACTION-09::anonymous::active"]=denied_form(anonymous,forged,path=target_path,label="Destination")
+        report["access_observations"]["ACTION-09::Reader::active"]=denied_form(sessions["reader"][1],{**forged,"csrf":sessions["reader"][2]},"reader",path=target_path,label="Destination")
+        for who,role in [("operator","Operator"),("admin","Administrator")]:
+            target_id=report["booking_action_effects"][who]["tracking_id"]
+            path="admin/changeDestination.xhtml?trackingId="+target_id
+            code,body,_=request(sessions[who][1],path);check("Destination role owns rendered form: "+role,code==200)
+            form=destination_form(body,sessions[who][2])
+            old_values={cargo["trackingId"]:cargo for cargo in cargos(sessions["reader"][1])};old=old_values[target_id]
+            code,detail,_=request(sessions["reader"][1],"admin/show.xhtml?trackingId="+target_id)
+            deadline_before=re.search(r"<dt>Arrival deadline</dt><dd>([^<]+)</dd>",detail)
+            check("Destination fixture original deadline observed: "+role,code==200 and deadline_before is not None and deadline_before[1].split()[0]=="12/31/2030")
+            start=settled()
+            status,_,headers=request(sessions[who][1],path,form)
+            redirected=booking_tracking_id(base,status,headers.get("Location",""))
+            check("Destination result preserves tracking ID: "+role,redirected==target_id)
+            detail_status,detail,_=request(sessions[who][1],"admin/show.xhtml?trackingId="+target_id)
+            values={cargo["trackingId"]:cargo for cargo in cargos(sessions["reader"][1])};fresh=values.get(target_id,{})
+            reader_status,reader_detail,_=request(sessions["reader"][1],"admin/show.xhtml?trackingId="+target_id)
+            deadline_after=re.search(r"<dt>Arrival deadline</dt><dd>([^<]+)</dd>",reader_detail)
+            deadline_verified=reader_status==200 and 'id="trackingId">'+target_id in reader_detail and deadline_after is not None and deadline_after[1]==deadline_before[1]
+            end=settled()
+            check("Destination independent Reader persistence and deadline preserved: "+role,detail_status==200 and 'id="trackingId">'+target_id in detail and deadline_verified and set(values)==set(old_values) and all(values[k]==old_values[k] for k in values if k!=target_id))
+            check("Destination specific SQL audit effect and no JMS: "+role,destination_positive(start,end,old,fresh,target_id))
+            report["destination_action_effects"][who]={"before":start,"after":end,"tracking_id":target_id,"reader_before":old,"reader_after":fresh,"reader_deadline_preserved":deadline_verified,"no_jms_expected":True}
+            report["access_observations"]["ACTION-09::"+role+"::active"]={"supported":True,"status":detail_status,"post_status":status,"identity":report["identities"][who],"semantic_success":True,"authorized_effect_verified":True,"action_method":"POST","action_path":"/cargo-tracker/"+path,"real_form_verified":True,"tracking_id":target_id,"processing_evidence":{"database_changed":True,"change_destination_invocation_delta":1,"queue_unchanged":True,"independent_reader_persistence":True,"independent_reader_deadline":deadline_verified,"other_cargos_unchanged":True}}
 
         def stale_client(jar):
             saved=client()[1];saved.addheaders=[("Cookie","JSESSIONID="+next(c.value for c in jar if c.name=="JSESSIONID"))]
@@ -537,10 +582,13 @@ def main(after_checks=None):
         report["lifecycle_effects"]={}
         for actor,who in actors:
             jar,opener,token=login(who);saved=stale_client(jar)
-            lifecycle_form=None
+            lifecycle_form=None;lifecycle_destination=None
             if who!="reader":
                 code,body,_=request(opener,"admin/book.xhtml");check("Logout booking form owned: "+actor,code==200)
                 lifecycle_form=booking_form(body,token)
+                path="admin/changeDestination.xhtml?trackingId="+report["booking_action_effects"][who]["tracking_id"]
+                code,body,_=request(opener,path);check("Logout destination form owned: "+actor,code==200)
+                lifecycle_destination=(path,destination_form(body,token,"FIHEL"))
             check("Role lifecycle positive monitoring: "+actor,request(opener,"rest/cargo")[0]==200)
             check("Actual role logout: "+actor,request(opener,"logout",b"",token)[0]==204)
             baseline=settled()
@@ -550,20 +598,25 @@ def main(after_checks=None):
             record_revocations(pending,baseline,after_sample,who)
             if lifecycle_form is not None:
                 report["access_observations"]["ACTION-29::"+actor+"::logged_out"]=denied_booking(saved,lifecycle_form,who,"logged_out")
+                path,form=lifecycle_destination
+                report["access_observations"]["ACTION-09::"+actor+"::logged_out"]=denied_form(saved,form,who,"logged_out",path,"Destination")
             report["lifecycle_effects"][who+"_logged_out"]={"before":baseline,"after":after_sample}
         expiring={}
         for actor,who in actors:
             jar,opener,token=login(who)
             check("Expiry lifecycle positive monitoring: "+actor,request(opener,"rest/cargo")[0]==200)
-            form=None
+            form=None;destination=None
             if who!="reader":
                 code,body,_=request(opener,"admin/book.xhtml");check("Expiry booking form owned: "+actor,code==200)
                 form=booking_form(body,token)
-            expiring[who]=(stale_client(jar),token,form)
+                path="admin/changeDestination.xhtml?trackingId="+report["booking_action_effects"][who]["tracking_id"]
+                code,body,_=request(opener,path);check("Expiry destination form owned: "+actor,code==200)
+                destination=(path,destination_form(body,token,"FIHEL"))
+            expiring[who]=(stale_client(jar),token,form,destination)
         # Every saved identity is left idle for at least75s after the last login.
         for unused in range(5):time.sleep(15)
         for actor,who in actors:
-            saved,token,lifecycle_form=expiring[who]
+            saved,token,lifecycle_form,lifecycle_destination=expiring[who]
             baseline=settled()
             pending=revoked_api_requests(actor,who,saved,token,"expired",baseline)
             after_sample=settled()
@@ -571,6 +624,8 @@ def main(after_checks=None):
             record_revocations(pending,baseline,after_sample,who)
             if lifecycle_form is not None:
                 report["access_observations"]["ACTION-29::"+actor+"::expired"]=denied_booking(saved,lifecycle_form,who,"expired")
+                path,form=lifecycle_destination
+                report["access_observations"]["ACTION-09::"+actor+"::expired"]=denied_form(saved,form,who,"expired",path,"Destination")
             report["lifecycle_effects"][who+"_expired"]={"before":baseline,"after":after_sample,"idle_wait_seconds_minimum":75}
         if after_checks:after_checks(container,base,credentials,report)
         report["status"]="PASS"

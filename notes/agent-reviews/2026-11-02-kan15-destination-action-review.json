@@ -1,0 +1,30 @@
+{
+  "task": "KAN-15 ACTION-09 destination change",
+  "base": "1738941bda3ba8aad2d8706999a56ed247b32811",
+  "author": "/root",
+  "reviewer": "/root/review_kan15_destination_actions",
+  "verdict": "Approved bounded increment; no remaining material findings. Full KAN-15 incomplete.",
+  "input_hashes_verified": 331,
+  "independently_executed_unit_tests": 72,
+  "reviewer_live_fixture_execution": false,
+  "application": 442,
+  "browser": 431,
+  "domain_reported": 35,
+  "empty_legacy_todo": 1,
+  "destination_cases": 8,
+  "booking_cases_preserved": 8,
+  "catalogue": {
+    "PASS": 300,
+    "BLOCKED": 202,
+    "native_exit": 2
+  },
+  "findings": [],
+  "checks": "All331hashes and four evidence bytecopies verified; six unchanged per-specific denied snapshots, native ownership/lifecycle, two FIHEL-to-USNYC distinct cargo controls with SQL/exactauditdelta1/noJMS, Reader origin/state/location/deadline/unrelated-cargo preservation; final docs/notes and diffcheck inspected. Independent72units passed.",
+  "evidence_sha256": {
+    "application-results.json": "d322f9498abab5e29cb63c3baf3e6dd7b9a04ca34d0b90aeb846a42dfafa0949",
+    "browser-results.json": "9e7b149a3e5d8155950178a4aaef29fd5b4ff8458eba22eaa952446a6a165a0e",
+    "catalogue-results.json": "3a61b7dc5739320a7321fecf378eeb90e610dd128701c90f2723f5dbc0176800",
+    "unit-tests.json": "5138d35b93c13e8214b1e5f609b4f451485a9ff4d0c15547355a380e0b5ddc6a",
+    "validation.json": "367ff8cb86959052ea1577dc39bcad59589eb0664d7ff9a6dd391a4d38003f1a"
+  }
+}
