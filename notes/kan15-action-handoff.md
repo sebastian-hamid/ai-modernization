@@ -2,7 +2,9 @@
 
 ## Current verified checkpoint
 
-KAN-15 remains In Progress. Current fresh coverage is 316 PASS / 186 BLOCKED: seven navigation mappings (28 cases), booking (eight), destination change (eight), and initial/replacement route actions (sixteen). Latest verification passed 523 application / 431 browser checks, 35 reported domain cases (one inherited empty TODO), and 77 tooling checks. Evidence is notes/evidence/kan-15-routing-actions; review records are under notes/agent-reviews. Remaining 186 contracts comprise 136 active actions (132 read-only / 4 handling writes), 4 handling-action session cases and 46 internal/worker definitions. Full security acceptance is incomplete.
+KAN-15 remains In Progress. Current fresh coverage is 324 PASS / 178 BLOCKED: seven navigation mappings (28 cases) plus all five inventoried write-behavior mappings (40 active/logout/expiry cases). Latest verification passed 565 application / 431 browser checks, 35 reported domain cases (one inherited empty TODO), and 81 tooling checks. Evidence is notes/evidence/kan-15-handling-action; review records are under notes/agent-reviews. Remaining 178 contracts comprise 132 read-only legacy callback cases and 46 internal/worker definitions. Full security acceptance is incomplete.
+
+The user explicitly approved specifications/current-ui-access-acceptance-proposal.md on 2 November 2026; see notes/decisions/2026-11-02-current-ui-acceptance.md. Next implement the versioned mapping/gate while retaining all502 historical definitions and RETIRED distinct from PASS. No retirement has been applied yet. Replacement and negative-entry evidence plus independent review remain mandatory; the internal/worker gaps are not accepted by this decision.
 
 KAN-26 is Done at febde7a4de7294ec6ff0d714cdd11e175b2ac341. The candidate protocol heartbeat keeps the original connection live beyond the measured 90-second listener timeout without HTTP renewal. Reset isolation, unrelated cargo persistence, normal close response and all-role logout/expiry were verified. General slow-peer/pool-saturation behavior remains unverified.
 
@@ -20,7 +22,7 @@ Exit2 is expected while unsupported cases remain. Require actual successful appl
 
 ## Remaining action priorities
 
-ACTION-29 booking, ACTION-09 destination change and ACTION-17/ACTION-19 initial/replacement route selection are now bound with independent per-POST effects, native role/session checks and action-specific controls. The remaining write callback is ACTION-41 handling submission: 4 active actor and 4 logout/expiry definitions. Modern replacements already have real happy/invalid/Reader-forgery/CSRF browser scenarios, but those assertions alone do not satisfy every catalogue write definition.
+All five write-behavior mappings are now bound: booking, destination change, initial/replacement route selection and handling submission. Forty active/logout/expiry definitions have independent per-POST effects and action-specific permitted controls. Handling additionally proves real core JMS add/ack, registration and inspection workers, and independent Reader state. Modern replacements already have real happy/invalid/Reader-forgery/CSRF browser scenarios, but those assertions alone do not satisfy every catalogue write definition.
 
 The authoritative generator and checked inventory now explicitly mark all five mutation callbacks as POST. Regeneration is tested for exact equality; only method metadata changed in40 of502desired definitions, preserving IDs/roles/outcomes. A successful GET page render must never stand in for execution of a write callback. Preserve the approved roles and effects requirements when refining transport metadata.
 
@@ -46,3 +48,5 @@ Other remaining definitions include read-only legacy callbacks that need explici
 - docs/candidate/destination-action-matrix.md and notes/evidence/kan-15-destination-action: exact target, preserved state and destination effects/session proof.
 
 - docs/candidate/routing-action-matrix.md and notes/evidence/kan-15-routing-actions: exact selected/persisted itinerary, initial/replacement state and route effects/session proofs.
+
+- docs/candidate/handling-action-matrix.md and notes/evidence/kan-15-handling-action: asynchronous submission/worker/state and session proofs.

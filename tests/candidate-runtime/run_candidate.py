@@ -156,6 +156,20 @@ def routing_positive(before,after,old,cargo,tracking_id):
     delta=sum(n for key,n in after["business_invocations"].items() if key.endswith("#assignCargoToRoute"))-sum(n for key,n in before["business_invocations"].items() if key.endswith("#assignCargoToRoute"))
     return before["tables"]!=after["tables"] and before["queues"]==after["queues"] and delta==1 and old.get("trackingId")==cargo.get("trackingId")==tracking_id and old.get("originCode")==cargo.get("originCode")=="CNHKG" and old.get("destinationCode")==cargo.get("destinationCode")=="USNYC" and cargo.get("routingStatus")=="ROUTED" and old.get("transportStatus")==cargo.get("transportStatus")=="NOT_RECEIVED" and old.get("lastKnownLocationCode")==cargo.get("lastKnownLocationCode")
 
+def handling_form(body,csrf,tracking_id,location,completion):
+    state=re.search(r'name="jakarta.faces.ViewState"[^>]*value="([^"]+)"',body)
+    required=["handling","handling:cargo","handling:type","handling:location","handling:time","handling:voyage","handling:submit"]
+    if not state or not all('id="'+key+'"' in body for key in required) or re.search(r'<option\b[^>]*\bvalue="'+re.escape(tracking_id)+'"',body) is None or re.search(r'<option\b[^>]*\bvalue="'+re.escape(location)+'"',body) is None:raise AssertionError("Missing offered cargo/location/handling form")
+    import html
+    return {"csrf":csrf,"handling":"handling","handling:cargo":tracking_id,"handling:type":"CUSTOMS","handling:location":location,"handling:time":completion,"handling:voyage":"","handling:submit":"","jakarta.faces.ViewState":html.unescape(state[1])}
+
+def handling_positive(before,after,old,cargo,tracking_id,location):
+    validate_effects(before);validate_effects(after)
+    def delta(suffix):return sum(n for k,n in after["business_invocations"].items() if k.endswith(suffix))-sum(n for k,n in before["business_invocations"].items() if k.endswith(suffix))
+    for queue in ["jms.queue.HandlingEventRegistrationAttemptQueue","jms.queue.CargoHandledQueue"]:
+        if any(after["queues"][queue][key]-before["queues"][queue][key]!=1 for key in ["MessagesAdded","MessagesAcknowledged"]):return False
+    return before["tables"]!=after["tables"] and all(delta(suffix)==1 for suffix in ["#submitReport","#registerHandlingEvent","HandlingEventRegistrationAttemptConsumer#onMessage","CargoHandledConsumer#onMessage"]) and old.get("trackingId")==cargo.get("trackingId")==tracking_id and old.get("originCode")==cargo.get("originCode")=="CNHKG" and old.get("destinationCode")==cargo.get("destinationCode")=="USNYC" and old.get("routingStatus")==cargo.get("routingStatus")=="ROUTED" and old.get("transportStatus")=="NOT_RECEIVED" and cargo.get("transportStatus")=="IN_PORT" and cargo.get("lastKnownLocationCode")==location and old.get("lastKnownLocationCode")!=location
+
 def main(after_checks=None):
     WORK.mkdir(parents=True,exist_ok=True)
     private=WORK/"secrets";private.mkdir(exist_ok=True,mode=0o700);private.chmod(0o700)
@@ -521,9 +535,11 @@ def main(after_checks=None):
             end=settled()
             fixed=headers.get("Location")=="/cargo-tracker/login"
             expected=403 if who=="reader" and state is None else 303
-            check(label+" POST authorization denial: "+str(who)+" "+str(state),status==expected and payload_absent(body) and (expected!=303 or fixed))
+            target_id=urllib.parse.parse_qs(urllib.parse.urlsplit(path).query).get("trackingId",[None])[0] or form.get("handling:cargo")
+            absent=payload_absent(body) and (target_id is None or target_id not in body)
+            check(label+" POST authorization denial: "+str(who)+" "+str(state),status==expected and absent and (expected!=303 or fixed))
             check(label+" POST independent effects unchanged: "+str(who)+" "+str(state),start==end)
-            result=denial_observation({"status":status,"protected_payload_absent":payload_absent(body),"redirect_is_configured_login":fixed,"action_method":"POST","action_path":"/cargo-tracker/"+path,"tracking_id":urllib.parse.parse_qs(urllib.parse.urlsplit(path).query).get("trackingId",[None])[0],"real_form_verified":True},start,end,who,state is not None)
+            result=denial_observation({"status":status,"protected_payload_absent":absent,"redirect_is_configured_login":fixed,"action_method":"POST","action_path":"/cargo-tracker/"+path,"tracking_id":target_id,"real_form_verified":True},start,end,who,state is not None)
             result["form_owned_before_revocation"]=state is not None
             return result
         def denied_booking(opener,form,who=None,state=None):return denied_form(opener,form,who,state)
@@ -652,6 +668,59 @@ def main(after_checks=None):
                 form,_=routing_form(body,token,0);forms.append((surface,target_id,source,form))
             return forms
 
+        # ACTION-41 is asynchronous: acceptance alone is never a positive control.
+        report["handling_action_effects"]={}
+        def handling_entry(opener,who):
+            code,body,headers=request(opener,"eventLogger/eventLogger.xhtml")
+            if who in {"operator","admin"}:
+                check("Legacy handling entry fixed mobile target: "+who,code==303 and headers.get("Location")=="/cargo-tracker/mobile.xhtml")
+                code,body,_=request(opener,"mobile.xhtml")
+                check("Actual handling form rendered: "+who,code==200)
+            else:
+                check("Handling entry denies before cargo load: "+str(who),code==(403 if who=="reader" else 303) and payload_absent(body) and (who=="reader" or headers.get("Location")=="/cargo-tracker/login"))
+            return body
+        def handling_denial(opener,form,who=None,state=None):
+            result=denied_form(opener,form,who,state,"mobile.xhtml","Handling")
+            result.update({"entry_page":"eventLogger/eventLogger.xhtml","source_entry_verified":True})
+            return result
+        target_id=report["booking_action_effects"]["operator"]["tracking_id"]
+        body=handling_entry(sessions["operator"][1],"operator")
+        forged=handling_form(body,sessions["operator"][2],target_id,"USCHI","2030-01-03 10:00")
+        for who,role in [(None,"anonymous"),("reader","Reader")]:
+            opener=anonymous if who is None else sessions[who][1]
+            handling_entry(opener,who)
+            form={**forged,"csrf":sessions[who][2] if who else sessions["operator"][2]}
+            report["access_observations"]["ACTION-41::"+role+"::active"]=handling_denial(opener,form,who)
+        for who,role,location,completion in [("operator","Operator","USCHI","2030-01-03 10:00"),("admin","Administrator","DEHAM","2030-01-04 10:00")]:
+            target_id=report["booking_action_effects"][who]["tracking_id"]
+            body=handling_entry(sessions[who][1],who)
+            form=handling_form(body,sessions[who][2],target_id,location,completion)
+            old_values={cargo["trackingId"]:cargo for cargo in cargos(sessions["reader"][1])};old=old_values[target_id]
+            code,detail,_=request(sessions["reader"][1],"admin/show.xhtml?trackingId="+target_id)
+            deadline_before=re.search(r"<dt>Arrival deadline</dt><dd>([^<]+)</dd>",detail)
+            check("Handling original deadline observed: "+role,code==200 and deadline_before is not None and deadline_before[1].split()[0]=="12/31/2030")
+            start=settled()
+            status,body,_=request(sessions[who][1],"mobile.xhtml",form)
+            accepted=status==200 and "Accepted for processing. Check cargo details for the result." in body
+            check("Handling actual Faces submission accepted: "+role,accepted)
+            limit=time.monotonic()+30;fresh={}
+            while time.monotonic()<limit:
+                values={cargo["trackingId"]:cargo for cargo in cargos(sessions["reader"][1])};fresh=values.get(target_id,{})
+                if fresh.get("transportStatus")=="IN_PORT" and fresh.get("lastKnownLocationCode")==location:break
+                time.sleep(.25)
+            else:raise AssertionError("Handling Faces event did not process")
+            reader_status,reader_detail,_=request(sessions["reader"][1],"admin/show.xhtml?trackingId="+target_id)
+            deadline_after=re.search(r"<dt>Arrival deadline</dt><dd>([^<]+)</dd>",reader_detail)
+            deadline_verified=reader_status==200 and 'id="trackingId">'+target_id in reader_detail and deadline_after is not None and deadline_after[1]==deadline_before[1]
+            end=settled()
+            check("Handling persisted independent Reader state and deadline: "+role,deadline_verified and set(values)==set(old_values) and all(values[k]==old_values[k] for k in values if k!=target_id))
+            check("Handling real SQL JMS registration and inspection workers: "+role,handling_positive(start,end,old,fresh,target_id,location))
+            report["handling_action_effects"][who]={"before":start,"after":end,"tracking_id":target_id,"reader_before":old,"reader_after":fresh,"deadline_preserved":deadline_verified,"requested_event":"CUSTOMS","requested_location":location,"requested_completion":completion}
+            report["access_observations"]["ACTION-41::"+role+"::active"]={"supported":True,"status":status,"submission_status":status,"identity":report["identities"][who],"semantic_success":True,"authorized_effect_verified":True,"action_method":"POST","action_path":"/cargo-tracker/mobile.xhtml","real_form_verified":True,"tracking_id":target_id,"entry_page":"eventLogger/eventLogger.xhtml","source_entry_verified":True,"processing_evidence":{"message_accepted":accepted,"database_changed":True,"attempt_queue_add_ack_delta":1,"handled_queue_add_ack_delta":1,"submission_invocation_delta":1,"registration_invocation_delta":1,"handling_worker_invocation_delta":1,"inspection_worker_invocation_delta":1,"independent_reader_persistence":True,"independent_reader_deadline":deadline_verified,"other_cargos_unchanged":True}}
+        def owned_handling_form(opener,token,who):
+            body=handling_entry(opener,who)
+            return handling_form(body,token,report["booking_action_effects"][who]["tracking_id"],"FIHEL","2030-01-06 10:00")
+
         def stale_client(jar):
             saved=client()[1];saved.addheaders=[("Cookie","JSESSIONID="+next(c.value for c in jar if c.name=="JSESSIONID"))]
             return saved
@@ -689,7 +758,7 @@ def main(after_checks=None):
         report["lifecycle_effects"]={}
         for actor,who in actors:
             jar,opener,token=login(who);saved=stale_client(jar)
-            lifecycle_form=None;lifecycle_destination=None;lifecycle_routes=[]
+            lifecycle_form=None;lifecycle_destination=None;lifecycle_routes=[];lifecycle_handling=None
             if who!="reader":
                 code,body,_=request(opener,"admin/book.xhtml");check("Logout booking form owned: "+actor,code==200)
                 lifecycle_form=booking_form(body,token)
@@ -697,6 +766,7 @@ def main(after_checks=None):
                 code,body,_=request(opener,path);check("Logout destination form owned: "+actor,code==200)
                 lifecycle_destination=(path,destination_form(body,token,"FIHEL"))
                 lifecycle_routes=owned_route_forms(opener,token,who)
+                lifecycle_handling=owned_handling_form(opener,token,who)
             check("Role lifecycle positive monitoring: "+actor,request(opener,"rest/cargo")[0]==200)
             check("Actual role logout: "+actor,request(opener,"logout",b"",token)[0]==204)
             baseline=settled()
@@ -710,12 +780,13 @@ def main(after_checks=None):
                 report["access_observations"]["ACTION-09::"+actor+"::logged_out"]=denied_form(saved,form,who,"logged_out",path,"Destination")
                 for surface,target_id,source,form in lifecycle_routes:
                     report["access_observations"][surface+"::"+actor+"::logged_out"]=route_denial(saved,form,who,"logged_out",surface,target_id,source)
+                report["access_observations"]["ACTION-41::"+actor+"::logged_out"]=handling_denial(saved,lifecycle_handling,who,"logged_out")
             report["lifecycle_effects"][who+"_logged_out"]={"before":baseline,"after":after_sample}
         expiring={}
         for actor,who in actors:
             jar,opener,token=login(who)
             check("Expiry lifecycle positive monitoring: "+actor,request(opener,"rest/cargo")[0]==200)
-            form=None;destination=None;routes=[]
+            form=None;destination=None;routes=[];handling_payload=None
             if who!="reader":
                 code,body,_=request(opener,"admin/book.xhtml");check("Expiry booking form owned: "+actor,code==200)
                 form=booking_form(body,token)
@@ -723,11 +794,12 @@ def main(after_checks=None):
                 code,body,_=request(opener,path);check("Expiry destination form owned: "+actor,code==200)
                 destination=(path,destination_form(body,token,"FIHEL"))
                 routes=owned_route_forms(opener,token,who)
-            expiring[who]=(stale_client(jar),token,form,destination,routes)
+                handling_payload=owned_handling_form(opener,token,who)
+            expiring[who]=(stale_client(jar),token,form,destination,routes,handling_payload)
         # Every saved identity is left idle for at least75s after the last login.
         for unused in range(5):time.sleep(15)
         for actor,who in actors:
-            saved,token,lifecycle_form,lifecycle_destination,lifecycle_routes=expiring[who]
+            saved,token,lifecycle_form,lifecycle_destination,lifecycle_routes,lifecycle_handling=expiring[who]
             baseline=settled()
             pending=revoked_api_requests(actor,who,saved,token,"expired",baseline)
             after_sample=settled()
@@ -739,6 +811,7 @@ def main(after_checks=None):
                 report["access_observations"]["ACTION-09::"+actor+"::expired"]=denied_form(saved,form,who,"expired",path,"Destination")
                 for surface,target_id,source,form in lifecycle_routes:
                     report["access_observations"][surface+"::"+actor+"::expired"]=route_denial(saved,form,who,"expired",surface,target_id,source)
+                report["access_observations"]["ACTION-41::"+actor+"::expired"]=handling_denial(saved,lifecycle_handling,who,"expired")
             report["lifecycle_effects"][who+"_expired"]={"before":baseline,"after":after_sample,"idle_wait_seconds_minimum":75}
         if after_checks:after_checks(container,base,credentials,report)
         report["status"]="PASS"

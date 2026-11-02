@@ -140,6 +140,31 @@ class LiveSubsetTests(unittest.TestCase):
             for field,new in [("method","GET"),("callback","other"),("page_id","PAGE-99"),("session_state","logged_out")]:
                 changed={**case,field:new}
                 with self.subTest(surface=surface,field=field),self.assertRaises(UnsupportedCase):value.execute(changed)
+    def test_handling_binding_rejects_acceptance_without_all_async_evidence(self):
+        case=adapter.bound_contracts()["ACTION-41::Operator::active"];value=self.prepared()
+        counts=["attempt_queue_add_ack_delta","handled_queue_add_ack_delta","submission_invocation_delta","registration_invocation_delta","handling_worker_invocation_delta","inspection_worker_invocation_delta"]
+        flags=["message_accepted","database_changed","independent_reader_persistence","independent_reader_deadline","other_cargos_unchanged"]
+        proof={"supported":True,"status":200,"action_method":"POST","action_path":"/cargo-tracker/mobile.xhtml","tracking_id":"ABCDEFGH","entry_page":"eventLogger/eventLogger.xhtml","source_entry_verified":True,"real_form_verified":True,"submission_status":200,"processing_evidence":{**dict.fromkeys(counts,1),**dict.fromkeys(flags,True)}}
+        value.observations[case["id"]]=proof;self.assertEqual(value.execute(case),proof)
+        for field,new in [("action_method","GET"),("action_path","/cargo-tracker/eventLogger/eventLogger.xhtml"),("tracking_id","short"),("entry_page","mobile.xhtml"),("source_entry_verified",False),("real_form_verified",False),("submission_status",500)]:
+            value.observations[case["id"]]={**proof,field:new}
+            with self.subTest(field=field),self.assertRaises(UnsupportedCase):value.execute(case)
+        for field in counts+flags:
+            partial=dict(proof["processing_evidence"]);partial.pop(field)
+            value.observations[case["id"]]={**proof,"processing_evidence":partial}
+            with self.subTest(missing=field),self.assertRaises(UnsupportedCase):value.execute(case)
+        for field in counts:
+            for bad in [True,0,2]:
+                value.observations[case["id"]]={**proof,"processing_evidence":{**proof["processing_evidence"],field:bad}}
+                with self.subTest(field=field,value=bad),self.assertRaises(UnsupportedCase):value.execute(case)
+    def test_handling_revoked_form_and_callback_contract_are_required(self):
+        case=adapter.bound_contracts()["ACTION-41::Administrator::expired"];value=self.prepared()
+        proof={"supported":True,"action_method":"POST","action_path":"/cargo-tracker/mobile.xhtml","tracking_id":"ABCDEFGH","entry_page":"eventLogger/eventLogger.xhtml","source_entry_verified":True,"real_form_verified":True}
+        value.observations[case["id"]]=proof
+        with self.assertRaises(UnsupportedCase):value.execute(case)
+        proof["form_owned_before_revocation"]=True;self.assertEqual(value.execute(case),proof)
+        for field,new in [("method","GET"),("callback","other"),("page_id","PAGE-99"),("session_state","logged_out"),("write",False)]:
+            with self.subTest(field=field),self.assertRaises(UnsupportedCase):value.execute({**case,field:new})
     def test_unknown_case_remains_blocked(self):
         case=self.case();case["id"]="API-02::Administrator::expired"
         with self.assertRaises(UnsupportedCase):self.prepared().execute(case)

@@ -46,6 +46,15 @@ class LiveSubsetCandidate:
             if case["expected"]=="allow":
                 proof=observation.get("processing_evidence",{})
                 if observation.get("post_status") not in {302,303} or proof.get("database_changed") is not True or proof.get("assign_route_invocation_delta")!=1 or proof.get("queue_unchanged") is not True or proof.get("independent_reader_persistence") is not True or proof.get("independent_reader_deadline") is not True or proof.get("selected_itinerary_matches") is not True or proof.get("other_cargos_unchanged") is not True:raise UnsupportedCase()
+        if case["surface_id"]=="ACTION-41":
+            tracking_id=observation.get("tracking_id")
+            if not isinstance(tracking_id,str) or re.fullmatch("[A-Z0-9]{8}",tracking_id) is None or observation.get("action_method")!="POST" or observation.get("action_path")!="/cargo-tracker/mobile.xhtml" or observation.get("real_form_verified") is not True or observation.get("entry_page")!="eventLogger/eventLogger.xhtml" or observation.get("source_entry_verified") is not True:raise UnsupportedCase()
+            if case["channel"]=="session" and observation.get("form_owned_before_revocation") is not True:raise UnsupportedCase()
+            if case["expected"]=="allow":
+                proof=observation.get("processing_evidence",{})
+                counts=["attempt_queue_add_ack_delta","handled_queue_add_ack_delta","submission_invocation_delta","registration_invocation_delta","handling_worker_invocation_delta","inspection_worker_invocation_delta"]
+                flags=["message_accepted","database_changed","independent_reader_persistence","independent_reader_deadline","other_cargos_unchanged"]
+                if observation.get("submission_status")!=200 or any(type(proof.get(k)) is not int or proof[k]!=1 for k in counts) or any(proof.get(k) is not True for k in flags):raise UnsupportedCase()
         return observation
 
 def bound_contracts():
@@ -104,6 +113,9 @@ def bound_contracts():
             bound[case["id"]]=case
     for case in cases:
         if case["surface_id"] in {"ACTION-17","ACTION-19"} and case.get("callback")=="#{itinerarySelection.assignItinerary(itineraryStatus.index)}" and case.get("page_id")==("PAGE-11" if case["surface_id"]=="ACTION-17" else "PAGE-12") and case.get("method")=="POST" and case.get("path") is None and case.get("write") is True and (case["channel"]=="action" or case["channel"]=="session" and case.get("original_channel")=="action"):
+            bound[case["id"]]=case
+    for case in cases:
+        if case["surface_id"]=="ACTION-41" and case.get("callback")=="#{eventBackingBean.handleEventSubmission}" and case.get("page_id")=="PAGE-20" and case.get("method")=="POST" and case.get("path") is None and case.get("write") is True and (case["channel"]=="action" or case["channel"]=="session" and case.get("original_channel")=="action"):
             bound[case["id"]]=case
     return bound
 

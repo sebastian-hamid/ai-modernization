@@ -1,0 +1,38 @@
+{
+  "task": "KAN-15 ACTION-41 handling submission",
+  "base": "0b50e188b856e6136ee884ff623cd22f9fa64d5f",
+  "author": "/root",
+  "reviewer": "/root/review_kan15_handling_action",
+  "verdict": "Approved bounded increment; no remaining material findings. Full KAN-15 incomplete.",
+  "input_hashes_verified": 345,
+  "independently_executed_unit_tests": 81,
+  "reviewer_live_fixture_execution": false,
+  "application": 565,
+  "browser": 431,
+  "domain_reported": 35,
+  "empty_legacy_todo": 1,
+  "handling_cases": 8,
+  "all_write_cases": 40,
+  "catalogue": {
+    "PASS": 324,
+    "BLOCKED": 178,
+    "native_exit": 2
+  },
+  "findings": [],
+  "checks": "All345hashes/four byte-identical evidence copies; actual40write cases, two async controls recomputed fromrawsnapshots; six unchanged per-POST denials/fourownedrevokedforms; SQL/corequeueadd+ack/submit/register/twoMDB deltas and Readercargo/deadline; cleanup/docs/notes/diffcheck verified. Independent81units passed.",
+  "decision_review_limit": "Reviewer inspected pinned approved proposal/decision record; actual async user answer authority is author-reported because reviewer cannot view that private turn.",
+  "agent_availability": "Temporary account limit; final review completed by same reviewer after bounded recovery. No successful fixture rerun.",
+  "remaining_limits": [
+    "178unsupportedread/internalcases",
+    "H2/Chromium fixture",
+    "One inherited empty domainTODO",
+    "Event-history and worker failure/retry coverage remains separate"
+  ],
+  "evidence_sha256": {
+    "application-results.json": "e7f325c69e9a7a3271315caef36ab133f2de85b5f156735584d63818756dd6c5",
+    "browser-results.json": "4dd6b0292739fc7b04d2435d6281caff5596de11766e61ace465fc498852ac08",
+    "catalogue-results.json": "3d0c0cc621e16a801d7f5bfdfe9e611f1d52ab0428c537c57a53957e34f76815",
+    "unit-tests.json": "651deafa864ffa06d13d91671af9343c602278b55e4c17e24b997a617e023703",
+    "validation.json": "2938bda4cf7486cc2e66766f82d74b27b217502361e40fcde983aead972ddab8"
+  }
+}

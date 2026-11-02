@@ -247,3 +247,11 @@ First fresh run passed 523 application / 431 Chromium / 35 reported domain cases
 ## 2 November 2026 — Proposed current-UI acceptance basis
 
 Prepared a user-decision proposal, without changing the502-case gate or outcomes. Source audit partitions33remaining read-only callback definitions(132actorcases) into14current behavior mappings and19implementation-only widget/flow helpers. Recommendation preserves historical definitions, requires replacement/retired-entry negative evidence, distinguishes conditional RETIRED fromPASS, and retains all role/session/CSRF/effect/internal requirements. Independent proposal review caught incorrect location/voyage-selector mappings; corrected against source, including cargo/event/voyage obligations and non-load voyage clearing. Final documentation approved; user approval still required before any acceptance/gate treatment changes. No new runtime/test claim or production change.
+
+## 2 November 2026 — KAN-15 handling write action and approved acceptance direction
+
+Bound ACTION-41 eight actual form/role/logout/expiry cases. Accepted form response alone insufficient: independent SQL changes, exactlyone added/acknowledged message percorequeue, submit/register/twoMDB invocation deltas, Reader IN_PORT/requestedlocation and preservedcargo/deadline/otherrows required. Each denied POST has unchanged independent channels and target-specific no-leak inspection. All previous32write cases retained; all40inventoried write cases now pass.
+
+First fresh run565application/431Chromium/35reported domain PASS(one inherited emptyTODO),81tooling checks PASS; catalogue324PASS/178BLOCKED/nativeexit2. Monitor/reviewer temporarily hit usage limits while fixture ran; new implementation/publication held, fixture completed/cleaned, then one bounded same-agent recovery afterreportedretrytime succeeded. No repeatedfixture or quota workaround. Independent final review required before publication. HistoricalHTTP200/sourceclean/sharedJenkinspreserved; no production deployment.
+
+User answered 'Approve recommended approach' for the independently reviewed current-UI acceptance proposal. Recorded decision separately; historical502-case gate and retirement classifications remain unchanged until versioned implementation and required evidence/review. Human effort/cost unavailable.

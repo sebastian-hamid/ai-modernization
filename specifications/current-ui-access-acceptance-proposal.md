@@ -1,6 +1,6 @@
 # Proposal: current-UI acceptance with legacy traceability
 
-**Status: proposed; user approval required before changing acceptance definitions or gate treatment.**
+**Status: approved for implementation by the user on 2 November 2026. See notes/decisions/2026-11-02-current-ui-acceptance.md. No gate or retirement change has yet been applied.**
 
 ## Decision and recommendation
 

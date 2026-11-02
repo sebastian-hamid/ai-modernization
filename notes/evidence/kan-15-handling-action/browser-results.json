@@ -1,0 +1,3042 @@
+{
+  "scope": "Real Chromium cargo read/booking/destination/routing/live/handling workflows",
+  "checks": [
+    {
+      "name": "Anonymous page goes to login",
+      "passed": true
+    },
+    {
+      "name": "Login does not leak cargo",
+      "passed": true
+    },
+    {
+      "name": "Public home links to current tracking view",
+      "passed": true
+    },
+    {
+      "name": "Authentication precedes legacy lookup public/track.xhtml",
+      "passed": true
+    },
+    {
+      "name": "Authentication precedes legacy lookup admin/map.xhtml",
+      "passed": true
+    },
+    {
+      "name": "Authentication precedes legacy lookup admin/mapFrame.html",
+      "passed": true
+    },
+    {
+      "name": "Authentication precedes legacy lookup admin/selectItinerary.xhtml",
+      "passed": true
+    },
+    {
+      "name": "Authentication precedes legacy lookup eventLogger/eventLogger.xhtml",
+      "passed": true
+    },
+    {
+      "name": "Authentication precedes legacy lookup eventLogger/root.xhtml",
+      "passed": true
+    },
+    {
+      "name": "Authentication precedes legacy lookup booking/booking.xhtml",
+      "passed": true
+    },
+    {
+      "name": "Authentication precedes legacy lookup booking/booking-date.xhtml",
+      "passed": true
+    },
+    {
+      "name": "Authentication precedes legacy lookup booking/booking-destination.xhtml",
+      "passed": true
+    },
+    {
+      "name": "Anonymous filtered/About page goes to login admin/about.xhtml",
+      "passed": true
+    },
+    {
+      "name": "Anonymous filtered/About page goes to login admin/listRouted.xhtml",
+      "passed": true
+    },
+    {
+      "name": "Anonymous filtered/About page goes to login admin/listNotRouted.xhtml",
+      "passed": true
+    },
+    {
+      "name": "Anonymous filtered/About page goes to login admin/listClaimed.xhtml",
+      "passed": true
+    },
+    {
+      "name": "Public About accurately explains login",
+      "passed": true
+    },
+    {
+      "name": "Generic error page ignores unsafe query error.xhtml",
+      "passed": true
+    },
+    {
+      "name": "Generic error page ignores unsafe query error_404.xhtml",
+      "passed": true
+    },
+    {
+      "name": "Navigation control ACTION-01 anonymous",
+      "passed": true
+    },
+    {
+      "name": "Navigation exact local href ACTION-01 anonymous",
+      "passed": true
+    },
+    {
+      "name": "Navigation denial ACTION-01 anonymous",
+      "passed": true
+    },
+    {
+      "name": "Navigation control ACTION-02 anonymous",
+      "passed": true
+    },
+    {
+      "name": "Navigation denial ACTION-02 anonymous",
+      "passed": true
+    },
+    {
+      "name": "Navigation control ACTION-03 anonymous",
+      "passed": true
+    },
+    {
+      "name": "Navigation exact local href ACTION-03 anonymous",
+      "passed": true
+    },
+    {
+      "name": "Navigation denial ACTION-03 anonymous",
+      "passed": true
+    },
+    {
+      "name": "Navigation control ACTION-04 anonymous",
+      "passed": true
+    },
+    {
+      "name": "Navigation exact local href ACTION-04 anonymous",
+      "passed": true
+    },
+    {
+      "name": "Navigation denial ACTION-04 anonymous",
+      "passed": true
+    },
+    {
+      "name": "Navigation control ACTION-05 anonymous",
+      "passed": true
+    },
+    {
+      "name": "Navigation denial ACTION-05 anonymous",
+      "passed": true
+    },
+    {
+      "name": "Navigation control ACTION-06 anonymous",
+      "passed": true
+    },
+    {
+      "name": "Navigation exact local href ACTION-06 anonymous",
+      "passed": true
+    },
+    {
+      "name": "Navigation destination ACTION-06 anonymous",
+      "passed": true
+    },
+    {
+      "name": "Navigation control ACTION-14 anonymous",
+      "passed": true
+    },
+    {
+      "name": "Navigation denial ACTION-14 anonymous",
+      "passed": true
+    },
+    {
+      "name": "Browser login reader",
+      "passed": true
+    },
+    {
+      "name": "Navigation control ACTION-01 Reader",
+      "passed": true
+    },
+    {
+      "name": "Navigation exact local href ACTION-01 Reader",
+      "passed": true
+    },
+    {
+      "name": "Navigation destination ACTION-01 Reader",
+      "passed": true
+    },
+    {
+      "name": "Navigation control ACTION-02 Reader",
+      "passed": true
+    },
+    {
+      "name": "Navigation denial ACTION-02 Reader",
+      "passed": true
+    },
+    {
+      "name": "Navigation control ACTION-03 Reader",
+      "passed": true
+    },
+    {
+      "name": "Navigation exact local href ACTION-03 Reader",
+      "passed": true
+    },
+    {
+      "name": "Navigation destination ACTION-03 Reader",
+      "passed": true
+    },
+    {
+      "name": "Navigation control ACTION-04 Reader",
+      "passed": true
+    },
+    {
+      "name": "Navigation exact local href ACTION-04 Reader",
+      "passed": true
+    },
+    {
+      "name": "Navigation destination ACTION-04 Reader",
+      "passed": true
+    },
+    {
+      "name": "Navigation control ACTION-05 Reader",
+      "passed": true
+    },
+    {
+      "name": "Navigation exact local href ACTION-05 Reader",
+      "passed": true
+    },
+    {
+      "name": "Navigation destination ACTION-05 Reader",
+      "passed": true
+    },
+    {
+      "name": "Navigation control ACTION-06 Reader",
+      "passed": true
+    },
+    {
+      "name": "Navigation exact local href ACTION-06 Reader",
+      "passed": true
+    },
+    {
+      "name": "Navigation destination ACTION-06 Reader",
+      "passed": true
+    },
+    {
+      "name": "Navigation control ACTION-14 Reader",
+      "passed": true
+    },
+    {
+      "name": "Navigation exact local href ACTION-14 Reader",
+      "passed": true
+    },
+    {
+      "name": "Navigation destination ACTION-14 Reader",
+      "passed": true
+    },
+    {
+      "name": "Routed list opens actual unclaimed cargo Reader",
+      "passed": true
+    },
+    {
+      "name": "Alias browser data and socket live PAGE-09 Reader",
+      "passed": true
+    },
+    {
+      "name": "Alias browser data and socket live PAGE-10 Reader",
+      "passed": true
+    },
+    {
+      "name": "Filtered list exact persisted partition reader routed",
+      "passed": true
+    },
+    {
+      "name": "Filtered list fits viewport reader routed",
+      "passed": true
+    },
+    {
+      "name": "Filtered list exact persisted partition reader unrouted",
+      "passed": true
+    },
+    {
+      "name": "Filtered list fits viewport reader unrouted",
+      "passed": true
+    },
+    {
+      "name": "Filtered list exact persisted partition reader claimed",
+      "passed": true
+    },
+    {
+      "name": "Empty filtered list controlled claimed",
+      "passed": true
+    },
+    {
+      "name": "Filtered list fits viewport reader claimed",
+      "passed": true
+    },
+    {
+      "name": "Protected About workflow page reader",
+      "passed": true
+    },
+    {
+      "name": "Tracking form unknown cargo controlled",
+      "passed": true
+    },
+    {
+      "name": "Tracking form malformed ID controlled",
+      "passed": true
+    },
+    {
+      "name": "Tracking form valid cargo navigation",
+      "passed": true
+    },
+    {
+      "name": "Tracking direct invalid ID controlled admin/track.xhtml?trackingId=UNKNOWN",
+      "passed": true
+    },
+    {
+      "name": "Tracking direct invalid ID controlled admin/track.xhtml?trackingId=%3Cscript%3E",
+      "passed": true
+    },
+    {
+      "name": "Tracking direct invalid ID controlled public/track.xhtml?trackingId=UNKNOWN",
+      "passed": true
+    },
+    {
+      "name": "Tracking direct invalid ID controlled public/track.xhtml?trackingId=ABC123&trackingId=DEF789",
+      "passed": true
+    },
+    {
+      "name": "Tracking direct invalid ID controlled public/track.xhtml?trackingId=%3Cscript%3E",
+      "passed": true
+    },
+    {
+      "name": "Legacy tracking reaches actual cargo",
+      "passed": true
+    },
+    {
+      "name": "Legacy tracking without ID shows lookup",
+      "passed": true
+    },
+    {
+      "name": "Fixed local legacy map redirect admin/map.xhtml",
+      "passed": true
+    },
+    {
+      "name": "Legacy map reaches supported live view admin/map.xhtml",
+      "passed": true
+    },
+    {
+      "name": "Fixed local legacy map redirect admin/mapFrame.html",
+      "passed": true
+    },
+    {
+      "name": "Legacy map reaches supported live view admin/mapFrame.html",
+      "passed": true
+    },
+    {
+      "name": "Reader denied before legacy input handling admin/selectItinerary.xhtml",
+      "passed": true
+    },
+    {
+      "name": "Reader denied before legacy input handling eventLogger/eventLogger.xhtml",
+      "passed": true
+    },
+    {
+      "name": "Reader denied before legacy input handling eventLogger/root.xhtml",
+      "passed": true
+    },
+    {
+      "name": "Reader denied before legacy input handling booking/booking.xhtml",
+      "passed": true
+    },
+    {
+      "name": "Reader denied before legacy input handling booking/booking-date.xhtml",
+      "passed": true
+    },
+    {
+      "name": "Reader denied before legacy input handling booking/booking-destination.xhtml",
+      "passed": true
+    },
+    {
+      "name": "Reader sees seeded cargo",
+      "passed": true
+    },
+    {
+      "name": "Reader does not see booking control",
+      "passed": true
+    },
+    {
+      "name": "Reader sees details",
+      "passed": true
+    },
+    {
+      "name": "Reader does not see destination control",
+      "passed": true
+    },
+    {
+      "name": "Reader does not see routing control",
+      "passed": true
+    },
+    {
+      "name": "Reader direct denial admin/book.xhtml",
+      "passed": true
+    },
+    {
+      "name": "Reader direct denial admin/changeDestination.xhtml?trackingId=ABC123",
+      "passed": true
+    },
+    {
+      "name": "Reader direct denial admin/route.xhtml?trackingId=ABC123",
+      "passed": true
+    },
+    {
+      "name": "Controlled invalid link admin/show.xhtml",
+      "passed": true
+    },
+    {
+      "name": "Controlled invalid link admin/show.xhtml?trackingId=UNKNOWN",
+      "passed": true
+    },
+    {
+      "name": "Controlled invalid link admin/show.xhtml?trackingId=%3Cscript%3E",
+      "passed": true
+    },
+    {
+      "name": "Browser login operator",
+      "passed": true
+    },
+    {
+      "name": "Navigation control ACTION-01 Operator",
+      "passed": true
+    },
+    {
+      "name": "Navigation exact local href ACTION-01 Operator",
+      "passed": true
+    },
+    {
+      "name": "Navigation destination ACTION-01 Operator",
+      "passed": true
+    },
+    {
+      "name": "Navigation control ACTION-02 Operator",
+      "passed": true
+    },
+    {
+      "name": "Navigation exact local href ACTION-02 Operator",
+      "passed": true
+    },
+    {
+      "name": "Navigation destination ACTION-02 Operator",
+      "passed": true
+    },
+    {
+      "name": "Navigation control ACTION-03 Operator",
+      "passed": true
+    },
+    {
+      "name": "Navigation exact local href ACTION-03 Operator",
+      "passed": true
+    },
+    {
+      "name": "Navigation destination ACTION-03 Operator",
+      "passed": true
+    },
+    {
+      "name": "Navigation control ACTION-04 Operator",
+      "passed": true
+    },
+    {
+      "name": "Navigation exact local href ACTION-04 Operator",
+      "passed": true
+    },
+    {
+      "name": "Navigation destination ACTION-04 Operator",
+      "passed": true
+    },
+    {
+      "name": "Navigation control ACTION-05 Operator",
+      "passed": true
+    },
+    {
+      "name": "Navigation exact local href ACTION-05 Operator",
+      "passed": true
+    },
+    {
+      "name": "Navigation destination ACTION-05 Operator",
+      "passed": true
+    },
+    {
+      "name": "Navigation control ACTION-06 Operator",
+      "passed": true
+    },
+    {
+      "name": "Navigation exact local href ACTION-06 Operator",
+      "passed": true
+    },
+    {
+      "name": "Navigation destination ACTION-06 Operator",
+      "passed": true
+    },
+    {
+      "name": "Navigation control ACTION-14 Operator",
+      "passed": true
+    },
+    {
+      "name": "Navigation exact local href ACTION-14 Operator",
+      "passed": true
+    },
+    {
+      "name": "Navigation destination ACTION-14 Operator",
+      "passed": true
+    },
+    {
+      "name": "Routed list opens actual unclaimed cargo Operator",
+      "passed": true
+    },
+    {
+      "name": "Alias browser data and socket live PAGE-09 Operator",
+      "passed": true
+    },
+    {
+      "name": "Alias browser data and socket live PAGE-10 Operator",
+      "passed": true
+    },
+    {
+      "name": "Same-location booking rejected",
+      "passed": true
+    },
+    {
+      "name": "Invalid calendar date rejected",
+      "passed": true
+    },
+    {
+      "name": "Booking persists new tracking ID",
+      "passed": true
+    },
+    {
+      "name": "Destination change persisted",
+      "passed": true
+    },
+    {
+      "name": "Independent Reader sees persisted destination",
+      "passed": true
+    },
+    {
+      "name": "Sample routing candidates rendered",
+      "passed": true
+    },
+    {
+      "name": "Missing route selection rejected",
+      "passed": true
+    },
+    {
+      "name": "Reader forged route assignment denied",
+      "passed": true
+    },
+    {
+      "name": "Route assignment requires CSRF",
+      "passed": true
+    },
+    {
+      "name": "Unknown route index rejected",
+      "passed": true
+    },
+    {
+      "name": "Denied selections leave cargo unrouted",
+      "passed": true
+    },
+    {
+      "name": "Stale route after destination change rejected",
+      "passed": true
+    },
+    {
+      "name": "Stale selection does not assign old itinerary",
+      "passed": true
+    },
+    {
+      "name": "Real route assignment is ROUTED",
+      "passed": true
+    },
+    {
+      "name": "Selected itinerary leg count persisted",
+      "passed": true
+    },
+    {
+      "name": "Exact selected voyage/location/time sequence persisted",
+      "passed": true
+    },
+    {
+      "name": "Separate Reader sees persisted route",
+      "passed": true
+    },
+    {
+      "name": "Separate Reader verifies exact itinerary sequence",
+      "passed": true
+    },
+    {
+      "name": "Rerouting existing cargo persists owned collection",
+      "passed": true
+    },
+    {
+      "name": "Exact replacement route sequence persisted",
+      "passed": true
+    },
+    {
+      "name": "Filtered list exact persisted partition operator routed",
+      "passed": true
+    },
+    {
+      "name": "Filtered list fits viewport operator routed",
+      "passed": true
+    },
+    {
+      "name": "Filtered list exact persisted partition operator unrouted",
+      "passed": true
+    },
+    {
+      "name": "Filtered list fits viewport operator unrouted",
+      "passed": true
+    },
+    {
+      "name": "Filtered list exact persisted partition operator claimed",
+      "passed": true
+    },
+    {
+      "name": "Empty filtered list controlled claimed",
+      "passed": true
+    },
+    {
+      "name": "Filtered list fits viewport operator claimed",
+      "passed": true
+    },
+    {
+      "name": "Protected About workflow page operator",
+      "passed": true
+    },
+    {
+      "name": "Real Faces ViewState rendered",
+      "passed": true
+    },
+    {
+      "name": "Reader forged booking POST denied",
+      "passed": true
+    },
+    {
+      "name": "Missing CSRF booking POST denied",
+      "passed": true
+    },
+    {
+      "name": "Browser login admin",
+      "passed": true
+    },
+    {
+      "name": "Navigation control ACTION-01 Administrator",
+      "passed": true
+    },
+    {
+      "name": "Navigation exact local href ACTION-01 Administrator",
+      "passed": true
+    },
+    {
+      "name": "Navigation destination ACTION-01 Administrator",
+      "passed": true
+    },
+    {
+      "name": "Navigation control ACTION-02 Administrator",
+      "passed": true
+    },
+    {
+      "name": "Navigation exact local href ACTION-02 Administrator",
+      "passed": true
+    },
+    {
+      "name": "Navigation destination ACTION-02 Administrator",
+      "passed": true
+    },
+    {
+      "name": "Navigation control ACTION-03 Administrator",
+      "passed": true
+    },
+    {
+      "name": "Navigation exact local href ACTION-03 Administrator",
+      "passed": true
+    },
+    {
+      "name": "Navigation destination ACTION-03 Administrator",
+      "passed": true
+    },
+    {
+      "name": "Navigation control ACTION-04 Administrator",
+      "passed": true
+    },
+    {
+      "name": "Navigation exact local href ACTION-04 Administrator",
+      "passed": true
+    },
+    {
+      "name": "Navigation destination ACTION-04 Administrator",
+      "passed": true
+    },
+    {
+      "name": "Navigation control ACTION-05 Administrator",
+      "passed": true
+    },
+    {
+      "name": "Navigation exact local href ACTION-05 Administrator",
+      "passed": true
+    },
+    {
+      "name": "Navigation destination ACTION-05 Administrator",
+      "passed": true
+    },
+    {
+      "name": "Navigation control ACTION-06 Administrator",
+      "passed": true
+    },
+    {
+      "name": "Navigation exact local href ACTION-06 Administrator",
+      "passed": true
+    },
+    {
+      "name": "Navigation destination ACTION-06 Administrator",
+      "passed": true
+    },
+    {
+      "name": "Navigation control ACTION-14 Administrator",
+      "passed": true
+    },
+    {
+      "name": "Navigation exact local href ACTION-14 Administrator",
+      "passed": true
+    },
+    {
+      "name": "Navigation destination ACTION-14 Administrator",
+      "passed": true
+    },
+    {
+      "name": "Routed list opens actual unclaimed cargo Administrator",
+      "passed": true
+    },
+    {
+      "name": "Alias browser data and socket live PAGE-09 Administrator",
+      "passed": true
+    },
+    {
+      "name": "Alias browser data and socket live PAGE-10 Administrator",
+      "passed": true
+    },
+    {
+      "name": "Same-location booking rejected",
+      "passed": true
+    },
+    {
+      "name": "Invalid calendar date rejected",
+      "passed": true
+    },
+    {
+      "name": "Booking persists new tracking ID",
+      "passed": true
+    },
+    {
+      "name": "Destination change persisted",
+      "passed": true
+    },
+    {
+      "name": "Independent Reader sees persisted destination",
+      "passed": true
+    },
+    {
+      "name": "Sample routing candidates rendered",
+      "passed": true
+    },
+    {
+      "name": "Missing route selection rejected",
+      "passed": true
+    },
+    {
+      "name": "Reader forged route assignment denied",
+      "passed": true
+    },
+    {
+      "name": "Route assignment requires CSRF",
+      "passed": true
+    },
+    {
+      "name": "Unknown route index rejected",
+      "passed": true
+    },
+    {
+      "name": "Denied selections leave cargo unrouted",
+      "passed": true
+    },
+    {
+      "name": "Stale route after destination change rejected",
+      "passed": true
+    },
+    {
+      "name": "Stale selection does not assign old itinerary",
+      "passed": true
+    },
+    {
+      "name": "Real route assignment is ROUTED",
+      "passed": true
+    },
+    {
+      "name": "Selected itinerary leg count persisted",
+      "passed": true
+    },
+    {
+      "name": "Exact selected voyage/location/time sequence persisted",
+      "passed": true
+    },
+    {
+      "name": "Separate Reader sees persisted route",
+      "passed": true
+    },
+    {
+      "name": "Separate Reader verifies exact itinerary sequence",
+      "passed": true
+    },
+    {
+      "name": "Rerouting existing cargo persists owned collection",
+      "passed": true
+    },
+    {
+      "name": "Exact replacement route sequence persisted",
+      "passed": true
+    },
+    {
+      "name": "Filtered list exact persisted partition admin routed",
+      "passed": true
+    },
+    {
+      "name": "Filtered list fits viewport admin routed",
+      "passed": true
+    },
+    {
+      "name": "Filtered list exact persisted partition admin unrouted",
+      "passed": true
+    },
+    {
+      "name": "Filtered list fits viewport admin unrouted",
+      "passed": true
+    },
+    {
+      "name": "Filtered list exact persisted partition admin claimed",
+      "passed": true
+    },
+    {
+      "name": "Empty filtered list controlled claimed",
+      "passed": true
+    },
+    {
+      "name": "Filtered list fits viewport admin claimed",
+      "passed": true
+    },
+    {
+      "name": "Protected About workflow page admin",
+      "passed": true
+    },
+    {
+      "name": "Authorized legacy navigation admin/selectItinerary.xhtml",
+      "passed": true
+    },
+    {
+      "name": "Authorized legacy navigation eventLogger/eventLogger.xhtml",
+      "passed": true
+    },
+    {
+      "name": "Authorized legacy navigation eventLogger/root.xhtml",
+      "passed": true
+    },
+    {
+      "name": "Authorized legacy navigation booking/booking.xhtml",
+      "passed": true
+    },
+    {
+      "name": "Authorized legacy navigation booking/booking-date.xhtml",
+      "passed": true
+    },
+    {
+      "name": "Authorized legacy navigation booking/booking-destination.xhtml",
+      "passed": true
+    },
+    {
+      "name": "Authorized invalid direct link controlled admin/selectItinerary.xhtml",
+      "passed": true
+    },
+    {
+      "name": "Authorized invalid direct link controlled admin/selectItinerary.xhtml?trackingId=UNKNOWN",
+      "passed": true
+    },
+    {
+      "name": "Authorized invalid direct link controlled admin/selectItinerary.xhtml?trackingId=%3Cscript%3E",
+      "passed": true
+    },
+    {
+      "name": "Authorized invalid direct link controlled admin/show.xhtml",
+      "passed": true
+    },
+    {
+      "name": "Authorized invalid direct link controlled admin/show.xhtml?trackingId=UNKNOWN",
+      "passed": true
+    },
+    {
+      "name": "Authorized invalid direct link controlled admin/changeDestination.xhtml",
+      "passed": true
+    },
+    {
+      "name": "Authorized invalid direct link controlled admin/changeDestination.xhtml?trackingId=UNKNOWN",
+      "passed": true
+    },
+    {
+      "name": "Authorized invalid direct link controlled admin/route.xhtml",
+      "passed": true
+    },
+    {
+      "name": "Authorized invalid direct link controlled admin/route.xhtml?trackingId=UNKNOWN",
+      "passed": true
+    },
+    {
+      "name": "Retired callback requires CSRF admin/selectItinerary.xhtml",
+      "passed": true
+    },
+    {
+      "name": "Retired callback never replays mutations admin/selectItinerary.xhtml",
+      "passed": true
+    },
+    {
+      "name": "Retired callback requires CSRF eventLogger/eventLogger.xhtml",
+      "passed": true
+    },
+    {
+      "name": "Retired callback never replays mutations eventLogger/eventLogger.xhtml",
+      "passed": true
+    },
+    {
+      "name": "Retired callback requires CSRF eventLogger/root.xhtml",
+      "passed": true
+    },
+    {
+      "name": "Retired callback never replays mutations eventLogger/root.xhtml",
+      "passed": true
+    },
+    {
+      "name": "Retired callback requires CSRF booking/booking.xhtml",
+      "passed": true
+    },
+    {
+      "name": "Retired callback never replays mutations booking/booking.xhtml",
+      "passed": true
+    },
+    {
+      "name": "Retired callback requires CSRF booking/booking-date.xhtml",
+      "passed": true
+    },
+    {
+      "name": "Retired callback never replays mutations booking/booking-date.xhtml",
+      "passed": true
+    },
+    {
+      "name": "Retired callback requires CSRF booking/booking-destination.xhtml",
+      "passed": true
+    },
+    {
+      "name": "Retired callback never replays mutations booking/booking-destination.xhtml",
+      "passed": true
+    },
+    {
+      "name": "Authorized legacy navigation admin/selectItinerary.xhtml",
+      "passed": true
+    },
+    {
+      "name": "Authorized legacy navigation eventLogger/eventLogger.xhtml",
+      "passed": true
+    },
+    {
+      "name": "Authorized legacy navigation eventLogger/root.xhtml",
+      "passed": true
+    },
+    {
+      "name": "Authorized legacy navigation booking/booking.xhtml",
+      "passed": true
+    },
+    {
+      "name": "Authorized legacy navigation booking/booking-date.xhtml",
+      "passed": true
+    },
+    {
+      "name": "Authorized legacy navigation booking/booking-destination.xhtml",
+      "passed": true
+    },
+    {
+      "name": "Authorized invalid direct link controlled admin/selectItinerary.xhtml",
+      "passed": true
+    },
+    {
+      "name": "Authorized invalid direct link controlled admin/selectItinerary.xhtml?trackingId=UNKNOWN",
+      "passed": true
+    },
+    {
+      "name": "Authorized invalid direct link controlled admin/selectItinerary.xhtml?trackingId=%3Cscript%3E",
+      "passed": true
+    },
+    {
+      "name": "Authorized invalid direct link controlled admin/show.xhtml",
+      "passed": true
+    },
+    {
+      "name": "Authorized invalid direct link controlled admin/show.xhtml?trackingId=UNKNOWN",
+      "passed": true
+    },
+    {
+      "name": "Authorized invalid direct link controlled admin/changeDestination.xhtml",
+      "passed": true
+    },
+    {
+      "name": "Authorized invalid direct link controlled admin/changeDestination.xhtml?trackingId=UNKNOWN",
+      "passed": true
+    },
+    {
+      "name": "Authorized invalid direct link controlled admin/route.xhtml",
+      "passed": true
+    },
+    {
+      "name": "Authorized invalid direct link controlled admin/route.xhtml?trackingId=UNKNOWN",
+      "passed": true
+    },
+    {
+      "name": "Retired callback requires CSRF admin/selectItinerary.xhtml",
+      "passed": true
+    },
+    {
+      "name": "Retired callback never replays mutations admin/selectItinerary.xhtml",
+      "passed": true
+    },
+    {
+      "name": "Retired callback requires CSRF eventLogger/eventLogger.xhtml",
+      "passed": true
+    },
+    {
+      "name": "Retired callback never replays mutations eventLogger/eventLogger.xhtml",
+      "passed": true
+    },
+    {
+      "name": "Retired callback requires CSRF eventLogger/root.xhtml",
+      "passed": true
+    },
+    {
+      "name": "Retired callback never replays mutations eventLogger/root.xhtml",
+      "passed": true
+    },
+    {
+      "name": "Retired callback requires CSRF booking/booking.xhtml",
+      "passed": true
+    },
+    {
+      "name": "Retired callback never replays mutations booking/booking.xhtml",
+      "passed": true
+    },
+    {
+      "name": "Retired callback requires CSRF booking/booking-date.xhtml",
+      "passed": true
+    },
+    {
+      "name": "Retired callback never replays mutations booking/booking-date.xhtml",
+      "passed": true
+    },
+    {
+      "name": "Retired callback requires CSRF booking/booking-destination.xhtml",
+      "passed": true
+    },
+    {
+      "name": "Retired callback never replays mutations booking/booking-destination.xhtml",
+      "passed": true
+    },
+    {
+      "name": "No candidates for expired deadline handled",
+      "passed": true
+    },
+    {
+      "name": "Reader direct handling UI denied",
+      "passed": true
+    },
+    {
+      "name": "Mobile handling form fits viewport",
+      "passed": true
+    },
+    {
+      "name": "Reader forged mobile POST denied",
+      "passed": true
+    },
+    {
+      "name": "Mobile mutation requires CSRF",
+      "passed": true
+    },
+    {
+      "name": "Mobile invalid calendar rejected",
+      "passed": true
+    },
+    {
+      "name": "Mobile missing required voyage rejected",
+      "passed": true
+    },
+    {
+      "name": "Mobile handling accepts asynchronous submission",
+      "passed": true
+    },
+    {
+      "name": "Mobile handling actual persistence readback",
+      "passed": true
+    },
+    {
+      "name": "Mobile LOAD with voyage accepted",
+      "passed": true
+    },
+    {
+      "name": "Mobile LOAD actually changes transport state",
+      "passed": true
+    },
+    {
+      "name": "Mobile handling form fits viewport",
+      "passed": true
+    },
+    {
+      "name": "Reader forged mobile POST denied",
+      "passed": true
+    },
+    {
+      "name": "Mobile mutation requires CSRF",
+      "passed": true
+    },
+    {
+      "name": "Mobile invalid calendar rejected",
+      "passed": true
+    },
+    {
+      "name": "Mobile missing required voyage rejected",
+      "passed": true
+    },
+    {
+      "name": "Mobile handling accepts asynchronous submission",
+      "passed": true
+    },
+    {
+      "name": "Mobile handling actual persistence readback",
+      "passed": true
+    },
+    {
+      "name": "Mobile LOAD with voyage accepted",
+      "passed": true
+    },
+    {
+      "name": "Mobile LOAD actually changes transport state",
+      "passed": true
+    },
+    {
+      "name": "Actual UNLOAD for claimed-list fixture accepted",
+      "passed": true
+    },
+    {
+      "name": "Actual UNLOAD fixture persisted",
+      "passed": true
+    },
+    {
+      "name": "Actual CLAIM for claimed-list fixture accepted",
+      "passed": true
+    },
+    {
+      "name": "Actual CLAIM fixture persisted",
+      "passed": true
+    },
+    {
+      "name": "Filtered list exact persisted partition reader routed",
+      "passed": true
+    },
+    {
+      "name": "Filtered list fits viewport reader routed",
+      "passed": true
+    },
+    {
+      "name": "Filtered list exact persisted partition reader unrouted",
+      "passed": true
+    },
+    {
+      "name": "Filtered list fits viewport reader unrouted",
+      "passed": true
+    },
+    {
+      "name": "Filtered list exact persisted partition reader claimed",
+      "passed": true
+    },
+    {
+      "name": "Filtered list fits viewport reader claimed",
+      "passed": true
+    },
+    {
+      "name": "Protected About workflow page reader",
+      "passed": true
+    },
+    {
+      "name": "Filtered list exact persisted partition operator routed",
+      "passed": true
+    },
+    {
+      "name": "Filtered list fits viewport operator routed",
+      "passed": true
+    },
+    {
+      "name": "Filtered list exact persisted partition operator unrouted",
+      "passed": true
+    },
+    {
+      "name": "Filtered list fits viewport operator unrouted",
+      "passed": true
+    },
+    {
+      "name": "Filtered list exact persisted partition operator claimed",
+      "passed": true
+    },
+    {
+      "name": "Filtered list fits viewport operator claimed",
+      "passed": true
+    },
+    {
+      "name": "Protected About workflow page operator",
+      "passed": true
+    },
+    {
+      "name": "Filtered list exact persisted partition admin routed",
+      "passed": true
+    },
+    {
+      "name": "Filtered list fits viewport admin routed",
+      "passed": true
+    },
+    {
+      "name": "Filtered list exact persisted partition admin unrouted",
+      "passed": true
+    },
+    {
+      "name": "Filtered list fits viewport admin unrouted",
+      "passed": true
+    },
+    {
+      "name": "Filtered list exact persisted partition admin claimed",
+      "passed": true
+    },
+    {
+      "name": "Filtered list fits viewport admin claimed",
+      "passed": true
+    },
+    {
+      "name": "Protected About workflow page admin",
+      "passed": true
+    },
+    {
+      "name": "Cargo details fit mobile viewport",
+      "passed": true
+    },
+    {
+      "name": "Dynamic resource bypass denied",
+      "passed": true
+    },
+    {
+      "name": "Anonymous upgrade is HTTP401",
+      "passed": true
+    },
+    {
+      "name": "Browser login reader",
+      "passed": true
+    },
+    {
+      "name": "Saved native socket cookie reader",
+      "passed": true
+    },
+    {
+      "name": "Authenticated wrong-origin upgrade denied reader",
+      "passed": true
+    },
+    {
+      "name": "Authorized upgrade reader",
+      "passed": true
+    },
+    {
+      "name": "Browser login operator",
+      "passed": true
+    },
+    {
+      "name": "Saved native socket cookie operator",
+      "passed": true
+    },
+    {
+      "name": "Authenticated wrong-origin upgrade denied operator",
+      "passed": true
+    },
+    {
+      "name": "Authorized upgrade operator",
+      "passed": true
+    },
+    {
+      "name": "Live UI snapshot operator",
+      "passed": true
+    },
+    {
+      "name": "Live UI has geographic marker operator",
+      "passed": true
+    },
+    {
+      "name": "Browser login admin",
+      "passed": true
+    },
+    {
+      "name": "Saved native socket cookie admin",
+      "passed": true
+    },
+    {
+      "name": "Authenticated wrong-origin upgrade denied admin",
+      "passed": true
+    },
+    {
+      "name": "Authorized upgrade admin",
+      "passed": true
+    },
+    {
+      "name": "Live UI snapshot admin",
+      "passed": true
+    },
+    {
+      "name": "Live UI has geographic marker admin",
+      "passed": true
+    },
+    {
+      "name": "Abrupt peer performs validated native upgrade",
+      "passed": true
+    },
+    {
+      "name": "Producer native identity 1",
+      "passed": true
+    },
+    {
+      "name": "Actual handling trigger 1",
+      "passed": true
+    },
+    {
+      "name": "Abrupt peer receives actual cargo before reset",
+      "passed": true
+    },
+    {
+      "name": "TCP reset supported",
+      "passed": true
+    },
+    {
+      "name": "Actual authorized data frame reader",
+      "passed": true
+    },
+    {
+      "name": "Legacy socket fields remain names reader",
+      "passed": true
+    },
+    {
+      "name": "Actual live UI update reader",
+      "passed": true
+    },
+    {
+      "name": "Actual live marker moves reader",
+      "passed": true
+    },
+    {
+      "name": "Delayed old snapshot cannot undo live update",
+      "passed": true
+    },
+    {
+      "name": "Actual authorized data frame operator",
+      "passed": true
+    },
+    {
+      "name": "Legacy socket fields remain names operator",
+      "passed": true
+    },
+    {
+      "name": "Actual live UI update operator",
+      "passed": true
+    },
+    {
+      "name": "Actual live marker moves operator",
+      "passed": true
+    },
+    {
+      "name": "Actual authorized data frame admin",
+      "passed": true
+    },
+    {
+      "name": "Legacy socket fields remain names admin",
+      "passed": true
+    },
+    {
+      "name": "Actual live UI update admin",
+      "passed": true
+    },
+    {
+      "name": "Actual live marker moves admin",
+      "passed": true
+    },
+    {
+      "name": "Socket owner logout",
+      "passed": true
+    },
+    {
+      "name": "Logout closes existing socket",
+      "passed": true
+    },
+    {
+      "name": "Logout clears UI cargo data",
+      "passed": true
+    },
+    {
+      "name": "Producer native identity 2",
+      "passed": true
+    },
+    {
+      "name": "Actual handling trigger 2",
+      "passed": true
+    },
+    {
+      "name": "No new data after logout",
+      "passed": true
+    },
+    {
+      "name": "Saved socket cookie identity revoked reader logged_out",
+      "passed": true
+    },
+    {
+      "name": "Saved cookie upgrade denied reader logged_out",
+      "passed": true
+    },
+    {
+      "name": "Closed socket receives no post-revocation frame reader logged_out",
+      "passed": true
+    },
+    {
+      "name": "Producer native identity 3",
+      "passed": true
+    },
+    {
+      "name": "Actual handling trigger 3",
+      "passed": true
+    },
+    {
+      "name": "Producer native identity 4",
+      "passed": true
+    },
+    {
+      "name": "Actual handling trigger 4",
+      "passed": true
+    },
+    {
+      "name": "Producer native identity 5",
+      "passed": true
+    },
+    {
+      "name": "Actual handling trigger 5",
+      "passed": true
+    },
+    {
+      "name": "Producer native identity 6",
+      "passed": true
+    },
+    {
+      "name": "Actual handling trigger 6",
+      "passed": true
+    },
+    {
+      "name": "Producer native identity 7",
+      "passed": true
+    },
+    {
+      "name": "Actual handling trigger 7",
+      "passed": true
+    },
+    {
+      "name": "HTTP idle expiry closes active socket",
+      "passed": true
+    },
+    {
+      "name": "Idle expiry clears UI cargo data",
+      "passed": true
+    },
+    {
+      "name": "Producer native identity 8",
+      "passed": true
+    },
+    {
+      "name": "Actual handling trigger 8",
+      "passed": true
+    },
+    {
+      "name": "Post-expiry event reaches authorized UI",
+      "passed": true
+    },
+    {
+      "name": "Revoked UI remains empty",
+      "passed": true
+    },
+    {
+      "name": "No new data after idle expiry",
+      "passed": true
+    },
+    {
+      "name": "Saved socket cookie identity revoked operator expired",
+      "passed": true
+    },
+    {
+      "name": "Saved cookie upgrade denied operator expired",
+      "passed": true
+    },
+    {
+      "name": "Closed socket receives no post-revocation frame operator expired",
+      "passed": true
+    },
+    {
+      "name": "Second-window witness native identity",
+      "passed": true
+    },
+    {
+      "name": "Saved native socket cookie admin",
+      "passed": true
+    },
+    {
+      "name": "Second-window witness preserves original native session",
+      "passed": true
+    },
+    {
+      "name": "Second-window witness socket opened",
+      "passed": true
+    },
+    {
+      "name": "Browser login reader",
+      "passed": true
+    },
+    {
+      "name": "Saved native socket cookie reader",
+      "passed": true
+    },
+    {
+      "name": "Browser login operator",
+      "passed": true
+    },
+    {
+      "name": "Saved native socket cookie operator",
+      "passed": true
+    },
+    {
+      "name": "Browser login admin",
+      "passed": true
+    },
+    {
+      "name": "Saved native socket cookie admin",
+      "passed": true
+    },
+    {
+      "name": "Browser login admin",
+      "passed": true
+    },
+    {
+      "name": "Saved native socket cookie admin",
+      "passed": true
+    },
+    {
+      "name": "Producer native identity 9",
+      "passed": true
+    },
+    {
+      "name": "Actual handling trigger 9",
+      "passed": true
+    },
+    {
+      "name": "Second-window witness delivered pre-revocation data",
+      "passed": true
+    },
+    {
+      "name": "Lifecycle socket delivered authorized frame reader expired",
+      "passed": true
+    },
+    {
+      "name": "Lifecycle socket delivered authorized frame operator logged_out",
+      "passed": true
+    },
+    {
+      "name": "Lifecycle real logout operator",
+      "passed": true
+    },
+    {
+      "name": "Lifecycle socket delivered authorized frame admin logged_out",
+      "passed": true
+    },
+    {
+      "name": "Lifecycle real logout admin",
+      "passed": true
+    },
+    {
+      "name": "Lifecycle socket delivered authorized frame admin expired",
+      "passed": true
+    },
+    {
+      "name": "Producer native identity 10",
+      "passed": true
+    },
+    {
+      "name": "Actual handling trigger 10",
+      "passed": true
+    },
+    {
+      "name": "Producer native identity 11",
+      "passed": true
+    },
+    {
+      "name": "Actual handling trigger 11",
+      "passed": true
+    },
+    {
+      "name": "Producer native identity 12",
+      "passed": true
+    },
+    {
+      "name": "Actual handling trigger 12",
+      "passed": true
+    },
+    {
+      "name": "Producer native identity 13",
+      "passed": true
+    },
+    {
+      "name": "Actual handling trigger 13",
+      "passed": true
+    },
+    {
+      "name": "Producer native identity 14",
+      "passed": true
+    },
+    {
+      "name": "Actual handling trigger 14",
+      "passed": true
+    },
+    {
+      "name": "Second-window witness received last idle-window event",
+      "passed": true
+    },
+    {
+      "name": "Producer native identity 15",
+      "passed": true
+    },
+    {
+      "name": "Actual handling trigger 15",
+      "passed": true
+    },
+    {
+      "name": "Fresh authorized witness receives post-revocation event",
+      "passed": true
+    },
+    {
+      "name": "Saved socket cookie identity revoked reader expired",
+      "passed": true
+    },
+    {
+      "name": "Saved cookie upgrade denied reader expired",
+      "passed": true
+    },
+    {
+      "name": "Closed socket receives no post-revocation frame reader expired",
+      "passed": true
+    },
+    {
+      "name": "Saved socket cookie identity revoked operator logged_out",
+      "passed": true
+    },
+    {
+      "name": "Saved cookie upgrade denied operator logged_out",
+      "passed": true
+    },
+    {
+      "name": "Closed socket receives no post-revocation frame operator logged_out",
+      "passed": true
+    },
+    {
+      "name": "Saved socket cookie identity revoked admin logged_out",
+      "passed": true
+    },
+    {
+      "name": "Saved cookie upgrade denied admin logged_out",
+      "passed": true
+    },
+    {
+      "name": "Closed socket receives no post-revocation frame admin logged_out",
+      "passed": true
+    },
+    {
+      "name": "Saved socket cookie identity revoked admin expired",
+      "passed": true
+    },
+    {
+      "name": "Saved cookie upgrade denied admin expired",
+      "passed": true
+    },
+    {
+      "name": "Closed socket receives no post-revocation frame admin expired",
+      "passed": true
+    },
+    {
+      "name": "Original transport survives beyond listener timeout",
+      "passed": true
+    },
+    {
+      "name": "Original transport receives post-timeout actual cargo",
+      "passed": true
+    },
+    {
+      "name": "Distinct fresh cargo supplied",
+      "passed": true
+    },
+    {
+      "name": "Unrelated cargo accepted after peer reset",
+      "passed": true
+    },
+    {
+      "name": "Healthy witness receives unrelated cargo after peer reset",
+      "passed": true
+    },
+    {
+      "name": "Browser login reader",
+      "passed": true
+    },
+    {
+      "name": "Independent Reader readback authorized 0",
+      "passed": true
+    },
+    {
+      "name": "Unrelated cargo persists in independent Reader transaction",
+      "passed": true
+    },
+    {
+      "name": "Healthy witness graceful close handshake",
+      "passed": true
+    },
+    {
+      "name": "No page or asset errors",
+      "passed": true
+    }
+  ],
+  "last_navigation": {
+    "path": "/cargo-tracker/session",
+    "status": 200
+  },
+  "resource_errors": [],
+  "page_semantics": {
+    "PAGE-09::Reader::active": {
+      "principal": "reader",
+      "roles": [
+        "Reader"
+      ],
+      "source_path": "/admin/map.xhtml",
+      "final_path": "/cargo-tracker/admin/live.xhtml",
+      "status": 200,
+      "cargo_observed": "ABC123",
+      "socket_live": true
+    },
+    "PAGE-10::Reader::active": {
+      "principal": "reader",
+      "roles": [
+        "Reader"
+      ],
+      "source_path": "/admin/mapFrame.html",
+      "final_path": "/cargo-tracker/admin/live.xhtml",
+      "status": 200,
+      "cargo_observed": "ABC123",
+      "socket_live": true
+    },
+    "PAGE-09::Operator::active": {
+      "principal": "operator",
+      "roles": [
+        "Operator"
+      ],
+      "source_path": "/admin/map.xhtml",
+      "final_path": "/cargo-tracker/admin/live.xhtml",
+      "status": 200,
+      "cargo_observed": "ABC123",
+      "socket_live": true
+    },
+    "PAGE-10::Operator::active": {
+      "principal": "operator",
+      "roles": [
+        "Operator"
+      ],
+      "source_path": "/admin/mapFrame.html",
+      "final_path": "/cargo-tracker/admin/live.xhtml",
+      "status": 200,
+      "cargo_observed": "ABC123",
+      "socket_live": true
+    },
+    "PAGE-09::Administrator::active": {
+      "principal": "admin",
+      "roles": [
+        "Administrator"
+      ],
+      "source_path": "/admin/map.xhtml",
+      "final_path": "/cargo-tracker/admin/live.xhtml",
+      "status": 200,
+      "cargo_observed": "ABC123",
+      "socket_live": true
+    },
+    "PAGE-10::Administrator::active": {
+      "principal": "admin",
+      "roles": [
+        "Administrator"
+      ],
+      "source_path": "/admin/mapFrame.html",
+      "final_path": "/cargo-tracker/admin/live.xhtml",
+      "status": 200,
+      "cargo_observed": "ABC123",
+      "socket_live": true
+    }
+  },
+  "socket_observations": {
+    "WS-01::anonymous::active": {
+      "supported": true,
+      "status": 401,
+      "upgraded": false,
+      "protected_payload_absent": true
+    },
+    "WS-ORIGIN::Reader::active": {
+      "supported": true,
+      "status": 403,
+      "upgraded": false,
+      "protected_payload_absent": true,
+      "identity": {
+        "server_verified": true,
+        "principal": "reader",
+        "roles": [
+          "Reader"
+        ]
+      }
+    },
+    "WS-ORIGIN::Operator::active": {
+      "supported": true,
+      "status": 403,
+      "upgraded": false,
+      "protected_payload_absent": true,
+      "identity": {
+        "server_verified": true,
+        "principal": "operator",
+        "roles": [
+          "Operator"
+        ]
+      }
+    },
+    "WS-ORIGIN::Administrator::active": {
+      "supported": true,
+      "status": 403,
+      "upgraded": false,
+      "protected_payload_absent": true,
+      "identity": {
+        "server_verified": true,
+        "principal": "admin",
+        "roles": [
+          "Administrator"
+        ]
+      }
+    },
+    "WS-01::Reader::active": {
+      "supported": true,
+      "status": 101,
+      "semantic_success": true,
+      "authorized_frame_received": true,
+      "identity": {
+        "server_verified": true,
+        "principal": "reader",
+        "roles": [
+          "Reader"
+        ]
+      },
+      "socket_open_observed": true
+    },
+    "WS-01::Operator::active": {
+      "supported": true,
+      "status": 101,
+      "semantic_success": true,
+      "authorized_frame_received": true,
+      "identity": {
+        "server_verified": true,
+        "principal": "operator",
+        "roles": [
+          "Operator"
+        ]
+      },
+      "socket_open_observed": true
+    },
+    "WS-01::Administrator::active": {
+      "supported": true,
+      "status": 101,
+      "semantic_success": true,
+      "authorized_frame_received": true,
+      "identity": {
+        "server_verified": true,
+        "principal": "admin",
+        "roles": [
+          "Administrator"
+        ]
+      },
+      "socket_open_observed": true
+    },
+    "WS-01::Reader::logged_out": {
+      "supported": true,
+      "status": 401,
+      "upgraded": false,
+      "protected_payload_absent": true,
+      "identity": {
+        "server_verified": true,
+        "principal": "reader",
+        "roles": [
+          "Reader"
+        ]
+      },
+      "authenticated_before_revocation": true,
+      "revocation_verified": true,
+      "existing_socket_closed": true,
+      "post_revocation_frame_received": false,
+      "stale_cookie_replay_verified": true
+    },
+    "WS-01::Operator::expired": {
+      "supported": true,
+      "status": 401,
+      "upgraded": false,
+      "protected_payload_absent": true,
+      "identity": {
+        "server_verified": true,
+        "principal": "operator",
+        "roles": [
+          "Operator"
+        ]
+      },
+      "authenticated_before_revocation": true,
+      "revocation_verified": true,
+      "existing_socket_closed": true,
+      "post_revocation_frame_received": false,
+      "stale_cookie_replay_verified": true
+    },
+    "WS-01::Reader::expired": {
+      "supported": true,
+      "status": 401,
+      "upgraded": false,
+      "protected_payload_absent": true,
+      "identity": {
+        "server_verified": true,
+        "principal": "reader",
+        "roles": [
+          "Reader"
+        ]
+      },
+      "authenticated_before_revocation": true,
+      "revocation_verified": true,
+      "existing_socket_closed": true,
+      "post_revocation_frame_received": false,
+      "stale_cookie_replay_verified": true
+    },
+    "WS-01::Operator::logged_out": {
+      "supported": true,
+      "status": 401,
+      "upgraded": false,
+      "protected_payload_absent": true,
+      "identity": {
+        "server_verified": true,
+        "principal": "operator",
+        "roles": [
+          "Operator"
+        ]
+      },
+      "authenticated_before_revocation": true,
+      "revocation_verified": true,
+      "existing_socket_closed": true,
+      "post_revocation_frame_received": false,
+      "stale_cookie_replay_verified": true
+    },
+    "WS-01::Administrator::logged_out": {
+      "supported": true,
+      "status": 401,
+      "upgraded": false,
+      "protected_payload_absent": true,
+      "identity": {
+        "server_verified": true,
+        "principal": "admin",
+        "roles": [
+          "Administrator"
+        ]
+      },
+      "authenticated_before_revocation": true,
+      "revocation_verified": true,
+      "existing_socket_closed": true,
+      "post_revocation_frame_received": false,
+      "stale_cookie_replay_verified": true
+    },
+    "WS-01::Administrator::expired": {
+      "supported": true,
+      "status": 401,
+      "upgraded": false,
+      "protected_payload_absent": true,
+      "identity": {
+        "server_verified": true,
+        "principal": "admin",
+        "roles": [
+          "Administrator"
+        ]
+      },
+      "authenticated_before_revocation": true,
+      "revocation_verified": true,
+      "existing_socket_closed": true,
+      "post_revocation_frame_received": false,
+      "stale_cookie_replay_verified": true
+    }
+  },
+  "socket_diagnostics": [
+    {
+      "label": "before-trigger-1",
+      "role": "admin",
+      "at": 1793626276544,
+      "readyState": 1,
+      "closed": false,
+      "frameCount": 0,
+      "openedAt": 1793626276397,
+      "close": null
+    },
+    {
+      "label": "after-trigger-1",
+      "role": "admin",
+      "at": 1793626276564,
+      "readyState": 1,
+      "closed": false,
+      "frameCount": 0,
+      "openedAt": 1793626276397,
+      "close": null
+    },
+    {
+      "label": "before-trigger-2",
+      "role": "admin",
+      "at": 1793626276792,
+      "readyState": 1,
+      "closed": false,
+      "frameCount": 1,
+      "lastFrameLocation": "SESTO",
+      "openedAt": 1793626276397,
+      "close": null
+    },
+    {
+      "label": "after-trigger-2",
+      "role": "admin",
+      "at": 1793626276810,
+      "readyState": 1,
+      "closed": false,
+      "frameCount": 1,
+      "lastFrameLocation": "SESTO",
+      "openedAt": 1793626276397,
+      "close": null
+    },
+    {
+      "label": "before-trigger-3",
+      "role": "admin",
+      "at": 1793626291845,
+      "readyState": 1,
+      "closed": false,
+      "frameCount": 2,
+      "lastFrameLocation": "FIHEL",
+      "openedAt": 1793626276397,
+      "close": null
+    },
+    {
+      "label": "after-trigger-3",
+      "role": "admin",
+      "at": 1793626291865,
+      "readyState": 1,
+      "closed": false,
+      "frameCount": 2,
+      "lastFrameLocation": "FIHEL",
+      "openedAt": 1793626276397,
+      "close": null
+    },
+    {
+      "label": "before-trigger-4",
+      "role": "admin",
+      "at": 1793626306878,
+      "readyState": 1,
+      "closed": false,
+      "frameCount": 3,
+      "lastFrameLocation": "SESTO",
+      "openedAt": 1793626276397,
+      "close": null
+    },
+    {
+      "label": "after-trigger-4",
+      "role": "admin",
+      "at": 1793626306898,
+      "readyState": 1,
+      "closed": false,
+      "frameCount": 3,
+      "lastFrameLocation": "SESTO",
+      "openedAt": 1793626276397,
+      "close": null
+    },
+    {
+      "label": "before-trigger-5",
+      "role": "admin",
+      "at": 1793626321894,
+      "readyState": 1,
+      "closed": false,
+      "frameCount": 4,
+      "lastFrameLocation": "FIHEL",
+      "openedAt": 1793626276397,
+      "close": null
+    },
+    {
+      "label": "after-trigger-5",
+      "role": "admin",
+      "at": 1793626321915,
+      "readyState": 1,
+      "closed": false,
+      "frameCount": 4,
+      "lastFrameLocation": "FIHEL",
+      "openedAt": 1793626276397,
+      "close": null
+    },
+    {
+      "label": "before-trigger-6",
+      "role": "admin",
+      "at": 1793626336920,
+      "readyState": 1,
+      "closed": false,
+      "frameCount": 5,
+      "lastFrameLocation": "SESTO",
+      "openedAt": 1793626276397,
+      "close": null
+    },
+    {
+      "label": "after-trigger-6",
+      "role": "admin",
+      "at": 1793626336940,
+      "readyState": 1,
+      "closed": false,
+      "frameCount": 5,
+      "lastFrameLocation": "SESTO",
+      "openedAt": 1793626276397,
+      "close": null
+    },
+    {
+      "label": "before-trigger-7",
+      "role": "admin",
+      "at": 1793626351935,
+      "readyState": 1,
+      "closed": false,
+      "frameCount": 6,
+      "lastFrameLocation": "FIHEL",
+      "openedAt": 1793626276397,
+      "close": null
+    },
+    {
+      "label": "after-trigger-7",
+      "role": "admin",
+      "at": 1793626351950,
+      "readyState": 1,
+      "closed": false,
+      "frameCount": 6,
+      "lastFrameLocation": "FIHEL",
+      "openedAt": 1793626276397,
+      "close": null
+    },
+    {
+      "label": "before-trigger-8",
+      "role": "admin",
+      "at": 1793626351971,
+      "readyState": 1,
+      "closed": false,
+      "frameCount": 6,
+      "lastFrameLocation": "FIHEL",
+      "openedAt": 1793626276397,
+      "close": null
+    },
+    {
+      "label": "after-trigger-8",
+      "role": "admin",
+      "at": 1793626351996,
+      "readyState": 1,
+      "closed": false,
+      "frameCount": 7,
+      "lastFrameLocation": "SESTO",
+      "openedAt": 1793626276397,
+      "close": null
+    },
+    {
+      "label": "aging-witness-before-second-window",
+      "role": "admin",
+      "at": 1793626352092,
+      "readyState": 1,
+      "closed": false,
+      "frameCount": 8,
+      "lastFrameLocation": "USNYC",
+      "openedAt": 1793626276397,
+      "close": null
+    },
+    {
+      "label": "before-trigger-9",
+      "role": "admin",
+      "at": 1793626353015,
+      "readyState": 1,
+      "closed": false,
+      "frameCount": 0,
+      "openedAt": 1793626352166,
+      "close": null
+    },
+    {
+      "label": "after-trigger-9",
+      "role": "admin",
+      "at": 1793626353033,
+      "readyState": 1,
+      "closed": false,
+      "frameCount": 0,
+      "openedAt": 1793626352166,
+      "close": null
+    },
+    {
+      "label": "before-extra-logout-operator",
+      "role": "admin",
+      "at": 1793626353087,
+      "readyState": 1,
+      "closed": false,
+      "frameCount": 1,
+      "lastFrameLocation": "SESTO",
+      "openedAt": 1793626352166,
+      "close": null
+    },
+    {
+      "label": "after-extra-logout-operator",
+      "role": "admin",
+      "at": 1793626353104,
+      "readyState": 1,
+      "closed": false,
+      "frameCount": 1,
+      "lastFrameLocation": "SESTO",
+      "openedAt": 1793626352166,
+      "close": null
+    },
+    {
+      "label": "before-extra-logout-admin",
+      "role": "admin",
+      "at": 1793626353111,
+      "readyState": 1,
+      "closed": false,
+      "frameCount": 1,
+      "lastFrameLocation": "SESTO",
+      "openedAt": 1793626352166,
+      "close": null
+    },
+    {
+      "label": "after-extra-logout-admin",
+      "role": "admin",
+      "at": 1793626353126,
+      "readyState": 1,
+      "closed": false,
+      "frameCount": 1,
+      "lastFrameLocation": "SESTO",
+      "openedAt": 1793626352166,
+      "close": null
+    },
+    {
+      "label": "before-trigger-10",
+      "role": "admin",
+      "at": 1793626368141,
+      "readyState": 1,
+      "closed": false,
+      "frameCount": 1,
+      "lastFrameLocation": "SESTO",
+      "openedAt": 1793626352166,
+      "close": null
+    },
+    {
+      "label": "after-trigger-10",
+      "role": "admin",
+      "at": 1793626368162,
+      "readyState": 1,
+      "closed": false,
+      "frameCount": 1,
+      "lastFrameLocation": "SESTO",
+      "openedAt": 1793626352166,
+      "close": null
+    },
+    {
+      "label": "before-trigger-11",
+      "role": "admin",
+      "at": 1793626383155,
+      "readyState": 1,
+      "closed": false,
+      "frameCount": 2,
+      "lastFrameLocation": "FIHEL",
+      "openedAt": 1793626352166,
+      "close": null
+    },
+    {
+      "label": "after-trigger-11",
+      "role": "admin",
+      "at": 1793626383173,
+      "readyState": 1,
+      "closed": false,
+      "frameCount": 2,
+      "lastFrameLocation": "FIHEL",
+      "openedAt": 1793626352166,
+      "close": null
+    },
+    {
+      "label": "before-trigger-12",
+      "role": "admin",
+      "at": 1793626398180,
+      "readyState": 1,
+      "closed": false,
+      "frameCount": 3,
+      "lastFrameLocation": "SESTO",
+      "openedAt": 1793626352166,
+      "close": null
+    },
+    {
+      "label": "after-trigger-12",
+      "role": "admin",
+      "at": 1793626398199,
+      "readyState": 1,
+      "closed": false,
+      "frameCount": 3,
+      "lastFrameLocation": "SESTO",
+      "openedAt": 1793626352166,
+      "close": null
+    },
+    {
+      "label": "before-trigger-13",
+      "role": "admin",
+      "at": 1793626413189,
+      "readyState": 1,
+      "closed": false,
+      "frameCount": 4,
+      "lastFrameLocation": "FIHEL",
+      "openedAt": 1793626352166,
+      "close": null
+    },
+    {
+      "label": "after-trigger-13",
+      "role": "admin",
+      "at": 1793626413210,
+      "readyState": 1,
+      "closed": false,
+      "frameCount": 4,
+      "lastFrameLocation": "FIHEL",
+      "openedAt": 1793626352166,
+      "close": null
+    },
+    {
+      "label": "before-trigger-14",
+      "role": "admin",
+      "at": 1793626428221,
+      "readyState": 1,
+      "closed": false,
+      "frameCount": 5,
+      "lastFrameLocation": "SESTO",
+      "openedAt": 1793626352166,
+      "close": null
+    },
+    {
+      "label": "after-trigger-14",
+      "role": "admin",
+      "at": 1793626428239,
+      "readyState": 1,
+      "closed": false,
+      "frameCount": 5,
+      "lastFrameLocation": "SESTO",
+      "openedAt": 1793626352166,
+      "close": null
+    },
+    {
+      "label": "before-trigger-15",
+      "role": "admin",
+      "at": 1793626428282,
+      "readyState": 1,
+      "closed": false,
+      "frameCount": 6,
+      "lastFrameLocation": "FIHEL",
+      "openedAt": 1793626352166,
+      "close": null
+    },
+    {
+      "label": "after-trigger-15",
+      "role": "admin",
+      "at": 1793626428300,
+      "readyState": 1,
+      "closed": false,
+      "frameCount": 6,
+      "lastFrameLocation": "FIHEL",
+      "openedAt": 1793626352166,
+      "close": null
+    },
+    {
+      "label": "aging-witness-after-second-window",
+      "role": "admin",
+      "at": 1793626428375,
+      "readyState": 1,
+      "closed": false,
+      "frameCount": 15,
+      "lastFrameLocation": "SESTO",
+      "openedAt": 1793626276397,
+      "close": null
+    }
+  ],
+  "disconnect_evidence": {
+    "abrupt_peer": {
+      "validated_upgrade": true,
+      "actual_frame_before_reset": true,
+      "tcp_reset_without_close_frame": true
+    },
+    "aging_transport": {
+      "openedAt": 1793626276397,
+      "observedAt": 1793626428377,
+      "readyState": 1,
+      "close": null,
+      "frameCount": 15
+    },
+    "unrelated_cargo": {
+      "tracking_id": "FC4FB84B",
+      "http_status": 204,
+      "healthy_witness_received": true,
+      "independent_reader_persistence_verified": true
+    },
+    "graceful_close_code": 1000
+  },
+  "navigation_actions": {
+    "ACTION-01::anonymous::active": {
+      "supported": true,
+      "status": 303,
+      "target": "admin/dashboard.xhtml",
+      "source_page": "index.xhtml",
+      "driver": "click",
+      "action_executed": true,
+      "control_hidden": false,
+      "target_origin_verified": true,
+      "actual_target_path": "/cargo-tracker/admin/dashboard.xhtml",
+      "query_keys": [
+        "jfwid"
+      ],
+      "tracking_id": null,
+      "protected_payload_absent": true,
+      "redirect_is_configured_login": true
+    },
+    "ACTION-02::anonymous::active": {
+      "supported": true,
+      "status": 303,
+      "target": "admin/book.xhtml",
+      "source_page": "index.xhtml",
+      "driver": "direct",
+      "action_executed": true,
+      "control_hidden": true,
+      "target_origin_verified": true,
+      "actual_target_path": "/cargo-tracker/admin/book.xhtml",
+      "query_keys": [],
+      "tracking_id": null,
+      "protected_payload_absent": true,
+      "redirect_is_configured_login": true
+    },
+    "ACTION-03::anonymous::active": {
+      "supported": true,
+      "status": 303,
+      "target": "admin/track.xhtml",
+      "source_page": "index.xhtml",
+      "driver": "click",
+      "action_executed": true,
+      "control_hidden": false,
+      "target_origin_verified": true,
+      "actual_target_path": "/cargo-tracker/admin/track.xhtml",
+      "query_keys": [
+        "jfwid"
+      ],
+      "tracking_id": null,
+      "protected_payload_absent": true,
+      "redirect_is_configured_login": true
+    },
+    "ACTION-04::anonymous::active": {
+      "supported": true,
+      "status": 303,
+      "target": "admin/live.xhtml",
+      "source_page": "index.xhtml",
+      "driver": "click",
+      "action_executed": true,
+      "control_hidden": false,
+      "target_origin_verified": true,
+      "actual_target_path": "/cargo-tracker/admin/live.xhtml",
+      "query_keys": [
+        "jfwid"
+      ],
+      "tracking_id": null,
+      "protected_payload_absent": true,
+      "redirect_is_configured_login": true
+    },
+    "ACTION-05::anonymous::active": {
+      "supported": true,
+      "status": 303,
+      "target": "admin/about.xhtml",
+      "source_page": "index.xhtml",
+      "driver": "direct",
+      "action_executed": true,
+      "control_hidden": true,
+      "target_origin_verified": true,
+      "actual_target_path": "/cargo-tracker/admin/about.xhtml",
+      "query_keys": [],
+      "tracking_id": null,
+      "protected_payload_absent": true,
+      "redirect_is_configured_login": true
+    },
+    "ACTION-06::anonymous::active": {
+      "supported": true,
+      "status": 200,
+      "target": "public/about.xhtml",
+      "source_page": "index.xhtml",
+      "driver": "click",
+      "action_executed": true,
+      "control_hidden": false,
+      "target_origin_verified": true,
+      "actual_target_path": "/cargo-tracker/public/about.xhtml",
+      "query_keys": [
+        "jfwid"
+      ],
+      "tracking_id": null,
+      "semantic_success": true,
+      "protected_payload_absent": true
+    },
+    "ACTION-14::anonymous::active": {
+      "supported": true,
+      "status": 303,
+      "target": "admin/show.xhtml?trackingId=ABC123",
+      "source_page": "index.xhtml",
+      "driver": "direct",
+      "action_executed": true,
+      "control_hidden": true,
+      "target_origin_verified": true,
+      "actual_target_path": "/cargo-tracker/admin/show.xhtml",
+      "query_keys": [
+        "trackingId"
+      ],
+      "tracking_id": "ABC123",
+      "protected_payload_absent": true,
+      "redirect_is_configured_login": true
+    },
+    "ACTION-01::Reader::active": {
+      "supported": true,
+      "status": 200,
+      "target": "admin/dashboard.xhtml",
+      "source_page": "admin/dashboard.xhtml",
+      "driver": "click",
+      "action_executed": true,
+      "control_hidden": false,
+      "target_origin_verified": true,
+      "actual_target_path": "/cargo-tracker/admin/dashboard.xhtml",
+      "query_keys": [
+        "jfwid"
+      ],
+      "tracking_id": null,
+      "identity": {
+        "server_verified": true,
+        "principal": "reader",
+        "roles": [
+          "Reader"
+        ]
+      },
+      "cargo_observed": "ABC123",
+      "semantic_success": true
+    },
+    "ACTION-02::Reader::active": {
+      "supported": true,
+      "status": 403,
+      "target": "admin/book.xhtml",
+      "source_page": "admin/dashboard.xhtml",
+      "driver": "direct",
+      "action_executed": true,
+      "control_hidden": true,
+      "target_origin_verified": true,
+      "actual_target_path": "/cargo-tracker/admin/book.xhtml",
+      "query_keys": [],
+      "tracking_id": null,
+      "identity": {
+        "server_verified": true,
+        "principal": "reader",
+        "roles": [
+          "Reader"
+        ]
+      },
+      "protected_payload_absent": true,
+      "redirect_is_configured_login": false
+    },
+    "ACTION-03::Reader::active": {
+      "supported": true,
+      "status": 200,
+      "target": "admin/track.xhtml",
+      "source_page": "admin/dashboard.xhtml",
+      "driver": "click",
+      "action_executed": true,
+      "control_hidden": false,
+      "target_origin_verified": true,
+      "actual_target_path": "/cargo-tracker/admin/track.xhtml",
+      "query_keys": [
+        "jfwid"
+      ],
+      "tracking_id": null,
+      "identity": {
+        "server_verified": true,
+        "principal": "reader",
+        "roles": [
+          "Reader"
+        ]
+      },
+      "form_observed": true,
+      "semantic_success": true
+    },
+    "ACTION-04::Reader::active": {
+      "supported": true,
+      "status": 200,
+      "target": "admin/live.xhtml",
+      "source_page": "admin/dashboard.xhtml",
+      "driver": "click",
+      "action_executed": true,
+      "control_hidden": false,
+      "target_origin_verified": true,
+      "actual_target_path": "/cargo-tracker/admin/live.xhtml",
+      "query_keys": [
+        "jfwid"
+      ],
+      "tracking_id": null,
+      "identity": {
+        "server_verified": true,
+        "principal": "reader",
+        "roles": [
+          "Reader"
+        ]
+      },
+      "socket_live": true,
+      "cargo_observed": "ABC123",
+      "semantic_success": true
+    },
+    "ACTION-05::Reader::active": {
+      "supported": true,
+      "status": 200,
+      "target": "admin/about.xhtml",
+      "source_page": "admin/dashboard.xhtml",
+      "driver": "click",
+      "action_executed": true,
+      "control_hidden": false,
+      "target_origin_verified": true,
+      "actual_target_path": "/cargo-tracker/admin/about.xhtml",
+      "query_keys": [
+        "jfwid"
+      ],
+      "tracking_id": null,
+      "identity": {
+        "server_verified": true,
+        "principal": "reader",
+        "roles": [
+          "Reader"
+        ]
+      },
+      "semantic_success": true
+    },
+    "ACTION-06::Reader::active": {
+      "supported": true,
+      "status": 200,
+      "target": "public/about.xhtml",
+      "source_page": "index.xhtml",
+      "driver": "click",
+      "action_executed": true,
+      "control_hidden": false,
+      "target_origin_verified": true,
+      "actual_target_path": "/cargo-tracker/public/about.xhtml",
+      "query_keys": [
+        "jfwid"
+      ],
+      "tracking_id": null,
+      "identity": {
+        "server_verified": true,
+        "principal": "reader",
+        "roles": [
+          "Reader"
+        ]
+      },
+      "semantic_success": true,
+      "protected_payload_absent": true
+    },
+    "ACTION-14::Reader::active": {
+      "supported": true,
+      "status": 200,
+      "target": "admin/show.xhtml?trackingId=ABC123",
+      "source_page": "admin/listRouted.xhtml",
+      "driver": "click",
+      "action_executed": true,
+      "control_hidden": false,
+      "target_origin_verified": true,
+      "actual_target_path": "/cargo-tracker/admin/show.xhtml",
+      "query_keys": [
+        "trackingId",
+        "jfwid"
+      ],
+      "tracking_id": "ABC123",
+      "identity": {
+        "server_verified": true,
+        "principal": "reader",
+        "roles": [
+          "Reader"
+        ]
+      },
+      "cargo_observed": "ABC123",
+      "routing_status": "ROUTED",
+      "transport_status": "IN_PORT",
+      "semantic_success": true
+    },
+    "ACTION-01::Operator::active": {
+      "supported": true,
+      "status": 200,
+      "target": "admin/dashboard.xhtml",
+      "source_page": "admin/dashboard.xhtml",
+      "driver": "click",
+      "action_executed": true,
+      "control_hidden": false,
+      "target_origin_verified": true,
+      "actual_target_path": "/cargo-tracker/admin/dashboard.xhtml",
+      "query_keys": [
+        "jfwid"
+      ],
+      "tracking_id": null,
+      "identity": {
+        "server_verified": true,
+        "principal": "operator",
+        "roles": [
+          "Operator"
+        ]
+      },
+      "cargo_observed": "ABC123",
+      "semantic_success": true
+    },
+    "ACTION-02::Operator::active": {
+      "supported": true,
+      "status": 200,
+      "target": "admin/book.xhtml",
+      "source_page": "admin/dashboard.xhtml",
+      "driver": "click",
+      "action_executed": true,
+      "control_hidden": false,
+      "target_origin_verified": true,
+      "actual_target_path": "/cargo-tracker/admin/book.xhtml",
+      "query_keys": [
+        "jfwid"
+      ],
+      "tracking_id": null,
+      "identity": {
+        "server_verified": true,
+        "principal": "operator",
+        "roles": [
+          "Operator"
+        ]
+      },
+      "form_observed": true,
+      "semantic_success": true
+    },
+    "ACTION-03::Operator::active": {
+      "supported": true,
+      "status": 200,
+      "target": "admin/track.xhtml",
+      "source_page": "admin/dashboard.xhtml",
+      "driver": "click",
+      "action_executed": true,
+      "control_hidden": false,
+      "target_origin_verified": true,
+      "actual_target_path": "/cargo-tracker/admin/track.xhtml",
+      "query_keys": [
+        "jfwid"
+      ],
+      "tracking_id": null,
+      "identity": {
+        "server_verified": true,
+        "principal": "operator",
+        "roles": [
+          "Operator"
+        ]
+      },
+      "form_observed": true,
+      "semantic_success": true
+    },
+    "ACTION-04::Operator::active": {
+      "supported": true,
+      "status": 200,
+      "target": "admin/live.xhtml",
+      "source_page": "admin/dashboard.xhtml",
+      "driver": "click",
+      "action_executed": true,
+      "control_hidden": false,
+      "target_origin_verified": true,
+      "actual_target_path": "/cargo-tracker/admin/live.xhtml",
+      "query_keys": [
+        "jfwid"
+      ],
+      "tracking_id": null,
+      "identity": {
+        "server_verified": true,
+        "principal": "operator",
+        "roles": [
+          "Operator"
+        ]
+      },
+      "socket_live": true,
+      "cargo_observed": "ABC123",
+      "semantic_success": true
+    },
+    "ACTION-05::Operator::active": {
+      "supported": true,
+      "status": 200,
+      "target": "admin/about.xhtml",
+      "source_page": "admin/dashboard.xhtml",
+      "driver": "click",
+      "action_executed": true,
+      "control_hidden": false,
+      "target_origin_verified": true,
+      "actual_target_path": "/cargo-tracker/admin/about.xhtml",
+      "query_keys": [
+        "jfwid"
+      ],
+      "tracking_id": null,
+      "identity": {
+        "server_verified": true,
+        "principal": "operator",
+        "roles": [
+          "Operator"
+        ]
+      },
+      "semantic_success": true
+    },
+    "ACTION-06::Operator::active": {
+      "supported": true,
+      "status": 200,
+      "target": "public/about.xhtml",
+      "source_page": "index.xhtml",
+      "driver": "click",
+      "action_executed": true,
+      "control_hidden": false,
+      "target_origin_verified": true,
+      "actual_target_path": "/cargo-tracker/public/about.xhtml",
+      "query_keys": [
+        "jfwid"
+      ],
+      "tracking_id": null,
+      "identity": {
+        "server_verified": true,
+        "principal": "operator",
+        "roles": [
+          "Operator"
+        ]
+      },
+      "semantic_success": true,
+      "protected_payload_absent": true
+    },
+    "ACTION-14::Operator::active": {
+      "supported": true,
+      "status": 200,
+      "target": "admin/show.xhtml?trackingId=ABC123",
+      "source_page": "admin/listRouted.xhtml",
+      "driver": "click",
+      "action_executed": true,
+      "control_hidden": false,
+      "target_origin_verified": true,
+      "actual_target_path": "/cargo-tracker/admin/show.xhtml",
+      "query_keys": [
+        "trackingId",
+        "jfwid"
+      ],
+      "tracking_id": "ABC123",
+      "identity": {
+        "server_verified": true,
+        "principal": "operator",
+        "roles": [
+          "Operator"
+        ]
+      },
+      "cargo_observed": "ABC123",
+      "routing_status": "ROUTED",
+      "transport_status": "IN_PORT",
+      "semantic_success": true
+    },
+    "ACTION-01::Administrator::active": {
+      "supported": true,
+      "status": 200,
+      "target": "admin/dashboard.xhtml",
+      "source_page": "admin/dashboard.xhtml",
+      "driver": "click",
+      "action_executed": true,
+      "control_hidden": false,
+      "target_origin_verified": true,
+      "actual_target_path": "/cargo-tracker/admin/dashboard.xhtml",
+      "query_keys": [
+        "jfwid"
+      ],
+      "tracking_id": null,
+      "identity": {
+        "server_verified": true,
+        "principal": "admin",
+        "roles": [
+          "Administrator"
+        ]
+      },
+      "cargo_observed": "ABC123",
+      "semantic_success": true
+    },
+    "ACTION-02::Administrator::active": {
+      "supported": true,
+      "status": 200,
+      "target": "admin/book.xhtml",
+      "source_page": "admin/dashboard.xhtml",
+      "driver": "click",
+      "action_executed": true,
+      "control_hidden": false,
+      "target_origin_verified": true,
+      "actual_target_path": "/cargo-tracker/admin/book.xhtml",
+      "query_keys": [
+        "jfwid"
+      ],
+      "tracking_id": null,
+      "identity": {
+        "server_verified": true,
+        "principal": "admin",
+        "roles": [
+          "Administrator"
+        ]
+      },
+      "form_observed": true,
+      "semantic_success": true
+    },
+    "ACTION-03::Administrator::active": {
+      "supported": true,
+      "status": 200,
+      "target": "admin/track.xhtml",
+      "source_page": "admin/dashboard.xhtml",
+      "driver": "click",
+      "action_executed": true,
+      "control_hidden": false,
+      "target_origin_verified": true,
+      "actual_target_path": "/cargo-tracker/admin/track.xhtml",
+      "query_keys": [
+        "jfwid"
+      ],
+      "tracking_id": null,
+      "identity": {
+        "server_verified": true,
+        "principal": "admin",
+        "roles": [
+          "Administrator"
+        ]
+      },
+      "form_observed": true,
+      "semantic_success": true
+    },
+    "ACTION-04::Administrator::active": {
+      "supported": true,
+      "status": 200,
+      "target": "admin/live.xhtml",
+      "source_page": "admin/dashboard.xhtml",
+      "driver": "click",
+      "action_executed": true,
+      "control_hidden": false,
+      "target_origin_verified": true,
+      "actual_target_path": "/cargo-tracker/admin/live.xhtml",
+      "query_keys": [
+        "jfwid"
+      ],
+      "tracking_id": null,
+      "identity": {
+        "server_verified": true,
+        "principal": "admin",
+        "roles": [
+          "Administrator"
+        ]
+      },
+      "socket_live": true,
+      "cargo_observed": "ABC123",
+      "semantic_success": true
+    },
+    "ACTION-05::Administrator::active": {
+      "supported": true,
+      "status": 200,
+      "target": "admin/about.xhtml",
+      "source_page": "admin/dashboard.xhtml",
+      "driver": "click",
+      "action_executed": true,
+      "control_hidden": false,
+      "target_origin_verified": true,
+      "actual_target_path": "/cargo-tracker/admin/about.xhtml",
+      "query_keys": [
+        "jfwid"
+      ],
+      "tracking_id": null,
+      "identity": {
+        "server_verified": true,
+        "principal": "admin",
+        "roles": [
+          "Administrator"
+        ]
+      },
+      "semantic_success": true
+    },
+    "ACTION-06::Administrator::active": {
+      "supported": true,
+      "status": 200,
+      "target": "public/about.xhtml",
+      "source_page": "index.xhtml",
+      "driver": "click",
+      "action_executed": true,
+      "control_hidden": false,
+      "target_origin_verified": true,
+      "actual_target_path": "/cargo-tracker/public/about.xhtml",
+      "query_keys": [
+        "jfwid"
+      ],
+      "tracking_id": null,
+      "identity": {
+        "server_verified": true,
+        "principal": "admin",
+        "roles": [
+          "Administrator"
+        ]
+      },
+      "semantic_success": true,
+      "protected_payload_absent": true
+    },
+    "ACTION-14::Administrator::active": {
+      "supported": true,
+      "status": 200,
+      "target": "admin/show.xhtml?trackingId=ABC123",
+      "source_page": "admin/listRouted.xhtml",
+      "driver": "click",
+      "action_executed": true,
+      "control_hidden": false,
+      "target_origin_verified": true,
+      "actual_target_path": "/cargo-tracker/admin/show.xhtml",
+      "query_keys": [
+        "trackingId",
+        "jfwid"
+      ],
+      "tracking_id": "ABC123",
+      "identity": {
+        "server_verified": true,
+        "principal": "admin",
+        "roles": [
+          "Administrator"
+        ]
+      },
+      "cargo_observed": "ABC123",
+      "routing_status": "ROUTED",
+      "transport_status": "IN_PORT",
+      "semantic_success": true
+    }
+  }
+}
