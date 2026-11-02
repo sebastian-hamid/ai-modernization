@@ -68,7 +68,14 @@ def bound_contracts():
     cases=build(json.loads((ROOT/"specifications/access-policy-inventory.json").read_text()))
     classes={"PAGE-01":"internal-template","PAGE-02":"internal-template","PAGE-03":"read","PAGE-06":"read","PAGE-07":"read","PAGE-08":"read","PAGE-22":"public","PAGE-24":"public"}
     classes.update({'PAGE-04': 'operator', 'PAGE-05': 'read', 'PAGE-09': 'read', 'PAGE-10': 'read', 'PAGE-11': 'operator', 'PAGE-12': 'operator', 'PAGE-13': 'read', 'PAGE-14': 'read', 'PAGE-15': 'operator', 'PAGE-16': 'operator', 'PAGE-17': 'operator', 'PAGE-18': 'sanitized-error', 'PAGE-19': 'sanitized-error', 'PAGE-20': 'operator', 'PAGE-21': 'operator', 'PAGE-23': 'operator', 'PAGE-25': 'read'})
-    return {case["id"]:case for case in cases if paths.get(case["surface_id"])==(case.get("path"),case.get("method")) and (case["channel"]!="page" or case.get("classification")==classes.get(case["surface_id"]))}
+    bound={case["id"]:case for case in cases if paths.get(case["surface_id"])==(case.get("path"),case.get("method")) and (case["channel"]!="page" or case.get("classification")==classes.get(case["surface_id"]))}
+    navigation={row["id"]:row for row in json.loads((ROOT/"tests/browser-workflows/navigation-actions.json").read_text())}
+    for case in cases:
+        row=navigation.get(case["surface_id"])
+        if row and case["channel"]=="action" and case.get("callback")==row["callback"] and case.get("page_id")==row["page_id"] and case.get("method")=="GET" and case.get("path") is None and case.get("write") is False:
+            allowed=row["anonymous"] if case["actor"]=="anonymous" else case["actor"] in row["allowed_roles"]
+            if case["expected"]==("allow" if allowed else "deny"):bound[case["id"]]=case
+    return bound
 
 if __name__=="__main__":
     ap=argparse.ArgumentParser()

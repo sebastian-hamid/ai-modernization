@@ -42,6 +42,33 @@ def promote_socket_cases(report,results):
     report["access_observations"].update(proofs)
     report["socket_contract_observations"]=proofs
 
+def promote_navigation_actions(report,results):
+    mapping=json.loads((ROOT/"tests/browser-workflows/navigation-actions.json").read_text())
+    expected={row["id"]+"::"+role+"::active":(row,role) for row in mapping for role in ["anonymous","Reader","Operator","Administrator"]}
+    proofs=results.get("navigation_actions",{})
+    if len(mapping)!=6 or len(expected)!=24 or set(proofs)!=set(expected):raise AssertionError("Missing or unexpected navigation action proof")
+    users={"Reader":"reader","Operator":"operator","Administrator":"admin"}
+    for key,(row,role) in expected.items():
+        proof=proofs[key];allowed=row["anonymous"] if role=="anonymous" else role in row["allowed_roles"]
+        source="index.xhtml" if role=="anonymous" and not row["anonymous"] else row["source_page"]
+        direct=not allowed and (row["id"] in {"ACTION-02","ACTION-05"})
+        if not (proof.get("supported") is True and proof.get("action_executed") is True and proof.get("target")==row["target"] and proof.get("source_page")==source and proof.get("driver")==("direct" if direct else "click")):raise AssertionError("Invalid navigation action driver")
+        keys=proof.get("query_keys")
+        if proof.get("target_origin_verified") is not True or proof.get("actual_target_path")!="/cargo-tracker/"+row["target"] or keys not in [[],["jfwid"]]:raise AssertionError("Unexpected navigation response URL")
+        if direct and proof.get("control_hidden") is not True:raise AssertionError("Forbidden navigation control was exposed")
+        if role!="anonymous":
+            identity=proof.get("identity",{})
+            if identity.get("server_verified") is not True or identity.get("principal")!=users[role] or role not in identity.get("roles",[]):raise AssertionError("Invalid native navigation identity")
+        if allowed:
+            if proof.get("status")!=200 or proof.get("semantic_success") is not True:raise AssertionError("Missing navigation destination semantics")
+            if row["kind"] in {"list","live"} and proof.get("cargo_observed")!="ABC123":raise AssertionError("Missing actual cargo after navigation")
+            if row["kind"]=="live" and proof.get("socket_live") is not True:raise AssertionError("Missing live navigation transport")
+            if row["kind"] in {"booking","lookup"} and proof.get("form_observed") is not True:raise AssertionError("Missing navigation form")
+            if role=="anonymous" and proof.get("protected_payload_absent") is not True:raise AssertionError("Public navigation leakage unchecked")
+        elif proof.get("status")!=(303 if role=="anonymous" else 403) or proof.get("protected_payload_absent") is not True or role=="anonymous" and proof.get("redirect_is_configured_login") is not True:raise AssertionError("Invalid navigation denial")
+    report["access_observations"].update(proofs)
+    report["navigation_action_observations"]=proofs
+
 def main():
     WORK.mkdir(parents=True,exist_ok=True)
     name="ai-modernization-kan19-browser"
@@ -66,6 +93,7 @@ def main():
             if proc.returncode or not report["browser_checks"]["passed"]:raise AssertionError("Real browser workflow failed; inspect sanitized .work/kan19/results.json")
             promote_live_pages(report,results)
             promote_socket_cases(report,results)
+            promote_navigation_actions(report,results)
         finally:
             cleanup=[]
             if bid:

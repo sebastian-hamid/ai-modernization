@@ -2,6 +2,7 @@ const {chromium,request:requestFactory}=require("playwright");
 const fs=require("fs");
 const cfg=JSON.parse(fs.readFileSync("/run/credentials.json","utf8"));
 const base=cfg.base;
+const navigationActions=require("./navigation-actions.json");const actionProofs={};
 const checks=[];const failures=[];const pageSemantics={};const socketObservations={};const socketTrace=[];const disconnectEvidence={};let abruptPeer=null;let witnessForDiagnostics=null;let stage="initialize";let navigation=null;
 function check(name,ok){stage=name;checks.push({name,passed:!!ok});if(!ok)throw new Error(name);}
 async function traceSocket(label,actor){
@@ -80,7 +81,64 @@ async function traceSocket(label,actor){
    const body=await ap.textContent("body");
    check("Generic error page ignores unsafe query "+path,!body.includes("bad")&&!body.includes("untrusted.example")&&!body.includes("ABC123")&&await ap.locator("script").count()===0);
   }
+  function navigationTarget(url,target){
+   const parsed=new URL(url);const expected=new URL(base+target);const keys=[...parsed.searchParams.keys()];
+   return parsed.origin===expected.origin&&parsed.pathname===expected.pathname&&
+    (keys.length===0||(keys.length===1&&keys[0]==="jfwid"&&parsed.searchParams.get("jfwid").length>0));
+  }
+  async function navigationProofs(actor){
+   const who=actor?actor.who:"anonymous";const role=actor?{reader:"Reader",operator:"Operator",admin:"Administrator"}[who]:"anonymous";
+   const context=actor?actor.context:anon;
+   for(const spec of navigationActions){
+    const page=await context.newPage();
+    try{
+     const allowed=role==="anonymous"?spec.anonymous:spec.allowed_roles.includes(role);
+     const source=role==="anonymous"&&!spec.anonymous?"index.xhtml":spec.source_page;
+     await page.goto(base+source);
+     const link=page.getByRole("link",{name:spec.label,exact:true});
+     const visible=await link.count()===1;
+     const driver=allowed||visible?"click":"direct";
+     check("Navigation control "+spec.id+" "+role,allowed?visible:!visible||["ACTION-01","ACTION-03","ACTION-04"].includes(spec.id));
+     let response;
+     if(driver==="click"){
+      const href=new URL(await link.getAttribute("href"),page.url());
+      navigation={action:spec.id,actor:role,path:href.pathname.replace(/;jsessionid=[^/;]*/gi,";jsessionid=[redacted]"),query_keys:[...href.searchParams.keys()],origin_matches:href.origin===new URL(base).origin};
+      check("Navigation exact local href "+spec.id+" "+role,navigationTarget(href.href,spec.target));
+      [response]=await Promise.all([page.waitForResponse(r=>r.request().isNavigationRequest()&&navigationTarget(r.url(),spec.target)),link.click()]);
+     }else response=await page.goto(base+spec.target);
+     // goto returns the final login page after303; capture the actual protected request.
+     let first=response;
+     while(first.request().redirectedFrom())first=await first.request().redirectedFrom().response();
+     const original=new URL(first.url());
+     const proof={supported:true,status:first.status(),target:spec.target,source_page:source,driver,action_executed:true,control_hidden:!visible,target_origin_verified:original.origin===new URL(base).origin,actual_target_path:original.pathname,query_keys:[...original.searchParams.keys()]};
+     if(actor)proof.identity={server_verified:true,principal:actor.identity.principal,roles:actor.identity.roles};
+     if(allowed){
+      await page.getByRole("heading",{name:spec.heading,exact:true}).waitFor();
+      check("Navigation destination "+spec.id+" "+role,new URL(page.url()).pathname==="/cargo-tracker/"+spec.target&&first.status()===200);
+      if(spec.kind==="live"){
+       await page.locator("#live-status").getByText("Live",{exact:true}).waitFor();
+       await page.locator('tr[data-tracking-id="ABC123"]').waitFor();proof.socket_live=true;proof.cargo_observed="ABC123";
+      }else if(spec.kind==="list"){
+       await page.getByRole("link",{name:"ABC123",exact:true}).waitFor();proof.cargo_observed="ABC123";
+      }else if(spec.kind==="booking"){
+       await page.getByLabel("Origin",{exact:true}).waitFor();await page.getByLabel("Destination",{exact:true}).waitFor();proof.form_observed=true;
+      }else if(spec.kind==="lookup"){
+       await page.getByLabel("Tracking ID",{exact:true}).waitFor();proof.form_observed=true;
+      }
+      proof.semantic_success=true;
+      if(spec.anonymous)proof.protected_payload_absent=!(await page.textContent("body")).includes("ABC123")&&!(await page.textContent("body")).includes("DEF789");
+     }else{
+      const body=await page.textContent("body");proof.protected_payload_absent=!body.includes("ABC123")&&!body.includes("DEF789")&&!body.includes("Hong Kong");
+      proof.redirect_is_configured_login=first.status()===303&&new URL(first.headers().location,base).href===base+"login"&&page.url()===base+"login";
+      check("Navigation denial "+spec.id+" "+role,(role==="anonymous"?proof.redirect_is_configured_login:first.status()===403)&&proof.protected_payload_absent);
+     }
+     actionProofs[spec.id+"::"+role+"::active"]=proof;
+    }finally{await page.close();}
+   }
+  }
+  await navigationProofs(null);
   const reader=await login("reader");
+  await navigationProofs(reader);
   await liveAliases(reader);
   await readViews(reader);
 
@@ -131,7 +189,7 @@ async function traceSocket(label,actor){
   for(const path of ["admin/show.xhtml","admin/show.xhtml?trackingId=UNKNOWN","admin/show.xhtml?trackingId=%3Cscript%3E"]){
    const response=await reader.context.request.get(base+path);check("Controlled invalid link "+path,response.status()===404);
   }
-  const operator=await login("operator");await liveAliases(operator);
+  const operator=await login("operator");await navigationProofs(operator);await liveAliases(operator);
   async function book(actor){
    const page=actor.page;
    await page.goto(base+"admin/book.xhtml");
@@ -235,7 +293,7 @@ async function traceSocket(label,actor){
   const noCsrf=await operator.context.request.post(base+"admin/book.xhtml",{form:{"booking":"booking","booking:submit":"","jakarta.faces.ViewState":view[1]}});
   check("Missing CSRF booking POST denied",noCsrf.status()===403);
 
-  const admin=await login("admin");await liveAliases(admin);await book(admin);
+  const admin=await login("admin");await navigationProofs(admin);await liveAliases(admin);await book(admin);
   for(const actor of [operator,admin]){
    for(const path of aliasesWrite){
     const response=await actor.context.request.get(base+path+(path.includes("selectItinerary")?"?trackingId="+id:""));
@@ -526,5 +584,5 @@ async function traceSocket(label,actor){
   disconnectEvidence.graceful_close_code=1000;
   check("No page or asset errors",failures.length===0);
  } catch(error){try{await traceSocket("failure",witnessForDiagnostics);}catch(ignored){}checks.push({name:stage+" failed ("+error.name+")",outcome:"FAIL",passed:false});process.exitCode=1;}
- finally{if(abruptPeer&&!abruptPeer.socket.destroyed)abruptPeer.socket.destroy();if(replayClient)await replayClient.dispose();await browser.close();fs.writeFileSync("/out/results.json",JSON.stringify({scope:"Real Chromium cargo read/booking/destination/routing/live/handling workflows",checks,last_navigation:navigation,resource_errors:failures,page_semantics:pageSemantics,socket_observations:socketObservations,socket_diagnostics:socketTrace,disconnect_evidence:disconnectEvidence},null,2)+"\n");}
+ finally{if(abruptPeer&&!abruptPeer.socket.destroyed)abruptPeer.socket.destroy();if(replayClient)await replayClient.dispose();await browser.close();fs.writeFileSync("/out/results.json",JSON.stringify({scope:"Real Chromium cargo read/booking/destination/routing/live/handling workflows",checks,last_navigation:navigation,resource_errors:failures,page_semantics:pageSemantics,socket_observations:socketObservations,socket_diagnostics:socketTrace,disconnect_evidence:disconnectEvidence,navigation_actions:actionProofs},null,2)+"\n");}
 })();

@@ -76,3 +76,7 @@ KAN-15 now has a bounded independent SQL/broker/invocation observer and fresh ha
 ## Candidate update — 2 November 2026 (KAN-26)
 
 The disposable candidate passed 367 application / 348 browser checks and 35 reported domain cases (one inherited empty TODO), including the 90-second WebSocket closure fix, abrupt peer-reset isolation, unrelated cargo persistence and all-role session revocation. Independent reviewer /root/review_kan26_disconnect approved the changes and independently ran all 54 tooling checks. This does not reverify every historical host setup claim above. Shared historical runtime/Jenkins remain preserved; complete access coverage is still 256 PASS / 246 BLOCKED. Details: [disconnect regression](../docs/candidate/disconnect-regression.md).
+
+## Access coverage update — 2 November 2026 (KAN-15)
+
+Six modern navigation mappings now have24active-actor proofs. Fresh367application/417browser/35reported domain cases PASS(one inherited emptyTODO),60toolingchecksPASS. Catalogue280PASS/222BLOCKED, full KAN-15 incomplete. See [navigation action matrix](../docs/candidate/navigation-action-matrix.md). Task resources/private files removed; original host setup claims are not rerun by this increment.

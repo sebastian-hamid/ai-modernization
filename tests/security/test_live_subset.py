@@ -53,6 +53,12 @@ class LiveSubsetTests(unittest.TestCase):
         value=self.prepared();value.observations[case["id"]]={"supported":True,"status":200}
         case["classification"]="read"
         with self.assertRaises(UnsupportedCase):value.execute(case)
+    def test_navigation_callback_or_write_mutation_cannot_reuse_observation(self):
+        canonical=adapter.bound_contracts()["ACTION-02::Operator::active"]
+        value=self.prepared();value.observations[canonical["id"]]={"supported":True,"status":200}
+        for field,new in [("callback","other"),("method","POST"),("write",True),("page_id","PAGE-99"),("source","other"),("source_line",999),("path","/other")]:
+            case=dict(canonical);case[field]=new
+            with self.subTest(field=field),self.assertRaises(UnsupportedCase):value.execute(case)
     def test_unknown_case_remains_blocked(self):
         case=self.case();case["id"]="API-02::Administrator::expired"
         with self.assertRaises(UnsupportedCase):self.prepared().execute(case)

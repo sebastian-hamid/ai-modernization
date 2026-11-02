@@ -1,0 +1,7 @@
+{
+  "initial_attempt": "Failed closed before any action proof promotion: exact href assertion rejected generated Faces jfwid query parameter.",
+  "diagnosis": "Read-only public HTML inspection on task fixture showed exact intended paths with one jfwid query parameter, no session URL rewriting. No query values were printed or retained.",
+  "correction": "Exact origin/path retained; only no query or one nonempty jfwid accepted. Actual original response URL metadata validated; arbitrary and duplicate keys rejected by unit regressions.",
+  "diagnostic_follow_up": "Redundant second attempt interrupted via SIGINT during native idle wait; finally removed app and private files. Third fresh full attempt required.",
+  "product_fix_claimed": false
+}

@@ -1,0 +1,101 @@
+{
+  "scope": "Real Chromium cargo read/booking/destination/routing/live/handling workflows",
+  "checks": [
+    {
+      "name": "Anonymous page goes to login",
+      "passed": true
+    },
+    {
+      "name": "Login does not leak cargo",
+      "passed": true
+    },
+    {
+      "name": "Public home links to current tracking view",
+      "passed": true
+    },
+    {
+      "name": "Authentication precedes legacy lookup public/track.xhtml",
+      "passed": true
+    },
+    {
+      "name": "Authentication precedes legacy lookup admin/map.xhtml",
+      "passed": true
+    },
+    {
+      "name": "Authentication precedes legacy lookup admin/mapFrame.html",
+      "passed": true
+    },
+    {
+      "name": "Authentication precedes legacy lookup admin/selectItinerary.xhtml",
+      "passed": true
+    },
+    {
+      "name": "Authentication precedes legacy lookup eventLogger/eventLogger.xhtml",
+      "passed": true
+    },
+    {
+      "name": "Authentication precedes legacy lookup eventLogger/root.xhtml",
+      "passed": true
+    },
+    {
+      "name": "Authentication precedes legacy lookup booking/booking.xhtml",
+      "passed": true
+    },
+    {
+      "name": "Authentication precedes legacy lookup booking/booking-date.xhtml",
+      "passed": true
+    },
+    {
+      "name": "Authentication precedes legacy lookup booking/booking-destination.xhtml",
+      "passed": true
+    },
+    {
+      "name": "Anonymous filtered/About page goes to login admin/about.xhtml",
+      "passed": true
+    },
+    {
+      "name": "Anonymous filtered/About page goes to login admin/listRouted.xhtml",
+      "passed": true
+    },
+    {
+      "name": "Anonymous filtered/About page goes to login admin/listNotRouted.xhtml",
+      "passed": true
+    },
+    {
+      "name": "Anonymous filtered/About page goes to login admin/listClaimed.xhtml",
+      "passed": true
+    },
+    {
+      "name": "Public About accurately explains login",
+      "passed": true
+    },
+    {
+      "name": "Generic error page ignores unsafe query error.xhtml",
+      "passed": true
+    },
+    {
+      "name": "Generic error page ignores unsafe query error_404.xhtml",
+      "passed": true
+    },
+    {
+      "name": "Navigation control ACTION-01 anonymous",
+      "passed": true
+    },
+    {
+      "name": "Navigation exact local href ACTION-01 anonymous",
+      "passed": false
+    },
+    {
+      "name": "Navigation exact local href ACTION-01 anonymous failed (Error)",
+      "outcome": "FAIL",
+      "passed": false
+    }
+  ],
+  "last_navigation": null,
+  "resource_errors": [],
+  "page_semantics": {},
+  "socket_observations": {},
+  "socket_diagnostics": [],
+  "disconnect_evidence": {},
+  "navigation_actions": {}
+}

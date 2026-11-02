@@ -1,0 +1,8 @@
+{
+  "status": "Interrupted diagnostic attempt; not product failure",
+  "reason": "Public HTTP inspection confirmed that generated Faces links include a single jfwid window parameter. Author interrupted redundant diagnostic run using SIGINT while native expiry wait ran, allowing finally cleanup.",
+  "owned_container_removed": true,
+  "private_files_removed": true,
+  "cleanup_errors": [],
+  "follow_up": "Fresh full run uses same-origin exact paths and only one nonempty jfwid query parameter; other/duplicate parameters rejected."
+}

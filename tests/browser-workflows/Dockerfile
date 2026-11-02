@@ -2,5 +2,5 @@ FROM mcr.microsoft.com/playwright@sha256:47b510dd9230bf0b9bfc9b20102241e577ea7a9
 WORKDIR /tests
 COPY package*.json ./
 RUN npm ci --ignore-scripts --no-audit --no-fund
-COPY workflows.cjs .
+COPY workflows.cjs navigation-actions.json ./
 CMD ["node","workflows.cjs"]

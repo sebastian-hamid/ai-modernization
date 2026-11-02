@@ -1,0 +1,97 @@
+[
+  {
+    "id": "ACTION-01",
+    "page_id": "PAGE-01",
+    "callback": "/admin/dashboard.xhtml",
+    "target": "admin/dashboard.xhtml",
+    "label": "Cargo list",
+    "heading": "Cargo list",
+    "kind": "list",
+    "source_page": "admin/dashboard.xhtml",
+    "allowed_roles": [
+      "Reader",
+      "Operator",
+      "Administrator"
+    ],
+    "anonymous": false
+  },
+  {
+    "id": "ACTION-02",
+    "page_id": "PAGE-01",
+    "callback": "booking",
+    "target": "admin/book.xhtml",
+    "label": "Book cargo",
+    "heading": "Book cargo",
+    "kind": "booking",
+    "source_page": "admin/dashboard.xhtml",
+    "allowed_roles": [
+      "Operator",
+      "Administrator"
+    ],
+    "anonymous": false
+  },
+  {
+    "id": "ACTION-03",
+    "page_id": "PAGE-01",
+    "callback": "/admin/track.xhtml",
+    "target": "admin/track.xhtml",
+    "label": "Track cargo",
+    "heading": "Track cargo",
+    "kind": "lookup",
+    "source_page": "admin/dashboard.xhtml",
+    "allowed_roles": [
+      "Reader",
+      "Operator",
+      "Administrator"
+    ],
+    "anonymous": false
+  },
+  {
+    "id": "ACTION-04",
+    "page_id": "PAGE-01",
+    "callback": "/admin/map.xhtml",
+    "target": "admin/live.xhtml",
+    "label": "Live tracking",
+    "heading": "Live cargo tracking",
+    "kind": "live",
+    "source_page": "admin/dashboard.xhtml",
+    "allowed_roles": [
+      "Reader",
+      "Operator",
+      "Administrator"
+    ],
+    "anonymous": false
+  },
+  {
+    "id": "ACTION-05",
+    "page_id": "PAGE-01",
+    "callback": "/admin/about.xhtml",
+    "target": "admin/about.xhtml",
+    "label": "Cargo workflows",
+    "heading": "Cargo workflows",
+    "kind": "about",
+    "source_page": "admin/dashboard.xhtml",
+    "allowed_roles": [
+      "Reader",
+      "Operator",
+      "Administrator"
+    ],
+    "anonymous": false
+  },
+  {
+    "id": "ACTION-06",
+    "page_id": "PAGE-02",
+    "callback": "/public/about.xhtml",
+    "target": "public/about.xhtml",
+    "label": "About",
+    "heading": "About Cargo Tracker",
+    "kind": "public",
+    "source_page": "index.xhtml",
+    "allowed_roles": [
+      "Reader",
+      "Operator",
+      "Administrator"
+    ],
+    "anonymous": true
+  }
+]

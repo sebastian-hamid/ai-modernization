@@ -1,0 +1,48 @@
+import copy,importlib.util,json,unittest
+from pathlib import Path
+spec=importlib.util.spec_from_file_location("navigation_browser",Path(__file__).with_name("run_browser.py"))
+h=importlib.util.module_from_spec(spec);spec.loader.exec_module(h)
+class NavigationProofTests(unittest.TestCase):
+    def fixture(self):
+        proofs={}
+        rows=json.loads(Path(__file__).with_name("navigation-actions.json").read_text())
+        for row in rows:
+            for role,user in [("anonymous",None),("Reader","reader"),("Operator","operator"),("Administrator","admin")]:
+                allowed=row["anonymous"] if role=="anonymous" else role in row["allowed_roles"]
+                direct=not allowed and row["id"] in {"ACTION-02","ACTION-05"}
+                proof={"supported":True,"action_executed":True,"target_origin_verified":True,"actual_target_path":"/cargo-tracker/"+row["target"],"query_keys":["jfwid"],"target":row["target"],"source_page":"index.xhtml" if role=="anonymous" and not row["anonymous"] else row["source_page"],"driver":"direct" if direct else "click","control_hidden":direct,"status":200 if allowed else 303 if role=="anonymous" else 403,"semantic_success":allowed,"protected_payload_absent":True,"redirect_is_configured_login":not allowed and role=="anonymous","cargo_observed":"ABC123","socket_live":True,"form_observed":True}
+                if user:proof["identity"]={"server_verified":True,"principal":user,"roles":[role]}
+                proofs[row["id"]+"::"+role+"::active"]=proof
+        return {"access_observations":{"existing":{"supported":True}}},{"navigation_actions":proofs}
+    def test_complete_native_actions_promote_all_twenty_four(self):
+        report,result=self.fixture();h.promote_navigation_actions(report,result)
+        self.assertEqual(len(report["access_observations"]),25)
+    def test_missing_extra_or_wrong_driver_never_partially_promotes(self):
+        for mode in ["missing","extra","driver","target","source","hidden"]:
+            report,result=self.fixture();before=copy.deepcopy(report)
+            key="ACTION-02::Reader::active"
+            if mode=="missing":result["navigation_actions"].pop(key)
+            elif mode=="extra":result["navigation_actions"]["UNKNOWN"]={}
+            else:result["navigation_actions"][key][{"driver":"driver","target":"target","source":"source_page","hidden":"control_hidden"}[mode]]={"driver":"click","target":"other.xhtml","source":"index.xhtml","hidden":False}[mode]
+            with self.subTest(mode=mode),self.assertRaises(AssertionError):h.promote_navigation_actions(report,result)
+            self.assertEqual(report,before)
+    def test_role_or_destination_semantics_must_be_real(self):
+        for key,field,value in [("ACTION-01::Reader::active","cargo_observed","UNKNOWN"),("ACTION-04::Reader::active","socket_live",False),("ACTION-02::Operator::active","form_observed",False),("ACTION-03::Reader::active","semantic_success",False),("ACTION-06::anonymous::active","protected_payload_absent",False)]:
+            report,result=self.fixture();before=copy.deepcopy(report)
+            result["navigation_actions"][key][field]=value
+            with self.subTest(field=field),self.assertRaises(AssertionError):h.promote_navigation_actions(report,result)
+            self.assertEqual(report,before)
+        report,result=self.fixture();result["navigation_actions"]["ACTION-02::Reader::active"]["identity"]["principal"]="operator"
+        with self.assertRaises(AssertionError):h.promote_navigation_actions(report,result)
+        self.assertEqual(len(report["access_observations"]),1)
+    def test_only_local_target_and_single_faces_window_parameter_pass(self):
+        for field,value in [("target_origin_verified",False),("actual_target_path","/other"),("query_keys",["redirect"]),("query_keys",["jfwid","jfwid"]),("query_keys",None)]:
+            report,result=self.fixture();result["navigation_actions"]["ACTION-01::Reader::active"][field]=value
+            with self.subTest(field=field,value=value),self.assertRaises(AssertionError):h.promote_navigation_actions(report,result)
+            self.assertEqual(len(report["access_observations"]),1)
+    def test_arbitrary_redirect_success_or_leak_is_not_denial(self):
+        for key,field,value in [("ACTION-01::anonymous::active","redirect_is_configured_login",False),("ACTION-02::Reader::active","status",200),("ACTION-05::anonymous::active","protected_payload_absent",False)]:
+            report,result=self.fixture();result["navigation_actions"][key][field]=value
+            with self.subTest(field=field),self.assertRaises(AssertionError):h.promote_navigation_actions(report,result)
+            self.assertEqual(len(report["access_observations"]),1)
+if __name__=="__main__":unittest.main()

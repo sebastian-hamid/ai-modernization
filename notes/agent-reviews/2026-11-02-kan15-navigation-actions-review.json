@@ -1,0 +1,39 @@
+{
+  "task": "KAN-15 six navigation actions",
+  "base": "febde7a4de7294ec6ff0d714cdd11e175b2ac341",
+  "author": "/root",
+  "reviewer": "/root/review_kan15_navigation_actions",
+  "date": "2026-11-02",
+  "verdict": "Approved bounded increment; no remaining material findings. Full KAN-15 incomplete.",
+  "input_hashes_verified": 313,
+  "independently_executed_unit_tests": 60,
+  "reviewer_live_fixture_execution": false,
+  "application": 367,
+  "browser": 417,
+  "domain_reported": 35,
+  "empty_legacy_todo": 1,
+  "navigation_proofs": 24,
+  "catalogue": {
+    "PASS": 280,
+    "BLOCKED": 222,
+    "native_exit": 2
+  },
+  "findings": [],
+  "review_notes": [
+    "Initial exact href check failed closed on generated Faces jfwid; corrected narrow local URL matching independently reviewed.",
+    "DOM absence proves hidden forbidden controls; actual allowed click enforces interactability.",
+    "Retired callbacks map to modern navigation behavior; write/action-session cases excluded."
+  ],
+  "checks": "All313hashes, four final evidence bytecopies, cleanup/noerrors, docs/notes and every navigation proof inspected; independent60units and diffcheck passed.",
+  "evidence_sha256": {
+    "application-results.json": "15716839befa664dbeb87920ee578acfbf8c5eb97d2edb4d2960b36f3158811b",
+    "browser-results.json": "16c3a5c9432362a0e4558c3f576369df8d7cd499b6247057d8d94f6a40e7297f",
+    "catalogue-results.json": "b09d5df2c0a03f53ca6c2c3764f2833d2950026f80f526a41d5c7b885cc9fad3",
+    "diagnostic-interruption.json": "f5b98027664bf50a7949ba7651e348a4f52d6bca7ad4dcf410fe79a519242f9c",
+    "failure-summary.json": "16a3cc323a4efb56ec9ad0329161de1819765973f083ab26ce3c732de189b57e",
+    "initial-failed-application-results.json": "c4342eaedbc3ff8068efaef37dbc6e35df46f284e53f758f970b19542c8c1237",
+    "initial-failed-browser-results.json": "21c5f921207fb3ff4fc2c9ea96027a2a0873f22c512dd884a90a2405351b6de0",
+    "unit-tests.json": "67319694f689d28a035b3734a27b189daab54ffe430968a3711748f7039c0080",
+    "validation.json": "f82587c58e4a2d929c945114c7e984a5547213619ca2a38c7dc7271352d39375"
+  }
+}
