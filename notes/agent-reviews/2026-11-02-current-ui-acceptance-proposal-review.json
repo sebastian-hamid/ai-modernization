@@ -1,0 +1,28 @@
+{
+  "task": "Current-UI acceptance proposal, documentation only",
+  "author": "/root",
+  "reviewer": "/root/review_kan15_acceptance_proposal",
+  "reviewed_head": "ed8ba92a7f892ba6967da1901901a33171db2fe3",
+  "verdict": "Approved documentation publication; no remaining material findings. User approval required before gate changes.",
+  "findings": [
+    {
+      "severity": "P2",
+      "issue": "ACTION37 and39 replacement obligations mislabeled cargo/event instead of location/voyage selectors.",
+      "resolution": "Corrected against source;36cargo,37location,38event,39voyage requirements explicitly preserve LOAD/UNLOAD/non-load voyage behavior."
+    }
+  ],
+  "checks": [
+    "33unique IDs and original expressions verified",
+    "14current-equivalent+19conditional implementation-only controls;132actor cases of502;46internal remain",
+    "No mutation callback proposed retired",
+    "CurrentUI/alias source reviewed; no runtime verification claimed",
+    "Canonical proposal byte-identical to approved draft, log accurate, diffcheck passed"
+  ],
+  "tests_or_fixtures_run": false,
+  "gate_changed": false,
+  "user_decision": "pending",
+  "inputs_sha256": {
+    "specifications/current-ui-access-acceptance-proposal.md": "710b00d37001276e8bd60d806f9fe21ea66a39b7b47ae465122ca78da931da5a",
+    "notes/ai-task-log.md": "636776ba10dfa536627e1f1f6985c6ddc1bdf10046dd8cc9171ac60b01efec89"
+  }
+}
