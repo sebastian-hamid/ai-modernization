@@ -72,3 +72,7 @@ The earlier publication-pending entries above are historical. Repository main ha
 The separate disposable candidate uses pinned Java25/JakartaEE11/WildFly42, not the Ubuntu host's baseline Java21 configuration. Current browser/runtime evidence is under notes/evidence/kan-20-navigation and notes/evidence/kan-15-effects. The candidate fixture is removed after verification; this is not an always-running or production deployment.
 
 KAN-15 now has a bounded independent SQL/broker/invocation observer and fresh handling-denial/revocation catalogue adapter; see ../docs/candidate/independent-effects.md. Full security/platform acceptance and PostgreSQL/Flyway migration remain incomplete. Interactive Jenkins administrator login is still not newly verified by these candidate tests.
+
+## Candidate update — 2 November 2026 (KAN-26)
+
+The disposable candidate passed 367 application / 348 browser checks and 35 reported domain cases (one inherited empty TODO), including the 90-second WebSocket closure fix, abrupt peer-reset isolation, unrelated cargo persistence and all-role session revocation. Independent reviewer /root/review_kan26_disconnect approved the changes and independently ran all 54 tooling checks. This does not reverify every historical host setup claim above. Shared historical runtime/Jenkins remain preserved; complete access coverage is still 256 PASS / 246 BLOCKED. Details: [disconnect regression](../docs/candidate/disconnect-regression.md).

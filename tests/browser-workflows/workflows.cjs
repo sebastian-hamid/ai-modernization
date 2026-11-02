@@ -2,7 +2,7 @@ const {chromium,request:requestFactory}=require("playwright");
 const fs=require("fs");
 const cfg=JSON.parse(fs.readFileSync("/run/credentials.json","utf8"));
 const base=cfg.base;
-const checks=[];const failures=[];const pageSemantics={};const socketObservations={};const socketTrace=[];let witnessForDiagnostics=null;let stage="initialize";let navigation=null;
+const checks=[];const failures=[];const pageSemantics={};const socketObservations={};const socketTrace=[];const disconnectEvidence={};let abruptPeer=null;let witnessForDiagnostics=null;let stage="initialize";let navigation=null;
 function check(name,ok){stage=name;checks.push({name,passed:!!ok});if(!ok)throw new Error(name);}
 async function traceSocket(label,actor){
  if(!actor)return;
@@ -342,6 +342,21 @@ async function traceSocket(label,actor){
   let denied=await replayClient.get(base+"tracking?connection="+require("crypto").randomUUID(),{headers:wsHeaders});
   check("Anonymous upgrade is HTTP401",denied.status()===401);
   socketObservations["WS-01::anonymous::active"]={supported:true,status:denied.status(),upgraded:false,protected_payload_absent:noSocketPayload(await denied.text())};
+  async function openAbruptPeer(cookie){
+   const crypto=require("crypto");const key=crypto.randomBytes(16).toString("base64");
+   return await new Promise((resolve,reject)=>{
+    const req=require("http").request(base+"tracking?connection="+crypto.randomUUID(),{headers:{...wsHeaders,"Sec-WebSocket-Key":key,Cookie:cookie}});
+    req.setTimeout(10000,()=>req.destroy(new Error("Upgrade timeout")));
+    req.on("error",reject);req.on("response",response=>{response.resume();reject(new Error("Upgrade rejected"));});
+    req.on("upgrade",(response,socket,head)=>{
+     const expected=crypto.createHash("sha1").update(key+"258EAFA5-E914-47DA-95CA-C5AB0DC85B11").digest("base64");
+     if(response.statusCode!==101||response.headers["sec-websocket-accept"]!==expected){socket.destroy();reject(new Error("Invalid upgrade"));return;}
+     socket.setTimeout(0);const peer={socket,bytes:head.toString("utf8"),reset:false};
+     socket.on("data",data=>{peer.bytes+=data.toString("utf8");});
+     socket.on("error",()=>{});resolve(peer);
+    });req.end();
+   });
+  }
   const sockets={};const livePages={};
   let snapshotReadyResolve,releaseSnapshot;
   const snapshotReady=new Promise(resolve=>snapshotReadyResolve=resolve);
@@ -379,7 +394,16 @@ async function traceSocket(label,actor){
    check("Actual handling trigger "+sequence,response.status()===204);
    await traceSocket("after-trigger-"+sequence,witnessForDiagnostics);
   }
+  abruptPeer=await openAbruptPeer(sockets.admin.savedCookie);
+  check("Abrupt peer performs validated native upgrade",true);
   await trigger(1);
+  for(let n=0;n<100&&!abruptPeer.bytes.includes('"trackingId":"DEF789"');n++)await sockets.admin.page.waitForTimeout(100);
+  check("Abrupt peer receives actual cargo before reset",abruptPeer.bytes.includes('"trackingId":"DEF789"'));
+  check("TCP reset supported",typeof abruptPeer.socket.resetAndDestroy==="function");
+  await new Promise(resolve=>{abruptPeer.socket.once("close",resolve);abruptPeer.socket.resetAndDestroy();});
+  abruptPeer.reset=true;
+  disconnectEvidence.abrupt_peer={validated_upgrade:true,actual_frame_before_reset:true,tcp_reset_without_close_frame:true};
+
   for(const who of ["reader","operator","admin"]){
    await sockets[who].page.waitForFunction(()=>window.framesReceived.some(e=>e.trackingId==="DEF789"));
    check("Actual authorized data frame "+who,true);
@@ -419,9 +443,9 @@ async function traceSocket(label,actor){
   socketObservations["WS-01::Operator::expired"]=await revokedSocket(sockets.operator,"expired",await sockets.operator.page.evaluate(()=>window.socketClosed),await sockets.operator.page.evaluate(()=>window.framesReceived.length)===expiredCount);
   // Each independent observation window starts with a live positive control.
   // Do not reuse a transport that may have closed during the preceding window.
-  await sockets.admin.page.evaluate(()=>window.liveSocket.close());
-  await sockets.admin.page.waitForFunction(()=>window.socketClosed);
-  check("First-window witness closed deliberately",true);
+  // KAN-26: retain the original aging transport as a diagnostic subject.
+  // The separate fresh witness still controls all access-policy observations.
+  await traceSocket("aging-witness-before-second-window",sockets.admin);
   const secondWitnessPage=await sockets.admin.context.newPage();
   await secondWitnessPage.goto(base+"session");
   const secondIdentity=JSON.parse(await secondWitnessPage.textContent("body"));
@@ -475,7 +499,32 @@ async function traceSocket(label,actor){
    const noFrames=await actor.page.evaluate(()=>window.framesReceived.length)===actor.closedCount;
    socketObservations["WS-01::"+roles[actor.who]+"::"+actor.state]=await revokedSocket(actor,actor.state,await actor.page.evaluate(()=>window.socketClosed),noFrames);
   }
+  await traceSocket("aging-witness-after-second-window",sockets.admin);
+  disconnectEvidence.aging_transport=await sockets.admin.page.evaluate(()=>({openedAt:window.socketOpenedAt,observedAt:Date.now(),readyState:window.liveSocket.readyState,close:window.socketCloseInfo,frameCount:window.framesReceived.length}));
+  check("Original transport survives beyond listener timeout",disconnectEvidence.aging_transport.readyState===1&&disconnectEvidence.aging_transport.observedAt-disconnectEvidence.aging_transport.openedAt>90000);
+  await sockets.admin.page.waitForFunction(()=>window.framesReceived.filter(e=>e.trackingId==="DEF789").length>=15&&window.framesReceived.at(-1).lastKnownLocationCode==="SESTO");
+  check("Original transport receives post-timeout actual cargo",true);
+  const freshCargo=cfg.fixture_tracking_id;
+  check("Distinct fresh cargo supplied",typeof freshCargo==="string"&&freshCargo!=="DEF789");
+  const producer=await (await replayClient.get(base+"session",{headers:{Cookie:sockets.admin.savedCookie}})).json();
+  const received=await replayClient.post(base+"rest/handling/reports",{headers:{Cookie:sockets.admin.savedCookie,"X-CSRF-Token":producer.csrf},data:{trackingId:freshCargo,eventType:"RECEIVE",unLocode:"CNHKG",completionTime:"2030-01-01 10:00"}});
+  check("Unrelated cargo accepted after peer reset",received.status()===204);
+  await secondWitness.page.waitForFunction(id=>window.framesReceived.some(e=>e.trackingId===id&&e.transportStatus==="IN_PORT"&&e.lastKnownLocationCode==="CNHKG"),freshCargo);
+  check("Healthy witness receives unrelated cargo after peer reset",true);
+  const readback=await login("reader");let persisted=false;
+  for(let n=0;n<50&&!persisted;n++){
+   const response=await readback.context.request.get(base+"rest/cargo");
+   check("Independent Reader readback authorized "+n,response.status()===200);
+   persisted=(await response.json()).some(e=>e.trackingId===freshCargo&&e.transportStatus==="IN_PORT"&&e.lastKnownLocationCode==="CNHKG");
+   if(!persisted)await readback.page.waitForTimeout(200);
+  }
+  check("Unrelated cargo persists in independent Reader transaction",persisted);
+  disconnectEvidence.unrelated_cargo={tracking_id:freshCargo,http_status:received.status(),healthy_witness_received:true,independent_reader_persistence_verified:persisted};
+  await secondWitness.page.evaluate(()=>window.liveSocket.close(1000,"regression complete"));
+  await secondWitness.page.waitForFunction(()=>window.socketClosed);
+  check("Healthy witness graceful close handshake",await secondWitness.page.evaluate(()=>window.socketCloseInfo.code===1000));
+  disconnectEvidence.graceful_close_code=1000;
   check("No page or asset errors",failures.length===0);
  } catch(error){try{await traceSocket("failure",witnessForDiagnostics);}catch(ignored){}checks.push({name:stage+" failed ("+error.name+")",outcome:"FAIL",passed:false});process.exitCode=1;}
- finally{if(replayClient)await replayClient.dispose();await browser.close();fs.writeFileSync("/out/results.json",JSON.stringify({scope:"Real Chromium cargo read/booking/destination/routing/live/handling workflows",checks,last_navigation:navigation,resource_errors:failures,page_semantics:pageSemantics,socket_observations:socketObservations,socket_diagnostics:socketTrace},null,2)+"\n");}
+ finally{if(abruptPeer&&!abruptPeer.socket.destroyed)abruptPeer.socket.destroy();if(replayClient)await replayClient.dispose();await browser.close();fs.writeFileSync("/out/results.json",JSON.stringify({scope:"Real Chromium cargo read/booking/destination/routing/live/handling workflows",checks,last_navigation:navigation,resource_errors:failures,page_semantics:pageSemantics,socket_observations:socketObservations,socket_diagnostics:socketTrace,disconnect_evidence:disconnectEvidence},null,2)+"\n");}
 })();

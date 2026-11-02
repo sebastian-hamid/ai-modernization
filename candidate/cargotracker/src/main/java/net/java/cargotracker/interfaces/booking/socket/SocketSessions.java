@@ -9,6 +9,8 @@ public class SocketSessions {
     static class Binding {
         final HttpSession http;final String principal;final long created=System.currentTimeMillis();
         volatile boolean revoked;Session socket;
+        final java.util.concurrent.atomic.AtomicBoolean pinging=new java.util.concurrent.atomic.AtomicBoolean();
+        volatile long lastPing=System.currentTimeMillis();
         Binding(HttpSession http,String principal){this.http=http;this.principal=principal;}
         boolean valid(){try{return !revoked && (http.getMaxInactiveInterval()<=0 || System.currentTimeMillis()-http.getLastAccessedTime()<http.getMaxInactiveInterval()*1000L);}catch(IllegalStateException expired){return false;}}
     }
@@ -30,7 +32,19 @@ public class SocketSessions {
     private void close(Session socket){try{socket.close(new CloseReason(CloseReason.CloseCodes.VIOLATED_POLICY,"Session unavailable"));}catch(Exception ignored){}}
     private void expire(){
         pending.entrySet().removeIf(e->!e.getValue().valid() || System.currentTimeMillis()-e.getValue().created>30000);
-        active.forEach((id,b)->{if(!b.valid())revoke(id,b);});
+        active.forEach((id,b)->{
+            if(!b.valid()){revoke(id,b);return;}
+            if(System.currentTimeMillis()-b.lastPing>=25000 && b.pinging.compareAndSet(false,true)){
+                try{executor.execute(()->{
+                    try{
+                        // Protocol-only traffic: never renew the HTTP session.
+                        // No binding lock while sending; slow peers cannot hold publish.
+                        if(b.valid())b.socket.getAsyncRemote().sendPing(java.nio.ByteBuffer.allocate(0));
+                    }catch(Exception disconnected){revoke(id,b);}
+                    finally{b.lastPing=System.currentTimeMillis();b.pinging.set(false);}
+                });}catch(RejectedExecutionException stopping){b.pinging.set(false);}
+            }
+        });
     }
     public void publish(String json){
         active.forEach((id,b)->{synchronized(b){

@@ -1,0 +1,12 @@
+{
+    "outcome" : "success",
+    "result" : 90000
+}
+{
+    "outcome" : "success",
+    "result" : 90000
+}
+{
+    "outcome" : "success",
+    "result" : 60000
+}

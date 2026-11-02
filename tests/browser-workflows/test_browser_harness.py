@@ -6,12 +6,13 @@ harness=importlib.util.module_from_spec(spec);spec.loader.exec_module(harness)
 class BrowserCleanupTests(unittest.TestCase):
     def exercise(self,mode):
         with tempfile.TemporaryDirectory() as temporary:
-            work=Path(temporary);report={};calls=[]
+            work=Path(temporary);report={"page_fixture_tracking_id":"FIXTURE123"};calls=[]
             def run(args,**kwargs):
                 calls.append(args)
                 if args[:2]==["docker","inspect"]:return subprocess.CompletedProcess(args,1)
                 if args[:2]==["docker","exec"]:
                     self.assertIn("input",kwargs)
+                    self.assertEqual(json.loads(kwargs["input"])["fixture_tracking_id"],"FIXTURE123")
                     self.assertNotIn("secret-test-value",str(args))
                     if mode=="timeout":raise subprocess.TimeoutExpired("docker exec",240)
                     return subprocess.CompletedProcess(args,1,"")

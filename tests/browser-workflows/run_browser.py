@@ -57,7 +57,7 @@ def main():
             subprocess.run(["docker","network","connect",network,container],check=True,capture_output=True)
             bid=subprocess.check_output(["docker","create","--name",name,"--init","--network",network,"--shm-size=512m","--tmpfs","/run:rw,noexec,nosuid,size=1m","--tmpfs","/out:rw,noexec,nosuid,size=8m","-i","ai-modernization-kan19:browser","sleep","infinity"],text=True).strip()
             subprocess.run(["docker","start",bid],check=True,capture_output=True)
-            proc=subprocess.run(["docker","exec","-i",bid,"bash","-c","umask 077; cat > /run/credentials.json; node workflows.cjs"],input=json.dumps({"base":"http://"+app.NAME+":8080/cargo-tracker/","credentials":credentials}),text=True,stdout=subprocess.PIPE,stderr=subprocess.STDOUT,timeout=300)
+            proc=subprocess.run(["docker","exec","-i",bid,"bash","-c","umask 077; cat > /run/credentials.json; node workflows.cjs"],input=json.dumps({"base":"http://"+app.NAME+":8080/cargo-tracker/","credentials":credentials,"fixture_tracking_id":report["page_fixture_tracking_id"]}),text=True,stdout=subprocess.PIPE,stderr=subprocess.STDOUT,timeout=300)
             # Store raw diagnostics privately; never publish browser HTML/traces/session dumps.
             (WORK/"browser.log").write_text(proc.stdout)
             (WORK/"results.json").write_text(subprocess.check_output(["docker","exec",bid,"cat","/out/results.json"],text=True))

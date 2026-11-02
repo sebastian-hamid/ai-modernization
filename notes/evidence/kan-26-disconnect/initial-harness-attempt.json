@@ -1,0 +1,8 @@
+{
+  "task": "KAN-26",
+  "status": "INVALID HARNESS ATTEMPT",
+  "reason": "Concurrent diagnostic jboss-cli JVM caused the strict unique application JVM observer to abort: Cannot identify unique app JVM. Diagnostic process exited 137 during fixture cleanup. Rerun excludes concurrent JVM diagnostics.",
+  "product_failure_inferred": false,
+  "owned_fixture_cleaned": true,
+  "follow_up": "Fresh integrated rerun required."
+}

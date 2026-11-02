@@ -1,0 +1,45 @@
+{
+  "task": "KAN-26",
+  "base": "6381e1a46dfc2d8db2397b0dae3479d25b936043",
+  "author": "/root",
+  "reviewer": "/root/review_kan26_disconnect",
+  "date": "2026-11-02",
+  "verdict": "Approved bounded candidate fix/regression; no remaining material findings",
+  "input_hashes_verified": 302,
+  "independently_executed_unit_tests": 54,
+  "reviewer_live_fixture_execution": false,
+  "checks": "Reviewed production heartbeat, native TCP-reset test, independent cargo readback, all final docs/notes and before/after runtime reports; byte-identical copies and all302manifest hashes verified; git diff --check clean.",
+  "application": 367,
+  "browser": 348,
+  "domain_reported": 35,
+  "domain_empty_legacy_todo": 1,
+  "catalogue": {
+    "PASS": 256,
+    "BLOCKED": 246,
+    "native_exit": 2
+  },
+  "findings": [],
+  "nonmaterial_notes": [
+    "Raw peer matches native cargo payload bytes rather than implementing general RFC frame decoding.",
+    "Close response1000 is verified, not CloseEvent.wasClean.",
+    "Control-frame send may occupy an executor worker; arbitrary slow/nonreading peers and pool saturation unverified."
+  ],
+  "author_responses": [
+    "Protocol/concurrency limits explicitly documented.",
+    "Heartbeat executes outside binding monitor, one in flight, per-peer exceptions and task rejection isolated.",
+    "All-role logout/expiry and actual post-timeout delivery passed fresh runtime."
+  ],
+  "evidence_sha256": {
+    "application-results.json": "3970ee130a16d9f933316a665ea091fe214203f346c915123061f59adec21e48",
+    "before-application-results.json": "074c4989fe6f821029205e212a499b37593faee14fe73d623186689cb9cd32d1",
+    "before-browser-results.json": "8a5e7bb9e047db5b1ee4360f231774686f9577c97ae66d33001b4bf9557e4c5b",
+    "before-catalogue-results.json": "9a75a199dade0e434c92679c5c61d15065ead50d4e520233a8569351b990f6b3",
+    "before-provenance.json": "f3ffc97e33b23b101cd36c5539158b85d120892679d8d52e24a7b8e0ce0b9228",
+    "browser-results.json": "d4e4aa79fe87128edeebdea20e389bf36253d635d4de40de2987bd834c4087a8",
+    "catalogue-results.json": "9a75a199dade0e434c92679c5c61d15065ead50d4e520233a8569351b990f6b3",
+    "initial-harness-attempt.json": "a72437d6dce8101c10334227d4254fad86fe811c2e36f9274c507e69fa1a3d74",
+    "listener-timeouts.txt": "760405a4a646740d8bc6c8726c021bfeb03ef53e02edb20b4b2c3af5df6e347d",
+    "unit-tests.json": "f781124e1e819378b46208268e5e61146a8206a6eafc8cd2595f1ce91abe8ce0",
+    "validation.json": "7c8ed3f3a897652951e0efb1d13331171a8db8aa8e4cc0667855ea813c89d95d"
+  }
+}

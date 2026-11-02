@@ -1,0 +1,11 @@
+{
+  "base": "6381e1a46dfc2d8db2397b0dae3479d25b936043",
+  "candidate_source": "unchanged from base",
+  "image_id": "sha256:9bbc675f33b8f5be62ca96847948b291ce4e179cc3eafa59fa384051d6f9896c",
+  "harness_changes_sha256": {
+    "tests/browser-workflows/workflows.cjs": "566bbb4f4fd7744e04764eb0a98deb34fbd7439ffb859843e5eee5d779d447a8",
+    "tests/browser-workflows/run_browser.py": "a08c5f7446d2fad4e607a494612c648fbbe0aabea13b18e511e88da906c159d4",
+    "tests/browser-workflows/test_browser_harness.py": "eec8640859413aede7766117f81ae97159872a3c2cad8bd2f91a6b52f082e670"
+  },
+  "provenance_note": "Harness hashes were independently recorded before heartbeat change; baseline native cleanup and browser cleanup passed. Full access catalogue native exit 2 remains expected for 246 unsupported cases."
+}

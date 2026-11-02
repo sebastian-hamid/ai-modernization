@@ -1,3 +1,7 @@
+# KAN-26 update — 2 November 2026
+
+The earlier 90-second availability symptom is addressed in the candidate by protocol PING/PONG without HTTP keepalive. Before: code1006 at90,055ms; after: original transport OPEN at152,127ms with15actual cargo events. Reset isolation, unrelated cargo persistence, normal1000response and all-role logout/expiry passed. Independent review approved. See [regression and limits](../docs/candidate/disconnect-regression.md). KAN-15 remains incomplete at256PASS/246BLOCKED; the historical investigation below is retained.
+
 # Current status — 2 November 2026
 
 This supersedes the failed-run status below. The corrected bounded socket gate passed367 application,337browser,35reported domain cases(one emptyTODO),54unit checks and256PASS/246BLOCKED;nativeexit2. Independent reviewer /root/review_kan15_witness_fix approved the fixture/binding correction after289input hashes and actual evidence inspection.
