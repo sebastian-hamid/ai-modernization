@@ -1,0 +1,75 @@
+{
+  "task": "KAN-15 booking/destination source-entry evidence",
+  "date": "2026-11-03",
+  "base_revision": "ae1226af26ff3bd419d109a80c303c02741a9ab0",
+  "author": "/root",
+  "reviewer": "/root/review_current_capability_gate",
+  "source_review": {
+    "verdict": "No material findings; approved for one fresh integration run",
+    "checks": [
+      "Independent diff and no-redirect request/login/stale-client/lifecycle inspection",
+      "11 booking/source-entry unit tests PASS",
+      "git diff --check PASS",
+      "Allowed roles fetch selected cargo details then exact same-origin editor link",
+      "Reader hidden control plus direct editor denial; anonymous fixed login/no-leak checks",
+      "Receipts captured under owned opener before revocation and keyed actor/state/capability",
+      "Per-request denied-effect checks preserved"
+    ],
+    "sha256": {
+      "tests/candidate-runtime/run_candidate.py": "1e9fe3037608756d6e358526de6abfe7427c9bd239975348584c394a58c46a91",
+      "tests/candidate-runtime/test_booking_action.py": "8b0deafe4ce00d9e71c387afa4333d6e3b264ba4011fd89a2dbad0c75fee8bc5"
+    }
+  },
+  "author_verification": {
+    "test_first": "Six new methods initially produced 15 missing-helper errors; implementation then passes",
+    "native_fixture_unit_tests": 32,
+    "security_unit_tests": 54,
+    "git_diff_check": "PASS"
+  },
+  "runtime_review": {
+    "verdict": "Fresh evidence supports exactly16BLOCKED-to-PASS changes; full acceptance incomplete",
+    "checks": [
+      "Independently replayed all current, legacy and retirement result arrays",
+      "Only16changes vs firstv2 are ACTION09/ACTION29 BLOCKED-to-PASS",
+      "Disk input and canonical contract fingerprints match",
+      "All16source receipts verified;8session receipts own form before revocation and revocation verified",
+      "6allowed destination receipts record encoded window query",
+      "Positive booking/destination SQL/queue/audit predicates recomputed for both roles",
+      "All12denied-write effect snapshots settled, same fixture and unchanged",
+      "Native565/browser431PASS; recorded cleanup true/noerrors; sharedservices preserved by author"
+    ],
+    "counts": {
+      "current": {
+        "PASS": 324,
+        "BLOCKED": 146
+      },
+      "legacy": {
+        "PASS": 324,
+        "BLOCKED": 178
+      },
+      "retirement": {
+        "BLOCKED": 76
+      },
+      "gate_exit": 2
+    },
+    "artifact_sha256": {
+      "gate": "f654c087dc1917a9513ec7f25099f1e101b7ad04d57f26323e5feac1252513ea",
+      "native": "df16b3b9cb5348ee69c8e82cd87acb79f4f5f2bc38f31f4f1d5e86e6f3e63545"
+    },
+    "limits": [
+      "Cleanup assessed from recorded evidence, not independently observed",
+      "No duplicate live fixture run by reviewer",
+      "Imported Python code identity remains unattested",
+      "Full acceptance and retirement incomplete"
+    ]
+  },
+  "integration_correction": {
+    "first_run": "Stopped after244passing native checks on overbroad raw URI guard; fixture/private cleanup passed",
+    "cause_limit": "Actual failed href was not captured; encoded window query remained a hypothesis at correction time",
+    "regression": "One new encoded-window test failed before query-only correction;32native plus54security tests passed after correction",
+    "fix": "Permit valid percent encoding only within optional literal jfwid value; retain literal path/keys/cargo, known unique nonblank query, exact origin/target, raw/decoded control and backslash guards",
+    "reviewer_correction": "No material findings; final chr(92)/DEL guards and encoded-cargo/key/single-backslash cases inspected, hashes confirmed; approved one changed live run",
+    "independent_targeted_unit_tests": 12,
+    "limit": "Final small guard correction was inspected without another independent suite rerun"
+  }
+}

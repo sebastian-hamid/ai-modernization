@@ -112,6 +112,78 @@ def destination_form(body,csrf,destination="USNYC"):
     import html
     return {"csrf":csrf,"change":"change","change:destination":destination,"change:submit":"","jakarta.faces.ViewState":html.unescape(state[1])}
 
+
+def source_entry(fetch,base,who,csrf,tracking_id=None):
+    """Verify a real source GET and, for destination editing, follow its exact link."""
+    from html.parser import HTMLParser
+    if who not in {None,"reader","operator","admin"} or tracking_id is not None and re.fullmatch("[A-Z0-9]{8}",tracking_id) is None:
+        raise AssertionError("Invalid entry fixture identity or cargo")
+    allowed=who in {"operator","admin"}
+    source="admin/book.xhtml" if tracking_id is None else "admin/show.xhtml?trackingId="+tracking_id
+    def denied(code,body,headers):
+        expected=403 if who=="reader" else 303
+        markers=["trackingId","ABC123","DEF789","JKL567","MNO456","Hong Kong","Helsinki",'id="booking"','id="change"']
+        if tracking_id:markers.append(tracking_id)
+        if code!=expected or any(marker in body for marker in markers) or expected==303 and headers.get("Location")!="/cargo-tracker/login":
+            raise AssertionError("Source/editor authorization denial unverified")
+    window_encoded=False
+    code,body,headers=fetch(source)
+    if tracking_id is None:
+        if allowed:
+            if code!=200:raise AssertionError("Booking source not rendered")
+            booking_form(body,csrf)
+        else:denied(code,body,headers)
+    else:
+        path="admin/changeDestination.xhtml?trackingId="+tracking_id
+        class Links(HTMLParser):
+            def __init__(self):super().__init__();self.hrefs=[];self.anchor=None
+            def handle_starttag(self,tag,attrs):
+                if tag=="a":
+                    if self.anchor is not None:raise AssertionError("Nested entry anchor")
+                    keys=[key for key,value in attrs]
+                    if len(keys)!=len(set(keys)):raise AssertionError("Ambiguous anchor attributes")
+                    self.anchor=[dict(attrs).get("href",""),[]]
+            def handle_data(self,data):
+                if self.anchor is not None:self.anchor[1].append(data)
+            def handle_endtag(self,tag):
+                if tag=="a" and self.anchor is not None:
+                    href,text=self.anchor
+                    if "changeDestination.xhtml" in href or " ".join("".join(text).split())=="Change destination":self.hrefs.append(href)
+                    self.anchor=None
+        links=Links();links.feed(body)
+        if who is None:
+            denied(code,body,headers)
+        else:
+            if code!=200 or 'id="trackingId">'+tracking_id not in body:raise AssertionError("Selected cargo source not rendered")
+            if allowed:
+                if len(links.hrefs)!=1:raise AssertionError("Missing or ambiguous destination entry link")
+                href=links.hrefs[0]
+                raw=urllib.parse.urlsplit(href)
+                raw_fields=raw.query.split("&")
+                # Faces may percent-encode ClientWindow punctuation. Only its value
+                # may be encoded; origin, path, query keys and cargo remain literal.
+                encoding_safe=all("%" not in field or field.startswith("jfwid=") and "%" not in field.split("=",1)[0] and re.search(r"%(?![0-9A-Fa-f]{2})",field) is None for field in raw_fields)
+                if any(x in raw.path for x in [chr(92),"%",";",".."]) or chr(92) in href or any(ord(c)<32 or ord(c)==127 for c in href) or not encoding_safe:
+                    raise AssertionError("Unsafe entry URI (encoded_path="+str("%" in raw.path)+", encoded_query="+str("%" in raw.query)+", semicolon_path="+str(";" in raw.path)+")")
+                window_encoded="%" in raw.query
+                target=urllib.parse.urlsplit(urllib.parse.urljoin(base+"admin/show.xhtml",href))
+                origin=urllib.parse.urlsplit(base)
+                try:pairs=urllib.parse.parse_qsl(target.query,keep_blank_values=True,strict_parsing=True)
+                except ValueError:raise AssertionError("Invalid entry query")
+                keys=[key for key,value in pairs];query=dict(pairs)
+                if target.scheme!=origin.scheme or target.netloc!=origin.netloc or target.fragment or target.path!="/cargo-tracker/admin/changeDestination.xhtml" or len(keys)!=len(set(keys)) or set(keys)-{"trackingId","jfwid"} or query.get("trackingId")!=tracking_id or any(not value or any(ord(char)<32 or ord(char)==127 for char in value) for key,value in pairs):
+                    raise AssertionError("Destination link not bound to local selected cargo")
+                path=target.path.removeprefix("/cargo-tracker/")+"?"+target.query
+            elif links.hrefs:raise AssertionError("Reader destination control exposed")
+        code,body,headers=fetch(path)
+        if allowed:
+            if code!=200:raise AssertionError("Destination editor not rendered")
+            destination_form(body,csrf)
+        else:denied(code,body,headers)
+    proof={"entry_page":source,"source_entry_verified":True}
+    if window_encoded:proof["entry_window_query_encoded"]=True
+    return body,proof
+
 def destination_positive(before,after,old,cargo,tracking_id):
     validate_effects(before);validate_effects(after)
     delta=sum(n for key,n in after["business_invocations"].items() if key.endswith("#changeDestination"))-sum(n for key,n in before["business_invocations"].items() if key.endswith("#changeDestination"))
@@ -542,13 +614,26 @@ def main(after_checks=None):
             result=denial_observation({"status":status,"protected_payload_absent":absent,"redirect_is_configured_login":fixed,"action_method":"POST","action_path":"/cargo-tracker/"+path,"tracking_id":target_id,"real_form_verified":True},start,end,who,state is not None)
             result["form_owned_before_revocation"]=state is not None
             return result
-        def denied_booking(opener,form,who=None,state=None):return denied_form(opener,form,who,state)
+        entry_receipts={}
+        def entry(opener,who,token,tracking_id=None):
+            return source_entry(lambda path:request(opener,path),base,who,token,tracking_id)
+        def denied_booking(opener,form,who=None,state=None):
+            proof=entry_receipts[(who,state,"booking")] if state else entry(opener,who,form.get("csrf"))[1]
+            result=denied_form(opener,form,who,state)
+            result.update(proof)
+            return result
+        def denied_destination(opener,form,who=None,state=None,path=None):
+            tracking_id=urllib.parse.parse_qs(urllib.parse.urlsplit(path).query)["trackingId"][0]
+            proof=entry_receipts[(who,state,"destination")] if state else entry(opener,who,form.get("csrf"),tracking_id)[1]
+            result=denied_form(opener,form,who,state,path,"Destination")
+            result.update(proof)
+            return result
         report["access_observations"]["ACTION-29::anonymous::active"]=denied_booking(anonymous,{**book_form,"csrf":sessions["operator"][2]})
         report["access_observations"]["ACTION-29::Reader::active"]=denied_booking(sessions["reader"][1],{**book_form,"csrf":sessions["reader"][2]},"reader")
         for who,role in [("operator","Operator"),("admin","Administrator")]:
             sessions[who]=login(who);sessions["reader"]=login("reader")
-            opener=sessions[who][1];code,body,_=request(opener,"admin/book.xhtml")
-            check("Booking role owns rendered form: "+role,code==200)
+            opener=sessions[who][1];body,source_proof=entry(opener,who,sessions[who][2])
+            check("Booking role owns verified source form: "+role,True)
             form=booking_form(body,sessions[who][2])
             existing={cargo["trackingId"] for cargo in cargos(sessions["reader"][1])}
             start=settled()
@@ -564,22 +649,22 @@ def main(after_checks=None):
             check("Booking real result and independent Reader persistence: "+role,detail_status==200 and 'id="trackingId">'+created in detail and created not in existing and {cargo["trackingId"] for cargo in values}==existing|{created})
             check("Booking specific SQL audit effect and no JMS: "+role,booking_positive(start,end,fresh,created))
             report["booking_action_effects"][who]={"before":start,"after":end,"tracking_id":created,"reader_readback":fresh,"reader_deadline_verified":deadline_verified,"no_jms_expected":True}
-            report["access_observations"]["ACTION-29::"+role+"::active"]={"supported":True,"status":detail_status,"post_status":status,"identity":report["identities"][who],"semantic_success":True,"authorized_effect_verified":True,"action_method":"POST","action_path":"/cargo-tracker/admin/book.xhtml","real_form_verified":True,"processing_evidence":{"database_changed":True,"book_new_cargo_invocation_delta":1,"queue_unchanged":True,"independent_reader_persistence":True,"independent_reader_deadline":deadline_verified},"tracking_id":created}
+            report["access_observations"]["ACTION-29::"+role+"::active"]={"supported":True,"status":detail_status,"post_status":status,"identity":report["identities"][who],"semantic_success":True,"authorized_effect_verified":True,"action_method":"POST","action_path":"/cargo-tracker/admin/book.xhtml",**source_proof,"real_form_verified":True,"processing_evidence":{"database_changed":True,"book_new_cargo_invocation_delta":1,"queue_unchanged":True,"independent_reader_persistence":True,"independent_reader_deadline":deadline_verified},"tracking_id":created}
 
 
         # ACTION-09 changes only the two fresh, unreceived booking-control cargos.
         report["destination_action_effects"]={}
         target_id=report["booking_action_effects"]["operator"]["tracking_id"]
         target_path="admin/changeDestination.xhtml?trackingId="+target_id
-        code,body,_=request(sessions["operator"][1],target_path)
-        check("Destination forged form fixture rendered",code==200)
+        body,_=entry(sessions["operator"][1],"operator",sessions["operator"][2],target_id)
+        check("Destination forged form fixture follows cargo source",True)
         forged=destination_form(body,sessions["operator"][2])
-        report["access_observations"]["ACTION-09::anonymous::active"]=denied_form(anonymous,forged,path=target_path,label="Destination")
-        report["access_observations"]["ACTION-09::Reader::active"]=denied_form(sessions["reader"][1],{**forged,"csrf":sessions["reader"][2]},"reader",path=target_path,label="Destination")
+        report["access_observations"]["ACTION-09::anonymous::active"]=denied_destination(anonymous,forged,path=target_path)
+        report["access_observations"]["ACTION-09::Reader::active"]=denied_destination(sessions["reader"][1],{**forged,"csrf":sessions["reader"][2]},"reader",path=target_path)
         for who,role in [("operator","Operator"),("admin","Administrator")]:
             target_id=report["booking_action_effects"][who]["tracking_id"]
             path="admin/changeDestination.xhtml?trackingId="+target_id
-            code,body,_=request(sessions[who][1],path);check("Destination role owns rendered form: "+role,code==200)
+            body,source_proof=entry(sessions[who][1],who,sessions[who][2],target_id);check("Destination role follows verified cargo link: "+role,True)
             form=destination_form(body,sessions[who][2])
             old_values={cargo["trackingId"]:cargo for cargo in cargos(sessions["reader"][1])};old=old_values[target_id]
             code,detail,_=request(sessions["reader"][1],"admin/show.xhtml?trackingId="+target_id)
@@ -598,7 +683,7 @@ def main(after_checks=None):
             check("Destination independent Reader persistence and deadline preserved: "+role,detail_status==200 and 'id="trackingId">'+target_id in detail and deadline_verified and set(values)==set(old_values) and all(values[k]==old_values[k] for k in values if k!=target_id))
             check("Destination specific SQL audit effect and no JMS: "+role,destination_positive(start,end,old,fresh,target_id))
             report["destination_action_effects"][who]={"before":start,"after":end,"tracking_id":target_id,"reader_before":old,"reader_after":fresh,"reader_deadline_preserved":deadline_verified,"no_jms_expected":True}
-            report["access_observations"]["ACTION-09::"+role+"::active"]={"supported":True,"status":detail_status,"post_status":status,"identity":report["identities"][who],"semantic_success":True,"authorized_effect_verified":True,"action_method":"POST","action_path":"/cargo-tracker/"+path,"real_form_verified":True,"tracking_id":target_id,"processing_evidence":{"database_changed":True,"change_destination_invocation_delta":1,"queue_unchanged":True,"independent_reader_persistence":True,"independent_reader_deadline":deadline_verified,"other_cargos_unchanged":True}}
+            report["access_observations"]["ACTION-09::"+role+"::active"]={"supported":True,"status":detail_status,"post_status":status,"identity":report["identities"][who],"semantic_success":True,"authorized_effect_verified":True,"action_method":"POST","action_path":"/cargo-tracker/"+path,**source_proof,"real_form_verified":True,"tracking_id":target_id,"processing_evidence":{"database_changed":True,"change_destination_invocation_delta":1,"queue_unchanged":True,"independent_reader_persistence":True,"independent_reader_deadline":deadline_verified,"other_cargos_unchanged":True}}
 
         # Separate original entries converge on one modern route form, with traceability.
         report["routing_action_effects"]={}
@@ -760,10 +845,12 @@ def main(after_checks=None):
             jar,opener,token=login(who);saved=stale_client(jar)
             lifecycle_form=None;lifecycle_destination=None;lifecycle_routes=[];lifecycle_handling=None
             if who!="reader":
-                code,body,_=request(opener,"admin/book.xhtml");check("Logout booking form owned: "+actor,code==200)
+                body,proof=entry(opener,who,token);entry_receipts[(who,"logged_out","booking")]=proof
+                check("Logout booking source owned: "+actor,True)
                 lifecycle_form=booking_form(body,token)
                 path="admin/changeDestination.xhtml?trackingId="+report["booking_action_effects"][who]["tracking_id"]
-                code,body,_=request(opener,path);check("Logout destination form owned: "+actor,code==200)
+                body,proof=entry(opener,who,token,report["booking_action_effects"][who]["tracking_id"]);entry_receipts[(who,"logged_out","destination")]=proof
+                check("Logout destination source and form owned: "+actor,True)
                 lifecycle_destination=(path,destination_form(body,token,"FIHEL"))
                 lifecycle_routes=owned_route_forms(opener,token,who)
                 lifecycle_handling=owned_handling_form(opener,token,who)
@@ -777,7 +864,7 @@ def main(after_checks=None):
             if lifecycle_form is not None:
                 report["access_observations"]["ACTION-29::"+actor+"::logged_out"]=denied_booking(saved,lifecycle_form,who,"logged_out")
                 path,form=lifecycle_destination
-                report["access_observations"]["ACTION-09::"+actor+"::logged_out"]=denied_form(saved,form,who,"logged_out",path,"Destination")
+                report["access_observations"]["ACTION-09::"+actor+"::logged_out"]=denied_destination(saved,form,who,"logged_out",path)
                 for surface,target_id,source,form in lifecycle_routes:
                     report["access_observations"][surface+"::"+actor+"::logged_out"]=route_denial(saved,form,who,"logged_out",surface,target_id,source)
                 report["access_observations"]["ACTION-41::"+actor+"::logged_out"]=handling_denial(saved,lifecycle_handling,who,"logged_out")
@@ -788,10 +875,12 @@ def main(after_checks=None):
             check("Expiry lifecycle positive monitoring: "+actor,request(opener,"rest/cargo")[0]==200)
             form=None;destination=None;routes=[];handling_payload=None
             if who!="reader":
-                code,body,_=request(opener,"admin/book.xhtml");check("Expiry booking form owned: "+actor,code==200)
+                body,proof=entry(opener,who,token);entry_receipts[(who,"expired","booking")]=proof
+                check("Expiry booking source owned: "+actor,True)
                 form=booking_form(body,token)
                 path="admin/changeDestination.xhtml?trackingId="+report["booking_action_effects"][who]["tracking_id"]
-                code,body,_=request(opener,path);check("Expiry destination form owned: "+actor,code==200)
+                body,proof=entry(opener,who,token,report["booking_action_effects"][who]["tracking_id"]);entry_receipts[(who,"expired","destination")]=proof
+                check("Expiry destination source and form owned: "+actor,True)
                 destination=(path,destination_form(body,token,"FIHEL"))
                 routes=owned_route_forms(opener,token,who)
                 handling_payload=owned_handling_form(opener,token,who)
@@ -808,7 +897,7 @@ def main(after_checks=None):
             if lifecycle_form is not None:
                 report["access_observations"]["ACTION-29::"+actor+"::expired"]=denied_booking(saved,lifecycle_form,who,"expired")
                 path,form=lifecycle_destination
-                report["access_observations"]["ACTION-09::"+actor+"::expired"]=denied_form(saved,form,who,"expired",path,"Destination")
+                report["access_observations"]["ACTION-09::"+actor+"::expired"]=denied_destination(saved,form,who,"expired",path)
                 for surface,target_id,source,form in lifecycle_routes:
                     report["access_observations"][surface+"::"+actor+"::expired"]=route_denial(saved,form,who,"expired",surface,target_id,source)
                 report["access_observations"]["ACTION-41::"+actor+"::expired"]=handling_denial(saved,lifecycle_handling,who,"expired")

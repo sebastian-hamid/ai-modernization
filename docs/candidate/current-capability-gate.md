@@ -31,3 +31,7 @@ From the WSL repository root:
     python3 tests/security/run_current_capabilities.py --live-subset --output .work/kan15-current-capabilities/results.json
 
 The live command owns a fresh native/browser fixture and requires Docker plus existing build dependencies. Missing adapters remain BLOCKED; default execution without --live-subset executes no fixture and blocks all cases. Do not reuse old .work results to assert a new runtime run.
+
+## Subsequent source-entry verification — 3 November 2026
+
+The [source-entry increment](source-entry-evidence.md) resolves the 16 booking/destination provenance gaps above using actual source GETs, destination links and saved pre-revocation receipts. Latest current results are **324 PASS / 146 BLOCKED**; the historical audit remains 324/178 and retirement remains 76 BLOCKED. The earlier 308/162 result is preserved as the first checkpoint, not the current total.

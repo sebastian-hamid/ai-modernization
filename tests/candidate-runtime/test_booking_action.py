@@ -57,4 +57,63 @@ class DestinationActionTests(unittest.TestCase):
             elif mode=="wrong_destination":cargo["destinationCode"]="FIHEL"
             else:cargo["transportStatus"]="CLAIMED"
             with self.subTest(mode=mode):self.assertFalse(h.destination_positive(before,after,old,cargo,"ABCDEFGH"))
+
+class SourceEntryTests(unittest.TestCase):
+    base="http://candidate:8080/cargo-tracker/"
+    target="ABCDEFGH"
+    def booking(self):
+        return "".join('<input id="'+key+'"/>' for key in ["booking","booking:origin","booking:destination","booking:deadline","booking:submit"])+'<input name="jakarta.faces.ViewState" value="state"/>'
+    def destination(self):
+        return "".join('<input id="'+key+'"/>' for key in ["change","change:destination","change:submit"])+'<input name="jakarta.faces.ViewState" value="state"/>'
+    def details(self,href="/cargo-tracker/admin/changeDestination.xhtml?trackingId=ABCDEFGH&amp;jfwid=one"):
+        return '<dd id="trackingId">ABCDEFGH</dd><a href="'+href+'">Change destination</a>'
+    def run_entry(self,responses,who="operator",target="ABCDEFGH"):
+        calls=[]
+        def request(path):
+            calls.append(path)
+            if not responses:raise AssertionError("Unexpected request")
+            return responses.pop(0)
+        body,proof=h.source_entry(request,self.base,who,"token",target)
+        return body,proof,calls
+    def test_follows_rendered_link_for_same_cargo_and_saves_source(self):
+        body,proof,calls=self.run_entry([(200,self.details(),{}),(200,self.destination(),{})])
+        self.assertEqual(calls,["admin/show.xhtml?trackingId=ABCDEFGH","admin/changeDestination.xhtml?trackingId=ABCDEFGH&jfwid=one"])
+        self.assertEqual(proof,{"entry_page":"admin/show.xhtml?trackingId=ABCDEFGH","source_entry_verified":True})
+        self.assertEqual(body,self.destination())
+    def test_percent_encoded_window_query_is_valid_but_encoded_paths_are_not(self):
+        href="/cargo-tracker/admin/changeDestination.xhtml?trackingId=ABCDEFGH&amp;jfwid=window%3A0"
+        body,proof,calls=self.run_entry([(200,self.details(href),{}),(200,self.destination(),{})])
+        self.assertEqual(calls[-1],"admin/changeDestination.xhtml?trackingId=ABCDEFGH&jfwid=window%3A0")
+        for href in ["/cargo-tracker/admin/%63hangeDestination.xhtml?trackingId=ABCDEFGH","/cargo-tracker/admin/changeDestination.xhtml;other?trackingId=ABCDEFGH","/cargo-tracker/admin/changeDestination.xhtml?trackingId=ABCDEFGH&jfwid=bad%ZZ","/cargo-tracker/admin/changeDestination.xhtml?trackingId=ABCDEFGH&jfwid=bad%0Avalue","/cargo-tracker/admin/changeDestination.xhtml?trackingId=%41BCDEFGH","/cargo-tracker/admin/changeDestination.xhtml?trackingId=ABCDEFGH&jf%77id=window","/cargo-tracker/admin/changeDestination.xhtml?trackingId=ABCDEFGH&jfwid=bad"+chr(92)+"value"]:
+            with self.subTest(href=href),self.assertRaises(AssertionError):self.run_entry([(200,self.details(href),{}),(200,self.destination(),{})])
+    def test_rejects_unsafe_wrong_cargo_missing_and_duplicate_links(self):
+        for href in ["https://evil.example/cargo-tracker/admin/changeDestination.xhtml?trackingId=ABCDEFGH","/cargo-tracker/admin/changeDestination.xhtml?trackingId=OTHERID1","/cargo-tracker/admin/changeDestination.xhtml?trackingId=ABCDEFGH&trackingId=ABCDEFGH","/cargo-tracker/admin/changeDestination.xhtml?trackingId=ABCDEFGH&extra=one","/cargo-tracker/admin/changeDestination.xhtml?trackingId=ABCDEFGH#fragment","/cargo-tracker/admin/changeDestination.xhtml?trackingId=ABCDEFGH&jfwid=","/cargo-tracker/admin/route.xhtml?trackingId=ABCDEFGH"]:
+            with self.subTest(href=href),self.assertRaises(AssertionError):
+                self.run_entry([(200,self.details(href),{}),(200,self.destination(),{})])
+        for body in ['<dd id="trackingId">ABCDEFGH</dd>',self.details()+self.details(),self.details().replace('id="trackingId">ABCDEFGH','id="trackingId">OTHERID1')]:
+            with self.subTest(body=body),self.assertRaises(AssertionError):self.run_entry([(200,body,{})])
+    def test_reader_hidden_link_then_direct_editor_denial(self):
+        body,proof,calls=self.run_entry([(200,'<dd id="trackingId">ABCDEFGH</dd>',{}),(403,"Denied",{})],who="reader")
+        self.assertEqual(calls[-1],"admin/changeDestination.xhtml?trackingId=ABCDEFGH")
+        self.assertTrue(proof["source_entry_verified"])
+        with self.assertRaises(AssertionError):self.run_entry([(200,self.details(),{})],who="reader")
+    def test_anonymous_requires_fixed_login_and_no_cargo_leak(self):
+        rows=[(303,"",{"Location":"/cargo-tracker/login"})]*2
+        self.assertTrue(self.run_entry(rows,who=None)[1]["source_entry_verified"])
+        for code,body,headers in [(200,"",{}),(303,"",{"Location":"https://evil.example/login"}),(303,"ABCDEFGH",{"Location":"/cargo-tracker/login"})]:
+            with self.subTest(code=code,body=body),self.assertRaises(AssertionError):self.run_entry([(code,body,headers)],who=None)
+    def test_booking_allowed_and_denied_real_source_responses(self):
+        for who in ["operator","admin"]:
+            body,proof,calls=self.run_entry([(200,self.booking(),{})],who=who,target=None)
+            self.assertEqual(calls,["admin/book.xhtml"]);self.assertEqual(proof["entry_page"],"admin/book.xhtml")
+        for who,response in [("reader",(403,"Denied",{})),(None,(303,"",{"Location":"/cargo-tracker/login"}))]:
+            self.assertTrue(self.run_entry([response],who=who,target=None)[1]["source_entry_verified"])
+        for response in [(200,"missing form",{}),(303,"",{"Location":"/cargo-tracker/login"})]:
+            with self.assertRaises(AssertionError):self.run_entry([response],target=None)
+    def test_source_success_does_not_mask_failed_editor_or_invalid_identity(self):
+        for response in [(500,"",{}),(200,"missing form",{}),(303,"",{"Location":"/cargo-tracker/login"})]:
+            with self.assertRaises(AssertionError):self.run_entry([(200,self.details(),{}),response])
+        for who,target in [("other","ABCDEFGH"),("operator","short")]:
+            with self.assertRaises(AssertionError):self.run_entry([],who=who,target=target)
+
 if __name__=="__main__":unittest.main()

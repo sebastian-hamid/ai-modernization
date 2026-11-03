@@ -104,3 +104,7 @@ All40 inventoried write-action/role/logout/expiry cases now pass. ACTION-41 uses
 ## Latest access checkpoint — 2 November 2026 (KAN-15 current gate)
 
 The first fresh v2 gate reports 308 PASS / 162 BLOCKED across 470 current cases; all 76 retirement checks remain BLOCKED. The same fixture preserves the historical 502-case audit at 324 PASS / 178 BLOCKED. Native 565 checks and Chromium 431 checks passed; cleanup passed and shared services remain running. Independent original-file/hash inspection and all 54 security unit tests now pass, resolving the earlier reviewer-access limitation. Current source-proof gaps deliberately block all 16 booking/destination cases; full acceptance remains incomplete. See [current gate checkpoint](../docs/candidate/current-capability-gate.md).
+
+## Latest access checkpoint — 3 November 2026 (KAN-15 source entries)
+
+Actual booking source GETs and selected-cargo details-to-editor link navigation now support all16booking/destination role/session cases in the current gate. Current324PASS/146BLOCKED; historical502audit324PASS/178BLOCKED;76retirementchecksBLOCKED. Native565/Chromium431checksPASS;32fixture+54securityunit testsPASS. Source policy, application code and historical contracts unchanged. Fresh owned resource/private cleanup passed; shared services preserved. See [source-entry evidence](../docs/candidate/source-entry-evidence.md).

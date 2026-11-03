@@ -1,0 +1,242 @@
+{
+  "task": "KAN-15 source-entry proof",
+  "date": "2026-11-03",
+  "base_revision": "ae1226af26ff3bd419d109a80c303c02741a9ab0",
+  "current_counts": {
+    "PASS": 324,
+    "BLOCKED": 146
+  },
+  "retirement_counts": {
+    "BLOCKED": 76
+  },
+  "legacy_counts": {
+    "PASS": 324,
+    "BLOCKED": 178
+  },
+  "gate_exit": 2,
+  "native_checks": 565,
+  "browser_checks": {
+    "count": 431,
+    "passed": true
+  },
+  "unit_tests": {
+    "native_fixture": 32,
+    "security": 54
+  },
+  "cleanup": {
+    "owned_container_removed": true,
+    "private_files_removed": true,
+    "cleanup_errors": [],
+    "browser_cleanup": {
+      "container_removed": true,
+      "network_removed": true,
+      "errors": []
+    }
+  },
+  "source_sha256": {
+    "tests/candidate-runtime/run_candidate.py": "1e9fe3037608756d6e358526de6abfe7427c9bd239975348584c394a58c46a91",
+    "tests/candidate-runtime/test_booking_action.py": "8b0deafe4ce00d9e71c387afa4333d6e3b264ba4011fd89a2dbad0c75fee8bc5"
+  },
+  "artifact_sha256": {
+    ".work/kan15-source-entry/results.json": "f654c087dc1917a9513ec7f25099f1e101b7ad04d57f26323e5feac1252513ea",
+    ".work/kan15-source-entry/native-final.json": "df16b3b9cb5348ee69c8e82cd87acb79f4f5f2bc38f31f4f1d5e86e6f3e63545",
+    ".work/kan15-source-entry/failed-native.json": "cf274bd1349ad6922c0d1e73306fb529154567e2d60ebcc1d87aa4ca43794e5f"
+  },
+  "provenance": {
+    "kind": "fresh-owned-runtime",
+    "inputs_fingerprint": "d84d105e292c07905b6d6288adff4bd4f80be6301101903136b2ae6b6cff7b3a",
+    "canonical_contracts_sha256": "fdfaf864ea8f2b5ef53ec5e5cdf37d0dbbfcc6e3669c1923d19d69a176c76c9c",
+    "legacy_fixture_cleanup_verified": true,
+    "imported_code_attested": false,
+    "fingerprint_scope": "On-disk inputs and constructed canonical contracts; already imported Python code identity is not attested."
+  },
+  "current_case_results": [
+    {
+      "case": "CURRENT::ACTION-09::anonymous::active",
+      "outcome": "PASS",
+      "reason": "Desired denial observed with required evidence"
+    },
+    {
+      "case": "CURRENT::ACTION-09::Reader::active",
+      "outcome": "PASS",
+      "reason": "Desired denial observed with required evidence"
+    },
+    {
+      "case": "CURRENT::ACTION-09::Operator::active",
+      "outcome": "PASS",
+      "reason": "Allowed workflow and identity evidence observed"
+    },
+    {
+      "case": "CURRENT::ACTION-09::Administrator::active",
+      "outcome": "PASS",
+      "reason": "Allowed workflow and identity evidence observed"
+    },
+    {
+      "case": "CURRENT::ACTION-09::Operator::logged_out",
+      "outcome": "PASS",
+      "reason": "Desired denial observed with required evidence"
+    },
+    {
+      "case": "CURRENT::ACTION-09::Operator::expired",
+      "outcome": "PASS",
+      "reason": "Desired denial observed with required evidence"
+    },
+    {
+      "case": "CURRENT::ACTION-09::Administrator::logged_out",
+      "outcome": "PASS",
+      "reason": "Desired denial observed with required evidence"
+    },
+    {
+      "case": "CURRENT::ACTION-09::Administrator::expired",
+      "outcome": "PASS",
+      "reason": "Desired denial observed with required evidence"
+    },
+    {
+      "case": "CURRENT::ACTION-29::anonymous::active",
+      "outcome": "PASS",
+      "reason": "Desired denial observed with required evidence"
+    },
+    {
+      "case": "CURRENT::ACTION-29::Reader::active",
+      "outcome": "PASS",
+      "reason": "Desired denial observed with required evidence"
+    },
+    {
+      "case": "CURRENT::ACTION-29::Operator::active",
+      "outcome": "PASS",
+      "reason": "Allowed workflow and identity evidence observed"
+    },
+    {
+      "case": "CURRENT::ACTION-29::Administrator::active",
+      "outcome": "PASS",
+      "reason": "Allowed workflow and identity evidence observed"
+    },
+    {
+      "case": "CURRENT::ACTION-29::Operator::logged_out",
+      "outcome": "PASS",
+      "reason": "Desired denial observed with required evidence"
+    },
+    {
+      "case": "CURRENT::ACTION-29::Operator::expired",
+      "outcome": "PASS",
+      "reason": "Desired denial observed with required evidence"
+    },
+    {
+      "case": "CURRENT::ACTION-29::Administrator::logged_out",
+      "outcome": "PASS",
+      "reason": "Desired denial observed with required evidence"
+    },
+    {
+      "case": "CURRENT::ACTION-29::Administrator::expired",
+      "outcome": "PASS",
+      "reason": "Desired denial observed with required evidence"
+    }
+  ],
+  "source_receipts": {
+    "ACTION-29::anonymous::active": {
+      "entry_page": "admin/book.xhtml",
+      "source_entry_verified": true,
+      "entry_window_query_encoded": false,
+      "form_owned_before_revocation": false
+    },
+    "ACTION-29::Reader::active": {
+      "entry_page": "admin/book.xhtml",
+      "source_entry_verified": true,
+      "entry_window_query_encoded": false,
+      "form_owned_before_revocation": false
+    },
+    "ACTION-29::Operator::active": {
+      "entry_page": "admin/book.xhtml",
+      "source_entry_verified": true,
+      "entry_window_query_encoded": false
+    },
+    "ACTION-29::Administrator::active": {
+      "entry_page": "admin/book.xhtml",
+      "source_entry_verified": true,
+      "entry_window_query_encoded": false
+    },
+    "ACTION-09::anonymous::active": {
+      "entry_page": "admin/show.xhtml?trackingId={cargo}",
+      "source_entry_verified": true,
+      "entry_window_query_encoded": false,
+      "form_owned_before_revocation": false
+    },
+    "ACTION-09::Reader::active": {
+      "entry_page": "admin/show.xhtml?trackingId={cargo}",
+      "source_entry_verified": true,
+      "entry_window_query_encoded": false,
+      "form_owned_before_revocation": false
+    },
+    "ACTION-09::Operator::active": {
+      "entry_page": "admin/show.xhtml?trackingId={cargo}",
+      "source_entry_verified": true,
+      "entry_window_query_encoded": true
+    },
+    "ACTION-09::Administrator::active": {
+      "entry_page": "admin/show.xhtml?trackingId={cargo}",
+      "source_entry_verified": true,
+      "entry_window_query_encoded": true
+    },
+    "ACTION-29::Operator::logged_out": {
+      "entry_page": "admin/book.xhtml",
+      "source_entry_verified": true,
+      "entry_window_query_encoded": false,
+      "form_owned_before_revocation": true
+    },
+    "ACTION-09::Operator::logged_out": {
+      "entry_page": "admin/show.xhtml?trackingId={cargo}",
+      "source_entry_verified": true,
+      "entry_window_query_encoded": true,
+      "form_owned_before_revocation": true
+    },
+    "ACTION-29::Administrator::logged_out": {
+      "entry_page": "admin/book.xhtml",
+      "source_entry_verified": true,
+      "entry_window_query_encoded": false,
+      "form_owned_before_revocation": true
+    },
+    "ACTION-09::Administrator::logged_out": {
+      "entry_page": "admin/show.xhtml?trackingId={cargo}",
+      "source_entry_verified": true,
+      "entry_window_query_encoded": true,
+      "form_owned_before_revocation": true
+    },
+    "ACTION-29::Operator::expired": {
+      "entry_page": "admin/book.xhtml",
+      "source_entry_verified": true,
+      "entry_window_query_encoded": false,
+      "form_owned_before_revocation": true
+    },
+    "ACTION-09::Operator::expired": {
+      "entry_page": "admin/show.xhtml?trackingId={cargo}",
+      "source_entry_verified": true,
+      "entry_window_query_encoded": true,
+      "form_owned_before_revocation": true
+    },
+    "ACTION-29::Administrator::expired": {
+      "entry_page": "admin/book.xhtml",
+      "source_entry_verified": true,
+      "entry_window_query_encoded": false,
+      "form_owned_before_revocation": true
+    },
+    "ACTION-09::Administrator::expired": {
+      "entry_page": "admin/show.xhtml?trackingId={cargo}",
+      "source_entry_verified": true,
+      "entry_window_query_encoded": true,
+      "form_owned_before_revocation": true
+    }
+  },
+  "remaining": {
+    "pending_current_behaviors": 56,
+    "replacement_capabilities": 44,
+    "internal_service_worker": 46,
+    "retirement_checks": 76
+  },
+  "limits": [
+    "Full KAN-15 acceptance remains incomplete; retirement is not PASS.",
+    "Historical502 definitions and324/178 audit preserved.",
+    "Imported Python code identity is not attested.",
+    "Original failed href was not captured; corrected run confirms encoded window query on six allowed entry receipts.",
+    "Cleanup is independently reviewed through recorded evidence, not directly observed by reviewer."
+  ]
+}
