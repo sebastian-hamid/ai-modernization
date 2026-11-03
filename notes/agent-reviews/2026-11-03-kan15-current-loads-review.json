@@ -1,0 +1,97 @@
+{
+  "task": "KAN-15 current load behaviors ACTION-07 and ACTION-20",
+  "date": "2026-11-03",
+  "base_revision": "1fdfae12cccc7ed191b3ab86f54cc5ff39a9af57",
+  "author": "/root",
+  "reviewer": "/root/review_current_capability_gate",
+  "source_review": {
+    "verdict": "No material findings; one changed fresh integration run approved",
+    "independent_tests": {
+      "load_semantics": 3,
+      "current_adapter": 17,
+      "result": "PASS"
+    },
+    "checks": [
+      "Current load observations are separate from historical callback observations",
+      "Exact role/source/query/driver guards retained",
+      "Distinct USNYC selected cargo and FIHEL control before second destination mutation",
+      "Missing/malformed/unknown cargo ID and role precedence checks",
+      "Grouped read-effects comparison present",
+      "git diff --check PASS"
+    ],
+    "nonblocking_note": "Nested actor loop reuses outer who; safe at loop end because iterator resets it, but distinct naming would make future extension clearer",
+    "source_sha256": {
+      "tests/candidate-runtime/run_candidate.py": "111659da3e5238c65f16673641c90e62649e57eb9b53e2d6bd15712a99fa754e",
+      "tests/candidate-runtime/test_current_loads.py": "549e7dc9d43697a2a33eff8fe0bfb010c65c7ab443fa81eddea304450a6df3b3",
+      "tests/security/current_capabilities.py": "377b776fc42a2678358e1e8acab075f210448290284dd415889737d3d1197ff6",
+      "tests/security/run_candidate_contracts.py": "5eeb1d56da7f07457fd8378b4db59d50056db1a487cf28a7064cb3e340aec9ba",
+      "tests/security/test_current_capabilities.py": "bc7c39b20fab0c60abd0bd4b26bd7e82698fa5f8a8e9fd874d2dbc3a3f4e413e",
+      "specifications/current-capability-mapping-v2.json": "a714ffd802a8d86ac689fb69ec2284f6e8027f43ee5d1372a82d8e39864ffedd"
+    }
+  },
+  "author_verification": {
+    "native_fixture_unit_tests": 36,
+    "security_unit_tests": 56,
+    "result": "PASS",
+    "git_diff_check": "PASS"
+  },
+  "runtime_review": {
+    "verdict": "No unjustified promotion; exact8BLOCKED-to-PASS changes supported",
+    "checks": [
+      "Independently replayed all current/legacy/retirement result arrays",
+      "Exactly ACTION07/ACTION20 all4actors improved",
+      "Source and canonical contract fingerprints match",
+      "8observations have expected exact identity/role/selectedtarget/source/query/native-load marker",
+      "Recorded603native/431browserchecksPASS",
+      "24invalid-ID,distinctcontrol,unchanged-read-effects checksPASS",
+      "Recorded owned/private/networkcleanup true with noerrors"
+    ],
+    "counts": {
+      "current": {
+        "PASS": 332,
+        "BLOCKED": 138
+      },
+      "legacy": {
+        "PASS": 324,
+        "BLOCKED": 178
+      },
+      "retirement": {
+        "BLOCKED": 76
+      },
+      "gate_exit": 2
+    },
+    "artifact_sha256": {
+      "gate": "8675c77994459c58c8c204708dbd82f7e4a1c37248eddc81aad471047f53d7ed",
+      "native": "5d4e82bfe0648626eaa10890267902d513c106069eef48510fe3a5fb56b3ec43"
+    },
+    "limits": [
+      "No duplicate fixture run by reviewer",
+      "Raw semantic HTML/grouped before-after load snapshots not retained; assessed through inspected driver and recorded outcomes",
+      "Cleanup checked through recorded evidence",
+      "Full acceptance and retirement incomplete; imported code identity unattested"
+    ]
+  },
+  "limits": [
+    "Historical callback audit must not promote these current GET equivalents",
+    "Full acceptance and retirement remain incomplete"
+  ],
+  "correction": {
+    "first_run": "Failed at ACTION20 Reader exact detail values; task owned resources and private files cleaned",
+    "cause": "API has separate location name/code fields; CargoRouteDtoAssembler renders exact name plus parenthesized UNLOCODE",
+    "regression": "Real display-label fixture first failed; exact name-and-code correction plus wrong-code rejection passes",
+    "diagnostics": "Mismatched field names only, never response bodies or cargo/session values",
+    "independent_correction_review": "Assembler and patch inspected,4focusedtestsPASS,diffcheckPASS; no material findings and one changed run approved",
+    "limit": "Original failed response body was not captured; assembler independently supports correction",
+    "prior_diagnosis_limit": "Assembler-only name-and-code hypothesis was incomplete: the page uses stripping name getters, and the next run again failed Origin/Destination; full fixture was held."
+  },
+  "getter_diagnostic": {
+    "command_scope": "Existing compiled candidate WAR classes; static synthetic CargoRoute; Docker network none, auto-remove, no application server/credentials/shared services",
+    "bound_seconds": 30,
+    "actual_seconds_less_than": 3,
+    "exit": 0,
+    "result": "Name getters return name plus trailing U+0020; stripped values match raw API names",
+    "regressions": "Two real getter-label assertions failed before location-name-only trim; wrong name/unexpected code still fail",
+    "final_normalization": "Strip surrounding whitespace only from Origin/Destination rendered names; exact independent expected names, IDs/status/deadline and selected destination retained",
+    "review": "Reviewer independently confirmed complete template/getter/LocationUtil chain, inspected recorded compiled-getter output, ran4focusedtestsPASS and diffcheckPASS; acknowledged prior assembler-only assessment incomplete. Reviewer did not rerun diagnostic container. Monitor lifted HOLD for one changed fresh fixture."
+  }
+}

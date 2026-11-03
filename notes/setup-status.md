@@ -108,3 +108,7 @@ The first fresh v2 gate reports 308 PASS / 162 BLOCKED across 470 current cases;
 ## Latest access checkpoint — 3 November 2026 (KAN-15 source entries)
 
 Actual booking source GETs and selected-cargo details-to-editor link navigation now support all16booking/destination role/session cases in the current gate. Current324PASS/146BLOCKED; historical502audit324PASS/178BLOCKED;76retirementchecksBLOCKED. Native565/Chromium431checksPASS;32fixture+54securityunit testsPASS. Source policy, application code and historical contracts unchanged. Fresh owned resource/private cleanup passed; shared services preserved. See [source-entry evidence](../docs/candidate/source-entry-evidence.md).
+
+## Latest access checkpoint — 3 November 2026 (KAN-15 current loads)
+
+ACTION07/ACTION20 add eight current GET actor cases with independent selected-cargo values, distinct destination controls and24missing/malformed/unknown-ID checks. Current332PASS/138BLOCKED; historical502audit324PASS/178BLOCKED; retirement76BLOCKED. Native603/browser431PASS;36fixture+56securityunitsPASS. Two early failed fixture attempts were cleaned up; a bounded compiled-getter diagnostic established trailing location-name whitespace and the exact visible-name comparison now passes. Owned/private cleanup passed; shared services preserved. See [current load evidence](../docs/candidate/current-load-behaviors.md).

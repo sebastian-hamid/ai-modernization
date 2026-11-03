@@ -35,3 +35,7 @@ The live command owns a fresh native/browser fixture and requires Docker plus ex
 ## Subsequent source-entry verification — 3 November 2026
 
 The [source-entry increment](source-entry-evidence.md) resolves the 16 booking/destination provenance gaps above using actual source GETs, destination links and saved pre-revocation receipts. Latest current results are **324 PASS / 146 BLOCKED**; the historical audit remains 324/178 and retirement remains 76 BLOCKED. The earlier 308/162 result is preserved as the first checkpoint, not the current total.
+
+## Subsequent current load behaviors — 3 November 2026
+
+[Destination-form and cargo-details loads](current-load-behaviors.md) add eight specifically verified current GET cases. Latest current totals: **332 PASS / 138 BLOCKED**. Historical audit remains324/178; retirement remains76BLOCKED. These current capabilities do not claim execution of the original framework callbacks.

@@ -1,0 +1,298 @@
+{
+  "task": "KAN-15 ACTION07/ACTION20 current load behaviors",
+  "date": "2026-11-03",
+  "base_revision": "1fdfae12cccc7ed191b3ab86f54cc5ff39a9af57",
+  "current_counts": {
+    "PASS": 332,
+    "BLOCKED": 138
+  },
+  "legacy_counts": {
+    "PASS": 324,
+    "BLOCKED": 178
+  },
+  "retirement_counts": {
+    "BLOCKED": 76
+  },
+  "gate_exit": 2,
+  "native_checks": 603,
+  "browser_checks": {
+    "count": 431,
+    "passed": true
+  },
+  "unit_tests": {
+    "fixture": 36,
+    "security": 56
+  },
+  "current_results": [
+    {
+      "case": "CURRENT::ACTION-07::anonymous::active",
+      "outcome": "PASS",
+      "reason": "Desired denial observed with required evidence"
+    },
+    {
+      "case": "CURRENT::ACTION-07::Reader::active",
+      "outcome": "PASS",
+      "reason": "Desired denial observed with required evidence"
+    },
+    {
+      "case": "CURRENT::ACTION-07::Operator::active",
+      "outcome": "PASS",
+      "reason": "Allowed workflow and identity evidence observed"
+    },
+    {
+      "case": "CURRENT::ACTION-07::Administrator::active",
+      "outcome": "PASS",
+      "reason": "Allowed workflow and identity evidence observed"
+    },
+    {
+      "case": "CURRENT::ACTION-20::anonymous::active",
+      "outcome": "PASS",
+      "reason": "Desired denial observed with required evidence"
+    },
+    {
+      "case": "CURRENT::ACTION-20::Reader::active",
+      "outcome": "PASS",
+      "reason": "Allowed workflow and identity evidence observed"
+    },
+    {
+      "case": "CURRENT::ACTION-20::Operator::active",
+      "outcome": "PASS",
+      "reason": "Allowed workflow and identity evidence observed"
+    },
+    {
+      "case": "CURRENT::ACTION-20::Administrator::active",
+      "outcome": "PASS",
+      "reason": "Allowed workflow and identity evidence observed"
+    }
+  ],
+  "receipts": {
+    "CURRENT::ACTION-07::anonymous::active": {
+      "current_load_driver": "native-current-load-v1",
+      "selected_cargo_verified": false,
+      "current_values_verified": false,
+      "invalid_inputs_verified": true,
+      "status": 303,
+      "protected_payload_absent": true,
+      "source_page": "index.xhtml"
+    },
+    "CURRENT::ACTION-07::Reader::active": {
+      "current_load_driver": "native-current-load-v1",
+      "selected_cargo_verified": false,
+      "current_values_verified": false,
+      "invalid_inputs_verified": true,
+      "status": 403,
+      "protected_payload_absent": true,
+      "source_page": "admin/changeDestination.xhtml?trackingId={cargo}"
+    },
+    "CURRENT::ACTION-07::Operator::active": {
+      "current_load_driver": "native-current-load-v1",
+      "selected_cargo_verified": true,
+      "current_values_verified": true,
+      "invalid_inputs_verified": true,
+      "status": 200,
+      "protected_payload_absent": false,
+      "source_page": "admin/changeDestination.xhtml?trackingId={cargo}"
+    },
+    "CURRENT::ACTION-07::Administrator::active": {
+      "current_load_driver": "native-current-load-v1",
+      "selected_cargo_verified": true,
+      "current_values_verified": true,
+      "invalid_inputs_verified": true,
+      "status": 200,
+      "protected_payload_absent": false,
+      "source_page": "admin/changeDestination.xhtml?trackingId={cargo}"
+    },
+    "CURRENT::ACTION-20::anonymous::active": {
+      "current_load_driver": "native-current-load-v1",
+      "selected_cargo_verified": false,
+      "current_values_verified": false,
+      "invalid_inputs_verified": true,
+      "status": 303,
+      "protected_payload_absent": true,
+      "source_page": "index.xhtml"
+    },
+    "CURRENT::ACTION-20::Reader::active": {
+      "current_load_driver": "native-current-load-v1",
+      "selected_cargo_verified": true,
+      "current_values_verified": true,
+      "invalid_inputs_verified": true,
+      "status": 200,
+      "protected_payload_absent": false,
+      "source_page": "admin/show.xhtml?trackingId={cargo}"
+    },
+    "CURRENT::ACTION-20::Operator::active": {
+      "current_load_driver": "native-current-load-v1",
+      "selected_cargo_verified": true,
+      "current_values_verified": true,
+      "invalid_inputs_verified": true,
+      "status": 200,
+      "protected_payload_absent": false,
+      "source_page": "admin/show.xhtml?trackingId={cargo}"
+    },
+    "CURRENT::ACTION-20::Administrator::active": {
+      "current_load_driver": "native-current-load-v1",
+      "selected_cargo_verified": true,
+      "current_values_verified": true,
+      "invalid_inputs_verified": true,
+      "status": 200,
+      "protected_payload_absent": false,
+      "source_page": "admin/show.xhtml?trackingId={cargo}"
+    }
+  },
+  "invalid_load_checks": [
+    {
+      "name": "Current invalid load denial: ACTION-07 anonymous 0",
+      "passed": true
+    },
+    {
+      "name": "Current invalid load denial: ACTION-07 anonymous 15",
+      "passed": true
+    },
+    {
+      "name": "Current invalid load denial: ACTION-07 anonymous 20",
+      "passed": true
+    },
+    {
+      "name": "Current invalid load denial: ACTION-07 Reader 0",
+      "passed": true
+    },
+    {
+      "name": "Current invalid load denial: ACTION-07 Reader 15",
+      "passed": true
+    },
+    {
+      "name": "Current invalid load denial: ACTION-07 Reader 20",
+      "passed": true
+    },
+    {
+      "name": "Current invalid load denial: ACTION-07 Operator 0",
+      "passed": true
+    },
+    {
+      "name": "Current invalid load denial: ACTION-07 Operator 15",
+      "passed": true
+    },
+    {
+      "name": "Current invalid load denial: ACTION-07 Operator 20",
+      "passed": true
+    },
+    {
+      "name": "Current invalid load denial: ACTION-07 Administrator 0",
+      "passed": true
+    },
+    {
+      "name": "Current invalid load denial: ACTION-07 Administrator 15",
+      "passed": true
+    },
+    {
+      "name": "Current invalid load denial: ACTION-07 Administrator 20",
+      "passed": true
+    },
+    {
+      "name": "Current invalid load denial: ACTION-20 anonymous 0",
+      "passed": true
+    },
+    {
+      "name": "Current invalid load denial: ACTION-20 anonymous 15",
+      "passed": true
+    },
+    {
+      "name": "Current invalid load denial: ACTION-20 anonymous 20",
+      "passed": true
+    },
+    {
+      "name": "Current invalid load denial: ACTION-20 Reader 0",
+      "passed": true
+    },
+    {
+      "name": "Current invalid load denial: ACTION-20 Reader 15",
+      "passed": true
+    },
+    {
+      "name": "Current invalid load denial: ACTION-20 Reader 20",
+      "passed": true
+    },
+    {
+      "name": "Current invalid load denial: ACTION-20 Operator 0",
+      "passed": true
+    },
+    {
+      "name": "Current invalid load denial: ACTION-20 Operator 15",
+      "passed": true
+    },
+    {
+      "name": "Current invalid load denial: ACTION-20 Operator 20",
+      "passed": true
+    },
+    {
+      "name": "Current invalid load denial: ACTION-20 Administrator 0",
+      "passed": true
+    },
+    {
+      "name": "Current invalid load denial: ACTION-20 Administrator 15",
+      "passed": true
+    },
+    {
+      "name": "Current invalid load denial: ACTION-20 Administrator 20",
+      "passed": true
+    }
+  ],
+  "specific_fixture_checks": [
+    {
+      "name": "Current load target and control are distinct cargos",
+      "passed": true
+    },
+    {
+      "name": "Current read loads leave independent effects unchanged",
+      "passed": true
+    }
+  ],
+  "provenance": {
+    "kind": "fresh-owned-runtime",
+    "inputs_fingerprint": "d2e20f6bd33b3c906c4e2140adf42214591c2f5e02511152fff17e004f813c59",
+    "canonical_contracts_sha256": "43c52f9a83bb0b38abb8b83b8e4205d3a0ee4cda18974afaa10b157294234e58",
+    "legacy_fixture_cleanup_verified": true,
+    "imported_code_attested": false,
+    "fingerprint_scope": "On-disk inputs and constructed canonical contracts; already imported Python code identity is not attested."
+  },
+  "cleanup": {
+    "owned_container_removed": true,
+    "private_files_removed": true,
+    "cleanup_errors": [],
+    "browser_cleanup": {
+      "container_removed": true,
+      "network_removed": true,
+      "errors": []
+    }
+  },
+  "source_sha256": {
+    "tests/candidate-runtime/run_candidate.py": "111659da3e5238c65f16673641c90e62649e57eb9b53e2d6bd15712a99fa754e",
+    "tests/candidate-runtime/test_current_loads.py": "549e7dc9d43697a2a33eff8fe0bfb010c65c7ab443fa81eddea304450a6df3b3",
+    "tests/security/current_capabilities.py": "377b776fc42a2678358e1e8acab075f210448290284dd415889737d3d1197ff6",
+    "tests/security/run_candidate_contracts.py": "5eeb1d56da7f07457fd8378b4db59d50056db1a487cf28a7064cb3e340aec9ba",
+    "tests/security/test_current_capabilities.py": "bc7c39b20fab0c60abd0bd4b26bd7e82698fa5f8a8e9fd874d2dbc3a3f4e413e",
+    "specifications/current-capability-mapping-v2.json": "a714ffd802a8d86ac689fb69ec2284f6e8027f43ee5d1372a82d8e39864ffedd"
+  },
+  "artifact_sha256": {
+    ".work/kan15-current-loads/results.json": "8675c77994459c58c8c204708dbd82f7e4a1c37248eddc81aad471047f53d7ed",
+    ".work/kan15-current-loads/native-final.json": "5d4e82bfe0648626eaa10890267902d513c106069eef48510fe3a5fb56b3ec43",
+    ".work/kan15-current-loads/failed-native.json": "bb66735166ea1da5599e53028fb5a94aa455223fce085bbdbdf47c32916bb6f5",
+    ".work/kan15-current-loads/failed-native-display.json": "436658ad309a1ec121cd01ad4ae24687f344196ff1b817b9746c363460d876bb",
+    ".work/kan15-current-loads/getter-diagnostic.json": "0c27af62afe387d5c05e9e652c570d90a42583cdfef947c92aff56b86ef166fb"
+  },
+  "remaining": {
+    "pending_current_behaviors": 48,
+    "replacement_capabilities": 44,
+    "internal_service_worker": 46,
+    "retirement_checks": 76
+  },
+  "limits": [
+    "Current GET equivalents do not promote historical callback audit results.",
+    "Full acceptance and retirement remain incomplete.",
+    "Imported Python code identity is not attested.",
+    "Grouped read effects are compared by native fixture; raw group snapshots are not separately serialized.",
+    "Original two failed response bodies were not captured; actual compiled getter diagnostic established whitespace behavior.",
+    "Reviewer assesses cleanup from recorded evidence, not direct observation.",
+    "Raw semantic HTML not retained; reviewer assesses semantic checks through driver logic and recorded outcomes."
+  ]
+}

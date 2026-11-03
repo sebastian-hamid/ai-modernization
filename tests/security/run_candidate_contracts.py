@@ -19,6 +19,7 @@ class LiveSubsetCandidate:
         browser=report.get("browser_checks",{});cleanup=report.get("browser_cleanup",{})
         if browser.get("passed") is not True or not browser.get("count") or cleanup.get("container_removed") is not True or cleanup.get("network_removed") is not True or cleanup.get("errors"):raise RuntimeError("Browser verification or cleanup incomplete")
         self.observations=report["access_observations"]
+        self.current_observations=report.get("current_access_observations",{})
         self.contracts=bound_contracts()
     def execute(self,case):
         canonical=self.contracts.get(case.get("id"))

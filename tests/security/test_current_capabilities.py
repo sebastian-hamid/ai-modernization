@@ -94,9 +94,9 @@ class CurrentCapabilityTests(unittest.TestCase):
             bad=copy.deepcopy(model)
             if mode=="promote-pending":bad["mapped_actions"].append(bad["pending_current_actions"].pop(0))
             elif mode=="swap-retirement":
-                next(row for row in bad["pending_current_actions"] if row["legacy_id"]=="ACTION-07")["legacy_id"]="ACTION-08"
-                next(row for row in bad["retirement_candidates"] if row["legacy_id"]=="ACTION-08")["legacy_id"]="ACTION-07"
-                next(row for row in bad["replacement_capabilities"] if row["id"]=="cancel-editor")["legacy_ids"]=["ACTION-07"]
+                next(row for row in bad["pending_current_actions"] if row["legacy_id"]=="ACTION-10")["legacy_id"]="ACTION-08"
+                next(row for row in bad["retirement_candidates"] if row["legacy_id"]=="ACTION-08")["legacy_id"]="ACTION-10"
+                next(row for row in bad["replacement_capabilities"] if row["id"]=="cancel-editor")["legacy_ids"]=["ACTION-10"]
             elif mode=="change-requirement":bad["replacement_capabilities"][0]["requirement"]="Any page renders."
             elif mode=="change-policy":bad["retirement_policy"]="Retire on generic success."
             else:
@@ -167,4 +167,22 @@ class CurrentCapabilityTests(unittest.TestCase):
         for field,value in [("machine_scope","other"),("machine_identity_verified",False),("native_identity",{"principal":"admin","roles":["RoutingService"]})]:
             adapter.legacy.observation={**good,field:value}
             with self.subTest(field=field),self.assertRaises(UnsupportedCase):adapter.execute(case)
+    def test_current_native_loads_cannot_reuse_legacy_observations(self):
+        adapter,case,proof=self.fixture("CURRENT::ACTION-20::Reader::active")
+        with self.assertRaises(UnsupportedCase):adapter.execute(case)
+        proof.update(driver="direct",action_executed=True,target_origin_verified=True,actual_target_path="/cargo-tracker/admin/show.xhtml",query_keys=["trackingId"],tracking_id="ABCDEFGH",source_page="admin/show.xhtml?trackingId=ABCDEFGH",current_load_driver="native-current-load-v1",selected_cargo_verified=True,current_values_verified=True,invalid_inputs_verified=True)
+        adapter.legacy.current_observations={case["id"]:proof}
+        self.assertEqual(adapter.execute(case)["tracking_id"],"ABCDEFGH")
+        for key,value in [("current_load_driver","generic"),("selected_cargo_verified",False),("current_values_verified",False),("invalid_inputs_verified",False),("source_page","admin/show.xhtml?trackingId=OTHERID1"),("tracking_id","short")]:
+            adapter.legacy.current_observations={case["id"]:{**proof,key:value}}
+            with self.subTest(key=key),self.assertRaises(UnsupportedCase):adapter.execute(case)
+    def test_current_native_denial_still_requires_exact_identity_and_action_proof(self):
+        adapter,case,_=self.fixture("CURRENT::ACTION-07::Reader::active")
+        proof={"supported":True,"status":403,"protected_payload_absent":True,"identity":{"server_verified":True,"principal":"reader","roles":["Reader"]},"driver":"direct","action_executed":True,"target_origin_verified":True,"actual_target_path":"/cargo-tracker/admin/changeDestination.xhtml","query_keys":["trackingId"],"tracking_id":"ABCDEFGH","source_page":"admin/changeDestination.xhtml?trackingId=ABCDEFGH","current_load_driver":"native-current-load-v1","invalid_inputs_verified":True}
+        adapter.legacy.current_observations={case["id"]:proof}
+        self.assertEqual(adapter.execute(case)["status"],403)
+        for key,value in [("identity",{"server_verified":True,"principal":"operator","roles":["Reader"]}),("actual_target_path","/other"),("query_keys",["trackingId","trackingId"])]:
+            adapter.legacy.current_observations={case["id"]:{**proof,key:value}}
+            with self.subTest(key=key),self.assertRaises(UnsupportedCase):adapter.execute(case)
+
 if __name__=="__main__":unittest.main()

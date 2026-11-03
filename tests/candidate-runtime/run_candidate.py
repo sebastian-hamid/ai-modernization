@@ -184,6 +184,39 @@ def source_entry(fetch,base,who,csrf,tracking_id=None):
     if window_encoded:proof["entry_window_query_encoded"]=True
     return body,proof
 
+
+def current_load_semantics(surface,body,cargo,diagnostics=None):
+    """Specific current load semantics against an independently read cargo snapshot."""
+    import html
+    from html.parser import HTMLParser
+    if surface=="ACTION-20":
+        pairs=re.findall(r"<dt>([^<]+)</dt><dd(?: [^>]*)?>([^<]*)</dd>",body)
+        if len(pairs)!=len({key for key,value in pairs}):return False
+        values={html.unescape(key):html.unescape(value) for key,value in pairs}
+        expected={"Tracking ID":cargo["trackingId"],"Origin":cargo["originName"],"Destination":cargo["destinationName"],"Routing status":cargo["routingStatus"],"Status":cargo["transportStatus"]}
+        # CargoRoute name getters retain the separator space before the removed
+        # UNLOCODE. Compare visible name text; keep IDs/statuses exact.
+        for key in ["Origin","Destination"]:
+            if key in values:values[key]=values[key].strip()
+        mismatches=[key for key,value in expected.items() if values.get(key)!=value]
+        if values.get("Arrival deadline","").split()[:1]!=["12/31/2030"]:mismatches.append("Arrival deadline")
+        if diagnostics is not None:diagnostics["mismatched_fields"]=mismatches
+        return not mismatches
+    if surface!="ACTION-07":return False
+    destination_form(body,"unit-unused")
+    class Selection(HTMLParser):
+        def __init__(self):super().__init__();self.active=False;self.count=0;self.selected=[]
+        def handle_starttag(self,tag,attrs):
+            attrs=dict(attrs)
+            if tag=="select":
+                self.active=attrs.get("id")=="change:destination"
+                if self.active:self.count+=1
+            if tag=="option" and self.active and "selected" in attrs:self.selected.append(attrs.get("value"))
+        def handle_endtag(self,tag):
+            if tag=="select":self.active=False
+    parser=Selection();parser.feed(body)
+    return parser.count==1 and parser.selected==[cargo["destinationCode"]]
+
 def destination_positive(before,after,old,cargo,tracking_id):
     validate_effects(before);validate_effects(after)
     delta=sum(n for key,n in after["business_invocations"].items() if key.endswith("#changeDestination"))-sum(n for key,n in before["business_invocations"].items() if key.endswith("#changeDestination"))
@@ -684,6 +717,42 @@ def main(after_checks=None):
             check("Destination specific SQL audit effect and no JMS: "+role,destination_positive(start,end,old,fresh,target_id))
             report["destination_action_effects"][who]={"before":start,"after":end,"tracking_id":target_id,"reader_before":old,"reader_after":fresh,"reader_deadline_preserved":deadline_verified,"no_jms_expected":True}
             report["access_observations"]["ACTION-09::"+role+"::active"]={"supported":True,"status":detail_status,"post_status":status,"identity":report["identities"][who],"semantic_success":True,"authorized_effect_verified":True,"action_method":"POST","action_path":"/cargo-tracker/"+path,**source_proof,"real_form_verified":True,"tracking_id":target_id,"processing_evidence":{"database_changed":True,"change_destination_invocation_delta":1,"queue_unchanged":True,"independent_reader_persistence":True,"independent_reader_deadline":deadline_verified,"other_cargos_unchanged":True}}
+
+            if who=="operator":
+                # New current behavior evidence is separate from historical callback results.
+                report["current_access_observations"]={}
+                target_id=report["booking_action_effects"]["operator"]["tracking_id"]
+                control_id=report["booking_action_effects"]["admin"]["tracking_id"]
+                # Operator destination is USNYC while the Administrator control is still FIHEL.
+                reader_values={row["trackingId"]:row for row in cargos(sessions["reader"][1])}
+                expected_cargo=reader_values[target_id]
+                check("Current load target and control are distinct cargos",target_id!=control_id and target_id in reader_values and control_id in reader_values and expected_cargo["destinationCode"]!=reader_values[control_id]["destinationCode"])
+                check("Invalid load fixture ID absent","ZZZZZZZZ" not in reader_values)
+                before_loads=settled()
+                for surface,relative,operator_only in [("ACTION-07","admin/changeDestination.xhtml",True),("ACTION-20","admin/show.xhtml",False)]:
+                    path=relative+"?trackingId="+target_id
+                    for actor,who in [("anonymous",None),("Reader","reader"),("Operator","operator"),("Administrator","admin")]:
+                        opener=sessions[who][1] if who else anonymous
+                        if who is None:
+                            code,landing,_=request(opener,"index.xhtml")
+                            check("Current load anonymous source landing: "+surface,code==200 and payload_absent(landing))
+                        status,body,headers=request(opener,path)
+                        allowed=who is not None and (not operator_only or who!="reader")
+                        absent=payload_absent(body) and target_id not in body
+                        fixed=headers.get("Location")=="/cargo-tracker/login"
+                        if allowed:
+                            diagnostics={}
+                            matches=current_load_semantics(surface,body,expected_cargo,diagnostics)
+                            check("Current selected cargo values: "+surface+" "+actor+" "+",".join(diagnostics.get("mismatched_fields",[])),status==200 and matches)
+                        else:check("Current load role denial: "+surface+" "+actor,status==(303 if who is None else 403) and absent and (who is not None or fixed))
+                        for invalid in ["","?trackingId=bad","?trackingId=ZZZZZZZZ"]:
+                            bad_status,bad_body,bad_headers=request(opener,relative+invalid)
+                            wanted=404 if allowed else 303 if who is None else 403
+                            check("Current invalid load denial: "+surface+" "+actor+" "+str(len(invalid)),bad_status==wanted and payload_absent(bad_body) and target_id not in bad_body and (wanted!=303 or bad_headers.get("Location")=="/cargo-tracker/login"))
+                        observation={"supported":True,"status":status,"semantic_success":allowed,"protected_payload_absent":absent,"redirect_is_configured_login":fixed,"driver":"direct","action_executed":True,"target_origin_verified":True,"actual_target_path":"/cargo-tracker/"+relative,"query_keys":["trackingId"],"tracking_id":target_id,"source_page":"index.xhtml" if who is None else path,"current_load_driver":"native-current-load-v1","selected_cargo_verified":allowed,"current_values_verified":allowed,"invalid_inputs_verified":True}
+                        if who:observation["identity"]=report["identities"][who]
+                        report["current_access_observations"]["CURRENT::"+surface+"::"+actor+"::active"]=observation
+                check("Current read loads leave independent effects unchanged",before_loads==settled())
 
         # Separate original entries converge on one modern route form, with traceability.
         report["routing_action_effects"]={}
