@@ -109,3 +109,5 @@ Replaced obsolete mobile flow with direct responsive form preserving routed/uncl
 - **KAN-15 route choices (4 November 2026):** Verified current route choices and the fixed itinerary alias for four actors each. Only the three expected planner read counters increased; database, queues and other invocations were unchanged. Current gate 340 PASS / 130 BLOCKED; historical 324/178 and 76 retirement BLOCKED retained. Next: selected cargo details on the route page and the remaining current behaviors.
 
 - **KAN-15 route cargo details**. Added and verified the selected cargo fields for ACTION-15. Current coverage reached 344 PASS and 126 BLOCKED.
+
+- **KAN-15 claimed cargo navigation**. Verified the selected claimed cargo’s persisted details through the real list link and the anonymous denial. Current coverage reached 348 PASS and 122 BLOCKED.

@@ -94,9 +94,9 @@ class CurrentCapabilityTests(unittest.TestCase):
             bad=copy.deepcopy(model)
             if mode=="promote-pending":bad["mapped_actions"].append(bad["pending_current_actions"].pop(0))
             elif mode=="swap-retirement":
-                next(row for row in bad["pending_current_actions"] if row["legacy_id"]=="ACTION-10")["legacy_id"]="ACTION-08"
-                next(row for row in bad["retirement_candidates"] if row["legacy_id"]=="ACTION-08")["legacy_id"]="ACTION-10"
-                next(row for row in bad["replacement_capabilities"] if row["id"]=="cancel-editor")["legacy_ids"]=["ACTION-10"]
+                next(row for row in bad["pending_current_actions"] if row["legacy_id"]=="ACTION-11")["legacy_id"]="ACTION-08"
+                next(row for row in bad["retirement_candidates"] if row["legacy_id"]=="ACTION-08")["legacy_id"]="ACTION-11"
+                next(row for row in bad["replacement_capabilities"] if row["id"]=="cancel-editor")["legacy_ids"]=["ACTION-11"]
             elif mode=="change-requirement":bad["replacement_capabilities"][0]["requirement"]="Any page renders."
             elif mode=="change-policy":bad["retirement_policy"]="Retire on generic success."
             else:
@@ -202,5 +202,14 @@ class CurrentCapabilityTests(unittest.TestCase):
         with self.assertRaises(UnsupportedCase):adapter.execute(case)
         proof["route_details_verified"]=True
         self.assertTrue(adapter.execute(case)["route_details_verified"])
+
+    def test_claimed_cargo_requires_persisted_details_from_click(self):
+        adapter,case,_=self.fixture("CURRENT::ACTION-10::Reader::active")
+        proof={"supported":True,"status":200,"identity":{"server_verified":True,"principal":"reader","roles":["Reader"]},"driver":"click","action_executed":True,"target_origin_verified":True,"actual_target_path":"/cargo-tracker/admin/show.xhtml","query_keys":["trackingId"],"tracking_id":"ABCDEFGH","source_page":"admin/listClaimed.xhtml","current_navigation_driver":"browser-claimed-cargo-v1","selected_cargo_verified":True,"persisted_details_verified":True}
+        adapter.legacy.current_observations={case["id"]:proof}
+        self.assertTrue(adapter.execute(case)["persisted_details_verified"])
+        for key,value in [("persisted_details_verified",False),("driver","direct"),("source_page","admin/listRouted.xhtml")]:
+            adapter.legacy.current_observations={case["id"]:{**proof,key:value}}
+            with self.subTest(key=key),self.assertRaises(UnsupportedCase):adapter.execute(case)
 
 if __name__=="__main__":unittest.main()

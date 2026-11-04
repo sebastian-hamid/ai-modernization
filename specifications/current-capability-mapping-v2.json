@@ -122,16 +122,16 @@
       "modern_source": "admin/route.xhtml",
       "modern_target": "/cargo-tracker/admin/route.xhtml?trackingId={cargo}",
       "modern_method": "GET"
-    }
-  ],
-  "pending_current_actions": [
+    },
     {
       "legacy_id": "ACTION-10",
       "capability_id": "behavior-action-10",
       "modern_source": "admin/listClaimed.xhtml",
       "modern_target": "/cargo-tracker/admin/show.xhtml?trackingId={cargo}",
       "modern_method": "GET"
-    },
+    }
+  ],
+  "pending_current_actions": [
     {
       "legacy_id": "ACTION-11",
       "capability_id": "behavior-action-11",

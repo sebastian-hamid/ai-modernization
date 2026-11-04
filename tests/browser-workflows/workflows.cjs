@@ -2,7 +2,7 @@ const {chromium,request:requestFactory}=require("playwright");
 const fs=require("fs");
 const cfg=JSON.parse(fs.readFileSync("/run/credentials.json","utf8"));
 const base=cfg.base;
-const navigationActions=require("./navigation-actions.json");const actionProofs={};
+const navigationActions=require("./navigation-actions.json");const actionProofs={};const claimedCargoProofs={};
 const checks=[];const failures=[];const pageSemantics={};const socketObservations={};const socketTrace=[];const disconnectEvidence={};let abruptPeer=null;let witnessForDiagnostics=null;let stage="initialize";let navigation=null;
 function check(name,ok){stage=name;checks.push({name,passed:!!ok});if(!ok)throw new Error(name);}
 async function traceSocket(label,actor){
@@ -381,6 +381,54 @@ async function traceSocket(label,actor){
    check("Actual "+event+" fixture persisted",completed);
   }
   for(const actor of [reader,operator,admin])await readViews(actor);
+  const claimedList="admin/listClaimed.xhtml";
+  const claimedTarget="admin/show.xhtml?trackingId="+id;
+  const claimedSnapshotResponse=await reader.context.request.get(base+"rest/cargo");
+  check("Claimed cargo independent snapshot available",claimedSnapshotResponse.status()===200);
+  const claimedCargo=(await claimedSnapshotResponse.json()).find(cargo=>cargo.trackingId===id);
+  check("Selected cargo is persistently claimed",claimedCargo?.transportStatus==="CLAIMED");
+  function claimedNavigationProof(response,source,driver){
+   const url=new URL(response.url());
+   return {supported:true,status:response.status(),source_page:source,driver,action_executed:true,
+    target_origin_verified:url.origin===new URL(base).origin,actual_target_path:url.pathname,
+    query_keys:[...url.searchParams.keys()],tracking_id:url.searchParams.get("trackingId"),
+    current_navigation_driver:"browser-claimed-cargo-v1"};
+  }
+  for(const actor of [reader,operator,admin]){
+   const role={reader:"Reader",operator:"Operator",admin:"Administrator"}[actor.who];
+   const page=await actor.context.newPage();
+   try{
+    const listResponse=await page.goto(base+claimedList);
+    await page.getByRole("heading",{name:"Claimed cargo",exact:true}).waitFor();
+    const link=page.locator("#cargos").getByRole("link",{name:id,exact:true});
+    check("Claimed list exposes exactly the selected cargo link "+role,listResponse.status()===200&&navigationTarget(page.url(),claimedList)&&await link.count()===1);
+    check("Claimed cargo link identifies exact local target "+role,navigationTarget(new URL(await link.getAttribute("href"),page.url()).href,claimedTarget));
+    const [response]=await Promise.all([page.waitForResponse(r=>r.request().isNavigationRequest()&&navigationTarget(r.url(),claimedTarget)),link.click()]);
+    await page.getByRole("heading",{name:"Cargo details",exact:true}).waitFor();
+    check("Claimed cargo click reached the selected details "+role,response.status()===200&&navigationTarget(page.url(),claimedTarget));
+    const detail=label=>page.getByText(label,{exact:true}).and(page.locator("dt")).locator("xpath=following-sibling::dd[1]").textContent();
+    const displayed={trackingId:await page.locator("#trackingId").textContent(),originName:(await detail("Origin")).trim(),
+     destinationName:(await page.locator("#destination").textContent()).trim(),routingStatus:await page.locator("#routingStatus").textContent(),
+     transportStatus:await detail("Status")};
+    const fields=["trackingId","originName","destinationName","routingStatus","transportStatus"];
+    check("Claimed cargo details match independent persisted values "+role,fields.every(field=>displayed[field]===claimedCargo[field])&&(await detail("Arrival deadline")).trim().split(/\s+/)[0]==="12/31/2030");
+    claimedCargoProofs["CURRENT::ACTION-10::"+role+"::active"]={...claimedNavigationProof(response,claimedList,"click"),
+     identity:{server_verified:true,principal:actor.identity.principal,roles:actor.identity.roles},semantic_success:true,
+     selected_cargo_verified:true,persisted_details_verified:true};
+   }finally{await page.close();}
+  }
+  const claimedLanding=await ap.goto(base+"index.xhtml");
+  const claimedMarkers=[id,claimedCargo.originName,claimedCargo.destinationName,"Cargo details","Claimed cargo"];
+  const claimedPayloadAbsent=body=>!claimedMarkers.some(marker=>body.includes(marker));
+  check("Claimed cargo hidden on public landing",claimedLanding.status()===200&&claimedPayloadAbsent(await ap.textContent("body"))&&await ap.getByRole("link",{name:id,exact:true}).count()===0);
+  const anonymousClaimedList=await anon.request.get(base+claimedList,{maxRedirects:0});
+  const anonymousClaimedDetails=await anon.request.get(base+claimedTarget,{maxRedirects:0});
+  const configuredLogin=response=>response.status()===303&&new URL(response.headers().location,base).href===base+"login";
+  const claimedListDenied=configuredLogin(anonymousClaimedList)&&claimedPayloadAbsent(await anonymousClaimedList.text());
+  const claimedDetailsDenied=configuredLogin(anonymousClaimedDetails)&&claimedPayloadAbsent(await anonymousClaimedDetails.text());
+  check("Anonymous claimed cargo list and direct details deny without payload",claimedListDenied&&claimedDetailsDenied);
+  claimedCargoProofs["CURRENT::ACTION-10::anonymous::active"]={...claimedNavigationProof(anonymousClaimedDetails,"index.xhtml","direct"),
+   protected_payload_absent:true,redirect_is_configured_login:true,claimed_list_denied:true};
   await operator.page.setViewportSize({width:390,height:844});
   await operator.page.goto(base+"admin/show.xhtml?trackingId="+id);
   check("Cargo details fit mobile viewport",await operator.page.evaluate(()=>document.documentElement.scrollWidth<=window.innerWidth));
@@ -590,5 +638,5 @@ async function traceSocket(label,actor){
   disconnectEvidence.graceful_close_code=1000;
   check("No page or asset errors",failures.length===0);
  } catch(error){try{await traceSocket("failure",witnessForDiagnostics);}catch(ignored){}checks.push({name:stage+" failed ("+error.name+")",outcome:"FAIL",passed:false});process.exitCode=1;}
- finally{if(abruptPeer&&!abruptPeer.socket.destroyed)abruptPeer.socket.destroy();if(replayClient)await replayClient.dispose();await browser.close();fs.writeFileSync("/out/results.json",JSON.stringify({scope:"Real Chromium cargo read/booking/destination/routing/live/handling workflows",checks,last_navigation:navigation,resource_errors:failures,page_semantics:pageSemantics,socket_observations:socketObservations,socket_diagnostics:socketTrace,disconnect_evidence:disconnectEvidence,navigation_actions:actionProofs},null,2)+"\n");}
+ finally{if(abruptPeer&&!abruptPeer.socket.destroyed)abruptPeer.socket.destroy();if(replayClient)await replayClient.dispose();await browser.close();fs.writeFileSync("/out/results.json",JSON.stringify({scope:"Real Chromium cargo read/booking/destination/routing/live/handling workflows",checks,last_navigation:navigation,resource_errors:failures,page_semantics:pageSemantics,socket_observations:socketObservations,socket_diagnostics:socketTrace,disconnect_evidence:disconnectEvidence,navigation_actions:actionProofs,claimed_cargo_actions:claimedCargoProofs},null,2)+"\n");}
 })();

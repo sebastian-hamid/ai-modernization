@@ -50,4 +50,28 @@ class NavigationProofTests(unittest.TestCase):
             report,result=self.fixture();result["navigation_actions"][key][field]=value
             with self.subTest(field=field),self.assertRaises(AssertionError):h.promote_navigation_actions(report,result)
             self.assertEqual(len(report["access_observations"]),1)
+
+class ClaimedNavigationProofTests(unittest.TestCase):
+    def test_claimed_receipts_promote_only_to_current_observations(self):
+        roles={"Reader":"reader","Operator":"operator","Administrator":"admin"}
+        common={"supported":True,"action_executed":True,"target_origin_verified":True,
+                "actual_target_path":"/cargo-tracker/admin/show.xhtml","query_keys":["trackingId"],
+                "tracking_id":"ABCDEFGH","current_navigation_driver":"browser-claimed-cargo-v1"}
+        proofs={"CURRENT::ACTION-10::"+role+"::active":{
+            **common,"status":200,"source_page":"admin/listClaimed.xhtml","driver":"click",
+            "identity":{"server_verified":True,"principal":user,"roles":[role]},
+            "semantic_success":True,"selected_cargo_verified":True,"persisted_details_verified":True,
+        } for role,user in roles.items()}
+        proofs["CURRENT::ACTION-10::anonymous::active"]={
+            **common,"status":303,"source_page":"index.xhtml","driver":"direct",
+            "protected_payload_absent":True,"redirect_is_configured_login":True,"claimed_list_denied":True,
+        }
+        report={"current_access_observations":{},"access_observations":{}}
+        h.promote_claimed_cargo_actions(report,{"claimed_cargo_actions":proofs})
+        self.assertEqual(report["current_access_observations"],proofs)
+        self.assertEqual(report["access_observations"],{})
+        proofs["CURRENT::ACTION-10::Reader::active"]["tracking_id"]="OTHERID1"
+        with self.assertRaises(AssertionError):
+            h.promote_claimed_cargo_actions(report,{"claimed_cargo_actions":proofs})
+
 if __name__=="__main__":unittest.main()

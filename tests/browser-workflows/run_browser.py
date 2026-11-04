@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Owned app + Chromium fixture; no shared services, no browser credential persistence."""
 from pathlib import Path
-import importlib.util,json,subprocess,uuid,hashlib
+import importlib.util,json,re,subprocess,uuid,hashlib
 ROOT=Path(__file__).resolve().parents[2]
 spec=importlib.util.spec_from_file_location("candidate_runtime",ROOT/"tests/candidate-runtime/run_candidate.py")
 app=importlib.util.module_from_spec(spec);spec.loader.exec_module(app)
@@ -72,6 +72,31 @@ def promote_navigation_actions(report,results):
     report["access_observations"].update(proofs)
     report["navigation_action_observations"]=proofs
 
+def promote_claimed_cargo_actions(report,results):
+    proofs=results.get("claimed_cargo_actions",{})
+    roles={"anonymous":None,"Reader":"reader","Operator":"operator","Administrator":"admin"}
+    expected={"CURRENT::ACTION-10::"+role+"::active":role for role in roles}
+    if set(proofs)!=set(expected):raise AssertionError("Missing or unexpected claimed cargo proof")
+    ids=set()
+    for key,role in expected.items():
+        proof=proofs[key]
+        tracking=proof.get("tracking_id")
+        if not isinstance(tracking,str) or re.fullmatch("[A-Z0-9]{8}",tracking) is None:
+            raise AssertionError("Invalid claimed cargo ID")
+        ids.add(tracking)
+        if proof.get("current_navigation_driver")!="browser-claimed-cargo-v1" or proof.get("supported") is not True or proof.get("action_executed") is not True or proof.get("target_origin_verified") is not True or proof.get("actual_target_path")!="/cargo-tracker/admin/show.xhtml" or sorted(proof.get("query_keys",[])) not in (["trackingId"],["jfwid","trackingId"]):
+            raise AssertionError("Invalid claimed cargo navigation")
+        if role=="anonymous":
+            if proof.get("identity") is not None or (proof.get("source_page"),proof.get("driver"),proof.get("status"))!=("index.xhtml","direct",303) or not all(proof.get(name) is True for name in ("protected_payload_absent","redirect_is_configured_login","claimed_list_denied")):
+                raise AssertionError("Invalid claimed cargo denial")
+        else:
+            identity=proof.get("identity",{})
+            if identity.get("server_verified") is not True or identity.get("principal")!=roles[role] or identity.get("roles")!=[role] or (proof.get("source_page"),proof.get("driver"),proof.get("status"))!=("admin/listClaimed.xhtml","click",200) or not all(proof.get(name) is True for name in ("semantic_success","selected_cargo_verified","persisted_details_verified")):
+                raise AssertionError("Invalid claimed cargo details")
+    if len(ids)!=1:raise AssertionError("Claimed cargo proofs use different fixtures")
+    report["current_access_observations"].update(proofs)
+
+
 def main():
     WORK.mkdir(parents=True,exist_ok=True)
     name="ai-modernization-kan19-browser"
@@ -97,6 +122,7 @@ def main():
             promote_live_pages(report,results)
             promote_socket_cases(report,results)
             promote_navigation_actions(report,results)
+            promote_claimed_cargo_actions(report,results)
         finally:
             cleanup=[]
             if bid:

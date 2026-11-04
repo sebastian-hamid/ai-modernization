@@ -1,0 +1,95 @@
+{
+  "task": "KAN-15 ACTION-10 claimed cargo navigation",
+  "current": {
+    "PASS": 348,
+    "BLOCKED": 122
+  },
+  "historical": {
+    "PASS": 324,
+    "BLOCKED": 178
+  },
+  "retirement": {
+    "BLOCKED": 76
+  },
+  "gate_exit": 2,
+  "cases": [
+    {
+      "case": "CURRENT::ACTION-10::anonymous::active",
+      "outcome": "PASS",
+      "reason": "Desired denial observed with required evidence"
+    },
+    {
+      "case": "CURRENT::ACTION-10::Reader::active",
+      "outcome": "PASS",
+      "reason": "Allowed workflow and identity evidence observed"
+    },
+    {
+      "case": "CURRENT::ACTION-10::Operator::active",
+      "outcome": "PASS",
+      "reason": "Allowed workflow and identity evidence observed"
+    },
+    {
+      "case": "CURRENT::ACTION-10::Administrator::active",
+      "outcome": "PASS",
+      "reason": "Allowed workflow and identity evidence observed"
+    }
+  ],
+  "receipts": {
+    "CURRENT::ACTION-10::Reader::active": {
+      "status": 200,
+      "driver": "click",
+      "source_page": "admin/listClaimed.xhtml",
+      "selected_cargo_verified": true,
+      "persisted_details_verified": true
+    },
+    "CURRENT::ACTION-10::Operator::active": {
+      "status": 200,
+      "driver": "click",
+      "source_page": "admin/listClaimed.xhtml",
+      "selected_cargo_verified": true,
+      "persisted_details_verified": true
+    },
+    "CURRENT::ACTION-10::Administrator::active": {
+      "status": 200,
+      "driver": "click",
+      "source_page": "admin/listClaimed.xhtml",
+      "selected_cargo_verified": true,
+      "persisted_details_verified": true
+    },
+    "CURRENT::ACTION-10::anonymous::active": {
+      "status": 303,
+      "driver": "direct",
+      "source_page": "index.xhtml",
+      "claimed_list_denied": true,
+      "protected_payload_absent": true
+    }
+  },
+  "native_checks": 652,
+  "browser_checks": {
+    "count": 447,
+    "passed": true
+  },
+  "unit_checks": {
+    "browser_harness": 18,
+    "security": 59
+  },
+  "cleanup": {
+    "owned_container_removed": true,
+    "private_files_removed": true,
+    "cleanup_errors": [],
+    "browser_cleanup": {
+      "container_removed": true,
+      "network_removed": true,
+      "errors": []
+    }
+  },
+  "artifact_sha256": {
+    "results.json": "bdee4bb4c5f06c2b4782af526877e905d03179a8f18c8384b4816c6a1d50114e",
+    "native-final.json": "4798095feeea5276c52d4fb6c3b34b7baee97e40b43a32cbfdd1e5df7246be22",
+    "browser-final.json": "ff170b86140bb80f2bae9ff49fbae537668bd572e330df62b840855609e33c07",
+    "frozen-sha256.txt": "e69b90244540b0e1fbff7db98de8cdbffc3061ff0143fb14fe6c353e164f6800"
+  },
+  "limits": [
+    "Runtime cargo IDs, persisted values and raw response bodies are omitted from publication."
+  ]
+}

@@ -1,0 +1,19 @@
+{
+  "task": "KAN-15 ACTION-10 claimed cargo navigation",
+  "reviewer": "/root/review_current_capability_gate",
+  "source_sha256": {
+    "specifications/current-capability-mapping-v2.json": "4202970cfa08a199785b85ae9dc147237536a06fd4862d790da9b9d84d4512db",
+    "tests/browser-workflows/run_browser.py": "602f68aba0f2a23406efbb4bb0918a68c4dcf210883798ea5de2ff7136a2b180",
+    "tests/browser-workflows/test_navigation_proofs.py": "2e9e0f79e7854846f20f62b238abe58eb7c2915093217a500ad4b914e0f3d47b",
+    "tests/browser-workflows/workflows.cjs": "0b6aec8cec3f3060461e3112c621f736f6ec89d80af6e0fa6a4d122b695d5aab",
+    "tests/security/current_capabilities.py": "fdf4413f30c4b64f0ecf0d57f8d77164c43b7a80a71f54b2f17091e809abcb86",
+    "tests/security/test_current_capabilities.py": "bf47851d2f91c4c8a313909c43998e15ba406535264879856a111d688621f03c"
+  },
+  "source_review": "Approved for a fresh fixture. The reviewer inspected the persisted claim, exact click and anonymous denial, and ran 20 adapter, seven navigation proof and three browser harness checks in focused review. The unittest.main guard was moved after the new test class and direct execution passed before freezing.",
+  "runtime_review": "Independent replay verified exactly four ACTION-10 promotions and all three result arrays. Browser promotion produced the same four current receipts as the native artifact. Historical and retirement arrays matched the prior checkpoint. All six frozen hashes, both provenance digests, and cleanup records matched.",
+  "artifact_sha256": {
+    "results.json": "bdee4bb4c5f06c2b4782af526877e905d03179a8f18c8384b4816c6a1d50114e",
+    "native-final.json": "4798095feeea5276c52d4fb6c3b34b7baee97e40b43a32cbfdd1e5df7246be22",
+    "browser-final.json": "ff170b86140bb80f2bae9ff49fbae537668bd572e330df62b840855609e33c07"
+  }
+}
