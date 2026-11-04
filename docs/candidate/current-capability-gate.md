@@ -42,4 +42,6 @@ The [source-entry increment](source-entry-evidence.md) resolves the 16 booking/d
 
 ## Route choices and itinerary alias — 4 November 2026
 
-[Current route choices](current-route-choices.md) add eight ACTION-16/ACTION-18 cases. Current gate **340 PASS / 130 BLOCKED**. Historical audit 324/178 and retirement 76 BLOCKED remain unchanged. ACTION-15 remains pending until the selected cargo's details are rendered on the route page.
+[Current route choices](current-route-choices.md) add eight ACTION-16/ACTION-18 cases. Current gate **340 PASS / 130 BLOCKED**. Historical audit 324/178 and retirement 76 BLOCKED remain unchanged. The selected cargo details were verified in the subsequent ACTION-15 checkpoint.
+
+ACTION-15 adds four [route cargo details cases](current-route-choices.md#selected-cargo-details). The current gate is **344 PASS / 126 BLOCKED**.

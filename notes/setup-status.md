@@ -116,3 +116,5 @@ ACTION07/ACTION20 add eight current GET actor cases with independent selected-ca
 ## Access checkpoint — 4 November 2026 (KAN-15 route choices)
 
 [Route choices and itinerary alias](../docs/candidate/current-route-choices.md): eight current cases pass, including real route choices, selected cargo binding, exact alias redirect/denial, and 24 invalid-ID cases. Current 340/130, historical 324/178, retirement 76 BLOCKED. 650 native, 431 browser and 95 unit checks passed; owned cleanup passed and shared services stayed up.
+
+The ACTION-15 [route cargo details checkpoint](../docs/candidate/current-route-choices.md#selected-cargo-details) passed four more current cases. The fixture passed 652 native and 431 browser checks, with owned cleanup verified.

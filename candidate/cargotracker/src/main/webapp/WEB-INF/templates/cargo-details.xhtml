@@ -1,0 +1,10 @@
+<ui:composition xmlns:ui="jakarta.faces.facelets">
+<dl>
+  <dt>Tracking ID</dt><dd id="trackingId">#{cargoPages.cargo.trackingId}</dd>
+  <dt>Origin</dt><dd>#{cargoPages.cargo.originName}</dd>
+  <dt>Destination</dt><dd id="destination">#{cargoPages.cargo.finalDestinationName}</dd>
+  <dt>Arrival deadline</dt><dd>#{cargoPages.cargo.arrivalDeadline}</dd>
+  <dt>Routing status</dt><dd id="routingStatus">#{cargoPages.cargo.misrouted ? 'MISROUTED' : (cargoPages.cargo.routed ? 'ROUTED' : 'NOT_ROUTED')}</dd>
+  <dt>Status</dt><dd>#{cargoPages.cargo.transportStatus}</dd>
+  </dl>
+</ui:composition>

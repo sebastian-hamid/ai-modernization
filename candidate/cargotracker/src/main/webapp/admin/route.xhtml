@@ -1,6 +1,11 @@
 <ui:composition xmlns="http://www.w3.org/1999/xhtml" xmlns:ui="jakarta.faces.facelets" xmlns:h="jakarta.faces.html" xmlns:f="jakarta.faces.core" xmlns:p="http://primefaces.org/ui" template="/WEB-INF/templates/candidate.xhtml">
 <ui:define name="metadata"><f:metadata><f:viewParam name="trackingId" value="#{cargoPages.trackingId}"/><f:viewAction action="#{cargoPages.loadRouting}"/></f:metadata></ui:define>
-<ui:define name="title">Assign route</ui:define><ui:define name="content"><h1>Assign route</h1><p>Sample planner candidates for this cargo. These are demonstration routes, not a carrier schedule optimizer.</p><h:messages styleClass="error"/>
+<ui:define name="title">Assign route</ui:define><ui:define name="content"><h1>Assign route</h1>
+<h:panelGroup layout="block" rendered="#{not empty cargoPages.cargo}">
+  <h2>Cargo details</h2>
+  <ui:include src="/WEB-INF/templates/cargo-details.xhtml"/>
+</h:panelGroup>
+<p>Sample planner candidates for this cargo. These are demonstration routes, not a carrier schedule optimizer.</p><h:messages styleClass="error"/>
 <ui:repeat value="#{cargoPages.routes}" var="route" varStatus="status"><h2>Route #{status.index+1}</h2>
 <div style="overflow-x:auto"><h:dataTable styleClass="route-candidate" value="#{route.legs}" var="leg"><h:column><f:facet name="header">Voyage</f:facet>#{leg.voyageNumber}</h:column><h:column><f:facet name="header">From</f:facet>#{leg.from}</h:column><h:column><f:facet name="header">To</f:facet>#{leg.to}</h:column><h:column><f:facet name="header">Departure</f:facet>#{leg.loadTime}</h:column><h:column><f:facet name="header">Arrival</f:facet>#{leg.unloadTime}</h:column></h:dataTable></div></ui:repeat>
 <h:link outcome="/admin/route.xhtml" value="Request fresh routes"><f:param name="trackingId" value="#{cargoPages.trackingId}"/></h:link>

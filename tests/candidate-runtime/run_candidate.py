@@ -190,7 +190,7 @@ def current_load_semantics(surface,body,cargo,diagnostics=None):
     import html
     from html.parser import HTMLParser
     if surface=="ACTION-20":
-        pairs=re.findall(r"<dt>([^<]+)</dt><dd(?: [^>]*)?>([^<]*)</dd>",body)
+        pairs=re.findall(r"<dt>([^<]+)</dt>\s*<dd(?: [^>]*)?>([^<]*)</dd>",body)
         if len(pairs)!=len({key for key,value in pairs}):return False
         values={html.unescape(key):html.unescape(value) for key,value in pairs}
         expected={"Tracking ID":cargo["trackingId"],"Origin":cargo["originName"],"Destination":cargo["destinationName"],"Routing status":cargo["routingStatus"],"Status":cargo["transportStatus"]}
@@ -842,7 +842,7 @@ def main(after_checks=None):
         route_target="admin/route.xhtml"
         route_alias="admin/selectItinerary.xhtml"
         def route_hidden(body):
-            return payload_absent(body) and route_cargo_id not in body and "route-candidate" not in body and 'id="routing"' not in body
+            return payload_absent(body) and route_cargo_id not in body and "route-candidate" not in body and "Cargo details" not in body and 'id="routing"' not in body
         def verify_route_denial(status,body,headers,who):
             return status==(403 if who else 303) and route_hidden(body) and (who is not None or headers.get("Location")=="/cargo-tracker/login")
         check("Route load unknown ID absent", "ZZZZZZZZ" not in route_cargos)
@@ -879,6 +879,13 @@ def main(after_checks=None):
                 observation={"supported":True,"status":status,"semantic_success":allowed,"protected_payload_absent":route_hidden(body),"redirect_is_configured_login":headers.get("Location")=="/cargo-tracker/login","driver":"direct","action_executed":True,"target_origin_verified":True,"actual_target_path":"/cargo-tracker/"+route_target,"query_keys":["trackingId"],"tracking_id":route_cargo_id,"source_page":source,"current_load_driver":"native-current-load-v1","selected_cargo_verified":allowed,"current_values_verified":allowed,"invalid_inputs_verified":True,"route_alias_verified":alias_verified}
                 if load_who:observation["identity"]=report["identities"][load_who]
                 report["current_access_observations"]["CURRENT::"+action+"::"+actor+"::active"]=observation
+                if action=="ACTION-16":
+                    if allowed:
+                        diagnostics={}
+                        matches=current_load_semantics("ACTION-20",body,route_cargo,diagnostics)
+                        check("Current route cargo details match selected cargo: "+actor+" "+",".join(diagnostics.get("mismatched_fields",[])),matches)
+                    details_observation={**observation,"route_details_verified":allowed}
+                    report["current_access_observations"]["CURRENT::ACTION-15::"+actor+"::active"]=details_observation
         route_read_after=settled()
         check("Current route reads invoke only expected planner calls",route_read_effects(route_read_before,route_read_after,4))
         report["current_route_read_effects"]={"before":route_read_before,"after":route_read_after}

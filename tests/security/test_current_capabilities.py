@@ -195,4 +195,12 @@ class CurrentCapabilityTests(unittest.TestCase):
         proof["source_page"]="admin/route.xhtml?trackingId=ABCDEFGH"
         with self.assertRaises(UnsupportedCase):adapter.execute(case)
 
+    def test_current_route_details_require_own_render_evidence(self):
+        adapter,case,_=self.fixture("CURRENT::ACTION-15::Operator::active")
+        proof={"supported":True,"status":200,"identity":{"server_verified":True,"principal":"operator","roles":["Operator"]},"driver":"direct","action_executed":True,"target_origin_verified":True,"actual_target_path":"/cargo-tracker/admin/route.xhtml","query_keys":["trackingId"],"tracking_id":"ABCDEFGH","source_page":"admin/route.xhtml?trackingId=ABCDEFGH","current_load_driver":"native-current-load-v1","invalid_inputs_verified":True,"selected_cargo_verified":True,"current_values_verified":True}
+        adapter.legacy.current_observations={case["id"]:proof}
+        with self.assertRaises(UnsupportedCase):adapter.execute(case)
+        proof["route_details_verified"]=True
+        self.assertTrue(adapter.execute(case)["route_details_verified"])
+
 if __name__=="__main__":unittest.main()

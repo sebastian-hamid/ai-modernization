@@ -115,6 +115,13 @@
       "modern_source": "admin/selectItinerary.xhtml",
       "modern_target": "/cargo-tracker/admin/route.xhtml?trackingId={cargo}",
       "modern_method": "GET"
+    },
+    {
+      "legacy_id": "ACTION-15",
+      "capability_id": "behavior-action-15",
+      "modern_source": "admin/route.xhtml",
+      "modern_target": "/cargo-tracker/admin/route.xhtml?trackingId={cargo}",
+      "modern_method": "GET"
     }
   ],
   "pending_current_actions": [
@@ -144,13 +151,6 @@
       "capability_id": "behavior-action-13",
       "modern_source": "admin/changeDestination.xhtml",
       "modern_target": "/cargo-tracker/admin/show.xhtml?trackingId={cargo}",
-      "modern_method": "GET"
-    },
-    {
-      "legacy_id": "ACTION-15",
-      "capability_id": "behavior-action-15",
-      "modern_source": "admin/route.xhtml",
-      "modern_target": "/cargo-tracker/admin/route.xhtml?trackingId={cargo}",
       "modern_method": "GET"
     },
     {

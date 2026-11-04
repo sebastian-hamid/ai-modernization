@@ -1,0 +1,23 @@
+{
+  "task": "KAN-15 ACTION-15 route cargo details",
+  "reviewer": "/root/review_current_capability_gate",
+  "source_sha256": {
+    "candidate/cargotracker/src/main/webapp/WEB-INF/templates/cargo-details.xhtml": "b83bd249cce3fc922f3a8695e17bbbd57e647766d33a680214baaec763213137",
+    "candidate/cargotracker/src/main/webapp/admin/route.xhtml": "60a5dcaf95325a2681249adb4de1fb672678044884d651f78af88aa60b6cc3bc",
+    "candidate/cargotracker/src/main/webapp/admin/show.xhtml": "427c6f261e7ea6bb77662ea02cb9e4eca008709e219282e164f2f0b7e6b25915",
+    "specifications/current-capability-mapping-v2.json": "a5add9aa62a905e5d01265d802623607e4a34be0c102fee3df600c54b48626d9",
+    "tests/candidate-runtime/run_candidate.py": "b2002c834314fd567fd1d278e857740ba0e83b0ba7224aa06d8d4e107ac2dc66",
+    "tests/security/current_capabilities.py": "aa6a12ec1a3f487e922221bf7aace41d93fc3b1b7761cffe08206ab1e94d37da",
+    "tests/security/test_current_capabilities.py": "2f295e79da7eaf292797e4ea62e3ad2e7378920001b98208de8743939cd7aa19"
+  },
+  "source_review": "Approved for one fresh integration run after inspecting the shared private fragment, route authorization and distinct details proof. 19 focused adapter tests and diff check passed independently.",
+  "runtime_review": "Independent replay verified exactly four ACTION-15 promotions, denied responses without protected payload, and matching selected details for Operator and Administrator. All three case arrays replayed. Historical and retirement arrays matched the prior checkpoint. Seven frozen hashes, both provenance digests, cleanup records, and all three +4 planner deltas with unchanged write effects matched.",
+  "limits": [
+    "Raw HTML and cargo identifiers are not published.",
+    "Direct access to the private Facelets fragment was not separately probed."
+  ],
+  "artifact_sha256": {
+    "results.json": "5f3cb515fa877a61c060bf1e2a10767fd3a6c7eaaab872e481ade6bf4fd318a5",
+    "native-final.json": "2873bc675a41344717f662b8aac075027a5da5f11973b2ddb836cf035f8efefe"
+  }
+}

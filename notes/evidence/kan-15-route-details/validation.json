@@ -1,0 +1,75 @@
+{
+  "task": "KAN-15 ACTION-15 route cargo details",
+  "current": {
+    "PASS": 344,
+    "BLOCKED": 126
+  },
+  "historical": {
+    "PASS": 324,
+    "BLOCKED": 178
+  },
+  "retirement": {
+    "BLOCKED": 76
+  },
+  "gate_exit": 2,
+  "cases": [
+    {
+      "case": "CURRENT::ACTION-15::anonymous::active",
+      "outcome": "PASS",
+      "reason": "Desired denial observed with required evidence"
+    },
+    {
+      "case": "CURRENT::ACTION-15::Reader::active",
+      "outcome": "PASS",
+      "reason": "Desired denial observed with required evidence"
+    },
+    {
+      "case": "CURRENT::ACTION-15::Operator::active",
+      "outcome": "PASS",
+      "reason": "Allowed workflow and identity evidence observed"
+    },
+    {
+      "case": "CURRENT::ACTION-15::Administrator::active",
+      "outcome": "PASS",
+      "reason": "Allowed workflow and identity evidence observed"
+    }
+  ],
+  "render_checks": [
+    {
+      "name": "Current route cargo details match selected cargo: Operator ",
+      "passed": true
+    },
+    {
+      "name": "Current route cargo details match selected cargo: Administrator ",
+      "passed": true
+    }
+  ],
+  "native_checks": 652,
+  "browser_checks": {
+    "count": 431,
+    "passed": true
+  },
+  "unit_checks": {
+    "fixture": 38,
+    "security": 58
+  },
+  "cleanup": {
+    "owned_container_removed": true,
+    "private_files_removed": true,
+    "cleanup_errors": [],
+    "browser_cleanup": {
+      "container_removed": true,
+      "network_removed": true,
+      "errors": []
+    }
+  },
+  "artifact_sha256": {
+    "results.json": "5f3cb515fa877a61c060bf1e2a10767fd3a6c7eaaab872e481ade6bf4fd318a5",
+    "native-final.json": "2873bc675a41344717f662b8aac075027a5da5f11973b2ddb836cf035f8efefe",
+    "frozen-sha256.txt": "f6cc22d2993c2567a81065049ae8517eccfbd71b115a5dad6b6a2f1f9febd791"
+  },
+  "limits": [
+    "Raw HTML and cargo identifiers are not published.",
+    "Direct access to the private Facelets fragment was not separately probed."
+  ]
+}
