@@ -4,6 +4,29 @@ spec=importlib.util.spec_from_file_location("current_load_runtime",Path(__file__
 h=importlib.util.module_from_spec(spec);spec.loader.exec_module(h)
 class CurrentLoadTests(unittest.TestCase):
     cargo={"trackingId":"ABCDEFGH","originName":"Hong Kong","originCode":"CNHKG","destinationName":"New York","destinationCode":"USNYC","routingStatus":"NOT_ROUTED","transportStatus":"NOT_RECEIVED"}
+    def test_selectable_routes_bind_both_endpoints(self):
+        form='<form id="routing"><input name="jakarta.faces.ViewState" value="state"><select id="routing:choice"><option value="0">Route 1</option></select><button id="routing:submit">Assign</button></form>'
+        link='<a href="/cargo-tracker/admin/route.xhtml?trackingId=ABCDEFGH&amp;jfwid=one%3A0">Request fresh routes</a>'
+        body=link+'<table class="route-candidate"><tbody><tr><td>V100</td><td>Hong Kong (CNHKG)</td><td>USNYC (New York)</td><td>Departure</td><td>Arrival</td></tr></tbody></table>'+form
+        self.assertEqual(h.verify_route_choices(body,"CNHKG","USNYC","token","ABCDEFGH","http://fixture/cargo-tracker/"),1)
+        for bad in (body.replace("CNHKG","CNSHA"),body.replace("USNYC","FIHEL"),body.replace('value="0"','value="1"'),body.replace('id="routing:choice"','id="other"')+'<input id="routing:choice">',body.replace('ABCDEFGH','OTHERID1'),body.replace('/cargo-tracker/admin/route.xhtml?','https://evil.example/cargo-tracker/admin/route.xhtml?'),form):
+            with self.subTest(bad=bad),self.assertRaises(AssertionError):
+                h.verify_route_choices(bad,"CNHKG","USNYC","token","ABCDEFGH","http://fixture/cargo-tracker/")
+
+    def test_route_read_audit_distinguishes_planner_calls_from_writes(self):
+        before={"tables":{"cargo":1},"queues":{"handling":1},"business_invocations":{"assignCargoToRoute":1}}
+        after=copy.deepcopy(before)
+        after["business_invocations"].update({
+            "net.java.cargotracker.application.internal.DefaultBookingService#requestPossibleRoutesForCargo":4,
+            "net.java.cargotracker.infrastructure.routing.ExternalRoutingService#fetchRoutesForSpecification":4,
+            "net.java.pathfinder.api.GraphTraversalService#findShortestPath":4,
+        })
+        self.assertTrue(h.route_read_effects(before,after,4))
+        self.assertFalse(h.route_read_effects(before,after,3))
+        for field in ["tables","queues","business_invocations"]:
+            altered=copy.deepcopy(after);altered[field]["unexpected"]=1
+            self.assertFalse(h.route_read_effects(before,altered,4))
+
     def test_details_require_exact_selected_values_and_deadline(self):
         values={"Tracking ID":"ABCDEFGH","Origin":"Hong Kong ","Destination":"New York ","Routing status":"NOT_ROUTED","Status":"NOT_RECEIVED","Arrival deadline":"12/31/2030 12:00:00 AM"}
         render=lambda fields:"".join("<dt>"+k+"</dt><dd>"+v+"</dd>" for k,v in fields.items())

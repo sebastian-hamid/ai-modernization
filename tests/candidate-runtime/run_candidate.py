@@ -249,6 +249,68 @@ def route_tables(body,attribute="class",value="route-candidate"):
                 if self.depth==0:self.tables.append(self.table);self.table=None
     parser=Tables();parser.feed(body);return parser.tables
 
+ROUTE_READ_COUNTERS=frozenset({
+    "net.java.cargotracker.application.internal.DefaultBookingService#requestPossibleRoutesForCargo",
+    "net.java.cargotracker.infrastructure.routing.ExternalRoutingService#fetchRoutesForSpecification",
+    "net.java.pathfinder.api.GraphTraversalService#findShortestPath",
+})
+
+def route_read_effects(before,after,allowed_loads):
+    def writes(snapshot):
+        return (snapshot["tables"],snapshot["queues"],{key:value for key,value in snapshot["business_invocations"].items() if key not in ROUTE_READ_COUNTERS})
+    deltas={key:after["business_invocations"].get(key,0)-before["business_invocations"].get(key,0) for key in ROUTE_READ_COUNTERS}
+    return writes(before)==writes(after) and set(deltas.values())=={allowed_loads}
+
+
+def verify_route_choices(body,origin,destination,token,tracking_id,base):
+    """Bind each rendered selectable itinerary to the requested cargo endpoints."""
+    tables=route_tables(body)
+    if not tables:raise AssertionError("No rendered route choices")
+    from html.parser import HTMLParser
+    class RouteControls(HTMLParser):
+        def __init__(self):
+            super().__init__();self.select=False;self.selects=0;self.options=[];self.link=None;self.refresh=[]
+        def handle_starttag(self,tag,attrs):
+            attrs=dict(attrs)
+            if tag=="select":
+                self.select=attrs.get("id")=="routing:choice"
+                self.selects+=self.select
+            elif tag=="option" and self.select:self.options.append(attrs.get("value"))
+            elif tag=="a":self.link=(attrs.get("href",""),[])
+        def handle_data(self,data):
+            if self.link is not None:self.link[1].append(data)
+        def handle_endtag(self,tag):
+            if tag=="select":self.select=False
+            elif tag=="a" and self.link is not None:
+                href,parts=self.link
+                if " ".join("".join(parts).split())=="Request fresh routes":self.refresh.append(href)
+                self.link=None
+    controls=RouteControls();controls.feed(body)
+    expected_options={str(i) for i in range(len(tables))}
+    if controls.selects!=1 or len(controls.options)!=len(set(controls.options)) or set(controls.options)-{"-1"}!=expected_options:
+        raise AssertionError("Route choices not selectable in the route form")
+    if len(controls.refresh)!=1:raise AssertionError("Missing unique route refresh link")
+    href=controls.refresh[0]
+    url=urllib.parse.urlsplit(urllib.parse.urljoin(base+"admin/route.xhtml",href))
+    origin_url=urllib.parse.urlsplit(base)
+    try:pairs=urllib.parse.parse_qsl(url.query,keep_blank_values=True,strict_parsing=True)
+    except ValueError:raise AssertionError("Invalid route refresh query")
+    query=dict(pairs)
+    if (url.scheme,url.netloc,url.path)!=(origin_url.scheme,origin_url.netloc,"/cargo-tracker/admin/route.xhtml") or url.fragment or len(query)!=len(pairs) or set(query)-{"trackingId","jfwid"} or query.get("trackingId")!=tracking_id or not all(query.values()):
+        raise AssertionError("Route refresh link does not identify selected cargo")
+    for index,rows in enumerate(tables):
+        routing_form(body,token,index)
+        cursor=origin
+        for voyage,source,target,departure,arrival in rows:
+            from_code=re.search(r" \(([A-Z]{2}[A-Z0-9]{3})\)$",source)
+            to_code=re.match(r"^([A-Z]{2}[A-Z0-9]{3}) \(",target)
+            if not voyage or not from_code or from_code[1]!=cursor or not to_code or not departure or not arrival:
+                raise AssertionError("Rendered route legs do not connect")
+            cursor=to_code[1]
+        if cursor!=destination:raise AssertionError("Rendered routes end at wrong destination")
+    return len(tables)
+
+
 def routing_form(body,csrf,choice):
     state=re.search(r'name="jakarta.faces.ViewState"[^>]*value="([^"]+)"',body)
     tables=route_tables(body)
@@ -773,6 +835,54 @@ def main(after_checks=None):
             result=denied_form(opener,form,who,state,path,"Routing "+surface)
             result.update({"entry_page":source,"source_entry_verified":True})
             return result
+        route_cargo_id=report["booking_action_effects"]["operator"]["tracking_id"]
+        route_cargos={row["trackingId"]:row for row in cargos(sessions["reader"][1])}
+        route_cargo=route_cargos[route_cargo_id]
+        route_query="?trackingId="+route_cargo_id
+        route_target="admin/route.xhtml"
+        route_alias="admin/selectItinerary.xhtml"
+        def route_hidden(body):
+            return payload_absent(body) and route_cargo_id not in body and "route-candidate" not in body and 'id="routing"' not in body
+        def verify_route_denial(status,body,headers,who):
+            return status==(403 if who else 303) and route_hidden(body) and (who is not None or headers.get("Location")=="/cargo-tracker/login")
+        check("Route load unknown ID absent", "ZZZZZZZZ" not in route_cargos)
+        route_read_before=settled()
+        for action,relative in [("ACTION-16",route_target),("ACTION-18",route_alias)]:
+            for actor,load_who in [("anonymous",None),("Reader","reader"),("Operator","operator"),("Administrator","admin")]:
+                opener=sessions[load_who][1] if load_who else anonymous
+                allowed=load_who in {"operator","admin"}
+                source=relative+route_query
+                if load_who is None:
+                    status,landing,_=request(opener,"index.xhtml")
+                    check("Anonymous route load source: "+action,status==200 and route_hidden(landing))
+                    source="index.xhtml"
+                status,body,headers=request(opener,relative+route_query)
+                alias_verified=False
+                if relative==route_alias:
+                    if allowed:
+                        check("Current route alias exact redirect: "+actor,status==303 and headers.get("Location")=="/cargo-tracker/"+route_target+route_query and route_hidden(body))
+                    else:
+                        check("Current route alias denied: "+actor,verify_route_denial(status,body,headers,load_who))
+                    alias_verified=True
+                    status,body,headers=request(opener,route_target+route_query)
+                if allowed:
+                    check("Current route choices rendered: "+action+" "+actor,status==200)
+                    check("Current route choices match selected cargo: "+action+" "+actor,verify_route_choices(body,route_cargo["originCode"],route_cargo["destinationCode"],sessions[load_who][2],route_cargo_id,base)>0)
+                else:
+                    check("Current route target denied: "+action+" "+actor,verify_route_denial(status,body,headers,load_who))
+                for label,suffix in [("missing",""),("malformed","?trackingId=bad"),("unknown","?trackingId=ZZZZZZZZ")]:
+                    bad_status,bad_body,bad_headers=request(opener,relative+suffix)
+                    if allowed and relative==route_alias and label=="unknown":
+                        check("Unknown route alias fixed target: "+actor,bad_status==303 and route_hidden(bad_body) and bad_headers.get("Location")=="/cargo-tracker/"+route_target+suffix)
+                        bad_status,bad_body,bad_headers=request(opener,route_target+suffix)
+                    check("Current invalid route load: "+action+" "+actor+" "+label,(bad_status==404 and route_hidden(bad_body)) if allowed else verify_route_denial(bad_status,bad_body,bad_headers,load_who))
+                observation={"supported":True,"status":status,"semantic_success":allowed,"protected_payload_absent":route_hidden(body),"redirect_is_configured_login":headers.get("Location")=="/cargo-tracker/login","driver":"direct","action_executed":True,"target_origin_verified":True,"actual_target_path":"/cargo-tracker/"+route_target,"query_keys":["trackingId"],"tracking_id":route_cargo_id,"source_page":source,"current_load_driver":"native-current-load-v1","selected_cargo_verified":allowed,"current_values_verified":allowed,"invalid_inputs_verified":True,"route_alias_verified":alias_verified}
+                if load_who:observation["identity"]=report["identities"][load_who]
+                report["current_access_observations"]["CURRENT::"+action+"::"+actor+"::active"]=observation
+        route_read_after=settled()
+        check("Current route reads invoke only expected planner calls",route_read_effects(route_read_before,route_read_after,4))
+        report["current_route_read_effects"]={"before":route_read_before,"after":route_read_after}
+
         for surface in ["ACTION-17","ACTION-19"]:
             target_id=report["booking_action_effects"]["operator"]["tracking_id"]
             path,body,source=route_entry(sessions["operator"][1],surface,target_id,"operator")

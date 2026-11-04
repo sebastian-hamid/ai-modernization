@@ -1,0 +1,274 @@
+{
+  "task": "KAN-15 current route choices",
+  "date": "2026-11-04",
+  "current_counts": {
+    "PASS": 340,
+    "BLOCKED": 130
+  },
+  "legacy_counts": {
+    "PASS": 324,
+    "BLOCKED": 178
+  },
+  "retirement_counts": {
+    "BLOCKED": 76
+  },
+  "gate_exit": 2,
+  "case_results": [
+    {
+      "case": "CURRENT::ACTION-16::anonymous::active",
+      "outcome": "PASS",
+      "reason": "Desired denial observed with required evidence"
+    },
+    {
+      "case": "CURRENT::ACTION-16::Reader::active",
+      "outcome": "PASS",
+      "reason": "Desired denial observed with required evidence"
+    },
+    {
+      "case": "CURRENT::ACTION-16::Operator::active",
+      "outcome": "PASS",
+      "reason": "Allowed workflow and identity evidence observed"
+    },
+    {
+      "case": "CURRENT::ACTION-16::Administrator::active",
+      "outcome": "PASS",
+      "reason": "Allowed workflow and identity evidence observed"
+    },
+    {
+      "case": "CURRENT::ACTION-18::anonymous::active",
+      "outcome": "PASS",
+      "reason": "Desired denial observed with required evidence"
+    },
+    {
+      "case": "CURRENT::ACTION-18::Reader::active",
+      "outcome": "PASS",
+      "reason": "Desired denial observed with required evidence"
+    },
+    {
+      "case": "CURRENT::ACTION-18::Operator::active",
+      "outcome": "PASS",
+      "reason": "Allowed workflow and identity evidence observed"
+    },
+    {
+      "case": "CURRENT::ACTION-18::Administrator::active",
+      "outcome": "PASS",
+      "reason": "Allowed workflow and identity evidence observed"
+    }
+  ],
+  "receipts": {
+    "CURRENT::ACTION-16::anonymous::active": {
+      "status": 303,
+      "route_alias_verified": false,
+      "invalid_inputs_verified": true,
+      "selected_cargo_verified": false,
+      "current_values_verified": false,
+      "protected_payload_absent": true,
+      "source_page": "index.xhtml"
+    },
+    "CURRENT::ACTION-16::Reader::active": {
+      "status": 403,
+      "route_alias_verified": false,
+      "invalid_inputs_verified": true,
+      "selected_cargo_verified": false,
+      "current_values_verified": false,
+      "protected_payload_absent": true,
+      "source_page": "admin/route.xhtml?trackingId={cargo}"
+    },
+    "CURRENT::ACTION-16::Operator::active": {
+      "status": 200,
+      "route_alias_verified": false,
+      "invalid_inputs_verified": true,
+      "selected_cargo_verified": true,
+      "current_values_verified": true,
+      "protected_payload_absent": false,
+      "source_page": "admin/route.xhtml?trackingId={cargo}"
+    },
+    "CURRENT::ACTION-16::Administrator::active": {
+      "status": 200,
+      "route_alias_verified": false,
+      "invalid_inputs_verified": true,
+      "selected_cargo_verified": true,
+      "current_values_verified": true,
+      "protected_payload_absent": false,
+      "source_page": "admin/route.xhtml?trackingId={cargo}"
+    },
+    "CURRENT::ACTION-18::anonymous::active": {
+      "status": 303,
+      "route_alias_verified": true,
+      "invalid_inputs_verified": true,
+      "selected_cargo_verified": false,
+      "current_values_verified": false,
+      "protected_payload_absent": true,
+      "source_page": "index.xhtml"
+    },
+    "CURRENT::ACTION-18::Reader::active": {
+      "status": 403,
+      "route_alias_verified": true,
+      "invalid_inputs_verified": true,
+      "selected_cargo_verified": false,
+      "current_values_verified": false,
+      "protected_payload_absent": true,
+      "source_page": "admin/selectItinerary.xhtml?trackingId={cargo}"
+    },
+    "CURRENT::ACTION-18::Operator::active": {
+      "status": 200,
+      "route_alias_verified": true,
+      "invalid_inputs_verified": true,
+      "selected_cargo_verified": true,
+      "current_values_verified": true,
+      "protected_payload_absent": false,
+      "source_page": "admin/selectItinerary.xhtml?trackingId={cargo}"
+    },
+    "CURRENT::ACTION-18::Administrator::active": {
+      "status": 200,
+      "route_alias_verified": true,
+      "invalid_inputs_verified": true,
+      "selected_cargo_verified": true,
+      "current_values_verified": true,
+      "protected_payload_absent": false,
+      "source_page": "admin/selectItinerary.xhtml?trackingId={cargo}"
+    }
+  },
+  "invalid_cases": [
+    {
+      "name": "Current invalid route load: ACTION-16 anonymous missing",
+      "passed": true
+    },
+    {
+      "name": "Current invalid route load: ACTION-16 anonymous malformed",
+      "passed": true
+    },
+    {
+      "name": "Current invalid route load: ACTION-16 anonymous unknown",
+      "passed": true
+    },
+    {
+      "name": "Current invalid route load: ACTION-16 Reader missing",
+      "passed": true
+    },
+    {
+      "name": "Current invalid route load: ACTION-16 Reader malformed",
+      "passed": true
+    },
+    {
+      "name": "Current invalid route load: ACTION-16 Reader unknown",
+      "passed": true
+    },
+    {
+      "name": "Current invalid route load: ACTION-16 Operator missing",
+      "passed": true
+    },
+    {
+      "name": "Current invalid route load: ACTION-16 Operator malformed",
+      "passed": true
+    },
+    {
+      "name": "Current invalid route load: ACTION-16 Operator unknown",
+      "passed": true
+    },
+    {
+      "name": "Current invalid route load: ACTION-16 Administrator missing",
+      "passed": true
+    },
+    {
+      "name": "Current invalid route load: ACTION-16 Administrator malformed",
+      "passed": true
+    },
+    {
+      "name": "Current invalid route load: ACTION-16 Administrator unknown",
+      "passed": true
+    },
+    {
+      "name": "Current invalid route load: ACTION-18 anonymous missing",
+      "passed": true
+    },
+    {
+      "name": "Current invalid route load: ACTION-18 anonymous malformed",
+      "passed": true
+    },
+    {
+      "name": "Current invalid route load: ACTION-18 anonymous unknown",
+      "passed": true
+    },
+    {
+      "name": "Current invalid route load: ACTION-18 Reader missing",
+      "passed": true
+    },
+    {
+      "name": "Current invalid route load: ACTION-18 Reader malformed",
+      "passed": true
+    },
+    {
+      "name": "Current invalid route load: ACTION-18 Reader unknown",
+      "passed": true
+    },
+    {
+      "name": "Current invalid route load: ACTION-18 Operator missing",
+      "passed": true
+    },
+    {
+      "name": "Current invalid route load: ACTION-18 Operator malformed",
+      "passed": true
+    },
+    {
+      "name": "Current invalid route load: ACTION-18 Operator unknown",
+      "passed": true
+    },
+    {
+      "name": "Current invalid route load: ACTION-18 Administrator missing",
+      "passed": true
+    },
+    {
+      "name": "Current invalid route load: ACTION-18 Administrator malformed",
+      "passed": true
+    },
+    {
+      "name": "Current invalid route load: ACTION-18 Administrator unknown",
+      "passed": true
+    }
+  ],
+  "effects": {
+    "database_unchanged": true,
+    "queues_unchanged": true,
+    "invocation_deltas": {
+      "net.java.cargotracker.application.internal.DefaultBookingService#requestPossibleRoutesForCargo": 4,
+      "net.java.cargotracker.infrastructure.routing.ExternalRoutingService#fetchRoutesForSpecification": 4,
+      "net.java.pathfinder.api.GraphTraversalService#findShortestPath": 4
+    }
+  },
+  "native_checks": 650,
+  "browser_checks": {
+    "count": 431,
+    "passed": true
+  },
+  "unit_checks": {
+    "fixture": 38,
+    "security": 57
+  },
+  "cleanup": {
+    "owned_container_removed": true,
+    "private_files_removed": true,
+    "cleanup_errors": [],
+    "browser_cleanup": {
+      "container_removed": true,
+      "network_removed": true,
+      "errors": []
+    }
+  },
+  "artifact_sha256": {
+    "results.json": "773cbe422d3746626a8cc795d1e013961ee92cdaaea83628ae96e43887736329",
+    "native-final.json": "bf546d3311ac58faf35fb015ae1897d33f140228cfca64e8e730e8fee89781ed",
+    "frozen-sha256.txt": "c98adddf1f66612a2a0d52d98751c966feaaf750bd1e27a3d8fed6356f1b8830"
+  },
+  "remaining": {
+    "current_behaviors": 40,
+    "replacements": 44,
+    "internal": 46,
+    "retirement": 76
+  },
+  "limits": [
+    "ACTION-15 lacks visible route-page cargo details and stays BLOCKED.",
+    "Rendered HTML and private cargo IDs are not published.",
+    "The historical callback and retirement results stay separate."
+  ]
+}

@@ -112,3 +112,7 @@ Actual booking source GETs and selected-cargo details-to-editor link navigation 
 ## Latest access checkpoint — 3 November 2026 (KAN-15 current loads)
 
 ACTION07/ACTION20 add eight current GET actor cases with independent selected-cargo values, distinct destination controls and24missing/malformed/unknown-ID checks. Current332PASS/138BLOCKED; historical502audit324PASS/178BLOCKED; retirement76BLOCKED. Native603/browser431PASS;36fixture+56securityunitsPASS. Two early failed fixture attempts were cleaned up; a bounded compiled-getter diagnostic established trailing location-name whitespace and the exact visible-name comparison now passes. Owned/private cleanup passed; shared services preserved. See [current load evidence](../docs/candidate/current-load-behaviors.md).
+
+## Access checkpoint — 4 November 2026 (KAN-15 route choices)
+
+[Route choices and itinerary alias](../docs/candidate/current-route-choices.md): eight current cases pass, including real route choices, selected cargo binding, exact alias redirect/denial, and 24 invalid-ID cases. Current 340/130, historical 324/178, retirement 76 BLOCKED. 650 native, 431 browser and 95 unit checks passed; owned cleanup passed and shared services stayed up.

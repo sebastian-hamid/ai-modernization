@@ -1,0 +1,67 @@
+{
+  "task": "KAN-15 ACTION-16/ACTION-18 current route choices",
+  "date": "2026-11-04",
+  "base_revision": "1d7d84938a48c884fb9996f2c2e86c7842cf7c0b",
+  "reviewer": "/root/review_current_capability_gate",
+  "source_sha256": {
+    "specifications/current-capability-mapping-v2.json": "6082c9255c7b0e372e1d2777e46ea77b898836ec5e2e7f285bcdff543b046d9a",
+    "tests/candidate-runtime/run_candidate.py": "3948f38ac9b49b28bd2efc838049fe40231b43a5360d36c04e4894486db945f2",
+    "tests/candidate-runtime/test_current_loads.py": "e9ffdc8a5c1e7cc6a0dc413991238e857433a2deb1d850d4093911a7e29508b1",
+    "tests/security/current_capabilities.py": "e39532378b1ba7ec8b4c18bc5a6441d6d9d66fc6464f1a0687eb818a7d5e942e",
+    "tests/security/test_current_capabilities.py": "e853757778526cc1ad19ead10876431cc1a74fcdaf3756d2eb0f88b865de3dc5"
+  },
+  "source_review": {
+    "verdict": "Prior findings resolved; approved for one fresh integration run",
+    "findings": [
+      "Audit must distinguish planner reads from mutation effects",
+      "Refresh link must identify selected cargo and option values must belong to the real route selector",
+      "GraphTraversalService is also audited; regression must enumerate all three names independently"
+    ],
+    "corrections": [
+      "Require exact +4 for each of three known planner counters; all other business counters, database and queue snapshots remain equal",
+      "Require one same-origin exact refresh link and one route selector with precisely the rendered itinerary indexes",
+      "Add targeted negative cases for wrong cargo, foreign origin, displaced/missing choice, incorrect planner delta and unexpected effects"
+    ],
+    "independent_focused_tests": 6,
+    "diff_check": "PASS"
+  },
+  "author_tests": {
+    "fixture": 38,
+    "security": 57,
+    "result": "PASS",
+    "final_focused_fixture": 6
+  },
+  "runtime_review": {
+    "verdict": "Independent replay verified exactly eight intended promotions; no material evidence finding",
+    "checks": [
+      "Replayed all current, historical and retirement arrays and compared them with prior checkpoint",
+      "Native 650, browser 431 and 24 invalid route checks passed",
+      "Recomputed three exact +4 planner deltas; database, queues and other invocation counters unchanged",
+      "Both provenance digests and all five frozen input hashes match",
+      "Recorded cleanup clean; no duplicate fixture run"
+    ],
+    "counts": {
+      "current": {
+        "PASS": 340,
+        "BLOCKED": 130
+      },
+      "historical": {
+        "PASS": 324,
+        "BLOCKED": 178
+      },
+      "retirement": {
+        "BLOCKED": 76
+      },
+      "gate_exit": 2
+    },
+    "artifact_sha256": {
+      "results.json": "773cbe422d3746626a8cc795d1e013961ee92cdaaea83628ae96e43887736329",
+      "native-final.json": "bf546d3311ac58faf35fb015ae1897d33f140228cfca64e8e730e8fee89781ed"
+    },
+    "limits": [
+      "Raw route HTML not retained or published; render proof reviewed through driver and recorded checks",
+      "Cleanup independently checked through recorded evidence",
+      "Full acceptance and retirement incomplete"
+    ]
+  }
+}

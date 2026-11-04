@@ -9,14 +9,14 @@ from contracts import UnsupportedCase,run_cases,exit_code
 import run_candidate_contracts as legacy
 MANIFEST=ROOT/"specifications/current-capability-mapping-v2.json"
 INVENTORY=ROOT/"specifications/access-policy-inventory.json"
-NATIVE_CURRENT_LOADS=frozenset({"ACTION-07","ACTION-20"})
+NATIVE_CURRENT_LOADS=frozenset({"ACTION-07","ACTION-16","ACTION-18","ACTION-20"})
 ACTORS=["anonymous","Reader","Operator","Administrator"]
 USERS={"Reader":"reader","Operator":"operator","Administrator":"admin"}
 
 # Version-2 approval boundary: changes require explicit policy/code review.
 APPROVED_INVENTORY_SHA256="fdde15304f5629fa356d4ac9f0462ac7d89b21c65b87c1e841680d23746303ea"
-APPROVED_MAPPED=frozenset("ACTION-"+i for i in ["01","02","03","04","05","06","07","09","14","17","19","20","29","41"])
-APPROVED_PENDING=frozenset("ACTION-"+i for i in ["10","11","12","13","15","16","18","21","22","24","25","45"])
+APPROVED_MAPPED=frozenset("ACTION-"+i for i in ["01","02","03","04","05","06","07","09","14","16","17","18","19","20","29","41"])
+APPROVED_PENDING=frozenset("ACTION-"+i for i in ["10","11","12","13","15","21","22","24","25","45"])
 APPROVED_GROUPS={'cancel-editor': {'legacy_ids': ['ACTION-08'], 'modern_method': 'GET', 'requirement': 'Leave destination editing without applying a change.'}, 'tracking-discovery': {'legacy_ids': ['ACTION-23', 'ACTION-44'], 'modern_method': 'POST', 'requirement': 'Authorized cargo discovery and valid/invalid typed tracking lookup.'}, 'booking-deadline': {'legacy_ids': ['ACTION-26', 'ACTION-32'], 'modern_method': 'POST', 'requirement': 'Strict deadline validation on the current booking form.'}, 'booking-single-page': {'legacy_ids': ['ACTION-27', 'ACTION-30', 'ACTION-34'], 'modern_method': 'POST', 'requirement': 'Origin/destination/deadline entry on one current booking page.'}, 'booking-cancel': {'legacy_ids': ['ACTION-28', 'ACTION-31', 'ACTION-33'], 'modern_method': 'GET', 'requirement': 'Leave booking without creating a cargo.'}, 'handling-single-page': {'legacy_ids': ['ACTION-35', 'ACTION-40', 'ACTION-43'], 'modern_method': 'GET', 'requirement': 'Authorized single-page handling entry and editing.'}, 'handling-cargo-voyage': {'legacy_ids': ['ACTION-36'], 'modern_method': 'POST', 'requirement': 'Valid selected cargo and available known-voyage choices; LOAD/UNLOAD requirements.'}, 'handling-location': {'legacy_ids': ['ACTION-37'], 'modern_method': 'POST', 'requirement': 'Valid required location selection.'}, 'handling-event': {'legacy_ids': ['ACTION-38'], 'modern_method': 'POST', 'requirement': 'Event validation, LOAD/UNLOAD voyage requirement and non-load voyage clearing.'}, 'handling-voyage': {'legacy_ids': ['ACTION-39'], 'modern_method': 'POST', 'requirement': 'Known-voyage validation, LOAD/UNLOAD requirements and non-load voyage clearing.'}, 'handling-completion': {'legacy_ids': ['ACTION-42'], 'modern_method': 'POST', 'requirement': 'Strict completion-time validation.'}}
 APPROVED_RETIREMENT_POLICY='Never PASS; remain BLOCKED until replacement, specific negative-entry and independent-review evidence have a supported fresh runtime verifier.'
 APPROVED_RETIREMENT_GROUP={ident:group for group,row in APPROVED_GROUPS.items() for ident in row["legacy_ids"]}
@@ -162,6 +162,7 @@ class CurrentAdapter:
         if case["binding_status"]=="native-current-load":
             observation=deepcopy(getattr(self.legacy,"current_observations",{}).get(case["id"],{}))
             if observation.get("current_load_driver")!="native-current-load-v1" or observation.get("invalid_inputs_verified") is not True:raise UnsupportedCase()
+            if case["surface_id"]=="ACTION-18" and observation.get("route_alias_verified") is not True:raise UnsupportedCase()
             if case["expected"]=="allow" and (observation.get("selected_cargo_verified") is not True or observation.get("current_values_verified") is not True):raise UnsupportedCase()
         else:
             observation=deepcopy(self.legacy.execute(deepcopy(canonical["legacy_contract"])))

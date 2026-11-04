@@ -185,4 +185,14 @@ class CurrentCapabilityTests(unittest.TestCase):
             adapter.legacy.current_observations={case["id"]:{**proof,key:value}}
             with self.subTest(key=key),self.assertRaises(UnsupportedCase):adapter.execute(case)
 
+    def test_current_itinerary_alias_cannot_reuse_direct_route_evidence(self):
+        adapter,case,_=self.fixture("CURRENT::ACTION-18::Reader::active")
+        proof={"supported":True,"status":403,"protected_payload_absent":True,"identity":{"server_verified":True,"principal":"reader","roles":["Reader"]},"driver":"direct","action_executed":True,"target_origin_verified":True,"actual_target_path":"/cargo-tracker/admin/route.xhtml","query_keys":["trackingId"],"tracking_id":"ABCDEFGH","source_page":"admin/selectItinerary.xhtml?trackingId=ABCDEFGH","current_load_driver":"native-current-load-v1","invalid_inputs_verified":True}
+        adapter.legacy.current_observations={case["id"]:proof}
+        with self.assertRaises(UnsupportedCase):adapter.execute(case)
+        proof["route_alias_verified"]=True
+        self.assertEqual(adapter.execute(case)["status"],403)
+        proof["source_page"]="admin/route.xhtml?trackingId=ABCDEFGH"
+        with self.assertRaises(UnsupportedCase):adapter.execute(case)
+
 if __name__=="__main__":unittest.main()
