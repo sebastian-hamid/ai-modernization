@@ -1,0 +1,259 @@
+{
+  "task": "KAN-15 ACTION11/12/21/22",
+  "current": {
+    "PASS": 364,
+    "BLOCKED": 106
+  },
+  "historical": {
+    "PASS": 324,
+    "BLOCKED": 178
+  },
+  "retirement": {
+    "BLOCKED": 76
+  },
+  "gate_exit": 2,
+  "cases": [
+    {
+      "case": "CURRENT::ACTION-11::anonymous::active",
+      "outcome": "PASS",
+      "reason": "Desired denial observed with required evidence"
+    },
+    {
+      "case": "CURRENT::ACTION-11::Reader::active",
+      "outcome": "PASS",
+      "reason": "Desired denial observed with required evidence"
+    },
+    {
+      "case": "CURRENT::ACTION-11::Operator::active",
+      "outcome": "PASS",
+      "reason": "Allowed workflow and identity evidence observed"
+    },
+    {
+      "case": "CURRENT::ACTION-11::Administrator::active",
+      "outcome": "PASS",
+      "reason": "Allowed workflow and identity evidence observed"
+    },
+    {
+      "case": "CURRENT::ACTION-12::anonymous::active",
+      "outcome": "PASS",
+      "reason": "Desired denial observed with required evidence"
+    },
+    {
+      "case": "CURRENT::ACTION-12::Reader::active",
+      "outcome": "PASS",
+      "reason": "Desired denial observed with required evidence"
+    },
+    {
+      "case": "CURRENT::ACTION-12::Operator::active",
+      "outcome": "PASS",
+      "reason": "Allowed workflow and identity evidence observed"
+    },
+    {
+      "case": "CURRENT::ACTION-12::Administrator::active",
+      "outcome": "PASS",
+      "reason": "Allowed workflow and identity evidence observed"
+    },
+    {
+      "case": "CURRENT::ACTION-21::anonymous::active",
+      "outcome": "PASS",
+      "reason": "Desired denial observed with required evidence"
+    },
+    {
+      "case": "CURRENT::ACTION-21::Reader::active",
+      "outcome": "PASS",
+      "reason": "Desired denial observed with required evidence"
+    },
+    {
+      "case": "CURRENT::ACTION-21::Operator::active",
+      "outcome": "PASS",
+      "reason": "Allowed workflow and identity evidence observed"
+    },
+    {
+      "case": "CURRENT::ACTION-21::Administrator::active",
+      "outcome": "PASS",
+      "reason": "Allowed workflow and identity evidence observed"
+    },
+    {
+      "case": "CURRENT::ACTION-22::anonymous::active",
+      "outcome": "PASS",
+      "reason": "Desired denial observed with required evidence"
+    },
+    {
+      "case": "CURRENT::ACTION-22::Reader::active",
+      "outcome": "PASS",
+      "reason": "Desired denial observed with required evidence"
+    },
+    {
+      "case": "CURRENT::ACTION-22::Operator::active",
+      "outcome": "PASS",
+      "reason": "Allowed workflow and identity evidence observed"
+    },
+    {
+      "case": "CURRENT::ACTION-22::Administrator::active",
+      "outcome": "PASS",
+      "reason": "Allowed workflow and identity evidence observed"
+    }
+  ],
+  "receipts": {
+    "CURRENT::ACTION-11::Operator::active": {
+      "status": 200,
+      "driver": "click",
+      "entry_state": "NOT_ROUTED",
+      "entry_chain_verified": true,
+      "selected_cargo_verified": true,
+      "route_choices_verified": true,
+      "source_page": "admin/listNotRouted.xhtml"
+    },
+    "CURRENT::ACTION-21::Operator::active": {
+      "status": 200,
+      "driver": "click",
+      "entry_state": "NOT_ROUTED",
+      "entry_chain_verified": true,
+      "selected_cargo_verified": true,
+      "route_choices_verified": true,
+      "source_page": "admin/show.xhtml"
+    },
+    "CURRENT::ACTION-12::Operator::active": {
+      "status": 200,
+      "driver": "click",
+      "entry_state": "NOT_ROUTED",
+      "entry_chain_verified": true,
+      "selected_cargo_verified": true,
+      "editor_verified": true,
+      "source_page": "admin/listNotRouted.xhtml"
+    },
+    "CURRENT::ACTION-11::Reader::active": {
+      "status": 403,
+      "driver": "direct",
+      "entry_state": "NOT_ROUTED",
+      "source_controls_hidden": true,
+      "protected_payload_absent": true,
+      "source_page": "admin/listNotRouted.xhtml"
+    },
+    "CURRENT::ACTION-11::anonymous::active": {
+      "status": 303,
+      "driver": "direct",
+      "entry_state": "NOT_ROUTED",
+      "source_controls_hidden": true,
+      "protected_payload_absent": true,
+      "source_page": "index.xhtml"
+    },
+    "CURRENT::ACTION-12::Reader::active": {
+      "status": 403,
+      "driver": "direct",
+      "entry_state": "NOT_ROUTED",
+      "source_controls_hidden": true,
+      "protected_payload_absent": true,
+      "source_page": "admin/listNotRouted.xhtml"
+    },
+    "CURRENT::ACTION-12::anonymous::active": {
+      "status": 303,
+      "driver": "direct",
+      "entry_state": "NOT_ROUTED",
+      "source_controls_hidden": true,
+      "protected_payload_absent": true,
+      "source_page": "index.xhtml"
+    },
+    "CURRENT::ACTION-21::Reader::active": {
+      "status": 403,
+      "driver": "direct",
+      "entry_state": "NOT_ROUTED",
+      "source_controls_hidden": true,
+      "protected_payload_absent": true,
+      "source_page": "admin/show.xhtml"
+    },
+    "CURRENT::ACTION-21::anonymous::active": {
+      "status": 303,
+      "driver": "direct",
+      "entry_state": "NOT_ROUTED",
+      "source_controls_hidden": true,
+      "protected_payload_absent": true,
+      "source_page": "index.xhtml"
+    },
+    "CURRENT::ACTION-22::Operator::active": {
+      "status": 200,
+      "driver": "click",
+      "entry_state": "ROUTED",
+      "entry_chain_verified": true,
+      "selected_cargo_verified": true,
+      "route_choices_verified": true,
+      "source_page": "admin/show.xhtml"
+    },
+    "CURRENT::ACTION-22::Reader::active": {
+      "status": 403,
+      "driver": "direct",
+      "entry_state": "ROUTED",
+      "source_controls_hidden": true,
+      "protected_payload_absent": true,
+      "source_page": "admin/show.xhtml"
+    },
+    "CURRENT::ACTION-22::anonymous::active": {
+      "status": 303,
+      "driver": "direct",
+      "entry_state": "ROUTED",
+      "source_controls_hidden": true,
+      "protected_payload_absent": true,
+      "source_page": "index.xhtml"
+    },
+    "CURRENT::ACTION-11::Administrator::active": {
+      "status": 200,
+      "driver": "click",
+      "entry_state": "NOT_ROUTED",
+      "entry_chain_verified": true,
+      "selected_cargo_verified": true,
+      "route_choices_verified": true,
+      "source_page": "admin/listNotRouted.xhtml"
+    },
+    "CURRENT::ACTION-21::Administrator::active": {
+      "status": 200,
+      "driver": "click",
+      "entry_state": "NOT_ROUTED",
+      "entry_chain_verified": true,
+      "selected_cargo_verified": true,
+      "route_choices_verified": true,
+      "source_page": "admin/show.xhtml"
+    },
+    "CURRENT::ACTION-12::Administrator::active": {
+      "status": 200,
+      "driver": "click",
+      "entry_state": "NOT_ROUTED",
+      "entry_chain_verified": true,
+      "selected_cargo_verified": true,
+      "editor_verified": true,
+      "source_page": "admin/listNotRouted.xhtml"
+    },
+    "CURRENT::ACTION-22::Administrator::active": {
+      "status": 200,
+      "driver": "click",
+      "entry_state": "ROUTED",
+      "entry_chain_verified": true,
+      "selected_cargo_verified": true,
+      "route_choices_verified": true,
+      "source_page": "admin/show.xhtml"
+    }
+  },
+  "native_checks": 652,
+  "browser_checks": {
+    "count": 507,
+    "passed": true
+  },
+  "unit_checks": {
+    "browser": 20,
+    "security": 60
+  },
+  "cleanup": {
+    "owned_container_removed": true,
+    "private_files_removed": true,
+    "cleanup_errors": [],
+    "browser_cleanup": {
+      "container_removed": true,
+      "network_removed": true,
+      "errors": []
+    }
+  },
+  "artifact_sha256": {
+    "results.json": "c492b6a017bf2f33a59ce227fd653b822951767ab1394cae3c8176fc1cec0b51",
+    "native-final.json": "665df2714e7a40a3dbea7e797a2dd1874d855cf73a3ae7bd4938029dbc6fa523",
+    "browser-final.json": "511231c4cdedf41edc24136a2e33b11b79ff5180f12af059ce79e15ed054648e"
+  }
+}

@@ -2,7 +2,7 @@ const {chromium,request:requestFactory}=require("playwright");
 const fs=require("fs");
 const cfg=JSON.parse(fs.readFileSync("/run/credentials.json","utf8"));
 const base=cfg.base;
-const navigationActions=require("./navigation-actions.json");const actionProofs={};const claimedCargoProofs={};
+const navigationActions=require("./navigation-actions.json");const actionProofs={};const claimedCargoProofs={};const cargoEntryProofs={};
 const checks=[];const failures=[];const pageSemantics={};const socketObservations={};const socketTrace=[];const disconnectEvidence={};let abruptPeer=null;let witnessForDiagnostics=null;let stage="initialize";let navigation=null;
 function check(name,ok){stage=name;checks.push({name,passed:!!ok});if(!ok)throw new Error(name);}
 async function traceSocket(label,actor){
@@ -196,6 +196,87 @@ async function traceSocket(label,actor){
    const response=await reader.context.request.get(base+path);check("Controlled invalid link "+path,response.status()===404);
   }
   const operator=await login("operator");await navigationProofs(operator);await liveAliases(operator);
+  const cargoEntryActions={
+   "ACTION-11":{source:"admin/listNotRouted.xhtml",target:"admin/route.xhtml",state:"NOT_ROUTED"},
+   "ACTION-12":{source:"admin/listNotRouted.xhtml",target:"admin/changeDestination.xhtml",state:"NOT_ROUTED"},
+   "ACTION-21":{source:"admin/show.xhtml",target:"admin/route.xhtml",state:"NOT_ROUTED"},
+   "ACTION-22":{source:"admin/show.xhtml",target:"admin/route.xhtml",state:"ROUTED"},
+  };
+  const cargoRole=actor=>({reader:"Reader",operator:"Operator",admin:"Administrator"}[actor.who]);
+  async function readCargo(id,state){
+   const response=await reader.context.request.get(base+"rest/cargo");
+   const cargo=(await response.json()).find(row=>row.trackingId===id);
+   check("Cargo entry independent persisted state "+state,response.status()===200&&cargo?.routingStatus===state);
+   return cargo;
+  }
+  function cargoEntryReceipt(response,source,driver){
+   const url=new URL(response.url());
+   return {supported:true,status:response.status(),source_page:source,driver,action_executed:true,
+    target_origin_verified:url.origin===new URL(base).origin,actual_target_path:url.pathname,
+    query_keys:[...url.searchParams.keys()],tracking_id:url.searchParams.get("trackingId"),
+    current_navigation_driver:"browser-cargo-entry-v1"};
+  }
+  async function exactCargoLink(page,label,target){
+   const link=page.getByRole("link",{name:label,exact:true});
+   check("Cargo entry unique exact link "+label,await link.count()===1&&navigationTarget(new URL(await link.getAttribute("href"),page.url()).href,target));
+   const [response]=await Promise.all([page.waitForResponse(r=>r.request().isNavigationRequest()&&navigationTarget(r.url(),target)),link.click()]);
+   check("Cargo entry successful local target "+label,response.status()===200&&navigationTarget(page.url(),target));
+   return response;
+  }
+  async function cargoEntryDenials(actions,id){
+   for(const action of actions){
+    const spec=cargoEntryActions[action];
+    const cargo=await readCargo(id,spec.state);
+    const page=await reader.context.newPage();
+    try{
+     const source=spec.source+(spec.source==="admin/show.xhtml"?"?trackingId="+id:"");
+     const sourceResponse=await page.goto(base+source);
+     if(spec.source!=="admin/show.xhtml")await exactCargoLink(page,id,"admin/show.xhtml?trackingId="+id);
+     check("Reader cargo source is selected "+action,sourceResponse.status()===200&&await page.locator("#trackingId").textContent()===id&&await page.locator("#routingStatus").textContent()===spec.state);
+     check("Reader cargo entry control hidden "+action,await page.getByRole("link",{name:action==="ACTION-12"?"Change destination":"Assign route",exact:true}).count()===0);
+     const target=spec.target+"?trackingId="+id;
+     const denied=await reader.context.request.get(base+target,{maxRedirects:0});
+     const markers=[id,cargo.originName,cargo.destinationName,'id="routing"','id="change"'];
+     const absent=body=>!markers.some(marker=>body.includes(marker));
+     check("Reader cargo entry direct target denied "+action,denied.status()===403&&absent(await denied.text()));
+     cargoEntryProofs["CURRENT::"+action+"::Reader::active"]={...cargoEntryReceipt(denied,source,"direct"),
+      identity:{server_verified:true,principal:reader.identity.principal,roles:reader.identity.roles},
+      source_access_verified:true,source_controls_hidden:true,protected_payload_absent:true,entry_state:spec.state};
+     const landing=await ap.goto(base+"index.xhtml");
+     check("Anonymous cargo entry controls hidden "+action,landing.status()===200&&await ap.getByRole("link",{name:action==="ACTION-12"?"Change destination":"Assign route",exact:true}).count()===0);
+     const anonymousSource=await anon.request.get(base+source,{maxRedirects:0});
+     const anonymousTarget=await anon.request.get(base+target,{maxRedirects:0});
+     const login=response=>response.status()===303&&new URL(response.headers().location,base).href===base+"login";
+     check("Anonymous cargo entry source and target denied "+action,login(anonymousSource)&&login(anonymousTarget)&&absent(await anonymousSource.text())&&absent(await anonymousTarget.text()));
+     cargoEntryProofs["CURRENT::"+action+"::anonymous::active"]={...cargoEntryReceipt(anonymousTarget,"index.xhtml","direct"),
+      source_access_verified:true,source_controls_hidden:true,protected_payload_absent:true,
+      redirect_is_configured_login:true,entry_state:spec.state};
+    }finally{await page.close();}
+   }
+  }
+  async function unroutedCargoEntries(actor,id){
+   const cargo=await readCargo(id,"NOT_ROUTED");
+   const page=actor.page;
+   await page.goto(base+"admin/listNotRouted.xhtml");
+   await exactCargoLink(page,id,"admin/show.xhtml?trackingId="+id);
+   check("Unrouted entry displays selected cargo",await page.locator("#trackingId").textContent()===id&&await page.locator("#routingStatus").textContent()==="NOT_ROUTED");
+   const route=await exactCargoLink(page,"Assign route","admin/route.xhtml?trackingId="+id);
+   check("Unrouted entry has selected route choices",await page.locator("#trackingId").textContent()===id&&await page.locator('select[id="routing:choice"] option').count()>1);
+   for(const action of ["ACTION-11","ACTION-21"]){
+    const source=cargoEntryActions[action].source+(action==="ACTION-21"?"?trackingId="+id:"");
+    cargoEntryProofs["CURRENT::"+action+"::"+cargoRole(actor)+"::active"]={...cargoEntryReceipt(route,source,"click"),
+     identity:{server_verified:true,principal:actor.identity.principal,roles:actor.identity.roles},
+     semantic_success:true,entry_chain_verified:true,selected_cargo_verified:true,route_choices_verified:true,entry_state:"NOT_ROUTED"};
+   }
+   await page.goto(base+"admin/listNotRouted.xhtml");
+   await exactCargoLink(page,id,"admin/show.xhtml?trackingId="+id);
+   const editor=await exactCargoLink(page,"Change destination","admin/changeDestination.xhtml?trackingId="+id);
+   check("Unrouted entry loads persisted destination",await page.getByLabel("Destination",{exact:true}).inputValue()===cargo.destinationCode);
+   cargoEntryProofs["CURRENT::ACTION-12::"+cargoRole(actor)+"::active"]={...cargoEntryReceipt(editor,"admin/listNotRouted.xhtml","click"),
+    identity:{server_verified:true,principal:actor.identity.principal,roles:actor.identity.roles},
+    semantic_success:true,entry_chain_verified:true,selected_cargo_verified:true,editor_verified:true,entry_state:"NOT_ROUTED"};
+   if(actor.who==="operator")await cargoEntryDenials(["ACTION-11","ACTION-12","ACTION-21"],id);
+  }
   async function book(actor){
    const page=actor.page;
    await page.goto(base+"admin/book.xhtml");
@@ -215,7 +296,7 @@ async function traceSocket(label,actor){
    await page.waitForURL(/admin\/show.xhtml\?trackingId=/);
    const id=await page.locator("#trackingId").textContent();
    check("Booking persists new tracking ID",/^[A-Z0-9]{8}$/.test(id));
-   await page.getByRole("link",{name:"Change destination",exact:true}).click();
+   await unroutedCargoEntries(actor,id);
    await page.getByLabel("Destination",{exact:true}).selectOption("USNYC");
    await page.getByRole("button",{name:"Save destination",exact:true}).click();
    await page.waitForURL(/admin\/show.xhtml\?trackingId=/);
@@ -278,8 +359,14 @@ async function traceSocket(label,actor){
    check("Separate Reader sees persisted route",observed.status()===200 && html.includes('id="routingStatus">ROUTED') && html.includes('id="itinerary"'));
    await reader.page.goto(base+"admin/show.xhtml?trackingId="+id);
    check("Separate Reader verifies exact itinerary sequence",JSON.stringify(await tableRows(reader.page.locator("#itinerary")))===JSON.stringify(selectedRows));
-   await page.getByRole("link",{name:"Assign route",exact:true}).click();
+   await readCargo(id,"ROUTED");
+   const replacementEntry=await exactCargoLink(page,"Assign route","admin/route.xhtml?trackingId="+id);
    await page.getByRole("heading",{name:"Assign route",exact:true}).waitFor();
+   check("Replacement entry retains selected cargo",await page.locator("#trackingId").textContent()===id&&await page.locator('select[id="routing:choice"] option').count()>1);
+   cargoEntryProofs["CURRENT::ACTION-22::"+cargoRole(actor)+"::active"]={...cargoEntryReceipt(replacementEntry,"admin/show.xhtml?trackingId="+id,"click"),
+    identity:{server_verified:true,principal:actor.identity.principal,roles:actor.identity.roles},
+    semantic_success:true,entry_chain_verified:true,selected_cargo_verified:true,route_choices_verified:true,entry_state:"ROUTED"};
+   if(actor.who==="operator")await cargoEntryDenials(["ACTION-22"],id);
    const replacementLabel=await page.locator('select[id="routing:choice"] option[value="0"]').textContent();
    const replacementLegs=Number(replacementLabel.match(/\((\d+) legs\)/)[1]);
    const replacementRows=await tableRows(page.locator("table.route-candidate").first());
@@ -638,5 +725,5 @@ async function traceSocket(label,actor){
   disconnectEvidence.graceful_close_code=1000;
   check("No page or asset errors",failures.length===0);
  } catch(error){try{await traceSocket("failure",witnessForDiagnostics);}catch(ignored){}checks.push({name:stage+" failed ("+error.name+")",outcome:"FAIL",passed:false});process.exitCode=1;}
- finally{if(abruptPeer&&!abruptPeer.socket.destroyed)abruptPeer.socket.destroy();if(replayClient)await replayClient.dispose();await browser.close();fs.writeFileSync("/out/results.json",JSON.stringify({scope:"Real Chromium cargo read/booking/destination/routing/live/handling workflows",checks,last_navigation:navigation,resource_errors:failures,page_semantics:pageSemantics,socket_observations:socketObservations,socket_diagnostics:socketTrace,disconnect_evidence:disconnectEvidence,navigation_actions:actionProofs,claimed_cargo_actions:claimedCargoProofs},null,2)+"\n");}
+ finally{if(abruptPeer&&!abruptPeer.socket.destroyed)abruptPeer.socket.destroy();if(replayClient)await replayClient.dispose();await browser.close();fs.writeFileSync("/out/results.json",JSON.stringify({scope:"Real Chromium cargo read/booking/destination/routing/live/handling workflows",checks,last_navigation:navigation,resource_errors:failures,page_semantics:pageSemantics,socket_observations:socketObservations,socket_diagnostics:socketTrace,disconnect_evidence:disconnectEvidence,navigation_actions:actionProofs,claimed_cargo_actions:claimedCargoProofs,cargo_entry_actions:cargoEntryProofs},null,2)+"\n");}
 })();

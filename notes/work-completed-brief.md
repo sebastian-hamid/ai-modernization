@@ -111,3 +111,5 @@ Replaced obsolete mobile flow with direct responsive form preserving routed/uncl
 - **KAN-15 route cargo details**. Added and verified the selected cargo fields for ACTION-15. Current coverage reached 344 PASS and 126 BLOCKED.
 
 - **KAN-15 claimed cargo navigation**. Verified the selected claimed cargo’s persisted details through the real list link and the anonymous denial. Current coverage reached 348 PASS and 122 BLOCKED.
+
+- **KAN-15 cargo entries**. Verified unrouted-list route/editor navigation, initial route entry and routed replacement entry for four actors. Current coverage reached 364 PASS / 106 BLOCKED.

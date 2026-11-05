@@ -1,0 +1,23 @@
+{
+  "task": "KAN-15 ACTION11/12/21/22",
+  "reviewer": "/root/review_current_capability_gate",
+  "source_sha256": {
+    "specifications/current-capability-mapping-v2.json": "a5ce4b2ffc5d30e3082bdf26d2f05e7789e067497b8256f5aa7e6d70a04d35e6",
+    "tests/browser-workflows/run_browser.py": "6f3a4c0df00b8257a84e9119e05dbcc83558203b3b5fcadd5c1d44f53de15014",
+    "tests/browser-workflows/test_navigation_proofs.py": "5c950526858ce7ff819006287c8e402bb8d29ba51ab898af9a3127620b3bc6b0",
+    "tests/browser-workflows/workflows.cjs": "d00bb03914d785f2f86f649c3cbd9c5778945dcb3edb2a16648e2a719458f47e",
+    "tests/security/current_capabilities.py": "1d097c15c2bd1dcb0a41bc4a270bbefc1c93bce0e53c3079d099a93c88a50c58",
+    "tests/security/test_current_capabilities.py": "15dd7bac0c75eb2aa1f472ab1836297b6e7e6ba6884aceb105611c20c29cb90b"
+  },
+  "source_review": "Approved one fresh fixture after independently passing nine navigation and 21 adapter checks. Actual source links, selected cargo state and actor-specific direct denials inspected.",
+  "runtime_review": "Independent replay verified exactly16promotions and all three result arrays. Raw browser promotion recreated the16native current receipts. Six frozen hashes and both provenance digests matched. Historical and retirement arrays matched the prior checkpoint. 652native/507browser checks and recorded cleanup passed.",
+  "artifact_sha256": {
+    "results.json": "c492b6a017bf2f33a59ce227fd653b822951767ab1394cae3c8176fc1cec0b51",
+    "native-final.json": "665df2714e7a40a3dbea7e797a2dd1874d855cf73a3ae7bd4938029dbc6fa523",
+    "browser-final.json": "511231c4cdedf41edc24136a2e33b11b79ff5180f12af059ce79e15ed054648e"
+  },
+  "limits": [
+    "Raw browser render checks are assessed through inspected driver and recorded outcomes.",
+    "Runtime cargo IDs and response bodies are omitted from publication."
+  ]
+}

@@ -120,3 +120,5 @@ ACTION07/ACTION20 add eight current GET actor cases with independent selected-ca
 The ACTION-15 [route cargo details checkpoint](../docs/candidate/current-route-choices.md#selected-cargo-details) passed four more current cases. The fixture passed 652 native and 431 browser checks, with owned cleanup verified.
 
 The [ACTION-10 claimed cargo checkpoint](../docs/candidate/current-claimed-cargo.md) verified four current actor cases and owned cleanup. The current gate is 348 PASS and 122 BLOCKED.
+
+The [cargo entry checkpoint](../docs/candidate/current-cargo-entries.md) passed 16 current cases, 652 native and 507 browser checks and owned cleanup. Current coverage is 364 PASS / 106 BLOCKED.

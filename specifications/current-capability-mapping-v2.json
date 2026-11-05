@@ -129,9 +129,7 @@
       "modern_source": "admin/listClaimed.xhtml",
       "modern_target": "/cargo-tracker/admin/show.xhtml?trackingId={cargo}",
       "modern_method": "GET"
-    }
-  ],
-  "pending_current_actions": [
+    },
     {
       "legacy_id": "ACTION-11",
       "capability_id": "behavior-action-11",
@@ -147,13 +145,6 @@
       "modern_method": "GET"
     },
     {
-      "legacy_id": "ACTION-13",
-      "capability_id": "behavior-action-13",
-      "modern_source": "admin/changeDestination.xhtml",
-      "modern_target": "/cargo-tracker/admin/show.xhtml?trackingId={cargo}",
-      "modern_method": "GET"
-    },
-    {
       "legacy_id": "ACTION-21",
       "capability_id": "behavior-action-21",
       "modern_source": "admin/show.xhtml",
@@ -165,6 +156,15 @@
       "capability_id": "behavior-action-22",
       "modern_source": "admin/show.xhtml",
       "modern_target": "/cargo-tracker/admin/route.xhtml?trackingId={cargo}",
+      "modern_method": "GET"
+    }
+  ],
+  "pending_current_actions": [
+    {
+      "legacy_id": "ACTION-13",
+      "capability_id": "behavior-action-13",
+      "modern_source": "admin/changeDestination.xhtml",
+      "modern_target": "/cargo-tracker/admin/show.xhtml?trackingId={cargo}",
       "modern_method": "GET"
     },
     {

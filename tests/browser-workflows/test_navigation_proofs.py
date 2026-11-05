@@ -74,4 +74,46 @@ class ClaimedNavigationProofTests(unittest.TestCase):
         with self.assertRaises(AssertionError):
             h.promote_claimed_cargo_actions(report,{"claimed_cargo_actions":proofs})
 
+class CargoEntryProofTests(unittest.TestCase):
+    def fixture(self):
+        proofs={}
+        actions={
+            "ACTION-11":("admin/listNotRouted.xhtml","/cargo-tracker/admin/route.xhtml","NOT_ROUTED","route_choices_verified"),
+            "ACTION-12":("admin/listNotRouted.xhtml","/cargo-tracker/admin/changeDestination.xhtml","NOT_ROUTED","editor_verified"),
+            "ACTION-21":("admin/show.xhtml?trackingId=ABCDEFGH","/cargo-tracker/admin/route.xhtml","NOT_ROUTED","route_choices_verified"),
+            "ACTION-22":("admin/show.xhtml?trackingId=ABCDEFGH","/cargo-tracker/admin/route.xhtml","ROUTED","route_choices_verified"),
+        }
+        for action,(source,target,state,detail) in actions.items():
+            for role,user in [("anonymous",None),("Reader","reader"),("Operator","operator"),("Administrator","admin")]:
+                allowed=role in {"Operator","Administrator"}
+                proof={"supported":True,"action_executed":True,"target_origin_verified":True,"tracking_id":"ABCDEFGH",
+                       "query_keys":["trackingId"],"current_navigation_driver":"browser-cargo-entry-v1","actual_target_path":target,
+                       "source_page":"index.xhtml" if user is None else source,"entry_state":state,
+                       "status":200 if allowed else 303 if user is None else 403,"driver":"click" if allowed else "direct",
+                       "semantic_success":allowed,"entry_chain_verified":True,"selected_cargo_verified":True,detail:True,
+                       "source_access_verified":True,"source_controls_hidden":True,"protected_payload_absent":True,"redirect_is_configured_login":True}
+                if user:proof["identity"]={"server_verified":True,"principal":user,"roles":[role]}
+                proofs["CURRENT::"+action+"::"+role+"::active"]=proof
+        return proofs
+    def test_complete_cargo_entry_paths_promote_atomically(self):
+        report={"current_access_observations":{}}
+        proofs=self.fixture()
+        h.promote_cargo_entry_actions(report,{"cargo_entry_actions":proofs})
+        self.assertEqual(report["current_access_observations"],proofs)
+    def test_wrong_cargo_state_source_and_incomplete_denials_are_rejected(self):
+        cases=[
+            ("ACTION-11","Operator","source_page","admin/dashboard.xhtml"),
+            ("ACTION-12","Operator","editor_verified",False),
+            ("ACTION-21","Operator","driver","direct"),
+            ("ACTION-22","Administrator","entry_state","NOT_ROUTED"),
+            ("ACTION-11","Reader","source_controls_hidden",False),
+            ("ACTION-12","anonymous","redirect_is_configured_login",False),
+        ]
+        for action,role,key,value in cases:
+            proofs=self.fixture();proofs["CURRENT::"+action+"::"+role+"::active"][key]=value
+            report={"current_access_observations":{}}
+            with self.subTest(action=action,key=key),self.assertRaises(AssertionError):
+                h.promote_cargo_entry_actions(report,{"cargo_entry_actions":proofs})
+            self.assertEqual(report,{"current_access_observations":{}})
+
 if __name__=="__main__":unittest.main()

@@ -94,9 +94,9 @@ class CurrentCapabilityTests(unittest.TestCase):
             bad=copy.deepcopy(model)
             if mode=="promote-pending":bad["mapped_actions"].append(bad["pending_current_actions"].pop(0))
             elif mode=="swap-retirement":
-                next(row for row in bad["pending_current_actions"] if row["legacy_id"]=="ACTION-11")["legacy_id"]="ACTION-08"
-                next(row for row in bad["retirement_candidates"] if row["legacy_id"]=="ACTION-08")["legacy_id"]="ACTION-11"
-                next(row for row in bad["replacement_capabilities"] if row["id"]=="cancel-editor")["legacy_ids"]=["ACTION-11"]
+                next(row for row in bad["pending_current_actions"] if row["legacy_id"]=="ACTION-13")["legacy_id"]="ACTION-08"
+                next(row for row in bad["retirement_candidates"] if row["legacy_id"]=="ACTION-08")["legacy_id"]="ACTION-13"
+                next(row for row in bad["replacement_capabilities"] if row["id"]=="cancel-editor")["legacy_ids"]=["ACTION-13"]
             elif mode=="change-requirement":bad["replacement_capabilities"][0]["requirement"]="Any page renders."
             elif mode=="change-policy":bad["retirement_policy"]="Retire on generic success."
             else:
@@ -209,6 +209,19 @@ class CurrentCapabilityTests(unittest.TestCase):
         adapter.legacy.current_observations={case["id"]:proof}
         self.assertTrue(adapter.execute(case)["persisted_details_verified"])
         for key,value in [("persisted_details_verified",False),("driver","direct"),("source_page","admin/listRouted.xhtml")]:
+            adapter.legacy.current_observations={case["id"]:{**proof,key:value}}
+            with self.subTest(key=key),self.assertRaises(UnsupportedCase):adapter.execute(case)
+
+    def test_unrouted_route_entry_requires_verified_chain_and_state(self):
+        adapter,case,_=self.fixture("CURRENT::ACTION-11::Operator::active")
+        proof={"supported":True,"status":200,"identity":{"server_verified":True,"principal":"operator","roles":["Operator"]},
+               "driver":"click","action_executed":True,"target_origin_verified":True,"actual_target_path":"/cargo-tracker/admin/route.xhtml",
+               "query_keys":["trackingId"],"tracking_id":"ABCDEFGH","source_page":"admin/listNotRouted.xhtml",
+               "current_navigation_driver":"browser-cargo-entry-v1","entry_state":"NOT_ROUTED",
+               "entry_chain_verified":True,"selected_cargo_verified":True,"route_choices_verified":True}
+        adapter.legacy.current_observations={case["id"]:proof}
+        self.assertTrue(adapter.execute(case)["entry_chain_verified"])
+        for key,value in [("entry_state","ROUTED"),("entry_chain_verified",False),("source_page","admin/show.xhtml?trackingId=ABCDEFGH")]:
             adapter.legacy.current_observations={case["id"]:{**proof,key:value}}
             with self.subTest(key=key),self.assertRaises(UnsupportedCase):adapter.execute(case)
 

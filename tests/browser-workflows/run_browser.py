@@ -97,6 +97,38 @@ def promote_claimed_cargo_actions(report,results):
     report["current_access_observations"].update(proofs)
 
 
+CARGO_ENTRY_ACTIONS={
+    "ACTION-11":("admin/listNotRouted.xhtml","/cargo-tracker/admin/route.xhtml","NOT_ROUTED","route_choices_verified"),
+    "ACTION-12":("admin/listNotRouted.xhtml","/cargo-tracker/admin/changeDestination.xhtml","NOT_ROUTED","editor_verified"),
+    "ACTION-21":("admin/show.xhtml","/cargo-tracker/admin/route.xhtml","NOT_ROUTED","route_choices_verified"),
+    "ACTION-22":("admin/show.xhtml","/cargo-tracker/admin/route.xhtml","ROUTED","route_choices_verified"),
+}
+def promote_cargo_entry_actions(report,results):
+    proofs=results.get("cargo_entry_actions",{})
+    expected={"CURRENT::"+action+"::"+role+"::active":(action,role) for action in CARGO_ENTRY_ACTIONS for role in ("anonymous","Reader","Operator","Administrator")}
+    if set(proofs)!=set(expected):raise AssertionError("Missing or unexpected cargo entry proof")
+    for key,(action,role) in expected.items():
+        proof=proofs[key]
+        source,target,state,detail=CARGO_ENTRY_ACTIONS[action]
+        tracking=proof.get("tracking_id")
+        if not isinstance(tracking,str) or re.fullmatch("[A-Z0-9]{8}",tracking) is None:raise AssertionError("Invalid cargo entry ID")
+        if source=="admin/show.xhtml":source+="?trackingId="+tracking
+        if role=="anonymous":source="index.xhtml"
+        allowed=role in {"Operator","Administrator"}
+        if proof.get("current_navigation_driver")!="browser-cargo-entry-v1" or not all(proof.get(k) is True for k in ("supported","action_executed","target_origin_verified")) or proof.get("actual_target_path")!=target or proof.get("source_page")!=source or proof.get("entry_state")!=state or sorted(proof.get("query_keys",[])) not in (["trackingId"],["jfwid","trackingId"]):
+            raise AssertionError("Cargo entry path/state mismatch")
+        if role!="anonymous":
+            identity=proof.get("identity",{})
+            user={"Reader":"reader","Operator":"operator","Administrator":"admin"}[role]
+            if identity.get("server_verified") is not True or identity.get("principal")!=user or identity.get("roles")!=[role]:raise AssertionError("Cargo entry identity mismatch")
+        elif proof.get("identity") is not None:raise AssertionError("Anonymous cargo entry has identity")
+        if allowed:
+            if proof.get("status")!=200 or proof.get("driver")!="click" or not all(proof.get(k) is True for k in ("semantic_success","entry_chain_verified","selected_cargo_verified",detail)):raise AssertionError("Cargo entry click lacks evidence")
+        else:
+            if proof.get("status")!=(303 if role=="anonymous" else 403) or proof.get("driver")!="direct" or not all(proof.get(k) is True for k in ("source_access_verified","source_controls_hidden","protected_payload_absent")) or role=="anonymous" and proof.get("redirect_is_configured_login") is not True:raise AssertionError("Cargo entry denial lacks evidence")
+    report["current_access_observations"].update(proofs)
+
+
 def main():
     WORK.mkdir(parents=True,exist_ok=True)
     name="ai-modernization-kan19-browser"
@@ -123,6 +155,7 @@ def main():
             promote_socket_cases(report,results)
             promote_navigation_actions(report,results)
             promote_claimed_cargo_actions(report,results)
+            promote_cargo_entry_actions(report,results)
         finally:
             cleanup=[]
             if bid:

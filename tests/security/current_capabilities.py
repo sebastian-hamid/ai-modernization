@@ -15,8 +15,8 @@ USERS={"Reader":"reader","Operator":"operator","Administrator":"admin"}
 
 # Version-2 approval boundary: changes require explicit policy/code review.
 APPROVED_INVENTORY_SHA256="fdde15304f5629fa356d4ac9f0462ac7d89b21c65b87c1e841680d23746303ea"
-APPROVED_MAPPED=frozenset("ACTION-"+i for i in ["01","02","03","04","05","06","07","09","10","14","15","16","17","18","19","20","29","41"])
-APPROVED_PENDING=frozenset("ACTION-"+i for i in ["11","12","13","21","22","24","25","45"])
+APPROVED_MAPPED=frozenset("ACTION-"+i for i in ["01","02","03","04","05","06","07","09","10","11","12","14","15","16","17","18","19","20","21","22","29","41"])
+APPROVED_PENDING=frozenset("ACTION-"+i for i in ["13","24","25","45"])
 APPROVED_GROUPS={'cancel-editor': {'legacy_ids': ['ACTION-08'], 'modern_method': 'GET', 'requirement': 'Leave destination editing without applying a change.'}, 'tracking-discovery': {'legacy_ids': ['ACTION-23', 'ACTION-44'], 'modern_method': 'POST', 'requirement': 'Authorized cargo discovery and valid/invalid typed tracking lookup.'}, 'booking-deadline': {'legacy_ids': ['ACTION-26', 'ACTION-32'], 'modern_method': 'POST', 'requirement': 'Strict deadline validation on the current booking form.'}, 'booking-single-page': {'legacy_ids': ['ACTION-27', 'ACTION-30', 'ACTION-34'], 'modern_method': 'POST', 'requirement': 'Origin/destination/deadline entry on one current booking page.'}, 'booking-cancel': {'legacy_ids': ['ACTION-28', 'ACTION-31', 'ACTION-33'], 'modern_method': 'GET', 'requirement': 'Leave booking without creating a cargo.'}, 'handling-single-page': {'legacy_ids': ['ACTION-35', 'ACTION-40', 'ACTION-43'], 'modern_method': 'GET', 'requirement': 'Authorized single-page handling entry and editing.'}, 'handling-cargo-voyage': {'legacy_ids': ['ACTION-36'], 'modern_method': 'POST', 'requirement': 'Valid selected cargo and available known-voyage choices; LOAD/UNLOAD requirements.'}, 'handling-location': {'legacy_ids': ['ACTION-37'], 'modern_method': 'POST', 'requirement': 'Valid required location selection.'}, 'handling-event': {'legacy_ids': ['ACTION-38'], 'modern_method': 'POST', 'requirement': 'Event validation, LOAD/UNLOAD voyage requirement and non-load voyage clearing.'}, 'handling-voyage': {'legacy_ids': ['ACTION-39'], 'modern_method': 'POST', 'requirement': 'Known-voyage validation, LOAD/UNLOAD requirements and non-load voyage clearing.'}, 'handling-completion': {'legacy_ids': ['ACTION-42'], 'modern_method': 'POST', 'requirement': 'Strict completion-time validation.'}}
 APPROVED_RETIREMENT_POLICY='Never PASS; remain BLOCKED until replacement, specific negative-entry and independent-review evidence have a supported fresh runtime verifier.'
 APPROVED_RETIREMENT_GROUP={ident:group for group,row in APPROVED_GROUPS.items() for ident in row["legacy_ids"]}
@@ -117,7 +117,7 @@ def build_current(model,inventory):
         if old["surface_id"] in retired:continue
         row=mapped.get(old["surface_id"]) or pending.get(old["surface_id"])
         case=deepcopy(old)
-        case.update(id="CURRENT::"+old["id"],contract_version=2,kind="current",legacy_case_id=old["id"],legacy_contract=deepcopy(old),capability_id=row["capability_id"] if row else old["surface_id"].lower(),binding_status="pending" if old["surface_id"] in pending else "native-current-load" if old["surface_id"] in NATIVE_CURRENT_LOADS else "browser-current-navigation" if old["surface_id"]=="ACTION-10" else "existing-runtime-driver")
+        case.update(id="CURRENT::"+old["id"],contract_version=2,kind="current",legacy_case_id=old["id"],legacy_contract=deepcopy(old),capability_id=row["capability_id"] if row else old["surface_id"].lower(),binding_status="pending" if old["surface_id"] in pending else "native-current-load" if old["surface_id"] in NATIVE_CURRENT_LOADS else "browser-current-navigation" if old["surface_id"] in {"ACTION-10","ACTION-11","ACTION-12","ACTION-21","ACTION-22"} else "existing-runtime-driver")
         if row:
             source="index.xhtml" if old["actor"]=="anonymous" and old["expected"]=="deny" and row["modern_method"]=="GET" else row["modern_source"]
             case.update(path=row["modern_target"],method=row["modern_method"],current_source=source)
@@ -168,13 +168,18 @@ class CurrentAdapter:
             if case["expected"]=="allow" and (observation.get("selected_cargo_verified") is not True or observation.get("current_values_verified") is not True):raise UnsupportedCase()
         elif case["binding_status"]=="browser-current-navigation":
             observation=deepcopy(getattr(self.legacy,"current_observations",{}).get(case["id"],{}))
-            if observation.get("current_navigation_driver")!="browser-claimed-cargo-v1":
-                raise UnsupportedCase()
+            if case["surface_id"]=="ACTION-10":
+                if observation.get("current_navigation_driver")!="browser-claimed-cargo-v1":raise UnsupportedCase()
+                allowed_flags=("selected_cargo_verified","persisted_details_verified")
+                denied_flags=("claimed_list_denied",)
+            else:
+                state="ROUTED" if case["surface_id"]=="ACTION-22" else "NOT_ROUTED"
+                if observation.get("current_navigation_driver")!="browser-cargo-entry-v1" or observation.get("entry_state")!=state:raise UnsupportedCase()
+                allowed_flags=("entry_chain_verified","selected_cargo_verified","editor_verified" if case["surface_id"]=="ACTION-12" else "route_choices_verified")
+                denied_flags=("source_access_verified","source_controls_hidden")
             if case["expected"]=="allow":
-                if observation.get("driver")!="click" or not all(observation.get(key) is True for key in ("selected_cargo_verified","persisted_details_verified")):
-                    raise UnsupportedCase()
-            elif observation.get("driver")!="direct" or observation.get("claimed_list_denied") is not True:
-                raise UnsupportedCase()
+                if observation.get("driver")!="click" or not all(observation.get(key) is True for key in allowed_flags):raise UnsupportedCase()
+            elif observation.get("driver")!="direct" or not all(observation.get(key) is True for key in denied_flags):raise UnsupportedCase()
         else:
             observation=deepcopy(self.legacy.execute(deepcopy(canonical["legacy_contract"])))
         actor=case["actor"]

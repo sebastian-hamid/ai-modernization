@@ -47,3 +47,5 @@ The [source-entry increment](source-entry-evidence.md) resolves the 16 booking/d
 ACTION-15 adds four [route cargo details cases](current-route-choices.md#selected-cargo-details). The current gate is **344 PASS / 126 BLOCKED**.
 
 ACTION-10 adds four [claimed cargo navigation cases](current-claimed-cargo.md). The current gate is **348 PASS / 122 BLOCKED**.
+
+The [unrouted and routing entry group](current-cargo-entries.md) adds 16 cases for ACTION-11/12/21/22. Current gate **364 PASS / 106 BLOCKED**.
