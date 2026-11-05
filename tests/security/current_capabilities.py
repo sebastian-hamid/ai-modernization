@@ -7,6 +7,7 @@ from urllib.parse import urlsplit,parse_qs,parse_qsl
 from generate_cases import ROOT,build
 from contracts import UnsupportedCase,run_cases,exit_code
 import run_candidate_contracts as legacy
+from staged_returns import return_observation
 MANIFEST=ROOT/"specifications/current-capability-mapping-v2.json"
 INVENTORY=ROOT/"specifications/access-policy-inventory.json"
 NATIVE_CURRENT_LOADS=frozenset({"ACTION-07","ACTION-15","ACTION-16","ACTION-18","ACTION-20"})
@@ -15,8 +16,8 @@ USERS={"Reader":"reader","Operator":"operator","Administrator":"admin"}
 
 # Version-2 approval boundary: changes require explicit policy/code review.
 APPROVED_INVENTORY_SHA256="fdde15304f5629fa356d4ac9f0462ac7d89b21c65b87c1e841680d23746303ea"
-APPROVED_MAPPED=frozenset("ACTION-"+i for i in ["01","02","03","04","05","06","07","09","10","11","12","14","15","16","17","18","19","20","21","22","29","41"])
-APPROVED_PENDING=frozenset("ACTION-"+i for i in ["13","24","25","45"])
+APPROVED_MAPPED=frozenset("ACTION-"+i for i in ["01","02","03","04","05","06","07","09","10","11","12","13","14","15","16","17","18","19","20","21","22","24","25","29","41","45"])
+APPROVED_PENDING=frozenset()
 APPROVED_GROUPS={'cancel-editor': {'legacy_ids': ['ACTION-08'], 'modern_method': 'GET', 'requirement': 'Leave destination editing without applying a change.'}, 'tracking-discovery': {'legacy_ids': ['ACTION-23', 'ACTION-44'], 'modern_method': 'POST', 'requirement': 'Authorized cargo discovery and valid/invalid typed tracking lookup.'}, 'booking-deadline': {'legacy_ids': ['ACTION-26', 'ACTION-32'], 'modern_method': 'POST', 'requirement': 'Strict deadline validation on the current booking form.'}, 'booking-single-page': {'legacy_ids': ['ACTION-27', 'ACTION-30', 'ACTION-34'], 'modern_method': 'POST', 'requirement': 'Origin/destination/deadline entry on one current booking page.'}, 'booking-cancel': {'legacy_ids': ['ACTION-28', 'ACTION-31', 'ACTION-33'], 'modern_method': 'GET', 'requirement': 'Leave booking without creating a cargo.'}, 'handling-single-page': {'legacy_ids': ['ACTION-35', 'ACTION-40', 'ACTION-43'], 'modern_method': 'GET', 'requirement': 'Authorized single-page handling entry and editing.'}, 'handling-cargo-voyage': {'legacy_ids': ['ACTION-36'], 'modern_method': 'POST', 'requirement': 'Valid selected cargo and available known-voyage choices; LOAD/UNLOAD requirements.'}, 'handling-location': {'legacy_ids': ['ACTION-37'], 'modern_method': 'POST', 'requirement': 'Valid required location selection.'}, 'handling-event': {'legacy_ids': ['ACTION-38'], 'modern_method': 'POST', 'requirement': 'Event validation, LOAD/UNLOAD voyage requirement and non-load voyage clearing.'}, 'handling-voyage': {'legacy_ids': ['ACTION-39'], 'modern_method': 'POST', 'requirement': 'Known-voyage validation, LOAD/UNLOAD requirements and non-load voyage clearing.'}, 'handling-completion': {'legacy_ids': ['ACTION-42'], 'modern_method': 'POST', 'requirement': 'Strict completion-time validation.'}}
 APPROVED_RETIREMENT_POLICY='Never PASS; remain BLOCKED until replacement, specific negative-entry and independent-review evidence have a supported fresh runtime verifier.'
 APPROVED_RETIREMENT_GROUP={ident:group for group,row in APPROVED_GROUPS.items() for ident in row["legacy_ids"]}
@@ -44,7 +45,8 @@ def verify_action_proof(case,observation):
         source=observation.get("entry_page") or observation.get("source_page")
     else:
         keys=observation.get("query_keys")
-        if observation.get("driver") not in {"click","direct"} or observation.get("action_executed") is not True or observation.get("target_origin_verified") is not True or observation.get("actual_target_path")!=target_path:raise UnsupportedCase()
+        drivers={"click","direct","keyboard"} if case.get("surface_id")=="ACTION-25" else {"click","direct"}
+        if observation.get("driver") not in drivers or observation.get("action_executed") is not True or observation.get("target_origin_verified") is not True or observation.get("actual_target_path")!=target_path:raise UnsupportedCase()
         if not isinstance(keys,list) or any(not isinstance(k,str) for k in keys) or len(keys)!=len(set(keys)) or set(keys)-set(target_query)-{"jfwid"} or set(keys)-{"jfwid"}!=set(target_query):raise UnsupportedCase()
         if tracking!=target_query.get("trackingId"):raise UnsupportedCase()
         source=observation.get("source_page")
@@ -117,9 +119,9 @@ def build_current(model,inventory):
         if old["surface_id"] in retired:continue
         row=mapped.get(old["surface_id"]) or pending.get(old["surface_id"])
         case=deepcopy(old)
-        case.update(id="CURRENT::"+old["id"],contract_version=2,kind="current",legacy_case_id=old["id"],legacy_contract=deepcopy(old),capability_id=row["capability_id"] if row else old["surface_id"].lower(),binding_status="pending" if old["surface_id"] in pending else "native-current-load" if old["surface_id"] in NATIVE_CURRENT_LOADS else "browser-current-navigation" if old["surface_id"] in {"ACTION-10","ACTION-11","ACTION-12","ACTION-21","ACTION-22"} else "existing-runtime-driver")
+        case.update(id="CURRENT::"+old["id"],contract_version=2,kind="current",legacy_case_id=old["id"],legacy_contract=deepcopy(old),capability_id=row["capability_id"] if row else old["surface_id"].lower(),binding_status="pending" if old["surface_id"] in pending else "native-staged-return" if old["surface_id"]=="ACTION-13" else "native-current-load" if old["surface_id"] in NATIVE_CURRENT_LOADS else "browser-current-navigation" if old["surface_id"] in {"ACTION-10","ACTION-11","ACTION-12","ACTION-21","ACTION-22","ACTION-24","ACTION-25","ACTION-45"} else "existing-runtime-driver")
         if row:
-            source="index.xhtml" if old["actor"]=="anonymous" and old["expected"]=="deny" and row["modern_method"]=="GET" else row["modern_source"]
+            source="index.xhtml" if old["surface_id"]!="ACTION-13" and old["actor"]=="anonymous" and old["expected"]=="deny" and row["modern_method"]=="GET" else row["modern_source"]
             case.update(path=row["modern_target"],method=row["modern_method"],current_source=source)
         cases.append(case)
     for group in model["replacement_capabilities"]:
@@ -157,9 +159,11 @@ class CurrentAdapter:
     def execute(self,case):
         canonical=self.contracts.get(case.get("id"))
         if canonical is None or canonical!=case:raise UnsupportedCase()
-        if case["kind"]!="current" or case.get("binding_status") not in {"existing-runtime-driver","native-current-load","browser-current-navigation"} or self.legacy is None or self.provenance is None:raise UnsupportedCase()
+        if case["kind"]!="current" or case.get("binding_status") not in {"existing-runtime-driver","native-current-load","browser-current-navigation","native-staged-return"} or self.legacy is None or self.provenance is None:raise UnsupportedCase()
         if not isinstance(self.provenance,dict) or self.provenance.get("kind")!="fresh-owned-runtime" or self.provenance.get("legacy_fixture_cleanup_verified") is not True or self.provenance.get("inputs_fingerprint")!=self._run_fingerprint or re.fullmatch("[0-9a-f]{64}",str(self._run_fingerprint)) is None:raise UnsupportedCase()
-        if case["binding_status"]=="native-current-load":
+        if case["binding_status"]=="native-staged-return":
+            observation=return_observation(case,getattr(self.legacy,"current_observations",{}).get(case["id"],{}))
+        elif case["binding_status"]=="native-current-load":
             observation=deepcopy(getattr(self.legacy,"current_observations",{}).get(case["id"],{}))
             if observation.get("current_load_driver")!="native-current-load-v1" or observation.get("invalid_inputs_verified") is not True:raise UnsupportedCase()
             if case["surface_id"]=="ACTION-15" and case["expected"]=="allow" and observation.get("route_details_verified") is not True:
@@ -172,13 +176,24 @@ class CurrentAdapter:
                 if observation.get("current_navigation_driver")!="browser-claimed-cargo-v1":raise UnsupportedCase()
                 allowed_flags=("selected_cargo_verified","persisted_details_verified")
                 denied_flags=("claimed_list_denied",)
+            elif case["surface_id"] in {"ACTION-24","ACTION-45"}:
+                if observation.get("current_navigation_driver")!="browser-lookup-v1":raise UnsupportedCase()
+                if case["expected"]=="allow":
+                    if observation.get("submission_status") not in {302,303} or observation.get("invalid_inputs_verified") is not True or observation.get("csrf_checks_verified") is not True:raise UnsupportedCase()
+                    if case["surface_id"]=="ACTION-45" and observation.get("legacy_entry_verified") is not True:raise UnsupportedCase()
+                allowed_flags=("selected_cargo_verified","persisted_details_verified")
+                denied_flags=("lookup_source_denied",)
+            elif case["surface_id"]=="ACTION-25":
+                if observation.get("current_navigation_driver")!="browser-marker-v1":raise UnsupportedCase()
+                allowed_flags=("selected_cargo_verified","persisted_details_verified","live_marker_verified")
+                denied_flags=("live_source_denied",)
             else:
                 state="ROUTED" if case["surface_id"]=="ACTION-22" else "NOT_ROUTED"
                 if observation.get("current_navigation_driver")!="browser-cargo-entry-v1" or observation.get("entry_state")!=state:raise UnsupportedCase()
                 allowed_flags=("entry_chain_verified","selected_cargo_verified","editor_verified" if case["surface_id"]=="ACTION-12" else "route_choices_verified")
                 denied_flags=("source_access_verified","source_controls_hidden")
             if case["expected"]=="allow":
-                if observation.get("driver")!="click" or not all(observation.get(key) is True for key in allowed_flags):raise UnsupportedCase()
+                if observation.get("driver")!=("keyboard" if case["surface_id"]=="ACTION-25" else "click") or not all(observation.get(key) is True for key in allowed_flags):raise UnsupportedCase()
             elif observation.get("driver")!="direct" or not all(observation.get(key) is True for key in denied_flags):raise UnsupportedCase()
         else:
             observation=deepcopy(self.legacy.execute(deepcopy(canonical["legacy_contract"])))
@@ -192,7 +207,7 @@ class CurrentAdapter:
             identity=observation.get("native_identity",{})
             if identity.get("principal")!="routing" or identity.get("roles")!=["RoutingService"] or observation.get("machine_identity_verified") is not True or observation.get("machine_scope")!=case.get("required_machine_scope"):raise UnsupportedCase()
         else:raise UnsupportedCase()
-        if canonical["legacy_contract"]["channel"]=="action" or canonical["legacy_contract"].get("original_channel")=="action":
+        if case["binding_status"]!="native-staged-return" and (canonical["legacy_contract"]["channel"]=="action" or canonical["legacy_contract"].get("original_channel")=="action"):
             verify_action_proof(case,observation)
         observation["current_provenance"]=deepcopy(self.provenance)
         return observation

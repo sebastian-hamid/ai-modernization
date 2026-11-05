@@ -129,6 +129,37 @@ def promote_cargo_entry_actions(report,results):
     report["current_access_observations"].update(proofs)
 
 
+def promote_tracking_actions(report,results):
+    proofs=results.get("tracking_actions",{})
+    actions={"ACTION-24":"admin/track.xhtml","ACTION-45":"public/track.xhtml","ACTION-25":"admin/live.xhtml"}
+    expected={"CURRENT::"+action+"::"+role+"::active":(action,role) for action in actions for role in ("anonymous","Reader","Operator","Administrator")}
+    if set(proofs)!=set(expected):raise AssertionError("Missing tracking proof")
+    ids=set()
+    for key,(action,role) in expected.items():
+        proof=proofs[key]
+        tracking=proof.get("tracking_id")
+        if not isinstance(tracking,str) or re.fullmatch("[A-Z0-9]{8}",tracking) is None:raise AssertionError("Invalid tracked cargo")
+        ids.add(tracking)
+        lookup=action!="ACTION-25"
+        allowed=role!="anonymous"
+        if proof.get("supported") is not True or proof.get("current_navigation_driver")!=("browser-lookup-v1" if lookup else "browser-marker-v1"):raise AssertionError("Unknown tracking driver")
+        if allowed:
+            identity=proof.get("identity",{})
+            if identity.get("server_verified") is not True or identity.get("principal")!={"Reader":"reader","Operator":"operator","Administrator":"admin"}[role] or identity.get("roles")!=[role]:raise AssertionError("Tracking identity mismatch")
+            if proof.get("status")!=200 or proof.get("driver")!=("click" if lookup else "keyboard") or not all(proof.get(k) is True for k in ("semantic_success","selected_cargo_verified","persisted_details_verified")):raise AssertionError("Tracking result lacks details")
+        elif proof.get("identity") is not None or proof.get("status")!=303 or proof.get("driver")!="direct" or not all(proof.get(k) is True for k in ("protected_payload_absent","redirect_is_configured_login")):raise AssertionError("Tracking denial incomplete")
+        if lookup:
+            if (proof.get("action_method"),proof.get("action_path"),proof.get("entry_page"))!=("POST","/cargo-tracker/admin/track.xhtml",actions[action]) or proof.get("source_entry_verified") is not True:raise AssertionError("Lookup POST/source mismatch")
+            if allowed:
+                if proof.get("submission_status") not in {302,303} or proof.get("invalid_inputs_verified") is not True or proof.get("csrf_checks_verified") is not True or action=="ACTION-45" and proof.get("legacy_entry_verified") is not True:raise AssertionError("Lookup form evidence incomplete")
+            elif proof.get("lookup_source_denied") is not True:raise AssertionError("Lookup source denial missing")
+        else:
+            if not all(proof.get(k) is True for k in ("action_executed","target_origin_verified")) or proof.get("actual_target_path")!="/cargo-tracker/admin/show.xhtml" or sorted(proof.get("query_keys",[])) not in (["trackingId"],["jfwid","trackingId"]) or proof.get("source_page")!=("admin/live.xhtml" if allowed else "index.xhtml"):raise AssertionError("Marker target mismatch")
+            if proof.get("live_marker_verified" if allowed else "live_source_denied") is not True:raise AssertionError("Marker entry incomplete")
+    if len(ids)!=1:raise AssertionError("Tracking proofs use different fixtures")
+    report["current_access_observations"].update(proofs)
+
+
 def main():
     WORK.mkdir(parents=True,exist_ok=True)
     name="ai-modernization-kan19-browser"
@@ -156,6 +187,7 @@ def main():
             promote_navigation_actions(report,results)
             promote_claimed_cargo_actions(report,results)
             promote_cargo_entry_actions(report,results)
+            promote_tracking_actions(report,results)
         finally:
             cleanup=[]
             if bid:

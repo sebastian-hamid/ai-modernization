@@ -1,0 +1,51 @@
+{
+  "task": "KAN-15 final current user behaviors",
+  "reviewer": "/root/review_current_capability_gate",
+  "source_sha256": {
+    "tests/security/staged_returns.py": "507f2bd4d532fa5d88601a5f78b59b8d3ac78ba395bfbb06c27cd088f7002188",
+    "tests/security/test_staged_returns.py": "32cb79b3749b18ec451d2bd25f264c3de6909ad570e5c59e95db064c01cb0909",
+    "specifications/current-capability-mapping-v2.json": "7972990be4745676d1d60efc2f3b9a471cd56de368a5f543516e027114e1d4fa",
+    "tests/browser-workflows/run_browser.py": "6cd5c9b1271173aaaa1a414e5546258d7f4079d120fc229e598b5cd045d37462",
+    "tests/browser-workflows/test_navigation_proofs.py": "41e1af346221a2108099930fef2e4151892c6b755b8fc1395a8b641c61256220",
+    "tests/browser-workflows/workflows.cjs": "f8d93588c0b270ceba2474188c7cdf48a021566525c42c2bddcd6933dd08d7f8",
+    "tests/candidate-runtime/run_candidate.py": "a428d492c5f909231664bdd13ea7f98eeb5ec239f90b4837643d0d81099f47a0",
+    "tests/security/current_capabilities.py": "ec1bb6141d884de9b6b7c4b18c7144478b03f11fe7871bd7aeb16c0e7c11bbb3",
+    "tests/security/test_current_capabilities.py": "c7d70a49a88d906642d4f76700a90911d82b380d7f2f1c7b98afca966884c423"
+  },
+  "source_review": {
+    "verdict": "Approved one fresh run after staged-return and tracking review",
+    "independent_checks": [
+      "Five focused staged-return tests after redirect correction",
+      "24 adapter and 11 navigation proof tests",
+      "Diff check"
+    ],
+    "corrections": [
+      "Preserve editor source on the canonical anonymous staged case",
+      "Require missing/wrong CSRF probes for each authenticated lookup source",
+      "Accept absolute return redirects only at the captured exact owned origin, context and cargo"
+    ]
+  },
+  "runtime_review": {
+    "verdict": "Exact16promotions independently replayed with all three arrays and provenance matching",
+    "checks": [
+      "Raw browser promoter recreates12native tracking receipts",
+      "Positive destination effects recomputed for both allowed roles",
+      "Reader and anonymous denied entry effects unchanged",
+      "Reader editor403 and readable details200 kept distinct",
+      "661native/555browser checks and recorded cleanup passed",
+      "Nine frozen hashes matched"
+    ]
+  },
+  "artifact_sha256": {
+    "results.json": "701b86a17e0ba086b9dfaecd039b8deb18e943d43eb80f4b087c63188ca68b51",
+    "native-final.json": "25d051cbf0df9f25bbecb34a75523c2e3bfbcc340b41623e74fdbdd10d7011e7",
+    "browser-final.json": "dddafbd4ff2ab80a569fae756daea7ae426a2d05d64a7c2b62223a6522c0a4f3",
+    "relative-only-results.json": "f5864384bd4369aa5805661bf816d8c5f6cbc2800a7b99602024e830b5285b13",
+    "relative-only-native.json": "9fbeab3eecaabe695db7dae5c976f6abc1a43a6bc090e10903a7f4e05cd79a18"
+  },
+  "limits": [
+    "Marker verification uses keyboard activation of the actual SVG link.",
+    "Raw response bodies, cargo IDs and fixture origin values are omitted from publication."
+  ],
+  "first_checkpoint": "Relative-only redirect guard held two legitimate absolute local returns BLOCKED at378/92. Evidence preserved, regression added and independently reviewed before changed fresh run."
+}

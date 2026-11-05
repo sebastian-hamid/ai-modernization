@@ -1,0 +1,266 @@
+{
+  "task": "KAN-15 final current user behaviors",
+  "current": {
+    "PASS": 380,
+    "BLOCKED": 90
+  },
+  "historical": {
+    "PASS": 324,
+    "BLOCKED": 178
+  },
+  "retirement": {
+    "BLOCKED": 76
+  },
+  "gate_exit": 2,
+  "cases": [
+    {
+      "case": "CURRENT::ACTION-13::anonymous::active",
+      "outcome": "PASS",
+      "reason": "Desired denial observed with required evidence"
+    },
+    {
+      "case": "CURRENT::ACTION-13::Reader::active",
+      "outcome": "PASS",
+      "reason": "Desired denial observed with required evidence"
+    },
+    {
+      "case": "CURRENT::ACTION-13::Operator::active",
+      "outcome": "PASS",
+      "reason": "Allowed workflow and identity evidence observed"
+    },
+    {
+      "case": "CURRENT::ACTION-13::Administrator::active",
+      "outcome": "PASS",
+      "reason": "Allowed workflow and identity evidence observed"
+    },
+    {
+      "case": "CURRENT::ACTION-24::anonymous::active",
+      "outcome": "PASS",
+      "reason": "Desired denial observed with required evidence"
+    },
+    {
+      "case": "CURRENT::ACTION-24::Reader::active",
+      "outcome": "PASS",
+      "reason": "Allowed workflow and identity evidence observed"
+    },
+    {
+      "case": "CURRENT::ACTION-24::Operator::active",
+      "outcome": "PASS",
+      "reason": "Allowed workflow and identity evidence observed"
+    },
+    {
+      "case": "CURRENT::ACTION-24::Administrator::active",
+      "outcome": "PASS",
+      "reason": "Allowed workflow and identity evidence observed"
+    },
+    {
+      "case": "CURRENT::ACTION-25::anonymous::active",
+      "outcome": "PASS",
+      "reason": "Desired denial observed with required evidence"
+    },
+    {
+      "case": "CURRENT::ACTION-25::Reader::active",
+      "outcome": "PASS",
+      "reason": "Allowed workflow and identity evidence observed"
+    },
+    {
+      "case": "CURRENT::ACTION-25::Operator::active",
+      "outcome": "PASS",
+      "reason": "Allowed workflow and identity evidence observed"
+    },
+    {
+      "case": "CURRENT::ACTION-25::Administrator::active",
+      "outcome": "PASS",
+      "reason": "Allowed workflow and identity evidence observed"
+    },
+    {
+      "case": "CURRENT::ACTION-45::anonymous::active",
+      "outcome": "PASS",
+      "reason": "Desired denial observed with required evidence"
+    },
+    {
+      "case": "CURRENT::ACTION-45::Reader::active",
+      "outcome": "PASS",
+      "reason": "Allowed workflow and identity evidence observed"
+    },
+    {
+      "case": "CURRENT::ACTION-45::Operator::active",
+      "outcome": "PASS",
+      "reason": "Allowed workflow and identity evidence observed"
+    },
+    {
+      "case": "CURRENT::ACTION-45::Administrator::active",
+      "outcome": "PASS",
+      "reason": "Allowed workflow and identity evidence observed"
+    }
+  ],
+  "return_stages": {
+    "CURRENT::ACTION-13::Operator::active": {
+      "editor_status": 200,
+      "details_status": 200,
+      "save_status": 302,
+      "selected_details_verified": true
+    },
+    "CURRENT::ACTION-13::Administrator::active": {
+      "editor_status": 200,
+      "details_status": 200,
+      "save_status": 302,
+      "selected_details_verified": true
+    },
+    "CURRENT::ACTION-13::anonymous::active": {
+      "editor_status": 303,
+      "details_status": 303,
+      "save_status": null,
+      "selected_details_verified": false
+    },
+    "CURRENT::ACTION-13::Reader::active": {
+      "editor_status": 403,
+      "details_status": 200,
+      "save_status": null,
+      "selected_details_verified": true
+    }
+  },
+  "tracking_receipts": {
+    "CURRENT::ACTION-24::anonymous::active": {
+      "status": 303,
+      "driver": "direct",
+      "action_method": "POST",
+      "action_path": "/cargo-tracker/admin/track.xhtml",
+      "entry_page": "admin/track.xhtml",
+      "lookup_source_denied": true
+    },
+    "CURRENT::ACTION-24::Reader::active": {
+      "status": 200,
+      "driver": "click",
+      "action_method": "POST",
+      "action_path": "/cargo-tracker/admin/track.xhtml",
+      "entry_page": "admin/track.xhtml",
+      "submission_status": 302,
+      "invalid_inputs_verified": true,
+      "csrf_checks_verified": true,
+      "persisted_details_verified": true
+    },
+    "CURRENT::ACTION-24::Operator::active": {
+      "status": 200,
+      "driver": "click",
+      "action_method": "POST",
+      "action_path": "/cargo-tracker/admin/track.xhtml",
+      "entry_page": "admin/track.xhtml",
+      "submission_status": 302,
+      "invalid_inputs_verified": true,
+      "csrf_checks_verified": true,
+      "persisted_details_verified": true
+    },
+    "CURRENT::ACTION-24::Administrator::active": {
+      "status": 200,
+      "driver": "click",
+      "action_method": "POST",
+      "action_path": "/cargo-tracker/admin/track.xhtml",
+      "entry_page": "admin/track.xhtml",
+      "submission_status": 302,
+      "invalid_inputs_verified": true,
+      "csrf_checks_verified": true,
+      "persisted_details_verified": true
+    },
+    "CURRENT::ACTION-45::anonymous::active": {
+      "status": 303,
+      "driver": "direct",
+      "action_method": "POST",
+      "action_path": "/cargo-tracker/admin/track.xhtml",
+      "entry_page": "public/track.xhtml",
+      "lookup_source_denied": true
+    },
+    "CURRENT::ACTION-45::Reader::active": {
+      "status": 200,
+      "driver": "click",
+      "action_method": "POST",
+      "action_path": "/cargo-tracker/admin/track.xhtml",
+      "entry_page": "public/track.xhtml",
+      "submission_status": 302,
+      "invalid_inputs_verified": true,
+      "csrf_checks_verified": true,
+      "persisted_details_verified": true
+    },
+    "CURRENT::ACTION-45::Operator::active": {
+      "status": 200,
+      "driver": "click",
+      "action_method": "POST",
+      "action_path": "/cargo-tracker/admin/track.xhtml",
+      "entry_page": "public/track.xhtml",
+      "submission_status": 302,
+      "invalid_inputs_verified": true,
+      "csrf_checks_verified": true,
+      "persisted_details_verified": true
+    },
+    "CURRENT::ACTION-45::Administrator::active": {
+      "status": 200,
+      "driver": "click",
+      "action_method": "POST",
+      "action_path": "/cargo-tracker/admin/track.xhtml",
+      "entry_page": "public/track.xhtml",
+      "submission_status": 302,
+      "invalid_inputs_verified": true,
+      "csrf_checks_verified": true,
+      "persisted_details_verified": true
+    },
+    "CURRENT::ACTION-25::Reader::active": {
+      "status": 200,
+      "driver": "keyboard",
+      "live_marker_verified": true,
+      "persisted_details_verified": true
+    },
+    "CURRENT::ACTION-25::Operator::active": {
+      "status": 200,
+      "driver": "keyboard",
+      "live_marker_verified": true,
+      "persisted_details_verified": true
+    },
+    "CURRENT::ACTION-25::Administrator::active": {
+      "status": 200,
+      "driver": "keyboard",
+      "live_marker_verified": true,
+      "persisted_details_verified": true
+    },
+    "CURRENT::ACTION-25::anonymous::active": {
+      "status": 303,
+      "driver": "direct",
+      "live_source_denied": true
+    }
+  },
+  "native_checks": 661,
+  "browser_checks": {
+    "count": 555,
+    "passed": true
+  },
+  "unit_checks": {
+    "fixture": 38,
+    "security": 68,
+    "browser": 22
+  },
+  "cleanup": {
+    "owned_container_removed": true,
+    "private_files_removed": true,
+    "cleanup_errors": [],
+    "browser_cleanup": {
+      "container_removed": true,
+      "network_removed": true,
+      "errors": []
+    }
+  },
+  "artifact_sha256": {
+    "results.json": "701b86a17e0ba086b9dfaecd039b8deb18e943d43eb80f4b087c63188ca68b51",
+    "native-final.json": "25d051cbf0df9f25bbecb34a75523c2e3bfbcc340b41623e74fdbdd10d7011e7",
+    "browser-final.json": "dddafbd4ff2ab80a569fae756daea7ae426a2d05d64a7c2b62223a6522c0a4f3",
+    "relative-only-results.json": "f5864384bd4369aa5805661bf816d8c5f6cbc2800a7b99602024e830b5285b13",
+    "relative-only-native.json": "9fbeab3eecaabe695db7dae5c976f6abc1a43a6bc090e10903a7f4e05cd79a18"
+  },
+  "remaining": {
+    "replacement": 44,
+    "internal": 46,
+    "retirement": 76
+  },
+  "limits": [
+    "Marker verification uses keyboard activation of the actual SVG link.",
+    "Raw response bodies, cargo IDs and fixture origin values are omitted from publication."
+  ]
+}

@@ -780,9 +780,20 @@ def main(after_checks=None):
             report["destination_action_effects"][who]={"before":start,"after":end,"tracking_id":target_id,"reader_before":old,"reader_after":fresh,"reader_deadline_preserved":deadline_verified,"no_jms_expected":True}
             report["access_observations"]["ACTION-09::"+role+"::active"]={"supported":True,"status":detail_status,"post_status":status,"identity":report["identities"][who],"semantic_success":True,"authorized_effect_verified":True,"action_method":"POST","action_path":"/cargo-tracker/"+path,**source_proof,"real_form_verified":True,"tracking_id":target_id,"processing_evidence":{"database_changed":True,"change_destination_invocation_delta":1,"queue_unchanged":True,"independent_reader_persistence":True,"independent_reader_deadline":deadline_verified,"other_cargos_unchanged":True}}
 
+            check("Return capability verifies exact saved cargo details: "+role,current_load_semantics("ACTION-20",detail,fresh))
+            report.setdefault("current_access_observations",{})["CURRENT::ACTION-13::"+role+"::active"]={
+                "return_driver":"native-staged-return-v1","tracking_id":target_id,"fixture_base":base,"identity":report["identities"][who],
+                "editor":{"method":"GET","path":"/cargo-tracker/"+path,"status":200,"owned_form_verified":True},
+                "save":{"method":"POST","path":"/cargo-tracker/"+path,"status":status,"location":headers.get("Location"),
+                        "csrf_verified":True,"persisted_effect_verified":True,"destination_invocation_delta":1,
+                        "queues_unchanged":True,"deadline_preserved":deadline_verified,"other_cargos_unchanged":True},
+                "details":{"method":"GET","path":"/cargo-tracker/admin/show.xhtml?trackingId="+target_id,
+                           "status":detail_status,"selected_details_verified":True},
+            }
+
             if who=="operator":
                 # New current behavior evidence is separate from historical callback results.
-                report["current_access_observations"]={}
+                report.setdefault("current_access_observations",{})
                 target_id=report["booking_action_effects"]["operator"]["tracking_id"]
                 control_id=report["booking_action_effects"]["admin"]["tracking_id"]
                 # Operator destination is USNYC while the Administrator control is still FIHEL.
@@ -815,6 +826,36 @@ def main(after_checks=None):
                         if who:observation["identity"]=report["identities"][who]
                         report["current_access_observations"]["CURRENT::"+surface+"::"+actor+"::active"]=observation
                 check("Current read loads leave independent effects unchanged",before_loads==settled())
+
+        return_target=report["booking_action_effects"]["operator"]["tracking_id"]
+        return_cargo=next(row for row in cargos(sessions["reader"][1]) if row["trackingId"]==return_target)
+        for role,who in [("anonymous",None),("Reader","reader")]:
+            opener=sessions[who][1] if who else anonymous
+            before_return=settled()
+            editor_path="admin/changeDestination.xhtml?trackingId="+return_target
+            details_path="admin/show.xhtml?trackingId="+return_target
+            editor_status,editor_body,editor_headers=request(opener,editor_path)
+            details_status,details_body,details_headers=request(opener,details_path)
+            return_markers=(return_target,return_cargo["originName"],return_cargo["destinationName"])
+            editor_absent=payload_absent(editor_body) and not any(marker in editor_body for marker in return_markers)
+            editor_fixed=editor_headers.get("Location")=="/cargo-tracker/login"
+            check("Return capability denies editor entry: "+role,editor_status==(403 if who else 303) and editor_absent and (who is not None or editor_fixed))
+            if who:
+                check("Return capability preserves Reader direct details: "+role,details_status==200 and current_load_semantics("ACTION-20",details_body,return_cargo))
+            else:
+                check("Return capability anonymous details denied",details_status==303 and details_headers.get("Location")=="/cargo-tracker/login" and payload_absent(details_body) and not any(marker in details_body for marker in return_markers))
+            after_return=settled()
+            check("Return denied entry leaves independent effects unchanged: "+role,before_return==after_return)
+            proof={"return_driver":"native-staged-return-v1","tracking_id":return_target,
+                   "editor":{"method":"GET","path":"/cargo-tracker/"+editor_path,"status":editor_status,
+                             "protected_payload_absent":editor_absent,"redirect_is_configured_login":editor_fixed},
+                   "save":None,"denied_entry_effects_unchanged":True,
+                   "details":{"method":"GET","path":"/cargo-tracker/"+details_path,"status":details_status,
+                              "selected_details_verified":who is not None,"protected_payload_absent":payload_absent(details_body) and not any(marker in details_body for marker in return_markers),
+                              "redirect_is_configured_login":details_headers.get("Location")=="/cargo-tracker/login"}}
+            if who:proof["identity"]=report["identities"][who]
+            report["current_access_observations"]["CURRENT::ACTION-13::"+role+"::active"]=proof
+            report.setdefault("return_entry_effects",{})[role]={"before":before_return,"after":after_return}
 
         # Separate original entries converge on one modern route form, with traceability.
         report["routing_action_effects"]={}

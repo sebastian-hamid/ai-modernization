@@ -2,7 +2,7 @@ const {chromium,request:requestFactory}=require("playwright");
 const fs=require("fs");
 const cfg=JSON.parse(fs.readFileSync("/run/credentials.json","utf8"));
 const base=cfg.base;
-const navigationActions=require("./navigation-actions.json");const actionProofs={};const claimedCargoProofs={};const cargoEntryProofs={};
+const navigationActions=require("./navigation-actions.json");const actionProofs={};const claimedCargoProofs={};const cargoEntryProofs={};const trackingActionProofs={};
 const checks=[];const failures=[];const pageSemantics={};const socketObservations={};const socketTrace=[];const disconnectEvidence={};let abruptPeer=null;let witnessForDiagnostics=null;let stage="initialize";let navigation=null;
 function check(name,ok){stage=name;checks.push({name,passed:!!ok});if(!ok)throw new Error(name);}
 async function traceSocket(label,actor){
@@ -516,6 +516,85 @@ async function traceSocket(label,actor){
   check("Anonymous claimed cargo list and direct details deny without payload",claimedListDenied&&claimedDetailsDenied);
   claimedCargoProofs["CURRENT::ACTION-10::anonymous::active"]={...claimedNavigationProof(anonymousClaimedDetails,"index.xhtml","direct"),
    protected_payload_absent:true,redirect_is_configured_login:true,claimed_list_denied:true};
+  async function persistedTrackingDetails(page){
+   const detail=label=>page.getByText(label,{exact:true}).and(page.locator("dt")).locator("xpath=following-sibling::dd[1]").textContent();
+   const actual={trackingId:await page.locator("#trackingId").textContent(),originName:(await detail("Origin")).trim(),
+    destinationName:(await page.locator("#destination").textContent()).trim(),routingStatus:await page.locator("#routingStatus").textContent(),
+    transportStatus:await detail("Status")};
+   return ["trackingId","originName","destinationName","routingStatus","transportStatus"].every(field=>actual[field]===claimedCargo[field])
+    &&(await detail("Arrival deadline")).trim().split(/\s+/)[0]==="12/31/2030";
+  }
+  for(const [action,source] of [["ACTION-24","admin/track.xhtml"],["ACTION-45","public/track.xhtml"]]){
+   for(const actor of [reader,operator,admin]){
+    const role=cargoRole(actor);
+    const page=await actor.context.newPage();
+    try{
+     const entry=await page.goto(base+source);
+     check("Lookup actual entry "+action+" "+role,entry.status()===200&&navigationTarget(page.url(),"admin/track.xhtml"));
+     if(action==="ACTION-45"){
+      let aliasResponse=entry;
+      while(aliasResponse.request().redirectedFrom())aliasResponse=await aliasResponse.request().redirectedFrom().response();
+      check("Lookup fixed legacy entry "+role,!!aliasResponse&&navigationTarget(aliasResponse.url(),source)&&aliasResponse.status()===303&&new URL(aliasResponse.headers().location,base).href===base+"admin/track.xhtml");
+     }
+     const csrf=await page.locator('input[name="csrf"]').inputValue();
+     const state=await page.locator('input[name="jakarta.faces.ViewState"]').first().inputValue();
+     if(actor===reader){
+      const anonymousSource=await anon.request.get(base+source,{maxRedirects:0});
+      const anonymousPost=await anon.request.post(base+"admin/track.xhtml",{form:{"csrf":csrf,"tracking":"tracking","tracking:id":id,"tracking:submit":"","jakarta.faces.ViewState":state},maxRedirects:0});
+      const login=response=>response.status()===303&&new URL(response.headers().location,base).href===base+"login";
+      check("Anonymous lookup entry and actual POST denied "+action,login(anonymousSource)&&login(anonymousPost)&&claimedPayloadAbsent(await anonymousSource.text())&&claimedPayloadAbsent(await anonymousPost.text()));
+      trackingActionProofs["CURRENT::"+action+"::anonymous::active"]={
+       supported:true,status:303,current_navigation_driver:"browser-lookup-v1",tracking_id:id,
+       action_method:"POST",action_path:"/cargo-tracker/admin/track.xhtml",entry_page:source,source_entry_verified:true,
+       driver:"direct",protected_payload_absent:true,redirect_is_configured_login:true,lookup_source_denied:true};
+     }
+     const forgedLookup={"tracking":"tracking","tracking:id":id,"tracking:submit":"","jakarta.faces.ViewState":state};
+     const missingToken=await actor.context.request.post(base+"admin/track.xhtml",{form:forgedLookup,maxRedirects:0});
+     const wrongToken=await actor.context.request.post(base+"admin/track.xhtml",{form:{...forgedLookup,csrf:"invalid-token"},maxRedirects:0});
+     check("Lookup requires current CSRF token "+action+" "+role,missingToken.status()===403&&wrongToken.status()===403&&claimedPayloadAbsent(await missingToken.text())&&claimedPayloadAbsent(await wrongToken.text()));
+     for(const [input,message] of [["UNKNOWN","Cargo not found."],["<script>","Enter a valid tracking ID."],["",null]]){
+      await page.getByLabel("Tracking ID",{exact:true}).fill(input);
+      await page.getByRole("button",{name:"Track cargo",exact:true}).click();
+      if(message)await page.getByText(message,{exact:true}).waitFor();
+      check("Lookup invalid value controlled "+action+" "+role+" "+(input||"empty"),navigationTarget(page.url(),"admin/track.xhtml")&&await page.locator("#tracking\\:id").count()===1&&await page.locator(".error").textContent()!=="");
+     }
+     await page.getByLabel("Tracking ID",{exact:true}).fill(id);
+     const [submitted]=await Promise.all([page.waitForResponse(response=>response.request().method()==="POST"&&navigationTarget(response.url(),"admin/track.xhtml")),page.getByRole("button",{name:"Track cargo",exact:true}).click()]);
+     await page.waitForURL(url=>navigationTarget(url.href,claimedTarget));
+     check("Lookup submission returned the selected saved details "+action+" "+role,[302,303].includes(submitted.status())&&await persistedTrackingDetails(page));
+     trackingActionProofs["CURRENT::"+action+"::"+role+"::active"]={
+      supported:true,status:200,semantic_success:true,current_navigation_driver:"browser-lookup-v1",tracking_id:id,
+      identity:{server_verified:true,principal:actor.identity.principal,roles:actor.identity.roles},driver:"click",
+      action_method:"POST",action_path:"/cargo-tracker/admin/track.xhtml",entry_page:source,source_entry_verified:true,
+      submission_status:submitted.status(),selected_cargo_verified:true,persisted_details_verified:true,invalid_inputs_verified:true,csrf_checks_verified:true,
+      legacy_entry_verified:action==="ACTION-45"};
+    }finally{await page.close();}
+   }
+  }
+  for(const actor of [reader,operator,admin]){
+   const role=cargoRole(actor);
+   const page=await actor.context.newPage();
+   try{
+    await page.goto(base+"admin/live.xhtml");
+    await page.locator("#live-status").getByText("Live",{exact:true}).waitFor();
+    const marker=page.locator("#live-markers").getByRole("link",{name:id+" at FIHEL",exact:true});
+    await marker.waitFor();
+    check("Live cargo marker exact selected href "+role,await marker.count()===1&&navigationTarget(new URL(await marker.getAttribute("href"),page.url()).href,claimedTarget));
+        await marker.focus();
+    const [response]=await Promise.all([page.waitForResponse(r=>r.request().isNavigationRequest()&&navigationTarget(r.url(),claimedTarget)),page.keyboard.press("Enter")]);
+    await page.getByRole("heading",{name:"Cargo details",exact:true}).waitFor();
+    check("Live marker opens selected saved cargo "+role,response.status()===200&&navigationTarget(page.url(),claimedTarget)&&await persistedTrackingDetails(page));
+    trackingActionProofs["CURRENT::ACTION-25::"+role+"::active"]={...cargoEntryReceipt(response,"admin/live.xhtml","keyboard"),
+      current_navigation_driver:"browser-marker-v1",identity:{server_verified:true,principal:actor.identity.principal,roles:actor.identity.roles},
+      semantic_success:true,selected_cargo_verified:true,persisted_details_verified:true,live_marker_verified:true};
+   }finally{await page.close();}
+  }
+  await ap.goto(base+"index.xhtml");
+  const anonymousLive=await anon.request.get(base+"admin/live.xhtml",{maxRedirects:0});
+  const anonymousMarkerDetails=await anon.request.get(base+claimedTarget,{maxRedirects:0});
+  check("Anonymous live view and marker target denied",configuredLogin(anonymousLive)&&configuredLogin(anonymousMarkerDetails)&&claimedPayloadAbsent(await anonymousLive.text())&&claimedPayloadAbsent(await anonymousMarkerDetails.text()));
+  trackingActionProofs["CURRENT::ACTION-25::anonymous::active"]={...cargoEntryReceipt(anonymousMarkerDetails,"index.xhtml","direct"),
+    current_navigation_driver:"browser-marker-v1",protected_payload_absent:true,redirect_is_configured_login:true,live_source_denied:true};
   await operator.page.setViewportSize({width:390,height:844});
   await operator.page.goto(base+"admin/show.xhtml?trackingId="+id);
   check("Cargo details fit mobile viewport",await operator.page.evaluate(()=>document.documentElement.scrollWidth<=window.innerWidth));
@@ -725,5 +804,5 @@ async function traceSocket(label,actor){
   disconnectEvidence.graceful_close_code=1000;
   check("No page or asset errors",failures.length===0);
  } catch(error){try{await traceSocket("failure",witnessForDiagnostics);}catch(ignored){}checks.push({name:stage+" failed ("+error.name+")",outcome:"FAIL",passed:false});process.exitCode=1;}
- finally{if(abruptPeer&&!abruptPeer.socket.destroyed)abruptPeer.socket.destroy();if(replayClient)await replayClient.dispose();await browser.close();fs.writeFileSync("/out/results.json",JSON.stringify({scope:"Real Chromium cargo read/booking/destination/routing/live/handling workflows",checks,last_navigation:navigation,resource_errors:failures,page_semantics:pageSemantics,socket_observations:socketObservations,socket_diagnostics:socketTrace,disconnect_evidence:disconnectEvidence,navigation_actions:actionProofs,claimed_cargo_actions:claimedCargoProofs,cargo_entry_actions:cargoEntryProofs},null,2)+"\n");}
+ finally{if(abruptPeer&&!abruptPeer.socket.destroyed)abruptPeer.socket.destroy();if(replayClient)await replayClient.dispose();await browser.close();fs.writeFileSync("/out/results.json",JSON.stringify({scope:"Real Chromium cargo read/booking/destination/routing/live/handling workflows",checks,last_navigation:navigation,resource_errors:failures,page_semantics:pageSemantics,socket_observations:socketObservations,socket_diagnostics:socketTrace,disconnect_evidence:disconnectEvidence,navigation_actions:actionProofs,claimed_cargo_actions:claimedCargoProofs,cargo_entry_actions:cargoEntryProofs,tracking_actions:trackingActionProofs},null,2)+"\n");}
 })();

@@ -122,3 +122,5 @@ The ACTION-15 [route cargo details checkpoint](../docs/candidate/current-route-c
 The [ACTION-10 claimed cargo checkpoint](../docs/candidate/current-claimed-cargo.md) verified four current actor cases and owned cleanup. The current gate is 348 PASS and 122 BLOCKED.
 
 The [cargo entry checkpoint](../docs/candidate/current-cargo-entries.md) passed 16 current cases, 652 native and 507 browser checks and owned cleanup. Current coverage is 364 PASS / 106 BLOCKED.
+
+The [return and tracking checkpoint](../docs/candidate/current-return-and-tracking.md) passed 16 current cases, 661 native and 555 browser checks, with owned cleanup verified. Current coverage is 380 PASS / 90 BLOCKED.

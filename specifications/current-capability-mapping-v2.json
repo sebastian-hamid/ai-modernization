@@ -157,9 +157,7 @@
       "modern_source": "admin/show.xhtml",
       "modern_target": "/cargo-tracker/admin/route.xhtml?trackingId={cargo}",
       "modern_method": "GET"
-    }
-  ],
-  "pending_current_actions": [
+    },
     {
       "legacy_id": "ACTION-13",
       "capability_id": "behavior-action-13",
@@ -189,6 +187,7 @@
       "modern_method": "POST"
     }
   ],
+  "pending_current_actions": [],
   "replacement_capabilities": [
     {
       "id": "cancel-editor",

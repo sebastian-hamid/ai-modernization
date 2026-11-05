@@ -116,4 +116,48 @@ class CargoEntryProofTests(unittest.TestCase):
                 h.promote_cargo_entry_actions(report,{"cargo_entry_actions":proofs})
             self.assertEqual(report,{"current_access_observations":{}})
 
+class TrackingProofTests(unittest.TestCase):
+    def fixture(self):
+        proofs={}
+        for action,source in [("ACTION-24","admin/track.xhtml"),("ACTION-45","public/track.xhtml"),("ACTION-25","admin/live.xhtml")]:
+            lookup=action!="ACTION-25"
+            for role,user in [("anonymous",None),("Reader","reader"),("Operator","operator"),("Administrator","admin")]:
+                proof={"supported":True,"status":200 if user else 303,"tracking_id":"ABCDEFGH",
+                       "current_navigation_driver":"browser-lookup-v1" if lookup else "browser-marker-v1",
+                       "driver":("click" if lookup else "keyboard") if user else "direct",
+                       "semantic_success":True,"selected_cargo_verified":True,"persisted_details_verified":True,
+                       "protected_payload_absent":True,"redirect_is_configured_login":True}
+                if user:proof["identity"]={"server_verified":True,"principal":user,"roles":[role]}
+                if lookup:
+                    proof.update(action_method="POST",action_path="/cargo-tracker/admin/track.xhtml",entry_page=source,
+                                 source_entry_verified=True,submission_status=303,invalid_inputs_verified=True,csrf_checks_verified=True,
+                                 legacy_entry_verified=True,lookup_source_denied=True)
+                else:
+                    proof.update(action_executed=True,target_origin_verified=True,actual_target_path="/cargo-tracker/admin/show.xhtml",
+                                 query_keys=["trackingId"],source_page=source if user else "index.xhtml",
+                                 live_marker_verified=True,live_source_denied=True)
+                proofs["CURRENT::"+action+"::"+role+"::active"]=proof
+        return proofs
+    def test_lookup_and_marker_promote_complete_current_only_group(self):
+        report={"current_access_observations":{}}
+        proofs=self.fixture()
+        h.promote_tracking_actions(report,{"tracking_actions":proofs})
+        self.assertEqual(report["current_access_observations"],proofs)
+    def test_tracking_transport_source_and_results_remain_required(self):
+        for action,role,key,value in [
+            ("ACTION-24","Reader","action_method","GET"),
+            ("ACTION-45","Reader","entry_page","admin/track.xhtml"),
+            ("ACTION-45","Reader","legacy_entry_verified",False),
+            ("ACTION-24","Reader","invalid_inputs_verified",False),
+            ("ACTION-24","Reader","csrf_checks_verified",False),
+            ("ACTION-25","Reader","actual_target_path","/other"),
+            ("ACTION-25","Reader","query_keys",["trackingId","trackingId"]),
+            ("ACTION-25","anonymous","live_source_denied",False),
+        ]:
+            proofs=self.fixture();proofs["CURRENT::"+action+"::"+role+"::active"][key]=value
+            report={"current_access_observations":{}}
+            with self.subTest(action=action,key=key),self.assertRaises(AssertionError):
+                h.promote_tracking_actions(report,{"tracking_actions":proofs})
+            self.assertEqual(report,{"current_access_observations":{}})
+
 if __name__=="__main__":unittest.main()

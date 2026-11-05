@@ -92,11 +92,11 @@ class CurrentCapabilityTests(unittest.TestCase):
         model,inventory=c.load_model();fingerprint=model["legacy_inventory_sha256"]
         for mode in ["promote-pending","swap-retirement","change-requirement","change-policy","swap-groups"]:
             bad=copy.deepcopy(model)
-            if mode=="promote-pending":bad["mapped_actions"].append(bad["pending_current_actions"].pop(0))
+            if mode=="promote-pending":bad["pending_current_actions"].append(bad["mapped_actions"].pop())
             elif mode=="swap-retirement":
-                next(row for row in bad["pending_current_actions"] if row["legacy_id"]=="ACTION-13")["legacy_id"]="ACTION-08"
-                next(row for row in bad["retirement_candidates"] if row["legacy_id"]=="ACTION-08")["legacy_id"]="ACTION-13"
-                next(row for row in bad["replacement_capabilities"] if row["id"]=="cancel-editor")["legacy_ids"]=["ACTION-13"]
+                next(row for row in bad["mapped_actions"] if row["legacy_id"]=="ACTION-24")["legacy_id"]="ACTION-08"
+                next(row for row in bad["retirement_candidates"] if row["legacy_id"]=="ACTION-08")["legacy_id"]="ACTION-24"
+                next(row for row in bad["replacement_capabilities"] if row["id"]=="cancel-editor")["legacy_ids"]=["ACTION-24"]
             elif mode=="change-requirement":bad["replacement_capabilities"][0]["requirement"]="Any page renders."
             elif mode=="change-policy":bad["retirement_policy"]="Retire on generic success."
             else:
@@ -224,5 +224,40 @@ class CurrentCapabilityTests(unittest.TestCase):
         for key,value in [("entry_state","ROUTED"),("entry_chain_verified",False),("source_page","admin/show.xhtml?trackingId=ABCDEFGH")]:
             adapter.legacy.current_observations={case["id"]:{**proof,key:value}}
             with self.subTest(key=key),self.assertRaises(UnsupportedCase):adapter.execute(case)
+
+    def test_canonical_anonymous_return_uses_explicit_editor_stage(self):
+        adapter,case,_=self.fixture("CURRENT::ACTION-13::anonymous::active")
+        proof={"return_driver":"native-staged-return-v1","tracking_id":"ABCDEFGH","save":None,"denied_entry_effects_unchanged":True}
+        for stage,path in [("editor","changeDestination"),("details","show")]:
+            proof[stage]={"method":"GET","path":"/cargo-tracker/admin/"+path+".xhtml?trackingId=ABCDEFGH",
+                          "status":303,"protected_payload_absent":True,"redirect_is_configured_login":True}
+        adapter.legacy.current_observations={case["id"]:proof}
+        self.assertEqual(case["current_source"],"admin/changeDestination.xhtml")
+        self.assertEqual(adapter.execute(case)["evaluated_stage"],"editor")
+
+    def test_lookup_case_requires_actual_post_and_invalid_input_evidence(self):
+        adapter,case,_=self.fixture("CURRENT::ACTION-45::Reader::active")
+        proof={"supported":True,"status":200,"identity":{"server_verified":True,"principal":"reader","roles":["Reader"]},
+               "current_navigation_driver":"browser-lookup-v1","tracking_id":"ABCDEFGH","driver":"click",
+               "action_method":"POST","action_path":"/cargo-tracker/admin/track.xhtml","entry_page":"public/track.xhtml",
+               "source_entry_verified":True,"submission_status":303,"invalid_inputs_verified":True,"csrf_checks_verified":True,
+               "legacy_entry_verified":True,"selected_cargo_verified":True,"persisted_details_verified":True}
+        adapter.legacy.current_observations={case["id"]:proof}
+        self.assertEqual(adapter.execute(case)["action_method"],"POST")
+        for key,value in [("legacy_entry_verified",False),("action_method","GET"),("invalid_inputs_verified",False),("csrf_checks_verified",False)]:
+            adapter.legacy.current_observations={case["id"]:{**proof,key:value}}
+            with self.subTest(key=key),self.assertRaises(UnsupportedCase):adapter.execute(case)
+
+    def test_marker_requires_keyboard_activation_of_verified_marker(self):
+        adapter,case,_=self.fixture("CURRENT::ACTION-25::Reader::active")
+        proof={"supported":True,"status":200,"identity":{"server_verified":True,"principal":"reader","roles":["Reader"]},
+               "current_navigation_driver":"browser-marker-v1","tracking_id":"ABCDEFGH","driver":"keyboard",
+               "action_executed":True,"target_origin_verified":True,"actual_target_path":"/cargo-tracker/admin/show.xhtml",
+               "query_keys":["trackingId"],"source_page":"admin/live.xhtml","live_marker_verified":True,
+               "selected_cargo_verified":True,"persisted_details_verified":True}
+        adapter.legacy.current_observations={case["id"]:proof}
+        self.assertTrue(adapter.execute(case)["live_marker_verified"])
+        proof["live_marker_verified"]=False
+        with self.assertRaises(UnsupportedCase):adapter.execute(case)
 
 if __name__=="__main__":unittest.main()

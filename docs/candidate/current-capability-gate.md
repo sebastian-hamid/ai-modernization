@@ -49,3 +49,5 @@ ACTION-15 adds four [route cargo details cases](current-route-choices.md#selecte
 ACTION-10 adds four [claimed cargo navigation cases](current-claimed-cargo.md). The current gate is **348 PASS / 122 BLOCKED**.
 
 The [unrouted and routing entry group](current-cargo-entries.md) adds 16 cases for ACTION-11/12/21/22. Current gate **364 PASS / 106 BLOCKED**.
+
+The [return and tracking increment](current-return-and-tracking.md) verifies ACTION-13/24/25/45. Current gate **380 PASS / 90 BLOCKED**. Remaining current blocks comprise 44 replacement and 46 internal cases.
