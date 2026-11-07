@@ -8,10 +8,12 @@ CANCELLATION_READ = "net.java.cargotracker.interfaces.booking.rest.CargoMonitori
 SUPPORTED_REPLACEMENTS = {
     "cancel-editor": ("GET", ["ACTION-08"]),
     "booking-cancel": ("GET", ["ACTION-28", "ACTION-31", "ACTION-33"]),
+    "booking-deadline": ("POST", ["ACTION-26", "ACTION-32"]),
+    "booking-single-page": ("POST", ["ACTION-27", "ACTION-30", "ACTION-34"]),
     "tracking-discovery": ("POST", ["ACTION-23", "ACTION-44"]),
 }
 
-def unchanged_samples(group, actor, before, after):
+def unchanged_samples(group, actor, before, after, expected_read_delta=1):
     if not isinstance(before, dict) or not isinstance(after, dict):
         raise UnsupportedCase()
     fixture = before.get("fixture_id")
@@ -30,10 +32,37 @@ def unchanged_samples(group, actor, before, after):
             raise UnsupportedCase()
     before_calls = before["business_invocations"]
     after_calls = after["business_invocations"]
-    if after_calls.get(CANCELLATION_READ, 0) - before_calls.get(CANCELLATION_READ, 0) != 1:
+    if after_calls.get(CANCELLATION_READ, 0) - before_calls.get(CANCELLATION_READ, 0) != expected_read_delta:
         raise UnsupportedCase()
     if ({key:value for key,value in before_calls.items() if key != CANCELLATION_READ}
             != {key:value for key,value in after_calls.items() if key != CANCELLATION_READ}):
+        raise UnsupportedCase()
+
+BOOKING_WRITE = "net.java.cargotracker.application.internal.DefaultBookingService#bookNewCargo"
+
+def positive_booking_samples(before, after, actor, expected_fixture):
+    if not isinstance(before, dict) or not isinstance(after, dict):
+        raise UnsupportedCase()
+    fixture = before.get("fixture_id")
+    if not isinstance(fixture, str) or re.fullmatch("[0-9a-f]{64}", fixture) is None or after.get("fixture_id") != fixture:
+        raise UnsupportedCase()
+    if before.get("stage") != "booking-positive:"+actor+":before" or after.get("stage") != "booking-positive:"+actor+":after":
+        raise UnsupportedCase()
+    if (not isinstance(before.get("tables"), dict) or not before["tables"]
+            or not isinstance(after.get("tables"), dict) or not after["tables"]
+            or before["tables"] == after["tables"]):
+        raise UnsupportedCase()
+    if fixture != expected_fixture:
+        raise UnsupportedCase()
+    if not isinstance(before.get("queues"), dict) or not before["queues"] or before["queues"] != after.get("queues"):
+        raise UnsupportedCase()
+    a, b = before.get("business_invocations"), after.get("business_invocations")
+    if not isinstance(a, dict) or not isinstance(b, dict):
+        raise UnsupportedCase()
+    if b.get(BOOKING_WRITE, 0) - a.get(BOOKING_WRITE, 0) != 1 or b.get(CANCELLATION_READ, 0) - a.get(CANCELLATION_READ, 0) != 1:
+        raise UnsupportedCase()
+    if ({key:value for key,value in a.items() if key not in {BOOKING_WRITE,CANCELLATION_READ}}
+            != {key:value for key,value in b.items() if key not in {BOOKING_WRITE,CANCELLATION_READ}}):
         raise UnsupportedCase()
 
 def replacement_observation(case, proof):
@@ -52,6 +81,35 @@ def replacement_observation(case, proof):
     if group == "tracking-discovery":
         return discovery_observation(case, proof)
     allowed = actor in {"Operator", "Administrator"}
+    if group in {"booking-deadline", "booking-single-page"}:
+        if proof.get("source_path") != "/cargo-tracker/admin/book.xhtml" or proof.get("source_entry_verified") is not True:
+            raise UnsupportedCase()
+        unchanged_samples(group, actor, proof.get("before"), proof.get("after"), expected_read_delta=0)
+        if actor != "anonymous":
+            identity=proof.get("identity",{})
+            expected={"Reader":"reader","Operator":"operator","Administrator":"admin"}[actor]
+            if identity.get("server_verified") is not True or identity.get("principal") != expected or actor not in identity.get("roles",[]):
+                raise UnsupportedCase()
+        if allowed:
+            if proof.get("valid_booking_created") is not True or proof.get("source_status") != 200 or proof.get("invalid_deadline_rejected") is not True:
+                raise UnsupportedCase()
+            if proof.get("booking_post_status") not in {302,303} or proof.get("booking_location_verified") is not True or proof.get("booking_result_tracking_id") != proof.get("tracking_id"):
+                raise UnsupportedCase()
+            if proof.get("independent_persisted_booking") is not True or proof.get("positive_effects_verified") is not True:
+                raise UnsupportedCase()
+            positive_booking_samples(proof.get("positive_before"),proof.get("positive_after"),actor,proof.get("before",{}).get("fixture_id"))
+            if group == "booking-single-page" and proof.get("all_fields_same_form") is not True:
+                raise UnsupportedCase()
+        else:
+            if proof.get("valid_booking_created") is not False or proof.get("source_status") != (403 if actor == "Reader" else 303) or proof.get("source_payload_absent") is not True:
+                raise UnsupportedCase()
+            if actor == "anonymous" and proof.get("source_login_verified") is not True:
+                raise UnsupportedCase()
+        result = deepcopy(proof)
+        result.update(supported=True, semantic_success=allowed, invocation_denied=not allowed,
+                      status=proof["source_status"], protected_payload_absent=not allowed,
+                      evaluated_stage="source")
+        return result
     source = "/cargo-tracker/admin/book.xhtml"
     target = "/cargo-tracker/admin/dashboard.xhtml"
     if group == "cancel-editor":

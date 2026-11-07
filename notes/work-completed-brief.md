@@ -117,3 +117,5 @@ Replaced obsolete mobile flow with direct responsive form preserving routed/uncl
 - **KAN-15 return and tracking**. Verified distinct editor/return access stages, both real lookup entries and keyboard activation of a selected map marker. Current coverage reached 380 PASS / 90 BLOCKED. Remaining work comprises replacements, internal boundaries and conditional retirement evidence.
 
 - **KAN-15 replacement capabilities**. Verified real unsaved editor/booking cancellation and fresh tracking discovery, with a private observer handshake and strict effect comparisons. Current coverage reached 392 PASS / 78 BLOCKED.
+
+- **KAN-15 booking replacements**. Verified strict invalid-deadline rejection, same-page booking fields, role-specific source denial, actual same-cargo POST redirects, independent stored-field readback, and positive database/service effects. Eight cases passed. Current coverage reached 400 PASS / 70 BLOCKED. The remaining current blocks are 24 replacement and 46 internal cases.

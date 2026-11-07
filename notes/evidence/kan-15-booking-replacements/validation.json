@@ -1,0 +1,144 @@
+{
+  "task": "KAN-15 booking deadline and single-page replacement increment",
+  "base_commit": "69ee143ebee7a52450ea570a520d2b7434f7820f",
+  "current": {
+    "PASS": 400,
+    "BLOCKED": 70
+  },
+  "historical": {
+    "PASS": 324,
+    "BLOCKED": 178
+  },
+  "retirement": {
+    "BLOCKED": 76
+  },
+  "gate_exit": 2,
+  "new_cases": [
+    {
+      "case": "REPLACEMENT::booking-deadline::anonymous",
+      "outcome": "PASS",
+      "verified": "role denial",
+      "same_form_fields": false,
+      "exact_booking_post_location": false,
+      "independent_persisted_fields": false,
+      "positive_effect_snapshot": false
+    },
+    {
+      "case": "REPLACEMENT::booking-deadline::Reader",
+      "outcome": "PASS",
+      "verified": "role denial",
+      "same_form_fields": false,
+      "exact_booking_post_location": false,
+      "independent_persisted_fields": false,
+      "positive_effect_snapshot": false
+    },
+    {
+      "case": "REPLACEMENT::booking-deadline::Operator",
+      "outcome": "PASS",
+      "verified": "invalid deadline rejected and permitted booking succeeded",
+      "same_form_fields": false,
+      "exact_booking_post_location": true,
+      "independent_persisted_fields": true,
+      "positive_effect_snapshot": true
+    },
+    {
+      "case": "REPLACEMENT::booking-deadline::Administrator",
+      "outcome": "PASS",
+      "verified": "invalid deadline rejected and permitted booking succeeded",
+      "same_form_fields": false,
+      "exact_booking_post_location": true,
+      "independent_persisted_fields": true,
+      "positive_effect_snapshot": true
+    },
+    {
+      "case": "REPLACEMENT::booking-single-page::anonymous",
+      "outcome": "PASS",
+      "verified": "role denial",
+      "same_form_fields": false,
+      "exact_booking_post_location": false,
+      "independent_persisted_fields": false,
+      "positive_effect_snapshot": false
+    },
+    {
+      "case": "REPLACEMENT::booking-single-page::Reader",
+      "outcome": "PASS",
+      "verified": "role denial",
+      "same_form_fields": false,
+      "exact_booking_post_location": false,
+      "independent_persisted_fields": false,
+      "positive_effect_snapshot": false
+    },
+    {
+      "case": "REPLACEMENT::booking-single-page::Operator",
+      "outcome": "PASS",
+      "verified": "invalid deadline rejected and permitted booking succeeded",
+      "same_form_fields": true,
+      "exact_booking_post_location": true,
+      "independent_persisted_fields": true,
+      "positive_effect_snapshot": true
+    },
+    {
+      "case": "REPLACEMENT::booking-single-page::Administrator",
+      "outcome": "PASS",
+      "verified": "invalid deadline rejected and permitted booking succeeded",
+      "same_form_fields": true,
+      "exact_booking_post_location": true,
+      "independent_persisted_fields": true,
+      "positive_effect_snapshot": true
+    }
+  ],
+  "effect_evidence": {
+    "invalid_pairs_same_fixture": true,
+    "invalid_pair_database_queue_invocations_unchanged": true,
+    "invalid_pair_get_all_cargo_read_delta": 0,
+    "positive_booking_pairs": 2,
+    "positive_pairs_same_fixture_as_invalid_pair_for_actor": true,
+    "positive_pairs_database_tables_changed": true,
+    "positive_pairs_queues_unchanged": true,
+    "positive_pairs_book_new_cargo_delta": 1,
+    "positive_pairs_independent_get_all_cargo_delta": 1,
+    "positive_pairs_other_invocations_unchanged": true,
+    "invalid_or_denied_entry_pairs": 8,
+    "invalid_deadline_post_pairs": 4,
+    "reader_and_anonymous_source_denial_pairs": 4,
+    "positive_group_proof_references": 4
+  },
+  "fixture": {
+    "native_checks": 661,
+    "browser_checks": 669,
+    "browser_passed": true,
+    "focused_security_and_current_tests": 30,
+    "focused_browser_harness_tests": 7
+  },
+  "cleanup": {
+    "owned_app_container_removed": true,
+    "private_files_removed": true,
+    "browser_container_removed": true,
+    "private_network_removed": true,
+    "errors": []
+  },
+  "provenance": {
+    "kind": "fresh-owned-runtime",
+    "inputs_fingerprint": "3dadd0b8e9a3bb448a3063598e3b36d577e54ee2e7b50b74c0041ab8a39bc5b6",
+    "canonical_contracts_sha256": "f5e7ed778afcdbd1211282bf5254be6c5892035f6a5bd668f08f8c5ae04b42a4",
+    "imported_code_attested": false,
+    "limitation": "The runner fingerprints on-disk inputs and constructed contracts. It does not attest Python code already imported in memory.",
+    "source_hash_list_sha256": "5fd2e87e68dd3c13c73b2bd31efc20315e93573d80507db10157dc7cd182c42b",
+    "source_hash_list_reconstructed_after_run": true
+  },
+  "artifact_sha256": {
+    "results.json": "518dcd44972b847f51428e8fbd766c007b516fd461884562b6f0b775d74e43b2",
+    "native-results.json": "c0fe709929da054e9d17a8bf07bb7da06b68d171684b6989bab2bac24fa7e37b",
+    "browser-results.json": "1ae77274eff98605652fdb8bec2218dbbc65f5d6dc30ed3502f5ae3318cc8b76"
+  },
+  "evidence_limits": [
+    "The runner stores sanitized booleans instead of raw browser redirect URLs, session content, and persisted field strings. The browser workflow checks these values before recording each receipt.",
+    "Imported Python code identity is not attested."
+  ],
+  "artifact_paths": {
+    "results.json": ".work/kan15-booking-replacements/results.json",
+    "native-results.json": ".work/kan15-booking-replacements/native-results.json",
+    "browser-results.json": ".work/kan15-booking-replacements/browser-results.json",
+    "frozen-sha256.txt": ".work/kan15-booking-replacements/frozen-sha256.txt"
+  }
+}

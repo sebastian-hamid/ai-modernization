@@ -53,3 +53,5 @@ The [unrouted and routing entry group](current-cargo-entries.md) adds 16 cases f
 The [return and tracking increment](current-return-and-tracking.md) verifies ACTION-13/24/25/45. Current gate **380 PASS / 90 BLOCKED**. Remaining current blocks comprise 44 replacement and 46 internal cases.
 
 The [initial replacement capabilities](replacement-capabilities.md) add 12 cases for cancellation and tracking discovery. Current gate **392 PASS / 78 BLOCKED**.
+
+The [booking replacement increment](booking-replacement-capabilities.md) adds eight cases for strict deadline validation and the single-page booking flow. Current gate **400 PASS / 70 BLOCKED**. The remaining current cases are 24 replacement cases and 46 internal-boundary cases.

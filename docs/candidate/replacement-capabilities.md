@@ -11,3 +11,9 @@ The snapshots require unchanged database and queue state. Exactly one CargoMonit
 The fresh fixture passed 661 native and 619 browser checks, with 137 unit checks passing. Current coverage is **392 PASS / 78 BLOCKED**, comprising 32 replacement and 46 internal cases. All 76 retirement checks remain BLOCKED and gate exit is 2.
 
 See [sanitized results](../../notes/evidence/kan-15-replacements-first/validation.json) and [independent review](../../notes/agent-reviews/2026-11-05-kan15-replacements-first-review.json).
+
+## Booking deadline and single-page booking
+
+The [booking replacement checkpoint](booking-replacement-capabilities.md) adds eight role cases for strict deadlines and one-page booking. Each denied deadline submission has unchanged database, queue, and service counters. The valid Operator and Administrator bookings bind the real POST, exact same-cargo redirect, independent persisted-field readback, and positive database effects.
+
+Current coverage is **400 PASS / 70 BLOCKED**. Historical audit remains **324 PASS / 178 BLOCKED**. The 76 retirement checks remain BLOCKED.

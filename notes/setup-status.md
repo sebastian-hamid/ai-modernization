@@ -126,3 +126,5 @@ The [cargo entry checkpoint](../docs/candidate/current-cargo-entries.md) passed 
 The [return and tracking checkpoint](../docs/candidate/current-return-and-tracking.md) passed 16 current cases, 661 native and 555 browser checks, with owned cleanup verified. Current coverage is 380 PASS / 90 BLOCKED.
 
 The [initial replacement checkpoint](../docs/candidate/replacement-capabilities.md) passed 12 cases with independent cancellation snapshots and owned cleanup. Current coverage is 392 PASS / 78 BLOCKED.
+
+The [booking replacement checkpoint](../docs/candidate/booking-replacement-capabilities.md) passed eight role cases with invalid-deadline no-change snapshots and positive booking POST, database, and independent readback evidence. The fresh fixture passed 661 native and 669 browser checks, with owned cleanup verified. Current coverage is 400 PASS / 70 BLOCKED. All 76 retirement checks remain BLOCKED.

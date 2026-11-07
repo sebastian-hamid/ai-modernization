@@ -38,12 +38,12 @@ function stableEffectJSON(value){
  if(value&&typeof value==="object")return Object.fromEntries(Object.keys(value).sort().map(key=>[key,stableEffectJSON(value[key])]));
  return value;
 }
-function unchangedEffects(before,after){
+function unchangedEffects(before,after,expectedReadDelta=1){
  const read="net.java.cargotracker.interfaces.booking.rest.CargoMonitoringService#getAllCargo";
  const otherCalls=sample=>Object.fromEntries(Object.entries(sample.business_invocations).filter(([key])=>key!==read));
  return before.fixture_id===after.fixture_id&&["tables","queues"].every(key=>
   Object.keys(before[key]||{}).length>0&&JSON.stringify(stableEffectJSON(before[key]))===JSON.stringify(stableEffectJSON(after[key])))
-  &&(after.business_invocations[read]||0)-(before.business_invocations[read]||0)===1
+  &&(after.business_invocations[read]||0)-(before.business_invocations[read]||0)===expectedReadDelta
   &&JSON.stringify(stableEffectJSON(otherCalls(before)))===JSON.stringify(stableEffectJSON(otherCalls(after)));
 }
 (async()=>{
@@ -313,7 +313,68 @@ function unchangedEffects(before,after){
     semantic_success:true,entry_chain_verified:true,selected_cargo_verified:true,editor_verified:true,entry_state:"NOT_ROUTED"};
    if(actor.who==="operator")await cargoEntryDenials(["ACTION-11","ACTION-12","ACTION-21"],id);
   }
+  async function prepareBookingReplacement(actor,group){
+   const role=actor?cargoRole(actor):"anonymous";
+   const before=await observeEffects(group+":"+role+":before");
+   let sourceStatus,sourcePayloadAbsent=false,sourceLoginVerified=false,invalidDeadlineRejected=false,allFieldsSameForm=false;
+   const permitted=actor&&["operator","admin"].includes(actor.who);
+   if(permitted){
+    const page=actor.page;
+    const response=await page.goto(base+"admin/book.xhtml");
+    sourceStatus=response.status();
+    check("Booking replacement source allowed "+group+" "+role,sourceStatus===200);
+    const origin=page.getByLabel("Origin",{exact:true});
+    const destination=page.getByLabel("Destination",{exact:true});
+    const deadline=page.getByLabel("Arrival deadline (YYYY-MM-DD)");
+    const formIds=await Promise.all([origin,destination,deadline].map(field=>field.evaluate(el=>el.form?.id||"")));
+    allFieldsSameForm=formIds.every(id=>id==="booking")&&new Set(formIds).size===1;
+    check("Booking replacement fields share one form "+role,allFieldsSameForm);
+    await origin.selectOption("CNHKG");await destination.selectOption("FIHEL");
+    await deadline.fill("2030-02-30");
+    await page.getByRole("button",{name:"Book cargo",exact:true}).click();
+    await page.getByText("Enter a valid arrival deadline in YYYY-MM-DD format.",{exact:true}).waitFor();
+    invalidDeadlineRejected=page.url().includes("/admin/book.xhtml");
+    check("Invalid deadline rejected "+group+" "+role,invalidDeadlineRejected);
+   }else{
+    const context=actor?actor.context:anon;
+    const response=await context.request.get(base+"admin/book.xhtml",{maxRedirects:0});
+    sourceStatus=response.status();
+    const body=await response.text();
+    sourcePayloadAbsent=!["Origin","Destination","Arrival deadline","Book cargo"].some(x=>body.includes(x));
+    sourceLoginVerified=role==="anonymous"&&sourceStatus===303&&new URL(response.headers().location,base).href===base+"login";
+    check("Booking replacement source denied "+group+" "+role,(role==="anonymous"?sourceLoginVerified:sourceStatus===403)&&sourcePayloadAbsent);
+   }
+   const after=await observeEffects(group+":"+role+":after");
+   check("Booking replacement effect channels unchanged "+group+" "+role,unchangedEffects(before,after,0));
+   return {replacement_driver:"browser-replacement-v1",group,source_path:"/cargo-tracker/admin/book.xhtml",
+    source_status:sourceStatus,source_entry_verified:true,invalid_deadline_rejected:invalidDeadlineRejected,
+    all_fields_same_form:group==="booking-single-page"?allFieldsSameForm:undefined,
+    source_payload_absent:sourcePayloadAbsent,source_login_verified:sourceLoginVerified,before,after,
+    ...(actor?{identity:{server_verified:true,principal:actor.identity.principal,roles:actor.identity.roles}}:{})};
+  }
+  async function deniedBookingReplacements(actor,tracking){
+   const role=actor?cargoRole(actor):"anonymous";
+   for(const group of ["booking-deadline","booking-single-page"]){
+    const proof=await prepareBookingReplacement(actor,group);
+    proof.tracking_id=tracking;proof.valid_booking_created=false;
+    replacementProofs["REPLACEMENT::"+group+"::"+role]=proof;
+   }
+  }
+  async function positiveBookingEffects(before,after){
+   const read="net.java.cargotracker.interfaces.booking.rest.CargoMonitoringService#getAllCargo";
+   const booking="net.java.cargotracker.application.internal.DefaultBookingService#bookNewCargo";
+   const a=before.business_invocations,b=after.business_invocations;
+   const other=sample=>Object.fromEntries(Object.entries(sample).filter(([key])=>key!==read&&key!==booking));
+   return before.fixture_id===after.fixture_id&&Object.keys(before.tables||{}).length>0&&
+    JSON.stringify(stableEffectJSON(before.tables))!==JSON.stringify(stableEffectJSON(after.tables))&&
+    JSON.stringify(stableEffectJSON(before.queues))===JSON.stringify(stableEffectJSON(after.queues))&&
+    (b[booking]||0)-(a[booking]||0)===1&&(b[read]||0)-(a[read]||0)===1&&
+    JSON.stringify(stableEffectJSON(other(a)))===JSON.stringify(stableEffectJSON(other(b)));
+  }
   async function book(actor){
+   const pending={};
+   for(const group of ["booking-deadline","booking-single-page"])
+    pending[group]=await prepareBookingReplacement(actor,group);
    const page=actor.page;
    await page.goto(base+"admin/book.xhtml");
    await page.getByLabel("Origin",{exact:true}).selectOption("CNHKG");
@@ -328,10 +389,44 @@ function unchangedEffects(before,after){
    await page.getByText("Enter a valid arrival deadline in YYYY-MM-DD format.",{exact:true}).waitFor();
    check("Invalid calendar date rejected",page.url().includes("/admin/book.xhtml"));
    await page.getByLabel("Arrival deadline (YYYY-MM-DD)").fill("2030-12-31");
+   const positiveRole=cargoRole(actor);
+   const positiveBefore=await observeEffects("booking-positive:"+positiveRole+":before");
+   const bookingPostPromise=page.waitForResponse(r=>r.request().isNavigationRequest()&&r.request().method()==="POST"&&navigationTarget(r.url(),"admin/book.xhtml"));
    await page.getByRole("button",{name:"Book cargo",exact:true}).click();
+   const bookingPost=await bookingPostPromise;
+   const bookingLocation=new URL(bookingPost.headers().location,bookingPost.url());
+   const bookingResultId=bookingLocation.searchParams.get("trackingId");
    await page.waitForURL(/admin\/show.xhtml\?trackingId=/);
    const id=await page.locator("#trackingId").textContent();
+   const committedUrl=new URL(page.url());
+   const bookingTarget="admin/show.xhtml?trackingId="+encodeURIComponent(bookingResultId||"");
+   const bookingLocationVerified=!bookingLocation.hash&&!committedUrl.hash&&
+    navigationTarget(bookingPost.url(),"admin/book.xhtml")&&navigationTarget(bookingLocation.href,bookingTarget)&&
+    navigationTarget(committedUrl.href,bookingTarget)&&id===bookingResultId&&/^[A-Z0-9]{8}$/.test(bookingResultId||"");
+   check("Booking POST redirects to exact same-origin selected details "+cargoRole(actor),bookingPost.status()>=300&&bookingPost.status()<400&&bookingLocationVerified);
    check("Booking persists new tracking ID",/^[A-Z0-9]{8}$/.test(id));
+   const independentResponse=await reader.context.request.get(base+"rest/cargo");
+   const independentCargo=(await independentResponse.json()).find(row=>row.trackingId===id);
+   const deadlinePage=await reader.context.newPage();
+   await deadlinePage.goto(base+"admin/show.xhtml?trackingId="+id);
+   const deadlineText=(await deadlinePage.getByText("Arrival deadline",{exact:true}).locator("xpath=following-sibling::dd[1]").textContent()).trim();
+   const validBookingReadback=independentResponse.status()===200&&independentCargo?.originCode==="CNHKG"&&
+    independentCargo?.destinationCode==="FIHEL"&&independentCargo?.routingStatus==="NOT_ROUTED"&&deadlineText.startsWith("12/31/2030");
+   await deadlinePage.close();
+   const positiveAfter=await observeEffects("booking-positive:"+positiveRole+":after");
+   const positiveEffectsVerified=await positiveBookingEffects(positiveBefore,positiveAfter);
+   check("Valid booking has exact positive effects "+positiveRole,positiveEffectsVerified);
+   check("Independent Reader reads booked origin destination and deadline "+positiveRole,validBookingReadback);
+   const bookingCreated=[302,303].includes(bookingPost.status())&&bookingLocationVerified&&
+    bookingResultId===id&&validBookingReadback&&positiveEffectsVerified;
+   for(const group of ["booking-deadline","booking-single-page"]){
+    const proof=pending[group];proof.tracking_id=id;proof.valid_booking_created=bookingCreated;
+    proof.booking_post_status=bookingPost.status();proof.booking_location_verified=bookingLocationVerified;
+    proof.booking_result_tracking_id=bookingResultId;
+    proof.independent_persisted_booking=validBookingReadback;proof.positive_effects_verified=positiveEffectsVerified;
+    proof.positive_before=positiveBefore;proof.positive_after=positiveAfter;
+    replacementProofs["REPLACEMENT::"+group+"::"+positiveRole]=proof;
+   }
    await unroutedCargoEntries(actor,id);
    await page.getByLabel("Destination",{exact:true}).selectOption("USNYC");
    await page.getByRole("button",{name:"Save destination",exact:true}).click();
@@ -413,6 +508,8 @@ function unchangedEffects(before,after){
    check("Exact replacement route sequence persisted",JSON.stringify(await tableRows(page.locator("#itinerary")))===JSON.stringify(replacementRows));
   }
   const id=await book(operator);
+  await deniedBookingReplacements(reader,id);
+  await deniedBookingReplacements(null,id);
   const form=await operator.context.request.get(base+"admin/book.xhtml");
   const html=await form.text();const view=html.match(/name="jakarta.faces.ViewState"[^>]*value="([^"]+)"/);
   check("Real Faces ViewState rendered",!!view);

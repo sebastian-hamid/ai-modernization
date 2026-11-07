@@ -232,7 +232,7 @@
       "anonymous": false,
       "modern_method": "POST",
       "requirement": "Strict deadline validation on the current booking form.",
-      "driver": "pending"
+      "driver": "browser-replacement-v1"
     },
     {
       "id": "booking-single-page",
@@ -248,7 +248,7 @@
       "anonymous": false,
       "modern_method": "POST",
       "requirement": "Origin/destination/deadline entry on one current booking page.",
-      "driver": "pending"
+      "driver": "browser-replacement-v1"
     },
     {
       "id": "booking-cancel",

@@ -213,7 +213,7 @@ def main():
             promote_tracking_actions(report,results)
             replacement_proofs=results.get("replacement_actions",{})
             expected_replacements={"REPLACEMENT::"+group+"::"+role
-                for group in ("cancel-editor","booking-cancel","tracking-discovery")
+                for group in ("cancel-editor","booking-cancel","tracking-discovery","booking-deadline","booking-single-page")
                 for role in ("anonymous","Reader","Operator","Administrator")}
             if set(replacement_proofs)!=expected_replacements:
                 raise AssertionError("Missing or unexpected replacement observations")

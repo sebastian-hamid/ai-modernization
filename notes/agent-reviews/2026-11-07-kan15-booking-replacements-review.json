@@ -1,0 +1,49 @@
+{
+  "task": "KAN-15 booking deadline and single-page replacement increment",
+  "reviewer": "/root/review_current_capability_gate",
+  "source_review": {
+    "verdict": "Approved for one fresh integration run",
+    "findings_resolved": [
+      "Reader now follows direct denial path with native identity",
+      "Invalid-deadline proof key is explicit",
+      "Invalid-only intervals require zero getAllCargo delta",
+      "Positive booking is bound to exact POST redirect and committed details URL",
+      "Positive snapshots require nonempty changed DB maps, unchanged queues, exact service-call deltas, same fixture, and same selected cargo ID"
+    ]
+  },
+  "runtime_review": {
+    "verdict": "Approved with evidence limits",
+    "replay": "Exactly eight intended cases promoted. Current gate 400 PASS / 70 BLOCKED. Historical audit and retirement arrays unchanged. Eight invalid and denial pairs were unchanged and bound to the owned fixture. Four positive actor booking proofs had nonempty changed database snapshots, unchanged queues, and only bookNewCargo +1 and getAllCargo +1 invocation deltas.",
+    "fixture": {
+      "native_pass": 661,
+      "browser_pass": 669,
+      "cleanup_errors": []
+    },
+    "provenance": {
+      "unique_source_entries": 296,
+      "aggregate_sha256": "3dadd0b8e9a3bb448a3063598e3b36d577e54ee2e7b50b74c0041ab8a39bc5b6",
+      "recorded_fingerprint_match": true,
+      "source_hash_list_reconstructed_after_run": true,
+      "source_hash_list_sha256": "5fd2e87e68dd3c13c73b2bd31efc20315e93573d80507db10157dc7cd182c42b"
+    },
+    "evidence_limits": [
+      "Raw redirect URLs and persisted-value strings were not retained in sanitized browser output. The reviewer assessed producer assertions and boolean receipts in that output and did not independently parse original strings.",
+      "Imported Python code identity remains unattested."
+    ]
+  },
+  "artifact_sha256": {
+    "gate": "518dcd44972b847f51428e8fbd766c007b516fd461884562b6f0b775d74e43b2",
+    "native": "c0fe709929da054e9d17a8bf07bb7da06b68d171684b6989bab2bac24fa7e37b",
+    "browser": "1ae77274eff98605652fdb8bec2218dbbc65f5d6dc30ed3502f5ae3318cc8b76"
+  },
+  "first_attempt": {
+    "status": "Failed after128 browser checks due a Playwright locator argument serialization error",
+    "disposition": "Owned resources were cleaned up. Artifacts were preserved under the ignored task directory. Corrected code passed focused tests, received source approval, and the subsequent full run passed."
+  },
+  "artifact_paths": {
+    "gate": ".work/kan15-booking-replacements/results.json",
+    "native": ".work/kan15-booking-replacements/native-results.json",
+    "browser": ".work/kan15-booking-replacements/browser-results.json",
+    "source_hashes": ".work/kan15-booking-replacements/frozen-sha256.txt"
+  }
+}

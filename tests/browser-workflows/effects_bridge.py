@@ -6,11 +6,13 @@ import threading
 import time
 
 PREFIX = "@@LAB_EFFECTS@@"
-GROUPS = ("cancel-editor", "booking-cancel")
+GROUPS = ("cancel-editor", "booking-cancel", "booking-deadline", "booking-single-page", "booking-positive")
 ROLES = ("anonymous", "Reader", "Operator", "Administrator")
 STAGES = frozenset(
     group + ":" + role + ":" + phase
-    for group in GROUPS for role in ROLES for phase in ("before", "after")
+    for group in GROUPS
+    for role in (("Operator", "Administrator") if group == "booking-positive" else ROLES)
+    for phase in ("before", "after")
 )
 
 def run_browser_with_effects(command, capture, timeout=300):
