@@ -1,0 +1,102 @@
+{
+  "date": "2026-11-08",
+  "jira_ticket": "KAN-15",
+  "increment": "handling-event",
+  "legacy_callback": "ACTION-38",
+  "reviewer": "review_current_capability_gate (independent agent)",
+  "review_status": "APPROVED_FOR_COMMIT_AND_PUSH",
+  "review_scope": "ACTION-38 source corrections, fresh native/browser report, sanitized evidence and publication documentation; not full KAN-15 acceptance.",
+  "verification": {
+    "native_checks": {
+      "passed": 661,
+      "total": 661
+    },
+    "browser_checks": {
+      "passed": 779,
+      "total": 779
+    },
+    "replacement_cases": {
+      "anonymous": "PASS",
+      "Reader": "PASS",
+      "Operator": "PASS",
+      "Administrator": "PASS"
+    },
+    "persisted_event_rows": {
+      "Operator": {
+        "count": 1,
+        "type": "CUSTOMS",
+        "date": "2032-02-04T00:00:00",
+        "location": "USCHI",
+        "voyage_null": true
+      },
+      "Administrator": {
+        "count": 1,
+        "type": "CUSTOMS",
+        "date": "2032-02-04T00:00:00",
+        "location": "DEHAM",
+        "voyage_null": true
+      }
+    },
+    "current_gate": {
+      "PASS": 416,
+      "BLOCKED": 54,
+      "exit": 2
+    },
+    "historical_audit": {
+      "PASS": 324,
+      "BLOCKED": 178
+    },
+    "retirement": {
+      "BLOCKED": 76
+    },
+    "cleanup": {
+      "owned_container_removed": true,
+      "private_files_removed": true,
+      "browser_container_removed": true,
+      "browser_network_removed": true,
+      "errors": []
+    },
+    "unit_tests": {
+      "browser_workflows": 28,
+      "security": 78,
+      "all_passed": true
+    },
+    "independent_replay": "All three result arrays replayed exactly; four intended promotions, source and canonical fingerprints, validation source/result hashes, role outcomes and cleanup evidence verified.",
+    "attempt_history": "Two failed attempts disclosed with matching hashes, failure details and cleanup evidence.",
+    "privacy": "Sanitized committed validation contains no raw tracking identifiers or credentials.",
+    "remaining_gaps": "54 current cases and 76 retirement cases remain BLOCKED; full acceptance is incomplete."
+  },
+  "source_hash_manifest": {
+    "specifications/current-capability-mapping-v2.json": "42fa7ed062f05d1c859c87468bbdaa268073b36b55eac7d03998d1cb0a676a5b",
+    "tests/browser-workflows/effects_bridge.py": "797f72de0dcc5d4f0fdefa3161bcc1488f313f6273b7bee6ee313bdf536c20c6",
+    "tests/browser-workflows/run_browser.py": "8e36e20a010d40bfeac0199a9e26d5d24d13e142ccb8a7572dfd16cd945039a4",
+    "tests/browser-workflows/workflows.cjs": "ba7a6127da803f125523dd50af5d11aac864d590a1f1108b0a5127a45b1025ab",
+    "tests/browser-workflows/test_effects_bridge.py": "c9e1c75914aba650a508cba834183033d5782ff1622cd77cf54fce61912378d6",
+    "tests/browser-workflows/test_browser_harness.py": "075e7581cd55fbb8ebb0f886dc4f8e65ca97d831dc709fd9253e9a93f64dd66b",
+    "tests/candidate-runtime/observer/LabEffects.java": "3e79ad3bf1d008d973b72968a4c002871a0bc601549b0ce8d926ff0af2d6e649",
+    "tests/candidate-runtime/observer/LabEffectsMBean.java": "760192a0542697a346e9519e4d06e633a5a97b0b5995d193df2e891ec4cd6a82",
+    "tests/candidate-runtime/observer/ReadEffects.java": "2bbcdca447928a11db530b882ab37b5d256b8caf4faa4a0a64ef4be8ec75dcce",
+    "tests/security/replacements.py": "b485b7069769f2123cc63865114099e07473bbe7e14226acae519eec95d86683",
+    "tests/security/test_replacements.py": "0d88edd098ce6eebac984f5443bc3e44c839c61b558520405e4a2bcdf00d2d82"
+  },
+  "publication_file_sha256": {
+    "docs/candidate/current-capability-gate.md": "e7d054e8216c7a3c62fff7934dfc23c81db97cfd9562107ec5d5392bcfaf0e6f",
+    "docs/candidate/handling-event.md": "7b3b849c5fa0b8db0758a2e32fc8c9f2cbbb976608a22b914ea444e32ba340d6",
+    "notes/kan15-action-handoff.md": "7edecc5a13ce63a9e117719e319d2a492217274f8bfe256beff39c068c6e219e",
+    "notes/setup-status.md": "94a66b3ca404372f9a49763a2df66b37295a7e46143c7fc9e584916f182d6cf7",
+    "notes/evidence/kan-15-handling-event/validation.json": "6c8eb0a322a3320b8b01ee7beb43940f94b6643f2586edd75a5aa674e6867bf5",
+    "specifications/current-capability-mapping-v2.json": "42fa7ed062f05d1c859c87468bbdaa268073b36b55eac7d03998d1cb0a676a5b",
+    "tests/browser-workflows/effects_bridge.py": "797f72de0dcc5d4f0fdefa3161bcc1488f313f6273b7bee6ee313bdf536c20c6",
+    "tests/browser-workflows/run_browser.py": "8e36e20a010d40bfeac0199a9e26d5d24d13e142ccb8a7572dfd16cd945039a4",
+    "tests/browser-workflows/test_browser_harness.py": "075e7581cd55fbb8ebb0f886dc4f8e65ca97d831dc709fd9253e9a93f64dd66b",
+    "tests/browser-workflows/test_effects_bridge.py": "c9e1c75914aba650a508cba834183033d5782ff1622cd77cf54fce61912378d6",
+    "tests/browser-workflows/workflows.cjs": "ba7a6127da803f125523dd50af5d11aac864d590a1f1108b0a5127a45b1025ab",
+    "tests/candidate-runtime/observer/LabEffects.java": "3e79ad3bf1d008d973b72968a4c002871a0bc601549b0ce8d926ff0af2d6e649",
+    "tests/candidate-runtime/observer/LabEffectsMBean.java": "760192a0542697a346e9519e4d06e633a5a97b0b5995d193df2e891ec4cd6a82",
+    "tests/candidate-runtime/observer/ReadEffects.java": "2bbcdca447928a11db530b882ab37b5d256b8caf4faa4a0a64ef4be8ec75dcce",
+    "tests/security/replacements.py": "b485b7069769f2123cc63865114099e07473bbe7e14226acae519eec95d86683",
+    "tests/security/test_replacements.py": "0d88edd098ce6eebac984f5443bc3e44c839c61b558520405e4a2bcdf00d2d82"
+  },
+  "findings": [],
+  "verdict": "No remaining material findings for this ACTION-38 checkpoint. Approval does not imply full KAN-15 acceptance or production readiness."
+}

@@ -20,7 +20,7 @@ class BrowserCleanupTests(unittest.TestCase):
                 if args[:3]==["docker","rm","-f"] and mode=="remove-fails":
                     return subprocess.CompletedProcess(args,1)
                 return subprocess.CompletedProcess(args,0,"")
-            def run_browser(args,capture,timeout):
+            def run_browser(args,capture,timeout,inspect_event=None):
                 calls.append(args)
                 if mode=="timeout":
                     error=subprocess.TimeoutExpired("docker exec",420)

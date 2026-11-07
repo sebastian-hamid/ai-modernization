@@ -6,7 +6,8 @@ import threading
 import time
 
 PREFIX = "@@LAB_EFFECTS@@"
-GROUPS = ("cancel-editor", "booking-cancel", "booking-deadline", "booking-single-page", "booking-positive", "handling-single-page", "handling-cargo-voyage", "handling-location")
+EVENT_PREFIX = "@@LAB_HANDLING_EVENT@@"
+GROUPS = ("cancel-editor", "booking-cancel", "booking-deadline", "booking-single-page", "booking-positive", "handling-single-page", "handling-cargo-voyage", "handling-location", "handling-event")
 ROLES = ("anonymous", "Reader", "Operator", "Administrator")
 STAGES = frozenset(
     group + ":" + role + ":" + phase
@@ -15,7 +16,7 @@ STAGES = frozenset(
     for phase in ("before", "after")
 )
 
-def run_browser_with_effects(command, capture, timeout=300):
+def run_browser_with_effects(command, capture, timeout=300, inspect_event=None):
     process = subprocess.Popen(
         command, stdin=subprocess.PIPE, stdout=subprocess.PIPE,
         stderr=subprocess.STDOUT, text=True, bufsize=1,
@@ -55,6 +56,20 @@ def run_browser_with_effects(command, capture, timeout=300):
             if line is None:
                 code = process.wait(timeout=max(0.1, deadline - time.monotonic()))
                 return subprocess.CompletedProcess(command, code, "".join(output))
+            if line.startswith(EVENT_PREFIX):
+                request = json.loads(line[len(EVENT_PREFIX):])
+                if (inspect_event is None or not isinstance(request, dict)
+                        or set(request) != {"id", "tracking_id", "completion_date", "location_code"}
+                        or type(request["id"]) is not int or request["id"] != next_id
+                        or not isinstance(request["tracking_id"], str)
+                        or not __import__("re").fullmatch(r"[A-Z0-9]{8}", request["tracking_id"])
+                        or request["completion_date"] != "2032-02-04" or request["location_code"] not in {"USCHI", "DEHAM"}):
+                    raise RuntimeError("Invalid handling-event observation request")
+                snapshot = inspect_event(request["tracking_id"], request["completion_date"], request["location_code"], deadline-time.monotonic())
+                process.stdin.write(json.dumps({"id": next_id, "snapshot": snapshot}) + "\n")
+                process.stdin.flush()
+                next_id += 1
+                continue
             if not line.startswith(PREFIX):
                 output.append(line)
                 continue

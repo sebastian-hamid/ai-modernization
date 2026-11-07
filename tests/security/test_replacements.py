@@ -1,12 +1,12 @@
 import copy
 import unittest
 from contracts import UnsupportedCase
-from replacements import replacement_observation
+from replacements import replacement_observation, HANDLING_EVENT_WRITE_CALLS, HANDLING_EVENT_QUEUES
 
 class ReplacementTests(unittest.TestCase):
     def case(self, group="cancel-editor", actor="Operator"):
-        ids = {"cancel-editor":["ACTION-08"], "booking-cancel":["ACTION-28","ACTION-31","ACTION-33"], "tracking-discovery":["ACTION-23","ACTION-44"], "booking-deadline":["ACTION-26","ACTION-32"], "booking-single-page":["ACTION-27","ACTION-30","ACTION-34"], "handling-single-page":["ACTION-35","ACTION-40","ACTION-43"], "handling-cargo-voyage":["ACTION-36"], "handling-location":["ACTION-37"]}
-        method="POST" if group in {"booking-deadline","booking-single-page","tracking-discovery","handling-cargo-voyage","handling-location"} else "GET"
+        ids = {"cancel-editor":["ACTION-08"], "booking-cancel":["ACTION-28","ACTION-31","ACTION-33"], "tracking-discovery":["ACTION-23","ACTION-44"], "booking-deadline":["ACTION-26","ACTION-32"], "booking-single-page":["ACTION-27","ACTION-30","ACTION-34"], "handling-single-page":["ACTION-35","ACTION-40","ACTION-43"], "handling-cargo-voyage":["ACTION-36"], "handling-location":["ACTION-37"], "handling-event":["ACTION-38"]}
+        method="POST" if group in {"booking-deadline","booking-single-page","tracking-discovery","handling-cargo-voyage","handling-location","handling-event"} else "GET"
         return {"capability_id":group,"actor":actor,"binding_status":"browser-replacement-v1",
                 "method":method,"legacy_ids":ids[group]}
 
@@ -156,6 +156,85 @@ class ReplacementTests(unittest.TestCase):
             principal={"Reader":"reader","Operator":"operator","Administrator":"admin"}[actor]
             proof["identity"]={"server_verified":True,"principal":principal,"roles":[actor]}
         return proof
+
+    def handling_event(self, actor="Operator"):
+        fixture="9"*64
+        before_tables={"CARGO":{"rows":2,"sha256":"a"*64},"HANDLINGEVENT":{"rows":5,"sha256":"b"*64},
+                       "LOCATION":{"rows":13,"sha256":"c"*64}}
+        after_tables=copy.deepcopy(before_tables)
+        counters=("MessageCount","DeliveringCount","ScheduledCount","MessagesAdded","MessagesAcknowledged","MessagesExpired","MessagesKilled","AcknowledgeAttempts")
+        queues={name:{key:(3 if name in HANDLING_EVENT_QUEUES and key in {"MessagesAdded","MessagesAcknowledged","AcknowledgeAttempts"} else 0) for key in counters}
+                for name in [*HANDLING_EVENT_QUEUES,"jms.queue.DLQ"]}
+        calls={method:2 for method in HANDLING_EVENT_WRITE_CALLS}
+        read="net.java.cargotracker.interfaces.booking.rest.CargoMonitoringService#getAllCargo"
+        calls[read]=4
+        before={"fixture_id":fixture,"stage":"handling-event:"+actor+":before","tables":before_tables,
+                "queues":copy.deepcopy(queues),"business_invocations":copy.deepcopy(calls)}
+        after={"fixture_id":fixture,"stage":"handling-event:"+actor+":after","tables":copy.deepcopy(after_tables),
+               "queues":copy.deepcopy(queues),"business_invocations":copy.deepcopy(calls)}
+        allowed=actor in {"Operator","Administrator"}
+        if allowed:
+            after["tables"]["CARGO"]["sha256"]="d"*64
+            after["tables"]["HANDLINGEVENT"]={"rows":6,"sha256":"e"*64}
+            for queue in HANDLING_EVENT_QUEUES:
+                for counter in ("MessagesAdded","MessagesAcknowledged","AcknowledgeAttempts"):after["queues"][queue][counter]+=1
+            for method in HANDLING_EVENT_WRITE_CALLS:after["business_invocations"][method]+=1
+        else:
+            after["business_invocations"][read]+=1
+        proof={"replacement_driver":"browser-replacement-v1","group":"handling-event","tracking_id":"ABCDEFGH",
+          "source_path":"/cargo-tracker/mobile.xhtml","source_status":200 if allowed else 403 if actor=="Reader" else 303,
+          "event_submit_status":200 if allowed else None,"valid_event_options":allowed,"invalid_event_rejected":allowed,
+          "load_requires_voyage":allowed,"unload_requires_voyage":allowed,"valid_voyage_selected":allowed,
+          "nonload_kept_selected_voyage":allowed,"nonload_event_persisted":allowed,"nonload_voyage_cleared":allowed,
+          "persisted_event_observation":{"row_count":1,"matches":[{"tracking_id":"ABCDEFGH","event_type":"CUSTOMS",
+             "completion_time":"2032-02-04T00:00:00",
+             "location_code":"USCHI" if actor=="Operator" else "DEHAM","voyage_number":None}]} if allowed else None,
+          "persisted_cargo_routed":True,"positive_effects_verified":allowed,
+          "protected_payload_absent":not allowed,"source_login_verified":actor=="anonymous",
+          "before":before,"after":after}
+        if allowed:proof.update(positive_before=before,positive_after=after)
+        if actor!="anonymous":
+            principal={"Reader":"reader","Operator":"operator","Administrator":"admin"}[actor]
+            proof["identity"]={"server_verified":True,"principal":principal,"roles":[actor]}
+        return proof
+
+    def test_handling_event_requires_validation_clearing_effects_and_denials(self):
+        for actor in ["anonymous","Reader","Operator","Administrator"]:
+            proof=self.handling_event(actor)
+            result=replacement_observation(self.case("handling-event",actor),proof)
+            allowed=actor in {"Operator","Administrator"}
+            self.assertEqual(result["semantic_success"],allowed)
+            self.assertEqual(result["invocation_denied"],not allowed)
+        for field in ["valid_event_options","invalid_event_rejected","load_requires_voyage","unload_requires_voyage",
+                      "valid_voyage_selected","nonload_kept_selected_voyage","nonload_event_persisted",
+                      "nonload_voyage_cleared","persisted_cargo_routed","positive_effects_verified"]:
+            proof=self.handling_event("Operator");proof[field]=False
+            with self.subTest(field=field),self.assertRaises(UnsupportedCase):
+                replacement_observation(self.case("handling-event","Operator"),proof)
+        for channel,key in [("tables","HANDLINGEVENT"),("queues","jms.queue.CargoHandledQueue")]:
+            proof=self.handling_event("Operator");proof["positive_after"][channel][key]["rows" if channel=="tables" else "MessagesAdded"]=7 if channel=="tables" else 99
+            with self.subTest(channel=channel),self.assertRaises(UnsupportedCase):
+                replacement_observation(self.case("handling-event","Operator"),proof)
+        proof=self.handling_event("Operator");proof["positive_after"]["business_invocations"]["unexpected"]=1
+        with self.assertRaises(UnsupportedCase):
+            replacement_observation(self.case("handling-event","Operator"),proof)
+        for mutate in [
+            lambda p:p["positive_before"]["tables"].pop("CARGO"),
+            lambda p:p["positive_after"]["queues"]["jms.queue.CargoHandledQueue"].update(MessageCount=1),
+            lambda p:p["positive_after"]["queues"]["jms.queue.CargoHandledQueue"].update(MessagesKilled=1),
+            lambda p:p["positive_after"]["queues"]["jms.queue.DLQ"].update(MessagesAdded=1),
+            lambda p:p["positive_before"]["queues"]["jms.queue.CargoHandledQueue"].pop("MessagesAdded"),
+            lambda p:p["positive_after"]["queues"]["jms.queue.HandlingEventRegistrationAttemptQueue"].pop("MessagesAcknowledged"),
+            lambda p:p["persisted_event_observation"]["matches"][0].update(voyage_number="0100S"),
+            lambda p:p["persisted_event_observation"].update(row_count=2),
+        ]:
+            proof=self.handling_event("Operator");mutate(proof)
+            with self.assertRaises(UnsupportedCase):replacement_observation(self.case("handling-event","Operator"),proof)
+        for actor,field,value in [("Reader","source_status",200),("Reader","protected_payload_absent",False),
+                                  ("anonymous","source_login_verified",False)]:
+            proof=self.handling_event(actor);proof[field]=value
+            with self.subTest(actor=actor,field=field),self.assertRaises(UnsupportedCase):
+                replacement_observation(self.case("handling-event",actor),proof)
 
     def test_handling_location_requires_known_required_value_and_denials(self):
         for actor in ["anonymous","Reader","Operator","Administrator"]:

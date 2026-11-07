@@ -33,6 +33,12 @@ async function observeEffects(stage){
  check("Effects snapshot belongs to requested stage "+stage,snapshot.stage===stage&&typeof snapshot.fixture_id==="string"&&snapshot.fixture_id.length>0);
  return snapshot;
 }
+async function observeHandlingEvent(tracking_id,completion_date,location_code){
+ const requestId=effectSequence++;
+ const result=new Promise((resolve,reject)=>pendingEffects.set(requestId,{resolve,reject}));
+ process.stdout.write("@@LAB_HANDLING_EVENT@@"+JSON.stringify({id:requestId,tracking_id,completion_date,location_code})+"\n");
+ return await result;
+}
 function stableEffectJSON(value){
  if(Array.isArray(value))return value.map(stableEffectJSON);
  if(value&&typeof value==="object")return Object.fromEntries(Object.keys(value).sort().map(key=>[key,stableEffectJSON(value[key])]));
@@ -597,6 +603,97 @@ function unchangedEffects(before,after,expectedReadDelta=1){
     persisted_cargo_routed:persistedCargo.routingStatus==="ROUTED",before,after,
     ...(actor?{identity:{server_verified:true,principal:actor.identity.principal,roles:actor.identity.roles}}:{})};
   }
+  async function handlingEventProof(actor,tracking){
+   const role=actor?cargoRole(actor):"anonymous",stage="handling-event:"+role;
+   const before=await observeEffects(stage+":before");
+   if(!(actor&&["operator","admin"].includes(actor.who))){
+    const context=actor?actor.context:anon,response=await context.request.get(base+"mobile.xhtml",{maxRedirects:0});
+    const body=await response.text(),absent=["Choose cargo","Choose event","0100S","USCHI","DEHAM",tracking].every(x=>!body.includes(x));
+    const loginVerified=role==="anonymous"&&response.status()===303&&new URL(response.headers().location,base).href===base+"login";
+    check("Handling event source denied "+role,(role==="anonymous"?loginVerified:response.status()===403)&&absent);
+    const cargo=await readCargo(tracking,"ROUTED"),after=await observeEffects(stage+":after");
+    check("Handling event denied effects unchanged "+role,unchangedEffects(before,after,1));
+    return {replacement_driver:"browser-replacement-v1",group:"handling-event",tracking_id:tracking,
+     source_path:"/cargo-tracker/mobile.xhtml",source_status:response.status(),protected_payload_absent:absent,
+     source_login_verified:loginVerified,valid_event_options:false,invalid_event_rejected:false,
+     load_requires_voyage:false,unload_requires_voyage:false,valid_voyage_selected:false,
+     nonload_kept_selected_voyage:false,event_submit_status:null,nonload_event_persisted:false,
+     nonload_voyage_cleared:false,persisted_event_observation:null,
+     persisted_cargo_routed:cargo.routingStatus==="ROUTED",before,after,
+     ...(actor?{identity:{server_verified:true,principal:actor.identity.principal,roles:actor.identity.roles}}:{})};
+   }
+   const page=actor.page,initial=await page.goto(base+"mobile.xhtml");let sourceStatus=initial.status();
+   const options=await page.getByLabel("Event",{exact:true}).locator("option").evaluateAll(rows=>rows.map(x=>x.value));
+   const validEventOptions=["LOAD","UNLOAD","RECEIVE","CLAIM","CUSTOMS"].every(x=>options.includes(x));
+   check("Handling event choices include supported enum values "+role,validEventOptions);
+   async function prepare(type,time){
+    await page.goto(base+"mobile.xhtml");
+    await page.getByLabel("Cargo",{exact:true}).selectOption(tracking);
+    await page.getByLabel("Event",{exact:true}).selectOption(type);
+    await page.getByLabel("Location",{exact:true}).selectOption(actor.who==="operator"?"USCHI":"DEHAM");
+    await page.getByLabel("Completion time (YYYY-MM-DD HH:mm)").fill(time);
+    return page.getByLabel("Voyage (required for LOAD/UNLOAD)",{exact:true});
+   }
+   let loadRequiresVoyage=false,unloadRequiresVoyage=false;
+   for(const type of ["LOAD","UNLOAD"]){
+    await prepare(type,"2032-02-04 08:00");
+    await page.evaluate(()=>{const f=document.querySelector('form[id$="handling"]');if(f)f.noValidate=true;});
+    const pending=page.waitForResponse(r=>r.request().isNavigationRequest()&&r.request().method()==="POST"&&new URL(r.url()).pathname.endsWith("/mobile.xhtml"));
+    await page.getByRole("button",{name:"Submit handling report",exact:true}).click();
+    const response=await pending,body=await page.locator("body").innerText();
+    const rejected=response.status()===200&&!body.includes("Accepted for processing.")&&body.includes("Choose a voyage for LOAD or UNLOAD.");
+    if(type==="LOAD")loadRequiresVoyage=rejected;else unloadRequiresVoyage=rejected;
+    check(type+" requires a voyage "+role,rejected);
+   }
+   await prepare("CUSTOMS",actor.who==="operator"?"2032-02-04 11:00":"2032-02-04 12:00");
+   await page.evaluate(()=>{const f=document.querySelector('form[id$="handling"]');if(f)f.noValidate=true;});
+   await page.getByLabel("Event",{exact:true}).evaluate(el=>{const o=document.createElement("option");o.value="INVALID_EVENT";o.textContent="invalid";el.append(o);el.value=o.value;});
+   const invalidPending=page.waitForResponse(r=>r.request().isNavigationRequest()&&r.request().method()==="POST"&&new URL(r.url()).pathname.endsWith("/mobile.xhtml"));
+   await page.getByRole("button",{name:"Submit handling report",exact:true}).click();
+   const invalidResponse=await invalidPending,invalidBody=await page.locator("body").innerText();
+   const invalidEventRejected=invalidResponse.status()===200&&!invalidBody.includes("Accepted for processing.")&&
+    (invalidBody.includes("Validation Error: Value is not valid")||invalidBody.includes("Choose a valid event and location."));
+   check("Forged handling event rejected "+role,invalidEventRejected);
+   const time=actor.who==="operator"?"10:00":"11:00";
+   const voyage=await prepare("LOAD","2032-02-04 "+time);
+   await voyage.selectOption("0100S");
+   const validVoyageSelected=await voyage.inputValue()==="0100S";
+   await page.getByLabel("Event",{exact:true}).selectOption("CUSTOMS");
+   const nonloadKeptSelectedVoyage=await voyage.inputValue()==="0100S";
+   await page.getByLabel("Completion time (YYYY-MM-DD HH:mm)").fill(actor.who==="operator"?"2032-02-04 11:00":"2032-02-04 12:00");
+   const submitPending=page.waitForResponse(r=>r.request().isNavigationRequest()&&r.request().method()==="POST"&&new URL(r.url()).pathname.endsWith("/mobile.xhtml"));
+   await page.getByRole("button",{name:"Submit handling report",exact:true}).click();
+   const submitResponse=await submitPending,submitBody=await page.locator("body").innerText();
+   const eventSubmitStatus=submitResponse.status();
+   check("Valid non-load event accepted "+role,eventSubmitStatus===200&&submitBody.includes("Accepted for processing."));
+   const positiveAfter=await observeEffects(stage+":after");
+   const eventLocation=actor.who==="operator"?"USCHI":"DEHAM";
+   const persistedEventObservation=await observeHandlingEvent(tracking,"2032-02-04",eventLocation);
+   const eventRow=(persistedEventObservation?.matches||[])[0];
+   const nonloadEventPersisted=persistedEventObservation?.row_count===1&&persistedEventObservation.matches.length===1&&
+    eventRow?.tracking_id===tracking&&eventRow?.event_type==="CUSTOMS"&&eventRow?.completion_time==="2032-02-04T00:00:00"&&
+    eventRow?.location_code===eventLocation;
+   const nonloadVoyageCleared=nonloadEventPersisted&&eventRow.voyage_number===null;
+   check("Persisted CUSTOMS event has exact cargo, location, time and no voyage "+role,nonloadVoyageCleared);
+   const cargo=await readCargo(tracking,"ROUTED");
+   check("Handling event cargo remains routed "+role,cargo.routingStatus==="ROUTED");
+   return {replacement_driver:"browser-replacement-v1",group:"handling-event",tracking_id:tracking,
+    source_path:"/cargo-tracker/mobile.xhtml",source_status:sourceStatus,event_submit_status:eventSubmitStatus,
+    protected_payload_absent:false,source_login_verified:false,valid_event_options:validEventOptions,
+    invalid_event_rejected:invalidEventRejected,load_requires_voyage:loadRequiresVoyage,
+    unload_requires_voyage:unloadRequiresVoyage,valid_voyage_selected:validVoyageSelected,
+    nonload_kept_selected_voyage:nonloadKeptSelectedVoyage,nonload_event_persisted:nonloadEventPersisted,
+    nonload_voyage_cleared:nonloadVoyageCleared,persisted_event_observation:persistedEventObservation,
+    persisted_cargo_routed:cargo.routingStatus==="ROUTED",
+    positive_effects_verified:true,positive_before:before,positive_after:positiveAfter,before,after:positiveAfter,
+    identity:{server_verified:true,principal:actor.identity.principal,roles:actor.identity.roles}};
+  }
+  async function handlingEventProofs(tracking){
+   for(const actor of [null,reader,operator,admin]){
+    const proof=await handlingEventProof(actor,tracking),role=actor?cargoRole(actor):"anonymous";
+    replacementProofs["REPLACEMENT::handling-event::"+role]=proof;
+   }
+  }
   async function handlingLocationProofs(tracking){
    for(const actor of [null,reader,operator,admin]){
     const proof=await handlingLocationProof(actor,tracking);
@@ -842,6 +939,7 @@ function unchangedEffects(before,after,expectedReadDelta=1){
    check("Mobile LOAD actually changes transport state",loaded);
   }
 
+  await handlingEventProofs(id);
   for(const [event,date] of [["UNLOAD","2032-02-05 10:00"],["CLAIM","2032-02-06 10:00"]]){
    const token=(await (await admin.context.request.get(base+"session")).json()).csrf;
    const result=await admin.context.request.post(base+"rest/handling/reports",{headers:{"X-CSRF-Token":token},data:{trackingId:id,eventType:event,unLocode:"FIHEL",completionTime:date,...(event==="UNLOAD"?{voyageNumber:"0100S"}:{})}});

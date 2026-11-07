@@ -201,10 +201,19 @@ def main():
                            check=True,text=True,capture_output=True)
             for artifact in ("results.json","browser.log","browser-timeout.json"):
                 (WORK/artifact).unlink(missing_ok=True)
+            def inspect_event(tracking_id,completion_date,location_code,remaining):
+                if not re.fullmatch(r"[A-Z0-9]{8}",tracking_id) or completion_date!="2032-02-04" or location_code not in {"USCHI","DEHAM"}:
+                    raise RuntimeError("Handling-event observer selector is outside the active fixture")
+                deadline=time.monotonic()+min(remaining,30)
+                processes=app.command("docker","exec",container,"jcmd","-l",timeout=max(.1,deadline-time.monotonic())).splitlines()
+                candidates=[line.split()[0] for line in processes if "org.jboss.as.standalone" in line or "jboss-modules.jar" in line]
+                if len(candidates)!=1:raise RuntimeError("Cannot identify unique app JVM for event observer")
+                raw=app.command("docker","exec",container,"java","-cp","/opt/jboss/observer-client","ReadEffects",candidates[0],"handling-event",tracking_id,completion_date,location_code,timeout=max(.1,deadline-time.monotonic()))
+                return json.loads(raw)
             bound_seconds=420
             try:
                 proc=bridge.run_browser_with_effects(
-                    ["docker","exec","-i",bid,"node","workflows.cjs"],capture,timeout=bound_seconds,
+                    ["docker","exec","-i",bid,"node","workflows.cjs"],capture,timeout=bound_seconds,inspect_event=inspect_event,
                 )
             except subprocess.TimeoutExpired as error:
                 diagnostic={"timeout_seconds":bound_seconds,
@@ -229,7 +238,7 @@ def main():
             promote_tracking_actions(report,results)
             replacement_proofs=results.get("replacement_actions",{})
             expected_replacements={"REPLACEMENT::"+group+"::"+role
-                for group in ("cancel-editor","booking-cancel","tracking-discovery","booking-deadline","booking-single-page","handling-single-page","handling-cargo-voyage","handling-location")
+                for group in ("cancel-editor","booking-cancel","tracking-discovery","booking-deadline","booking-single-page","handling-single-page","handling-cargo-voyage","handling-location","handling-event")
                 for role in ("anonymous","Reader","Operator","Administrator")}
             if set(replacement_proofs)!=expected_replacements:
                 raise AssertionError("Missing or unexpected replacement observations")

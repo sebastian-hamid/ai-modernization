@@ -28,6 +28,23 @@ class EffectsBridgeTests(unittest.TestCase):
         self.assertEqual(calls, ["cancel-editor:Operator:before"])
         self.assertEqual(result.stdout, "done\n")
 
+    def test_bounded_handling_event_observation_uses_sequential_id(self):
+        script = """import json,sys; print('@@LAB_HANDLING_EVENT@@{"id":0,"tracking_id":"ABCDEFGH","completion_date":"2032-02-04","location_code":"USCHI"}',flush=True); reply=json.loads(sys.stdin.readline()); assert reply["id"]==0 and reply["snapshot"]["row_count"]==1; print("done",flush=True)"""
+        calls=[]
+        def inspect(tracking_id,completion_date,location_code,budget):
+            calls.append((tracking_id,completion_date,location_code))
+            return {"row_count":1,"matches":[]}
+        result=bridge.run_browser_with_effects([sys.executable,"-u","-c",script],lambda stage,budget:{},5,inspect_event=inspect)
+        self.assertEqual(result.returncode,0)
+        self.assertEqual(calls,[("ABCDEFGH","2032-02-04","USCHI")])
+        self.assertEqual(result.stdout,"done\n")
+
+    def test_invalid_handling_event_selector_never_invokes_observer(self):
+        script = """print('@@LAB_HANDLING_EVENT@@{"id":0,"tracking_id":"ABCDEFGH","completion_date":"2032-02-04","location_code":"FIHEL"}',flush=True); input()"""
+        with self.assertRaises(RuntimeError):
+            bridge.run_browser_with_effects([sys.executable,"-u","-c",script],lambda stage,budget:{},5,
+                inspect_event=lambda *args:self.fail("Unexpected event observation"))
+
     def test_unknown_stage_never_invokes_observer(self):
         script = 'print(\'@@LAB_EFFECTS@@{"id":0,"stage":"arbitrary"}\',flush=True); input()'
         def capture(stage,budget):

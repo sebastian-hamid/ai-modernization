@@ -1,0 +1,204 @@
+{
+  "schema_version": 1,
+  "jira_ticket": "KAN-15",
+  "increment": "handling-event",
+  "legacy_callback": "ACTION-38",
+  "scope": "Event enum validation, required voyages for LOAD and UNLOAD, and persisted null voyage for non-load events on the current mobile handling page.",
+  "fresh_fixture": {
+    "kind": "fresh-owned-runtime",
+    "inputs_fingerprint": "9b1b0c8f541e7f1860c7e09ac1b2d6faac84d68ab07ab47082946717a7cf52fb",
+    "canonical_contracts_sha256": "b0272e5169c0af239de8d0ee5f610ec57992a373150d4726a44de674ca384054",
+    "native": {
+      "checks": 661,
+      "passed": 661,
+      "status": "PASS",
+      "browser_checks": {
+        "count": 779,
+        "passed": true
+      },
+      "owned_container_removed": true,
+      "private_files_removed": true,
+      "browser_cleanup": {
+        "container_removed": true,
+        "network_removed": true,
+        "errors": []
+      },
+      "cleanup_errors": []
+    },
+    "browser": {
+      "checks": 779,
+      "passed": 779,
+      "all_pass": true
+    },
+    "replacement_cases": {
+      "anonymous": {
+        "outcome": "PASS",
+        "source_status": 303,
+        "event_submit_status": null,
+        "protected_payload_absent": true,
+        "valid_event_options": false,
+        "invalid_event_rejected": false,
+        "load_requires_voyage": false,
+        "unload_requires_voyage": false,
+        "valid_voyage_selected": false,
+        "nonload_kept_selected_voyage": false,
+        "persisted_event_exactly_one": false,
+        "persisted_event_type": null,
+        "persisted_event_date": null,
+        "persisted_event_location": null,
+        "persisted_voyage_null": null,
+        "persisted_cargo_routed": true,
+        "positive_effects_verified": null
+      },
+      "Reader": {
+        "outcome": "PASS",
+        "source_status": 403,
+        "event_submit_status": null,
+        "protected_payload_absent": true,
+        "valid_event_options": false,
+        "invalid_event_rejected": false,
+        "load_requires_voyage": false,
+        "unload_requires_voyage": false,
+        "valid_voyage_selected": false,
+        "nonload_kept_selected_voyage": false,
+        "persisted_event_exactly_one": false,
+        "persisted_event_type": null,
+        "persisted_event_date": null,
+        "persisted_event_location": null,
+        "persisted_voyage_null": null,
+        "persisted_cargo_routed": true,
+        "positive_effects_verified": null
+      },
+      "Operator": {
+        "outcome": "PASS",
+        "source_status": 200,
+        "event_submit_status": 200,
+        "protected_payload_absent": false,
+        "valid_event_options": true,
+        "invalid_event_rejected": true,
+        "load_requires_voyage": true,
+        "unload_requires_voyage": true,
+        "valid_voyage_selected": true,
+        "nonload_kept_selected_voyage": true,
+        "persisted_event_exactly_one": true,
+        "persisted_event_type": "CUSTOMS",
+        "persisted_event_date": "2032-02-04T00:00:00",
+        "persisted_event_location": "USCHI",
+        "persisted_voyage_null": true,
+        "persisted_cargo_routed": true,
+        "positive_effects_verified": true
+      },
+      "Administrator": {
+        "outcome": "PASS",
+        "source_status": 200,
+        "event_submit_status": 200,
+        "protected_payload_absent": false,
+        "valid_event_options": true,
+        "invalid_event_rejected": true,
+        "load_requires_voyage": true,
+        "unload_requires_voyage": true,
+        "valid_voyage_selected": true,
+        "nonload_kept_selected_voyage": true,
+        "persisted_event_exactly_one": true,
+        "persisted_event_type": "CUSTOMS",
+        "persisted_event_date": "2032-02-04T00:00:00",
+        "persisted_event_location": "DEHAM",
+        "persisted_voyage_null": true,
+        "persisted_cargo_routed": true,
+        "positive_effects_verified": true
+      }
+    },
+    "observer": "A bounded read-only JMX operation queried the fixture ExampleDS for the exact booked cargo id, persisted date 2032-02-04, CUSTOMS type, and actor-specific location. It returned exactly one row for each authorized role; the persisted SQL DATE is midnight and voyage_id is null. The browser-created cargo ID is independently booked within the disposable database and is not the separate native seed cargo ID."
+  },
+  "gate": {
+    "before": {
+      "PASS": 412,
+      "BLOCKED": 58
+    },
+    "after": {
+      "PASS": 416,
+      "BLOCKED": 54
+    },
+    "historical_audit": {
+      "PASS": 324,
+      "BLOCKED": 178
+    },
+    "retirement": {
+      "BLOCKED": 76
+    },
+    "gate_exit": 2,
+    "exit_explanation": "The live native/browser fixture passed. Gate exit 2 reflects remaining BLOCKED current and retirement inventory; it is not a fixture failure."
+  },
+  "prior_attempts": [
+    {
+      "attempt": "1",
+      "outcome": "not promoted",
+      "native_checks": {
+        "passed": 661,
+        "total": 661,
+        "status": "FAIL"
+      },
+      "browser_checks": {
+        "count": 472,
+        "passed": false
+      },
+      "failure": "The browser run timed out waiting for the handling-event Operator-after effects snapshot response. The event proof did not complete.",
+      "cleanup": {
+        "owned_container_removed": true,
+        "private_files_removed": true,
+        "browser_container_removed": true,
+        "browser_network_removed": true,
+        "cleanup_errors": []
+      },
+      "resolution": "Replace the unfinished event proof with a bounded read-only persisted-row observer and reviewed effect-stage sequencing."
+    },
+    {
+      "attempt": "2",
+      "outcome": "not promoted",
+      "native_checks": {
+        "passed": 661,
+        "total": 661,
+        "status": "FAIL"
+      },
+      "browser_checks": {
+        "passed": false,
+        "count": null,
+        "note": "The browser workflow stopped at its observer selector guard; no report was promoted."
+      },
+      "failure": "The callback compared the browser-created cargo ID with a different native seed cargo ID and rejected the selector before querying the row.",
+      "cleanup": {
+        "owned_container_removed": true,
+        "private_files_removed": true,
+        "browser_container_removed": true,
+        "browser_network_removed": true,
+        "cleanup_errors": []
+      },
+      "resolution": "Allow only a correctly formatted cargo ID, the fixed persisted date and approved locations; SQL and proof bind the same returned row to that ID."
+    }
+  ],
+  "frozen_changed_file_sha256": {
+    "specifications/current-capability-mapping-v2.json": "42fa7ed062f05d1c859c87468bbdaa268073b36b55eac7d03998d1cb0a676a5b",
+    "tests/browser-workflows/effects_bridge.py": "797f72de0dcc5d4f0fdefa3161bcc1488f313f6273b7bee6ee313bdf536c20c6",
+    "tests/browser-workflows/run_browser.py": "8e36e20a010d40bfeac0199a9e26d5d24d13e142ccb8a7572dfd16cd945039a4",
+    "tests/browser-workflows/workflows.cjs": "ba7a6127da803f125523dd50af5d11aac864d590a1f1108b0a5127a45b1025ab",
+    "tests/browser-workflows/test_effects_bridge.py": "c9e1c75914aba650a508cba834183033d5782ff1622cd77cf54fce61912378d6",
+    "tests/browser-workflows/test_browser_harness.py": "075e7581cd55fbb8ebb0f886dc4f8e65ca97d831dc709fd9253e9a93f64dd66b",
+    "tests/candidate-runtime/observer/LabEffects.java": "3e79ad3bf1d008d973b72968a4c002871a0bc601549b0ce8d926ff0af2d6e649",
+    "tests/candidate-runtime/observer/LabEffectsMBean.java": "760192a0542697a346e9519e4d06e633a5a97b0b5995d193df2e891ec4cd6a82",
+    "tests/candidate-runtime/observer/ReadEffects.java": "2bbcdca447928a11db530b882ab37b5d256b8caf4faa4a0a64ef4be8ec75dcce",
+    "tests/security/replacements.py": "b485b7069769f2123cc63865114099e07473bbe7e14226acae519eec95d86683",
+    "tests/security/test_replacements.py": "0d88edd098ce6eebac984f5443bc3e44c839c61b558520405e4a2bcdf00d2d82"
+  },
+  "source_hash_manifest_scope": "Changed mapping, browser producer/bridge/tests, fixture observer and verifier files hashed immediately before the successful fresh fixture.",
+  "result_sha256": {
+    ".work/kan15-handling-event/attempt-3/results.json": "d6a7328fe795952010d18313e407b761959d184d204e67ef6a7bd3eb931dae1a",
+    ".work/kan18/results.json": "449228f0bb6fe4967451463d60f6625e05b4ddb150d2db9b1cb3e8bfe2079cab",
+    ".work/kan15-handling-event/attempt-1/browser-results.json": "0c536f810ed28b91b50a7be570c3a90dde7742cabbfe4153d909db135b82676f",
+    ".work/kan15-handling-event/attempt-1/native-results.json": "e8274161aafbe80c2dc3c98f75e1f10c0392353716641b30bd813982d7dcac8e"
+  },
+  "evidence_limits": [
+    "The fresh fingerprint covers on-disk inputs and constructed canonical contracts, not identity of already-imported Python code.",
+    "Raw browser output, tracking identifiers and detailed database snapshots remain private under .work/. The committed validation contains sanitized values and booleans.",
+    "54 current cases remain BLOCKED (8 replacement drivers and 46 internal/worker cases); all 76 retirement checks remain BLOCKED. This is not full security acceptance or production deployment."
+  ]
+}
