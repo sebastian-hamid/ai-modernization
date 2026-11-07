@@ -10,7 +10,24 @@ NAME="ai-modernization-kan18"
 IMAGE="ai-modernization-kan18:candidate"
 class NoRedirect(urllib.request.HTTPRedirectHandler):
     def redirect_request(self,*args,**kwargs):return None
-def command(*args):return subprocess.check_output(args,stderr=subprocess.STDOUT,text=True,timeout=30).strip()
+def command(*args,timeout=30):return subprocess.check_output(args,stderr=subprocess.STDOUT,text=True,timeout=timeout).strip()
+def capture_effects(container,timeout=30):
+    """Read the existing lab observer from the one owned application JVM."""
+    deadline = time.monotonic() + min(timeout,30)
+    def budget():
+        remaining = deadline - time.monotonic()
+        if remaining <= 0:
+            raise subprocess.TimeoutExpired("owned effects observer", timeout)
+        return remaining
+    processes = command("docker", "exec", container, "jcmd", "-l", timeout=budget()).splitlines()
+    candidates = [line.split()[0] for line in processes
+                  if "org.jboss.as.standalone" in line or "jboss-modules.jar" in line]
+    if len(candidates) != 1:
+        raise RuntimeError("Cannot identify unique app JVM")
+    text = command("docker", "exec", container, "java", "-cp",
+                   "/opt/jboss/observer-client", "ReadEffects", candidates[0], timeout=budget())
+    return json.loads(text)
+
 def finalize(container,paths,report):
     errors=[]
     if container:
@@ -547,11 +564,7 @@ def main(after_checks=None):
                 if who:observation["identity"]=report["identities"][who]
                 report["access_observations"][surface+"::"+actor+"::active"]=observation
         def effects():
-            processes=command("docker","exec",container,"jcmd","-l").splitlines()
-            candidates=[line.split()[0] for line in processes if "org.jboss.as.standalone" in line or "jboss-modules.jar" in line]
-            if len(candidates)!=1:raise RuntimeError("Cannot identify unique app JVM")
-            text=command("docker","exec",container,"java","-cp","/opt/jboss/observer-client","ReadEffects",candidates[0])
-            return json.loads(text)
+            return capture_effects(container)
         def settled():return settle_effects(effects)
         route_path="rest/graph-traversal/shortest-path?origin=CNHKG&destination=FIHEL&deadline=2030-12-31"
         def routing_payload_absent(body):

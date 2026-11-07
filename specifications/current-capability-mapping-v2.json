@@ -201,7 +201,7 @@
       "anonymous": false,
       "modern_method": "GET",
       "requirement": "Leave destination editing without applying a change.",
-      "driver": "pending"
+      "driver": "browser-replacement-v1"
     },
     {
       "id": "tracking-discovery",
@@ -217,7 +217,7 @@
       "anonymous": false,
       "modern_method": "POST",
       "requirement": "Authorized cargo discovery and valid/invalid typed tracking lookup.",
-      "driver": "pending"
+      "driver": "browser-replacement-v1"
     },
     {
       "id": "booking-deadline",
@@ -264,7 +264,7 @@
       "anonymous": false,
       "modern_method": "GET",
       "requirement": "Leave booking without creating a cargo.",
-      "driver": "pending"
+      "driver": "browser-replacement-v1"
     },
     {
       "id": "handling-single-page",

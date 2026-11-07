@@ -1,0 +1,53 @@
+{
+  "task": "KAN-15 initial replacement capabilities",
+  "reviewer": "/root/review_current_capability_gate",
+  "source_sha256": {
+    "tests/browser-workflows/effects_bridge.py": "db88d365ff73223a1e989352b815fc02a88a1ed7cb83e81b59e7ca2866d87517",
+    "tests/browser-workflows/test_effects_bridge.py": "da39f40f9e82c4e496733886bac47b60ae63074c07a5f02c8ad2bb51402519c1",
+    "tests/security/replacements.py": "766475ec12c3db280fa2c330bc5c55b463153a140a1003feeabe37bb5af0f07d",
+    "tests/security/test_replacements.py": "fb3ed88c71b1e70650e76d789a224a8914adaa9a1fb4b518cb8c94eabf43de06",
+    "specifications/current-capability-mapping-v2.json": "8e7c1180d20cf75ae1f8b2fa32d2d414a17b98da86e6940a51ef7da6a1a5595f",
+    "tests/browser-workflows/run_browser.py": "198c64cac46c21dfdb5b3e2c3ee59cf7d8851f56cf5b42ba000aa3250b40f431",
+    "tests/browser-workflows/test_browser_harness.py": "2588f48dc45c8f049fcc77ebec21f0690ec443a7df754dc873d1e1dd296492f1",
+    "tests/browser-workflows/workflows.cjs": "cc19c6ca5a925bd5af2de932e02b3d7cf4599a17b38ad3886306a71d6067bd02",
+    "tests/candidate-runtime/run_candidate.py": "e2a9b4d852040f5c6f71c8e58f8c4d45e1a671e8b888b2365233fd4289717fd6",
+    "tests/security/current_capabilities.py": "be437f28b0ff2abc3cb2b07c2d81116cd5c96a2cb809be5018bab9fc79653ef0",
+    "tests/security/run_candidate_contracts.py": "6c0da5a02a3b3e297cd9b737f82543a4f0dd878ed53dfdf2b37f83eb3da67ca6",
+    "tests/security/test_current_capabilities.py": "e7cb669c53d8fda3d2abee6a39e1f655b5387ffa3e0f97421f3a71525e44a584"
+  },
+  "source_review": {
+    "verdict": "Approved one fresh fixture after corrections",
+    "findings": [
+      "Independent readback increments one exact audited read counter",
+      "Synchronous effects capture needed the remaining execution budget"
+    ],
+    "corrections": [
+      "Require exact getAllCargo +1 with database, queues and every other counter equal",
+      "Propagate remaining budget through observer commands and bounded settling; cap each capture at30s"
+    ],
+    "independent_checks": "Four bridge and four replacement tests plus diff check passed"
+  },
+  "runtime_review": {
+    "verdict": "Approved fresh runtime evidence",
+    "independent_replay": "All 12 replacement cases replayed exactly across the three supported groups and all four actors. The reviewer recomputed the eight cancellation before/after snapshot pairs, confirmed one unique 64-character owned fixture ID per pair and exact stage bindings, unchanged database and queue state, all non-read invocation counters unchanged and exactly one CargoMonitoringService#getAllCargo readback increment. The 12 raw browser proofs exactly matched the normalized replacement cases.",
+    "fixture_counts": {
+      "native_pass": 661,
+      "browser_pass": 619,
+      "unit_pass": 137,
+      "current_pass": 392,
+      "current_blocked": 78,
+      "historical_pass": 324,
+      "historical_blocked": 178,
+      "retirement_blocked": 76,
+      "gate_exit": 2
+    },
+    "provenance": "All 12 frozen source hashes and result/native/browser/frozen-list artifact hashes matched. Owned fixture, browser, and private network cleanup passed with no recorded errors. Shared services remained available.",
+    "limitation": "Imported-code identity remains unattested. Unsupported replacements remain BLOCKED. Retirement results remain separate and BLOCKED."
+  },
+  "artifact_sha256": {
+    "results.json": "109fca0d02322cd2a7e20418fe18d0eb0955894b9ef7a3a61d5f6719b6811cf7",
+    "native-final.json": "94e0f8a7cc85a9cd4bee2a0a0a6dce1d02c9f766086c0a08f7556a6a15239394",
+    "browser-final.json": "758ac5fbb9a3734964fa81807fe50efd376fd6875dbbea77f5986c7810b09220",
+    "frozen-sha256.txt": "387bc3bbf956d9883e2d8355767aa64a279efb68929fd3d731c5fc0d9afc2979"
+  }
+}

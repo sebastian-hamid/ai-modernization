@@ -1,11 +1,15 @@
 #!/usr/bin/env python3
 """Owned app + Chromium fixture; no shared services, no browser credential persistence."""
 from pathlib import Path
-import importlib.util,json,re,subprocess,uuid,hashlib
+import importlib.util,json,re,subprocess,time,uuid,hashlib
 ROOT=Path(__file__).resolve().parents[2]
 spec=importlib.util.spec_from_file_location("candidate_runtime",ROOT/"tests/candidate-runtime/run_candidate.py")
 app=importlib.util.module_from_spec(spec);spec.loader.exec_module(app)
 WORK=ROOT/".work/kan19"
+bridge_spec=importlib.util.spec_from_file_location("effects_bridge",Path(__file__).with_name("effects_bridge.py"))
+bridge=importlib.util.module_from_spec(bridge_spec)
+bridge_spec.loader.exec_module(bridge)
+
 def promote_live_pages(report,results):
     proofs=results.get("page_semantics",{})
     role_users={"Reader":"reader","Operator":"operator","Administrator":"admin"}
@@ -175,7 +179,26 @@ def main():
             subprocess.run(["docker","network","connect",network,container],check=True,capture_output=True)
             bid=subprocess.check_output(["docker","create","--name",name,"--init","--network",network,"--shm-size=512m","--tmpfs","/run:rw,noexec,nosuid,size=1m","--tmpfs","/out:rw,noexec,nosuid,size=8m","-i","ai-modernization-kan19:browser","sleep","infinity"],text=True).strip()
             subprocess.run(["docker","start",bid],check=True,capture_output=True)
-            proc=subprocess.run(["docker","exec","-i",bid,"bash","-c","umask 077; cat > /run/credentials.json; node workflows.cjs"],input=json.dumps({"base":"http://"+app.NAME+":8080/cargo-tracker/","credentials":credentials,"fixture_tracking_id":report["page_fixture_tracking_id"]}),text=True,stdout=subprocess.PIPE,stderr=subprocess.STDOUT,timeout=300)
+            subprocess.run(
+                ["docker","exec","-i",bid,"bash","-c","umask 077; cat > /run/credentials.json"],
+                input=json.dumps({"base":"http://"+app.NAME+":8080/cargo-tracker/","credentials":credentials,
+                                  "fixture_tracking_id":report["page_fixture_tracking_id"]}),
+                text=True,check=True,capture_output=True,
+            )
+            def capture(stage,remaining):
+                deadline=time.monotonic()+remaining
+                def observe():
+                    budget=deadline-time.monotonic()
+                    if budget<=0:raise subprocess.TimeoutExpired("owned effects observer",remaining)
+                    return app.capture_effects(container,timeout=budget)
+                def pause(seconds):
+                    time.sleep(min(seconds,max(0,deadline-time.monotonic())))
+                sample=app.settle_effects(observe,timeout=min(15,remaining),pause=pause)
+                return {"fixture_id":container,"stage":stage,
+                        **{key:sample[key] for key in ("tables","queues","business_invocations")}}
+            proc=bridge.run_browser_with_effects(
+                ["docker","exec","-i",bid,"node","workflows.cjs"],capture,timeout=300,
+            )
             # Store raw diagnostics privately; never publish browser HTML/traces/session dumps.
             (WORK/"browser.log").write_text(proc.stdout)
             (WORK/"results.json").write_text(subprocess.check_output(["docker","exec",bid,"cat","/out/results.json"],text=True))
@@ -188,6 +211,13 @@ def main():
             promote_claimed_cargo_actions(report,results)
             promote_cargo_entry_actions(report,results)
             promote_tracking_actions(report,results)
+            replacement_proofs=results.get("replacement_actions",{})
+            expected_replacements={"REPLACEMENT::"+group+"::"+role
+                for group in ("cancel-editor","booking-cancel","tracking-discovery")
+                for role in ("anonymous","Reader","Operator","Administrator")}
+            if set(replacement_proofs)!=expected_replacements:
+                raise AssertionError("Missing or unexpected replacement observations")
+            report["replacement_observations"]=replacement_proofs
         finally:
             cleanup=[]
             if bid:

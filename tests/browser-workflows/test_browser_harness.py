@@ -14,11 +14,14 @@ class BrowserCleanupTests(unittest.TestCase):
                     self.assertIn("input",kwargs)
                     self.assertEqual(json.loads(kwargs["input"])["fixture_tracking_id"],"FIXTURE123")
                     self.assertNotIn("secret-test-value",str(args))
-                    if mode=="timeout":raise subprocess.TimeoutExpired("docker exec",240)
-                    return subprocess.CompletedProcess(args,1,"")
+                    return subprocess.CompletedProcess(args,0,"")
                 if args[:3]==["docker","rm","-f"] and mode=="remove-fails":
                     return subprocess.CompletedProcess(args,1)
                 return subprocess.CompletedProcess(args,0,"")
+            def run_browser(args,capture,timeout):
+                calls.append(args)
+                if mode=="timeout":raise subprocess.TimeoutExpired("docker exec",300)
+                return subprocess.CompletedProcess(args,1,"")
             def output(args,**kwargs):
                 calls.append(args)
                 if args[:3]==["docker","network","create"]:return "owned-network"
@@ -27,7 +30,7 @@ class BrowserCleanupTests(unittest.TestCase):
                 raise AssertionError("Unexpected command")
             def app(after_checks):
                 after_checks("owned-app","unused",{"operator":"secret-test-value"},report)
-            with patch.object(harness,"WORK",work),patch.object(harness.subprocess,"run",run),patch.object(harness.subprocess,"check_output",output),patch.object(harness.app,"main",app),contextlib.redirect_stdout(io.StringIO()):
+            with patch.object(harness,"WORK",work),patch.object(harness.subprocess,"run",run),patch.object(harness.subprocess,"check_output",output),patch.object(harness.app,"main",app),patch.object(harness.bridge,"run_browser_with_effects",run_browser),contextlib.redirect_stdout(io.StringIO()):
                 expected=subprocess.TimeoutExpired if mode=="timeout" else RuntimeError if mode=="remove-fails" else AssertionError
                 with self.assertRaises(expected):harness.main()
             self.assertIn(["docker","rm","-f","owned-browser"],calls)

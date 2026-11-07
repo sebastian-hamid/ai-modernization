@@ -1,0 +1,222 @@
+{
+  "task": "KAN-15 initial replacement capabilities",
+  "current": {
+    "PASS": 392,
+    "BLOCKED": 78
+  },
+  "historical": {
+    "PASS": 324,
+    "BLOCKED": 178
+  },
+  "retirement": {
+    "BLOCKED": 76
+  },
+  "gate_exit": 2,
+  "cases": [
+    {
+      "case": "REPLACEMENT::cancel-editor::anonymous",
+      "outcome": "PASS",
+      "reason": "Desired denial observed with required evidence"
+    },
+    {
+      "case": "REPLACEMENT::cancel-editor::Reader",
+      "outcome": "PASS",
+      "reason": "Desired denial observed with required evidence"
+    },
+    {
+      "case": "REPLACEMENT::cancel-editor::Operator",
+      "outcome": "PASS",
+      "reason": "Allowed workflow and identity evidence observed"
+    },
+    {
+      "case": "REPLACEMENT::cancel-editor::Administrator",
+      "outcome": "PASS",
+      "reason": "Allowed workflow and identity evidence observed"
+    },
+    {
+      "case": "REPLACEMENT::tracking-discovery::anonymous",
+      "outcome": "PASS",
+      "reason": "Desired denial observed with required evidence"
+    },
+    {
+      "case": "REPLACEMENT::tracking-discovery::Reader",
+      "outcome": "PASS",
+      "reason": "Allowed workflow and identity evidence observed"
+    },
+    {
+      "case": "REPLACEMENT::tracking-discovery::Operator",
+      "outcome": "PASS",
+      "reason": "Allowed workflow and identity evidence observed"
+    },
+    {
+      "case": "REPLACEMENT::tracking-discovery::Administrator",
+      "outcome": "PASS",
+      "reason": "Allowed workflow and identity evidence observed"
+    },
+    {
+      "case": "REPLACEMENT::booking-cancel::anonymous",
+      "outcome": "PASS",
+      "reason": "Desired denial observed with required evidence"
+    },
+    {
+      "case": "REPLACEMENT::booking-cancel::Reader",
+      "outcome": "PASS",
+      "reason": "Desired denial observed with required evidence"
+    },
+    {
+      "case": "REPLACEMENT::booking-cancel::Operator",
+      "outcome": "PASS",
+      "reason": "Allowed workflow and identity evidence observed"
+    },
+    {
+      "case": "REPLACEMENT::booking-cancel::Administrator",
+      "outcome": "PASS",
+      "reason": "Allowed workflow and identity evidence observed"
+    }
+  ],
+  "receipts": {
+    "REPLACEMENT::cancel-editor::anonymous": {
+      "group": "cancel-editor",
+      "source_status": 303,
+      "target_status": 303,
+      "unsaved_edits_verified": false,
+      "persisted_state_unchanged": true,
+      "database_unchanged": true,
+      "queues_unchanged": true,
+      "expected_read_delta": 1,
+      "other_invocations_unchanged": true
+    },
+    "REPLACEMENT::cancel-editor::Reader": {
+      "group": "cancel-editor",
+      "source_status": 403,
+      "target_status": 200,
+      "unsaved_edits_verified": false,
+      "persisted_state_unchanged": true,
+      "database_unchanged": true,
+      "queues_unchanged": true,
+      "expected_read_delta": 1,
+      "other_invocations_unchanged": true
+    },
+    "REPLACEMENT::cancel-editor::Operator": {
+      "group": "cancel-editor",
+      "source_status": 200,
+      "target_status": 200,
+      "unsaved_edits_verified": true,
+      "persisted_state_unchanged": true,
+      "database_unchanged": true,
+      "queues_unchanged": true,
+      "expected_read_delta": 1,
+      "other_invocations_unchanged": true
+    },
+    "REPLACEMENT::cancel-editor::Administrator": {
+      "group": "cancel-editor",
+      "source_status": 200,
+      "target_status": 200,
+      "unsaved_edits_verified": true,
+      "persisted_state_unchanged": true,
+      "database_unchanged": true,
+      "queues_unchanged": true,
+      "expected_read_delta": 1,
+      "other_invocations_unchanged": true
+    },
+    "REPLACEMENT::booking-cancel::anonymous": {
+      "group": "booking-cancel",
+      "source_status": 303,
+      "target_status": 303,
+      "unsaved_edits_verified": false,
+      "persisted_state_unchanged": true,
+      "database_unchanged": true,
+      "queues_unchanged": true,
+      "expected_read_delta": 1,
+      "other_invocations_unchanged": true
+    },
+    "REPLACEMENT::booking-cancel::Reader": {
+      "group": "booking-cancel",
+      "source_status": 403,
+      "target_status": 200,
+      "unsaved_edits_verified": false,
+      "persisted_state_unchanged": true,
+      "database_unchanged": true,
+      "queues_unchanged": true,
+      "expected_read_delta": 1,
+      "other_invocations_unchanged": true
+    },
+    "REPLACEMENT::booking-cancel::Operator": {
+      "group": "booking-cancel",
+      "source_status": 200,
+      "target_status": 200,
+      "unsaved_edits_verified": true,
+      "persisted_state_unchanged": true,
+      "database_unchanged": true,
+      "queues_unchanged": true,
+      "expected_read_delta": 1,
+      "other_invocations_unchanged": true
+    },
+    "REPLACEMENT::booking-cancel::Administrator": {
+      "group": "booking-cancel",
+      "source_status": 200,
+      "target_status": 200,
+      "unsaved_edits_verified": true,
+      "persisted_state_unchanged": true,
+      "database_unchanged": true,
+      "queues_unchanged": true,
+      "expected_read_delta": 1,
+      "other_invocations_unchanged": true
+    },
+    "REPLACEMENT::tracking-discovery::anonymous": {
+      "group": "tracking-discovery",
+      "list_status": 303,
+      "lookup_status": 303
+    },
+    "REPLACEMENT::tracking-discovery::Reader": {
+      "group": "tracking-discovery",
+      "list_status": 200,
+      "lookup_status": 200
+    },
+    "REPLACEMENT::tracking-discovery::Operator": {
+      "group": "tracking-discovery",
+      "list_status": 200,
+      "lookup_status": 200
+    },
+    "REPLACEMENT::tracking-discovery::Administrator": {
+      "group": "tracking-discovery",
+      "list_status": 200,
+      "lookup_status": 200
+    }
+  },
+  "native_checks": 661,
+  "browser_checks": {
+    "count": 619,
+    "passed": true
+  },
+  "unit_checks": {
+    "security": 73,
+    "browser": 26,
+    "fixture": 38
+  },
+  "cleanup": {
+    "owned_container_removed": true,
+    "private_files_removed": true,
+    "cleanup_errors": [],
+    "browser_cleanup": {
+      "container_removed": true,
+      "network_removed": true,
+      "errors": []
+    }
+  },
+  "artifact_sha256": {
+    "results.json": "109fca0d02322cd2a7e20418fe18d0eb0955894b9ef7a3a61d5f6719b6811cf7",
+    "native-final.json": "94e0f8a7cc85a9cd4bee2a0a0a6dce1d02c9f766086c0a08f7556a6a15239394",
+    "browser-final.json": "758ac5fbb9a3734964fa81807fe50efd376fd6875dbbea77f5986c7810b09220",
+    "frozen-sha256.txt": "387bc3bbf956d9883e2d8355767aa64a279efb68929fd3d731c5fc0d9afc2979"
+  },
+  "remaining": {
+    "replacement": 32,
+    "internal": 46,
+    "retirement": 76
+  },
+  "limits": [
+    "Retirement requires separate obsolete-protocol and review evidence.",
+    "Private snapshot contents and runtime identifiers are omitted from publication."
+  ]
+}

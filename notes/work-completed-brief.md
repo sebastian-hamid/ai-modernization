@@ -115,3 +115,5 @@ Replaced obsolete mobile flow with direct responsive form preserving routed/uncl
 - **KAN-15 cargo entries**. Verified unrouted-list route/editor navigation, initial route entry and routed replacement entry for four actors. Current coverage reached 364 PASS / 106 BLOCKED.
 
 - **KAN-15 return and tracking**. Verified distinct editor/return access stages, both real lookup entries and keyboard activation of a selected map marker. Current coverage reached 380 PASS / 90 BLOCKED. Remaining work comprises replacements, internal boundaries and conditional retirement evidence.
+
+- **KAN-15 replacement capabilities**. Verified real unsaved editor/booking cancellation and fresh tracking discovery, with a private observer handshake and strict effect comparisons. Current coverage reached 392 PASS / 78 BLOCKED.

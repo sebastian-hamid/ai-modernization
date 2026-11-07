@@ -8,6 +8,7 @@ from generate_cases import ROOT,build
 from contracts import UnsupportedCase,run_cases,exit_code
 import run_candidate_contracts as legacy
 from staged_returns import return_observation
+from replacements import SUPPORTED_REPLACEMENTS, replacement_observation
 MANIFEST=ROOT/"specifications/current-capability-mapping-v2.json"
 INVENTORY=ROOT/"specifications/access-policy-inventory.json"
 NATIVE_CURRENT_LOADS=frozenset({"ACTION-07","ACTION-15","ACTION-16","ACTION-18","ACTION-20"})
@@ -103,7 +104,8 @@ def validate_model(model,inventory,inventory_hash):
     declared=[]
     for group in groups:
         if set(group)!={"id","legacy_ids","allowed_roles","anonymous","modern_method","requirement","driver"}:raise ValueError("Unknown or missing replacement field")
-        if group.get("driver")!="pending" or group.get("modern_method") not in {"GET","POST"} or not group.get("requirement") or not group.get("legacy_ids"):raise ValueError("Unsupported replacement driver")
+        expected_driver="browser-replacement-v1" if group["id"] in SUPPORTED_REPLACEMENTS else "pending"
+        if group.get("driver")!=expected_driver or group.get("modern_method") not in {"GET","POST"} or not group.get("requirement") or not group.get("legacy_ids"):raise ValueError("Unsupported replacement driver")
         for ident in group["legacy_ids"]:
             old=callbacks.get(ident)
             if old is None or old["domain_mutation"] or old["allowed_roles"]!=group.get("allowed_roles") or old["anonymous"]!=group.get("anonymous"):raise ValueError("Replacement policy drift")
@@ -127,7 +129,7 @@ def build_current(model,inventory):
     for group in model["replacement_capabilities"]:
         for actor in ACTORS:
             allowed=group["anonymous"] if actor=="anonymous" else actor in group["allowed_roles"]
-            cases.append({"id":"REPLACEMENT::"+group["id"]+"::"+actor,"contract_version":2,"kind":"replacement","capability_id":group["id"],"channel":"capability","actor":actor,"expected":"allow" if allowed else "deny","write":False,"method":group["modern_method"],"semantic_requirement":group["requirement"],"requires_specific_driver":True,"legacy_ids":deepcopy(group["legacy_ids"])})
+            cases.append({"id":"REPLACEMENT::"+group["id"]+"::"+actor,"contract_version":2,"kind":"replacement","capability_id":group["id"],"channel":"capability","actor":actor,"expected":"allow" if allowed else "deny","write":False,"method":group["modern_method"],"semantic_requirement":group["requirement"],"requires_specific_driver":True,"binding_status":group["driver"],"legacy_ids":deepcopy(group["legacy_ids"])})
     if len({c["id"] for c in cases})!=len(cases):raise ValueError("Duplicate current case")
     return cases
 
@@ -159,9 +161,14 @@ class CurrentAdapter:
     def execute(self,case):
         canonical=self.contracts.get(case.get("id"))
         if canonical is None or canonical!=case:raise UnsupportedCase()
-        if case["kind"]!="current" or case.get("binding_status") not in {"existing-runtime-driver","native-current-load","browser-current-navigation","native-staged-return"} or self.legacy is None or self.provenance is None:raise UnsupportedCase()
+        if case["kind"] not in {"current","replacement"} or self.legacy is None or self.provenance is None:
+            raise UnsupportedCase()
+        if case["kind"]=="current" and case.get("binding_status") not in {"existing-runtime-driver","native-current-load","browser-current-navigation","native-staged-return"}:
+            raise UnsupportedCase()
         if not isinstance(self.provenance,dict) or self.provenance.get("kind")!="fresh-owned-runtime" or self.provenance.get("legacy_fixture_cleanup_verified") is not True or self.provenance.get("inputs_fingerprint")!=self._run_fingerprint or re.fullmatch("[0-9a-f]{64}",str(self._run_fingerprint)) is None:raise UnsupportedCase()
-        if case["binding_status"]=="native-staged-return":
+        if case["kind"]=="replacement":
+            observation=replacement_observation(case,getattr(self.legacy,"replacement_observations",{}).get(case["id"],{}))
+        elif case["binding_status"]=="native-staged-return":
             observation=return_observation(case,getattr(self.legacy,"current_observations",{}).get(case["id"],{}))
         elif case["binding_status"]=="native-current-load":
             observation=deepcopy(getattr(self.legacy,"current_observations",{}).get(case["id"],{}))
@@ -207,7 +214,7 @@ class CurrentAdapter:
             identity=observation.get("native_identity",{})
             if identity.get("principal")!="routing" or identity.get("roles")!=["RoutingService"] or observation.get("machine_identity_verified") is not True or observation.get("machine_scope")!=case.get("required_machine_scope"):raise UnsupportedCase()
         else:raise UnsupportedCase()
-        if case["binding_status"]!="native-staged-return" and (canonical["legacy_contract"]["channel"]=="action" or canonical["legacy_contract"].get("original_channel")=="action"):
+        if case["kind"]=="current" and case["binding_status"]!="native-staged-return" and (canonical["legacy_contract"]["channel"]=="action" or canonical["legacy_contract"].get("original_channel")=="action"):
             verify_action_proof(case,observation)
         observation["current_provenance"]=deepcopy(self.provenance)
         return observation

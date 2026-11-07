@@ -260,4 +260,24 @@ class CurrentCapabilityTests(unittest.TestCase):
         proof["live_marker_verified"]=False
         with self.assertRaises(UnsupportedCase):adapter.execute(case)
 
+    def test_canonical_replacement_preserves_reader_return_access(self):
+        adapter,case,base=self.fixture("REPLACEMENT::cancel-editor::Reader")
+        sample={"fixture_id":"a"*64,"tables":{"CARGO":{"rows":1}},"queues":{"handling":1},"business_invocations":{"save":1}}
+        proof={"replacement_driver":"browser-replacement-v1","group":"cancel-editor","tracking_id":"ABCDEFGH",
+               "identity":base["identity"],"source_path":"/cargo-tracker/admin/changeDestination.xhtml?trackingId=ABCDEFGH",
+               "target_path":"/cargo-tracker/admin/show.xhtml?trackingId=ABCDEFGH","source_status":403,"target_status":200,
+               "source_entry_verified":True,"return_access_verified":True,"source_payload_absent":True,
+               "persisted_state_unchanged":True,
+               "before":{**copy.deepcopy(sample),"stage":"cancel-editor:Reader:before"},
+               "after":{**copy.deepcopy(sample),"stage":"cancel-editor:Reader:after"}}
+        proof["before"]["business_invocations"]["net.java.cargotracker.interfaces.booking.rest.CargoMonitoringService#getAllCargo"]=5
+        proof["after"]["business_invocations"]["net.java.cargotracker.interfaces.booking.rest.CargoMonitoringService#getAllCargo"]=6
+        adapter.legacy.replacement_observations={case["id"]:proof}
+        result=adapter.execute(case)
+        self.assertEqual(result["status"],403)
+        self.assertEqual(result["target_status"],200)
+        self.assertTrue(result["invocation_denied"])
+        proof["after"]["fixture_id"]="b"*64
+        with self.assertRaises(UnsupportedCase):adapter.execute(case)
+
 if __name__=="__main__":unittest.main()

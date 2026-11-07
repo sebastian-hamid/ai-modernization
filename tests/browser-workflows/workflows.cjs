@@ -2,13 +2,49 @@ const {chromium,request:requestFactory}=require("playwright");
 const fs=require("fs");
 const cfg=JSON.parse(fs.readFileSync("/run/credentials.json","utf8"));
 const base=cfg.base;
-const navigationActions=require("./navigation-actions.json");const actionProofs={};const claimedCargoProofs={};const cargoEntryProofs={};const trackingActionProofs={};
+const navigationActions=require("./navigation-actions.json");const actionProofs={};const claimedCargoProofs={};const cargoEntryProofs={};const trackingActionProofs={};const replacementProofs={};
 const checks=[];const failures=[];const pageSemantics={};const socketObservations={};const socketTrace=[];const disconnectEvidence={};let abruptPeer=null;let witnessForDiagnostics=null;let stage="initialize";let navigation=null;
 function check(name,ok){stage=name;checks.push({name,passed:!!ok});if(!ok)throw new Error(name);}
 async function traceSocket(label,actor){
  if(!actor)return;
  const state=await actor.page.evaluate(()=>({readyState:window.liveSocket?.readyState,closed:window.socketClosed,frameCount:window.framesReceived?.length,lastFrameLocation:window.framesReceived?.at(-1)?.lastKnownLocationCode,openedAt:window.socketOpenedAt,close:window.socketCloseInfo??null}));
  socketTrace.push({label,role:actor.who,at:Date.now(),...state});
+}
+const effectsInput=require("readline").createInterface({input:process.stdin});
+const pendingEffects=new Map();
+let effectSequence=0;
+effectsInput.on("line",line=>{
+ try{
+  const reply=JSON.parse(line);
+  const pending=pendingEffects.get(reply.id);
+  if(!pending)throw new Error("Unexpected effects reply");
+  pendingEffects.delete(reply.id);
+  pending.resolve(reply.snapshot);
+ }catch(error){
+  for(const pending of pendingEffects.values())pending.reject(error);
+  pendingEffects.clear();
+ }
+});
+async function observeEffects(stage){
+ const requestId=effectSequence++;
+ const result=new Promise((resolve,reject)=>pendingEffects.set(requestId,{resolve,reject}));
+ process.stdout.write("@@LAB_EFFECTS@@"+JSON.stringify({id:requestId,stage})+"\n");
+ const snapshot=await result;
+ check("Effects snapshot belongs to requested stage "+stage,snapshot.stage===stage&&typeof snapshot.fixture_id==="string"&&snapshot.fixture_id.length>0);
+ return snapshot;
+}
+function stableEffectJSON(value){
+ if(Array.isArray(value))return value.map(stableEffectJSON);
+ if(value&&typeof value==="object")return Object.fromEntries(Object.keys(value).sort().map(key=>[key,stableEffectJSON(value[key])]));
+ return value;
+}
+function unchangedEffects(before,after){
+ const read="net.java.cargotracker.interfaces.booking.rest.CargoMonitoringService#getAllCargo";
+ const otherCalls=sample=>Object.fromEntries(Object.entries(sample.business_invocations).filter(([key])=>key!==read));
+ return before.fixture_id===after.fixture_id&&["tables","queues"].every(key=>
+  Object.keys(before[key]||{}).length>0&&JSON.stringify(stableEffectJSON(before[key]))===JSON.stringify(stableEffectJSON(after[key])))
+  &&(after.business_invocations[read]||0)-(before.business_invocations[read]||0)===1
+  &&JSON.stringify(stableEffectJSON(otherCalls(before)))===JSON.stringify(stableEffectJSON(otherCalls(after)));
 }
 (async()=>{
  const browser=await chromium.launch({headless:true});let replayClient;
@@ -595,6 +631,74 @@ async function traceSocket(label,actor){
   check("Anonymous live view and marker target denied",configuredLogin(anonymousLive)&&configuredLogin(anonymousMarkerDetails)&&claimedPayloadAbsent(await anonymousLive.text())&&claimedPayloadAbsent(await anonymousMarkerDetails.text()));
   trackingActionProofs["CURRENT::ACTION-25::anonymous::active"]={...cargoEntryReceipt(anonymousMarkerDetails,"index.xhtml","direct"),
     current_navigation_driver:"browser-marker-v1",protected_payload_absent:true,redirect_is_configured_login:true,live_source_denied:true};
+  for(const group of ["cancel-editor","booking-cancel"]){
+   for(const [role,actor] of [["anonymous",null],["Reader",reader],["Operator",operator],["Administrator",admin]]){
+    const permitted=role==="Operator"||role==="Administrator";
+    const source=group==="cancel-editor"?"admin/changeDestination.xhtml?trackingId="+id:"admin/book.xhtml";
+    const target=group==="cancel-editor"?claimedTarget:"admin/dashboard.xhtml";
+    const context=actor?actor.context:anon;
+    const page=await context.newPage();
+    try{
+     const before=await observeEffects(group+":"+role+":before");
+     let sourceStatus,targetStatus;
+     if(permitted){
+      const entry=await page.goto(base+source);
+      sourceStatus=entry.status();
+      check("Cancellation owned source "+group+" "+role,sourceStatus===200&&navigationTarget(page.url(),source));
+      if(group==="cancel-editor"){
+       check("Cancellation editor starts with saved destination "+role,await page.getByLabel("Destination",{exact:true}).inputValue()===claimedCargo.destinationCode);
+       await page.getByLabel("Destination",{exact:true}).selectOption(claimedCargo.destinationCode==="USNYC"?"FIHEL":"USNYC");
+      }else{
+       await page.getByLabel("Origin",{exact:true}).selectOption("CNHKG");
+       await page.getByLabel("Destination",{exact:true}).selectOption("FIHEL");
+       await page.getByLabel("Arrival deadline (YYYY-MM-DD)").fill("2035-12-31");
+      }
+      const dashboard=await exactCargoLink(page,"Cargo list","admin/dashboard.xhtml");
+      targetStatus=dashboard.status();
+      if(group==="cancel-editor"){
+       const detail=await exactCargoLink(page,id,claimedTarget);
+       targetStatus=detail.status();
+       check("Cancelled edit returns original saved details "+role,await persistedTrackingDetails(page));
+      }
+     }else{
+      const entry=await context.request.get(base+source,{maxRedirects:0});
+      const destination=await context.request.get(base+target,{maxRedirects:0});
+      sourceStatus=entry.status();targetStatus=destination.status();
+      check("Cancellation source denied "+group+" "+role,sourceStatus===(actor?403:303)&&claimedPayloadAbsent(await entry.text())&&(!actor||sourceStatus===403)&&
+       (actor||new URL(entry.headers().location,base).href===base+"login"));
+      if(actor){
+       check("Reader cancellation return remains readable "+group,targetStatus===200&&(await destination.text()).includes(id));
+      }else{
+       check("Anonymous cancellation return requires login "+group,targetStatus===303&&new URL(destination.headers().location,base).href===base+"login"&&claimedPayloadAbsent(await destination.text()));
+      }
+     }
+     const savedResponse=await reader.context.request.get(base+"rest/cargo");
+     const saved=await savedResponse.json();
+     const current=saved.find(cargo=>cargo.trackingId===id);
+     check("Cancellation persisted selected cargo unchanged "+group+" "+role,savedResponse.status()===200&&JSON.stringify(current)===JSON.stringify(claimedCargo));
+     const after=await observeEffects(group+":"+role+":after");
+     check("Cancellation independent effects unchanged "+group+" "+role,unchangedEffects(before,after));
+     replacementProofs["REPLACEMENT::"+group+"::"+role]={
+      replacement_driver:"browser-replacement-v1",group,tracking_id:id,source_path:"/cargo-tracker/"+source,
+      target_path:"/cargo-tracker/"+target,source_status:sourceStatus,target_status:targetStatus,
+      source_entry_verified:true,return_access_verified:true,persisted_state_unchanged:true,
+      unsaved_edits_verified:permitted,leave_navigation_verified:permitted,
+      source_payload_absent:!permitted,source_login_verified:role==="anonymous",target_payload_absent:role==="anonymous",
+      target_login_verified:role==="anonymous",before,after,
+      ...(actor?{identity:{server_verified:true,principal:actor.identity.principal,roles:actor.identity.roles}}:{}),
+     };
+    }finally{await page.close();}
+   }
+  }
+  for(const role of ["anonymous","Reader","Operator","Administrator"]){
+   const list=claimedCargoProofs["CURRENT::ACTION-10::"+role+"::active"];
+   const lookup=trackingActionProofs["CURRENT::ACTION-24::"+role+"::active"];
+   check("Discovery uses the same selected cargo "+role,list.tracking_id===lookup.tracking_id);
+   replacementProofs["REPLACEMENT::tracking-discovery::"+role]={
+    replacement_driver:"browser-replacement-v1",group:"tracking-discovery",tracking_id:id,
+    list_proof:list,lookup_proof:lookup,...(list.identity?{identity:list.identity}:{}),
+   };
+  }
   await operator.page.setViewportSize({width:390,height:844});
   await operator.page.goto(base+"admin/show.xhtml?trackingId="+id);
   check("Cargo details fit mobile viewport",await operator.page.evaluate(()=>document.documentElement.scrollWidth<=window.innerWidth));
@@ -804,5 +908,5 @@ async function traceSocket(label,actor){
   disconnectEvidence.graceful_close_code=1000;
   check("No page or asset errors",failures.length===0);
  } catch(error){try{await traceSocket("failure",witnessForDiagnostics);}catch(ignored){}checks.push({name:stage+" failed ("+error.name+")",outcome:"FAIL",passed:false});process.exitCode=1;}
- finally{if(abruptPeer&&!abruptPeer.socket.destroyed)abruptPeer.socket.destroy();if(replayClient)await replayClient.dispose();await browser.close();fs.writeFileSync("/out/results.json",JSON.stringify({scope:"Real Chromium cargo read/booking/destination/routing/live/handling workflows",checks,last_navigation:navigation,resource_errors:failures,page_semantics:pageSemantics,socket_observations:socketObservations,socket_diagnostics:socketTrace,disconnect_evidence:disconnectEvidence,navigation_actions:actionProofs,claimed_cargo_actions:claimedCargoProofs,cargo_entry_actions:cargoEntryProofs,tracking_actions:trackingActionProofs},null,2)+"\n");}
+ finally{effectsInput.close();process.stdin.destroy();if(abruptPeer&&!abruptPeer.socket.destroyed)abruptPeer.socket.destroy();if(replayClient)await replayClient.dispose();await browser.close();fs.writeFileSync("/out/results.json",JSON.stringify({scope:"Real Chromium cargo read/booking/destination/routing/live/handling workflows",checks,last_navigation:navigation,resource_errors:failures,page_semantics:pageSemantics,socket_observations:socketObservations,socket_diagnostics:socketTrace,disconnect_evidence:disconnectEvidence,navigation_actions:actionProofs,claimed_cargo_actions:claimedCargoProofs,cargo_entry_actions:cargoEntryProofs,tracking_actions:trackingActionProofs,replacement_actions:replacementProofs},null,2)+"\n");}
 })();
