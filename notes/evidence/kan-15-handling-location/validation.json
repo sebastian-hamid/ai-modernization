@@ -1,0 +1,105 @@
+{
+  "schema_version": 1,
+  "jira_ticket": "KAN-15",
+  "increment": "handling-location",
+  "legacy_callback": "ACTION-37",
+  "scope": "Authorized required location selection on the current mobile handling page, rejecting missing and forged values.",
+  "fresh_fixture": {
+    "kind": "fresh-owned-runtime",
+    "inputs_fingerprint": "205675a3a40aba7300f8e4758b1dd93f8429d25c8bf80463b18bf64bcf49b78d",
+    "canonical_contracts_sha256": "ee50ef671d91ab1c721e06979369e711fe612dceb146f4eb60ac08c55f37dc51",
+    "native": {
+      "checks": 661,
+      "passed": 661,
+      "status": "PASS",
+      "browser_checks": {
+        "count": 749,
+        "passed": true
+      },
+      "owned_container_removed": true,
+      "private_files_removed": true,
+      "browser_cleanup": {
+        "container_removed": true,
+        "network_removed": true,
+        "errors": []
+      }
+    },
+    "browser": {
+      "checks": 749,
+      "passed": 749,
+      "all_pass": true
+    },
+    "replacement_cases": {
+      "anonymous": {
+        "outcome": "PASS",
+        "source_status": 303,
+        "protected_payload_absent": true,
+        "valid_location_option": null,
+        "valid_location_selection": null,
+        "required_location_rejected": null,
+        "forged_location_rejected": null,
+        "persisted_cargo_routed": true
+      },
+      "Reader": {
+        "outcome": "PASS",
+        "source_status": 403,
+        "protected_payload_absent": true,
+        "valid_location_option": null,
+        "valid_location_selection": null,
+        "required_location_rejected": null,
+        "forged_location_rejected": null,
+        "persisted_cargo_routed": true
+      },
+      "Operator": {
+        "outcome": "PASS",
+        "source_status": 200,
+        "protected_payload_absent": null,
+        "valid_location_option": true,
+        "valid_location_selection": true,
+        "required_location_rejected": true,
+        "forged_location_rejected": true,
+        "persisted_cargo_routed": true
+      },
+      "Administrator": {
+        "outcome": "PASS",
+        "source_status": 200,
+        "protected_payload_absent": null,
+        "valid_location_option": true,
+        "valid_location_selection": true,
+        "required_location_rejected": true,
+        "forged_location_rejected": true,
+        "persisted_cargo_routed": true
+      }
+    }
+  },
+  "gate": {
+    "before": {
+      "PASS": 408,
+      "BLOCKED": 62
+    },
+    "after": {
+      "PASS": 412,
+      "BLOCKED": 58
+    },
+    "historical_audit": {
+      "PASS": 324,
+      "BLOCKED": 178
+    },
+    "retirement": {
+      "BLOCKED": 76
+    }
+  },
+  "frozen_changed_file_sha256": {
+    "specifications/current-capability-mapping-v2.json": "b25477a70ceb24aa0fec2c0ed7492e48189f41c0e492a2cae9704e5b678f9c63",
+    "tests/security/replacements.py": "6581c7bbe94d686ef00fed8a30f66d33a3362180e8a0a206026f9ce0867c4f3f",
+    "tests/security/test_replacements.py": "63cef8fc6e81198815e99531602aca4514e4fc696f75b2e079d770ff1fd81a2c",
+    "tests/browser-workflows/workflows.cjs": "62bfe7cbbc9a39f18bc8108f651a0771de71eed0727068ef02fa0ad0f3883ed1",
+    "tests/browser-workflows/effects_bridge.py": "f96284d78e88b1e60c7ee585004911910d57e013604d37a41e3e4961c7ba4a12",
+    "tests/browser-workflows/run_browser.py": "a024ef7a79724332ddf765fbf7159e815c871e2325a6ed639d021b2b61b23f53"
+  },
+  "source_hash_manifest_scope": "Six changed specification, oracle, test, browser producer, bridge and harness files were hashed immediately before this successful run.",
+  "evidence_limits": [
+    "The fresh fingerprint covers on-disk inputs and constructed canonical contracts, not identity of already-imported Python code.",
+    "Raw browser output and detailed database snapshots remain private under .work/. Committed validation contains counts and sanitized proof booleans."
+  ]
+}

@@ -124,3 +124,5 @@ Replaced obsolete mobile flow with direct responsive form preserving routed/uncl
 
 
 - **KAN-15 handling cargo/voyage**. Verified valid routed cargo and known voyage choices, missing-voyage rejection for both LOAD and UNLOAD, forged cargo/voyage rejection, and unchanged database/queue effects. Four role cases passed. The fixture passed 661 native and 725 browser checks. Current coverage reached 408 PASS / 62 BLOCKED, leaving 16 replacement and 46 internal cases. All 76 retirement cases remain BLOCKED.
+
+- **KAN-15 handling location**. Verified a permitted known location, missing required location rejection, forged nonmember rejection, role-specific direct access denial, and unchanged database/queue effects. Four role cases passed. The fixture passed 661 native and 749 browser checks. Current coverage reached 412 PASS / 58 BLOCKED, leaving 12 replacement and 46 internal cases. All 76 retirement cases remain BLOCKED.

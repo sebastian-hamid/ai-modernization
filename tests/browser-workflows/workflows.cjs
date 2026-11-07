@@ -533,6 +533,77 @@ function unchangedEffects(before,after,expectedReadDelta=1){
     before,after,
     ...(actor?{identity:{server_verified:true,principal:actor.identity.principal,roles:actor.identity.roles}}:{})};
   }
+  async function handlingLocationProof(actor,tracking){
+   const role=actor?cargoRole(actor):"anonymous";
+   const stage="handling-location:"+role;
+   const before=await observeEffects(stage+":before");
+   let sourceStatus=null,protectedPayloadAbsent=false,sourceLoginVerified=false;
+   let validLocationOption=false,validLocationSelection=false,requiredLocationRejected=false,forgedLocationRejected=false;
+   if(actor&&["operator","admin"].includes(actor.who)){
+    const page=actor.page;
+    const response=await page.goto(base+"mobile.xhtml");
+    sourceStatus=response.status();
+    const location=page.getByLabel("Location",{exact:true});
+    const options=await location.locator("option").evaluateAll(rows=>rows.map(option=>option.value));
+    validLocationOption=options.includes("USCHI");
+    await page.getByLabel("Cargo",{exact:true}).selectOption(tracking);
+    await page.getByLabel("Event",{exact:true}).selectOption("CUSTOMS");
+    await page.getByLabel("Completion time (YYYY-MM-DD HH:mm)").fill("2032-02-08 10:00");
+    await location.selectOption("USCHI");
+    validLocationSelection=await location.inputValue()==="USCHI";
+    check("Known handling location is selectable "+role,validLocationOption&&validLocationSelection);
+    await page.goto(base+"mobile.xhtml");
+    await page.evaluate(()=>{const form=document.querySelector('form[id$="handling"]');if(form)form.noValidate=true;});
+    await page.getByLabel("Cargo",{exact:true}).selectOption(tracking);
+    await page.getByLabel("Event",{exact:true}).selectOption("CUSTOMS");
+    await page.getByLabel("Completion time (YYYY-MM-DD HH:mm)").fill("2032-02-08 10:00");
+    const missingResponsePromise=page.waitForResponse(r=>r.request().isNavigationRequest()&&r.request().method()==="POST"&&new URL(r.url()).pathname.endsWith("/mobile.xhtml"));
+    await page.getByRole("button",{name:"Submit handling report",exact:true}).click();
+    const missingResponse=await missingResponsePromise;
+    const missingBody=await page.locator("body").innerText();
+    requiredLocationRejected=missingResponse.status()===200&&!missingBody.includes("Accepted for processing.")&&
+      (missingBody.includes("Validation Error: Value is required")||missingBody.includes("Choose a valid event and location."));
+    check("Missing handling location rejected "+role,requiredLocationRejected);
+    await page.goto(base+"mobile.xhtml");
+    await page.evaluate(()=>{const form=document.querySelector('form[id$="handling"]');if(form)form.noValidate=true;});
+    await page.getByLabel("Cargo",{exact:true}).selectOption(tracking);
+    await page.getByLabel("Event",{exact:true}).selectOption("CUSTOMS");
+    await page.getByLabel("Completion time (YYYY-MM-DD HH:mm)").fill("2032-02-08 10:00");
+    const forgedLocation=page.getByLabel("Location",{exact:true});
+    await forgedLocation.evaluate(el=>{const option=document.createElement("option");option.value="ZZZINVALID";option.textContent="invalid";el.append(option);el.value=option.value;});
+    const forgedResponsePromise=page.waitForResponse(r=>r.request().isNavigationRequest()&&r.request().method()==="POST"&&new URL(r.url()).pathname.endsWith("/mobile.xhtml"));
+    await page.getByRole("button",{name:"Submit handling report",exact:true}).click();
+    const forgedResponse=await forgedResponsePromise;
+    const forgedBody=await page.locator("body").innerText();
+    forgedLocationRejected=forgedResponse.status()===200&&!forgedBody.includes("Accepted for processing.")&&
+      (forgedBody.includes("Validation Error: Value is not valid")||forgedBody.includes("Choose a valid event and location."));
+    check("Forged handling location rejected "+role,forgedLocationRejected);
+   }else{
+    const context=actor?actor.context:anon;
+    const response=await context.request.get(base+"mobile.xhtml",{maxRedirects:0});
+    sourceStatus=response.status();const body=await response.text();
+    protectedPayloadAbsent=["Choose cargo","Choose location","Location","USCHI",tracking].every(marker=>!body.includes(marker));
+    sourceLoginVerified=role==="anonymous"&&sourceStatus===303&&new URL(response.headers().location,base).href===base+"login";
+    check("Handling location source denied "+role,(role==="anonymous"?sourceLoginVerified:sourceStatus===403)&&protectedPayloadAbsent);
+   }
+   const persistedCargo=await readCargo(tracking,"ROUTED");
+   const after=await observeEffects(stage+":after");
+   check("Handling location effects unchanged "+role,unchangedEffects(before,after,1));
+   return {replacement_driver:"browser-replacement-v1",group:"handling-location",tracking_id:tracking,
+    source_path:"/cargo-tracker/mobile.xhtml",source_status:sourceStatus,
+    protected_payload_absent:protectedPayloadAbsent,source_login_verified:sourceLoginVerified,
+    valid_location_option:validLocationOption,valid_location_selection:validLocationSelection,
+    required_location_rejected:requiredLocationRejected,forged_location_rejected:forgedLocationRejected,
+    persisted_cargo_routed:persistedCargo.routingStatus==="ROUTED",before,after,
+    ...(actor?{identity:{server_verified:true,principal:actor.identity.principal,roles:actor.identity.roles}}:{})};
+  }
+  async function handlingLocationProofs(tracking){
+   for(const actor of [null,reader,operator,admin]){
+    const proof=await handlingLocationProof(actor,tracking);
+    const role=actor?cargoRole(actor):"anonymous";
+    replacementProofs["REPLACEMENT::handling-location::"+role]=proof;
+   }
+  }
   async function handlingCargoVoyageProofs(tracking){
    for(const actor of [null,reader,operator,admin]){
     const proof=await handlingCargoVoyageProof(actor,tracking);
@@ -726,6 +797,7 @@ function unchangedEffects(before,after,expectedReadDelta=1){
   check("No candidates for expired deadline handled",await operator.page.getByRole("button",{name:"Assign selected route",exact:true}).count()===0);
   await handlingReplacementProofs(id);
   await handlingCargoVoyageProofs(id);
+  await handlingLocationProofs(id);
   const readerMobile=await reader.context.request.get(base+"mobile.xhtml");
   check("Reader direct handling UI denied",readerMobile.status()===403);
   for(const actor of [operator,admin]){

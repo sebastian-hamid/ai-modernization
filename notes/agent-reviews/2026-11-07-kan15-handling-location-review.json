@@ -1,0 +1,50 @@
+{
+  "date": "2026-11-07",
+  "jira_ticket": "KAN-15",
+  "increment": "handling-location",
+  "legacy_callback": "ACTION-37",
+  "reviewer": "review_current_capability_gate (independent agent)",
+  "review_status": "APPROVED_FOR_COMMIT_AND_PUSH",
+  "verification": {
+    "promotions": 4,
+    "current_gate": {
+      "PASS": 412,
+      "BLOCKED": 58
+    },
+    "historical_audit": {
+      "PASS": 324,
+      "BLOCKED": 178
+    },
+    "retirement": {
+      "BLOCKED": 76
+    },
+    "native_checks": {
+      "passed": 661,
+      "total": 661
+    },
+    "browser_checks": {
+      "passed": 749,
+      "total": 749
+    },
+    "all_four_actor_cases_passed": true,
+    "required_and_forged_location_values_rejected": true,
+    "effect_intervals": "Four same-fixture pairs show unchanged database/queues and only getAllCargo +1.",
+    "independent_replay": "All result arrays replayed; historical and retirement results match prior checkpoint.",
+    "tests": {
+      "security_current": 33,
+      "bridge_harness": 7,
+      "all_passed": true
+    },
+    "scope": {
+      "synced_sources_edited": false,
+      "legacy_reference_edited": false
+    },
+    "owned_cleanup": "Passed with no errors"
+  },
+  "publication_file_sha256": {
+    "docs/candidate/handling-location.md": "27ba909aa704e2d8318dea538c3688c4887aa8b8bc1391008ecb216bdfdbf406",
+    "notes/setup-status.md": "4622dd515ca9fbbabbe456618a0413007c70cf1094387f07b026a51c4c572bf1",
+    "notes/work-completed-brief.md": "ffe36c8725fbb8b1712ebaf460e8d390529d6f3fd67f467dc0769ef6719fface",
+    "notes/evidence/kan-15-handling-location/validation.json": "3039fbdb02bf041eb262549c5eaeccb361d280d77d445e78fb36c43a0597d043"
+  }
+}

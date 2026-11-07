@@ -12,6 +12,7 @@ SUPPORTED_REPLACEMENTS = {
     "booking-single-page": ("POST", ["ACTION-27", "ACTION-30", "ACTION-34"]),
     "handling-single-page": ("GET", ["ACTION-35", "ACTION-40", "ACTION-43"]),
     "handling-cargo-voyage": ("POST", ["ACTION-36"]),
+    "handling-location": ("POST", ["ACTION-37"]),
     "tracking-discovery": ("POST", ["ACTION-23", "ACTION-44"]),
 }
 
@@ -83,6 +84,29 @@ def replacement_observation(case, proof):
     if group == "tracking-discovery":
         return discovery_observation(case, proof)
     allowed = actor in {"Operator", "Administrator"}
+    if group == "handling-location":
+        if proof.get("source_path") != "/cargo-tracker/mobile.xhtml":
+            raise UnsupportedCase()
+        unchanged_samples(group, actor, proof.get("before"), proof.get("after"), expected_read_delta=1)
+        if actor != "anonymous":
+            identity=proof.get("identity",{})
+            expected={"Reader":"reader","Operator":"operator","Administrator":"admin"}[actor]
+            if identity.get("server_verified") is not True or identity.get("principal") != expected or identity.get("roles") != [actor]:
+                raise UnsupportedCase()
+        if allowed:
+            flags=("valid_location_option","valid_location_selection","required_location_rejected",
+                   "forged_location_rejected","persisted_cargo_routed")
+            if proof.get("source_status") != 200 or not all(proof.get(k) is True for k in flags):
+                raise UnsupportedCase()
+        else:
+            if proof.get("source_status") != (403 if actor == "Reader" else 303) or proof.get("protected_payload_absent") is not True:
+                raise UnsupportedCase()
+            if actor == "anonymous" and proof.get("source_login_verified") is not True:
+                raise UnsupportedCase()
+        result=deepcopy(proof)
+        result.update(supported=True,semantic_success=allowed,invocation_denied=not allowed,
+                      status=proof["source_status"],protected_payload_absent=not allowed,evaluated_stage="source")
+        return result
     if group == "handling-cargo-voyage":
         if proof.get("source_path") != "/cargo-tracker/mobile.xhtml":
             raise UnsupportedCase()
