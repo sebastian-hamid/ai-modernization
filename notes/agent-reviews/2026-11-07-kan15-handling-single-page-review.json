@@ -1,0 +1,61 @@
+{
+  "date": "2026-11-07",
+  "jira_ticket": "KAN-15",
+  "increment": "handling-single-page",
+  "reviewer": "review_current_capability_gate (independent agent)",
+  "review_status": "APPROVED_FOR_COMMIT_AND_PUSH",
+  "scope": [
+    "source change",
+    "fresh native/browser runtime evidence",
+    "sanitized validation and docs",
+    "scope boundaries and published proof"
+  ],
+  "findings": {
+    "publication_link": "Missing handling checkpoint document was added before approval.",
+    "resolved": true
+  },
+  "verification": {
+    "promotions": 4,
+    "current_gate": {
+      "PASS": 404,
+      "BLOCKED": 66
+    },
+    "historical_audit": {
+      "PASS": 324,
+      "BLOCKED": 178
+    },
+    "retirement": {
+      "BLOCKED": 76
+    },
+    "native_checks": {
+      "passed": 661,
+      "total": 661
+    },
+    "browser_checks": {
+      "passed": 703,
+      "total": 703
+    },
+    "all_replacement_cases_pass": true,
+    "effect_pairs": "All four actor stages use the same fixture; database and queues unchanged; exactly one independent cargo read.",
+    "focused_tests": {
+      "security_current": 31,
+      "bridge_harness": 7,
+      "all_passed": true
+    },
+    "source_boundaries": {
+      "synced_sources_edited": false,
+      "legacy_reference_edited": false
+    },
+    "prior_timeout": "Preserved and correctly treated as a failed 300-second browser attempt; owned cleanup verified."
+  },
+  "evidence_limits": [
+    "Visual/value comparisons were reviewed via producer assertions and recorded booleans.",
+    "The run fingerprint covers on-disk inputs and constructed canonical contracts, not already-imported Python code identity."
+  ],
+  "publication_file_sha256": {
+    "docs/candidate/handling-single-page.md": "16587c77896382083eab1eaa88732ce41e75525a028acd45f4934445e7371db3",
+    "notes/setup-status.md": "fd685bb47f33046c9db43133673320bd27d8795f387f3edd5c7b9ba17a434d94",
+    "notes/work-completed-brief.md": "0eeffbaa99422d538bf9b18af414e13f9fc2d1420566751f30bf04d11a4efbb0",
+    "notes/evidence/kan-15-handling-single-page/validation.json": "36b9e507c5a40c15859e2c9508cdda19ecd4e0c9a317cc8df03e07aa9b4bc31e"
+  }
+}

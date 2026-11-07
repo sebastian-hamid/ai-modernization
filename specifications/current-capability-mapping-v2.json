@@ -280,7 +280,7 @@
       "anonymous": false,
       "modern_method": "GET",
       "requirement": "Authorized single-page handling entry and editing.",
-      "driver": "pending"
+      "driver": "browser-replacement-v1"
     },
     {
       "id": "handling-cargo-voyage",

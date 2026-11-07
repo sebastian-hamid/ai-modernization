@@ -1,0 +1,117 @@
+{
+  "schema_version": 1,
+  "jira_ticket": "KAN-15",
+  "increment": "handling-single-page",
+  "scope": "Real mobile handling page access, invalid-input rejection, navigation, and unchanged persisted state.",
+  "fresh_fixture": {
+    "kind": "fresh-owned-runtime",
+    "inputs_fingerprint": "aca94b0c24ac732c525e34789e0c75409a5f9be9452ce9029c44ed36dceb9891",
+    "native": {
+      "checks": 661,
+      "passed": 661,
+      "status": "PASS",
+      "owned_container_removed": true,
+      "private_files_removed": true,
+      "browser_checks": {
+        "count": 703,
+        "passed": true
+      },
+      "browser_cleanup": {
+        "container_removed": true,
+        "network_removed": true,
+        "errors": []
+      }
+    },
+    "browser": {
+      "checks": 703,
+      "passed": 703,
+      "all_pass": true
+    },
+    "replacement_cases": {
+      "anonymous": {
+        "outcome": "PASS",
+        "source_status": 303,
+        "source_path": "/cargo-tracker/mobile.xhtml",
+        "protected_payload_absent": true,
+        "entry_chain_verified": null,
+        "same_form_fields_verified": null,
+        "invalid_calendar_rejected": null,
+        "missing_voyage_rejected": null,
+        "leave_navigation_verified": null,
+        "persisted_state_unchanged": true
+      },
+      "Reader": {
+        "outcome": "PASS",
+        "source_status": 403,
+        "source_path": "/cargo-tracker/mobile.xhtml",
+        "protected_payload_absent": true,
+        "entry_chain_verified": null,
+        "same_form_fields_verified": null,
+        "invalid_calendar_rejected": null,
+        "missing_voyage_rejected": null,
+        "leave_navigation_verified": null,
+        "persisted_state_unchanged": true
+      },
+      "Operator": {
+        "outcome": "PASS",
+        "source_status": 200,
+        "source_path": "/cargo-tracker/mobile.xhtml",
+        "protected_payload_absent": null,
+        "entry_chain_verified": true,
+        "same_form_fields_verified": true,
+        "invalid_calendar_rejected": true,
+        "missing_voyage_rejected": true,
+        "leave_navigation_verified": true,
+        "persisted_state_unchanged": true
+      },
+      "Administrator": {
+        "outcome": "PASS",
+        "source_status": 200,
+        "source_path": "/cargo-tracker/mobile.xhtml",
+        "protected_payload_absent": null,
+        "entry_chain_verified": true,
+        "same_form_fields_verified": true,
+        "invalid_calendar_rejected": true,
+        "missing_voyage_rejected": true,
+        "leave_navigation_verified": true,
+        "persisted_state_unchanged": true
+      }
+    }
+  },
+  "gate": {
+    "before": {
+      "PASS": 400,
+      "BLOCKED": 70
+    },
+    "after": {
+      "PASS": 404,
+      "BLOCKED": 66
+    },
+    "retirement": {
+      "BLOCKED": 76
+    },
+    "historical_audit": {
+      "PASS": 324,
+      "BLOCKED": 178
+    }
+  },
+  "prior_attempt": {
+    "result": "Timed out at 300 seconds during browser workflow after native 661/661 passed.",
+    "owned_resources_cleaned": true,
+    "raw_diagnostics_preserved": ".work/kan15-handling-single-page/first-timeout/"
+  },
+  "evidence_limits": [
+    "Fresh input fingerprint records on-disk inputs and constructed canonical contracts. It does not attest identity of already-imported Python code.",
+    "Raw browser logs and detailed database snapshots remain private under .work/; committed evidence contains counts and proof booleans only."
+  ],
+  "frozen_changed_file_sha256": {
+    "specifications/current-capability-mapping-v2.json": "f558e6ea553414f39cf42e9047b27aaec753cf9a2a883cc34cc7c0d81e0c4631",
+    "tests/browser-workflows/effects_bridge.py": "a64780cd860e6e255279456ba6c892c6dd8a8dfa9d1b6baf9378dae4eca6d84c",
+    "tests/browser-workflows/run_browser.py": "6f90614dcf1d7da9a31c837688241ddad3dbdc78e24141a966dd23d510f8227b",
+    "tests/browser-workflows/test_browser_harness.py": "f8553c5ef849c6a5445a4724fb6da8dfdd8f24c5f72559f40132a9ab8fab8017",
+    "tests/browser-workflows/workflows.cjs": "8d907ec263e0e47b339b57136b71a11ba2172d037d12368c8d2fc918a926dccb",
+    "tests/security/replacements.py": "1abb83dd0b04073ed1467972ce3435f4347b32ddb8b9d425852394e7561faee7",
+    "tests/security/test_replacements.py": "c8d9058c0556f899f5e044819b6dcae1ae662ac6cb3207f698ebf7de67044f2c"
+  },
+  "source_hash_manifest_scope": "Hashes of the seven changed implementation, specification, and test files frozen immediately before the successful run. The separate inputs_fingerprint covers the broader source fingerprint recorded by the runner."
+}

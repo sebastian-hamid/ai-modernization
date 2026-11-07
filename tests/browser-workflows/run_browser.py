@@ -196,9 +196,25 @@ def main():
                 sample=app.settle_effects(observe,timeout=min(15,remaining),pause=pause)
                 return {"fixture_id":container,"stage":stage,
                         **{key:sample[key] for key in ("tables","queues","business_invocations")}}
-            proc=bridge.run_browser_with_effects(
-                ["docker","exec","-i",bid,"node","workflows.cjs"],capture,timeout=300,
-            )
+            # Never consume an image-baked or prior-run result after a failed workflow.
+            subprocess.run(["docker","exec",bid,"rm","-f","/out/results.json"],
+                           check=True,text=True,capture_output=True)
+            for artifact in ("results.json","browser.log","browser-timeout.json"):
+                (WORK/artifact).unlink(missing_ok=True)
+            bound_seconds=420
+            try:
+                proc=bridge.run_browser_with_effects(
+                    ["docker","exec","-i",bid,"node","workflows.cjs"],capture,timeout=bound_seconds,
+                )
+            except subprocess.TimeoutExpired as error:
+                diagnostic={"timeout_seconds":bound_seconds,
+                    "elapsed_seconds":getattr(error,"elapsed_seconds",None),
+                    "last_completed_effect_stage":getattr(error,"last_completed_effect_stage",None),
+                    "pending_effect_stage":getattr(error,"pending_effect_stage",None),
+                    "completed_effect_stage_count":len(getattr(error,"completed_effect_stages",[])),
+                    "completed_effect_stages":getattr(error,"completed_effect_stages",[])}
+                (WORK/"browser-timeout.json").write_text(json.dumps(diagnostic,indent=2)+"\n")
+                raise
             # Store raw diagnostics privately; never publish browser HTML/traces/session dumps.
             (WORK/"browser.log").write_text(proc.stdout)
             (WORK/"results.json").write_text(subprocess.check_output(["docker","exec",bid,"cat","/out/results.json"],text=True))
@@ -213,7 +229,7 @@ def main():
             promote_tracking_actions(report,results)
             replacement_proofs=results.get("replacement_actions",{})
             expected_replacements={"REPLACEMENT::"+group+"::"+role
-                for group in ("cancel-editor","booking-cancel","tracking-discovery","booking-deadline","booking-single-page")
+                for group in ("cancel-editor","booking-cancel","tracking-discovery","booking-deadline","booking-single-page","handling-single-page")
                 for role in ("anonymous","Reader","Operator","Administrator")}
             if set(replacement_proofs)!=expected_replacements:
                 raise AssertionError("Missing or unexpected replacement observations")

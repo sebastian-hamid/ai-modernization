@@ -6,7 +6,7 @@ import threading
 import time
 
 PREFIX = "@@LAB_EFFECTS@@"
-GROUPS = ("cancel-editor", "booking-cancel", "booking-deadline", "booking-single-page", "booking-positive")
+GROUPS = ("cancel-editor", "booking-cancel", "booking-deadline", "booking-single-page", "booking-positive", "handling-single-page")
 ROLES = ("anonymous", "Reader", "Operator", "Administrator")
 STAGES = frozenset(
     group + ":" + role + ":" + phase
@@ -33,11 +33,21 @@ def run_browser_with_effects(command, capture, timeout=300):
     output = []
     next_id = 0
     seen_stages = set()
+    last_stage = None
+    started = time.monotonic()
+
+    def raise_deadline():
+        error = subprocess.TimeoutExpired(command, timeout, output="".join(output)[-8192:])
+        error.completed_effect_stages = sorted(seen_stages)
+        error.last_completed_effect_stage = last_stage
+        error.elapsed_seconds = round(time.monotonic() - started, 3)
+        raise error
+
     try:
         while True:
             remaining = deadline - time.monotonic()
             if remaining <= 0:
-                raise subprocess.TimeoutExpired(command, timeout)
+                raise_deadline()
             try:
                 line = lines.get(timeout=min(remaining, 0.5))
             except queue.Empty:
@@ -57,13 +67,21 @@ def run_browser_with_effects(command, capture, timeout=300):
             stem, phase = request["stage"].rsplit(":", 1)
             if phase == "after" and stem + ":before" not in seen_stages:
                 raise RuntimeError("Effects after stage preceded before stage")
-            snapshot = capture(request["stage"], deadline - time.monotonic())
+            try:
+                snapshot = capture(request["stage"], deadline - time.monotonic())
+            except subprocess.TimeoutExpired as error:
+                error.completed_effect_stages = sorted(seen_stages)
+                error.last_completed_effect_stage = last_stage
+                error.pending_effect_stage = request["stage"]
+                error.elapsed_seconds = round(time.monotonic() - started, 3)
+                raise
             if time.monotonic() >= deadline:
-                raise subprocess.TimeoutExpired(command, timeout)
+                raise_deadline()
             response = {"id": next_id, "snapshot": snapshot}
             process.stdin.write(json.dumps(response) + "\n")
             process.stdin.flush()
             seen_stages.add(request["stage"])
+            last_stage = request["stage"]
             next_id += 1
     finally:
         if process.poll() is None:

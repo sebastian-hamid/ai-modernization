@@ -371,6 +371,82 @@ function unchangedEffects(before,after,expectedReadDelta=1){
     (b[booking]||0)-(a[booking]||0)===1&&(b[read]||0)-(a[read]||0)===1&&
     JSON.stringify(stableEffectJSON(other(a)))===JSON.stringify(stableEffectJSON(other(b)));
   }
+  async function prepareHandlingReplacement(actor,tracking){
+   const role=actor?cargoRole(actor):"anonymous";
+   const stage="handling-single-page:"+role;
+   const cargoBefore=await readCargo(tracking,"ROUTED");
+   const before=await observeEffects(stage+":before");
+   let sourceStatus,returnStatus=null,dashboardUrlVerified=false,entryLinkVerified=false,
+    entryChainVerified=false,allFieldsSameForm=false,
+    unsavedEditsVerified=false,invalidCalendarRejected=false,missingVoyageRejected=false,
+    leaveNavigationVerified=false,sourcePayloadAbsent=false,sourceLoginVerified=false;
+   if(actor&&["operator","admin"].includes(actor.who)){
+    const page=actor.page;
+    const dashboard=await page.goto(base+"admin/dashboard.xhtml");
+    dashboardUrlVerified=dashboard.status()===200&&navigationTarget(page.url(),"admin/dashboard.xhtml");
+    const link=page.getByRole("link",{name:"Report handling",exact:true});
+    const linkCount=await link.count();
+    const href=linkCount===1?await link.getAttribute("href"):null;
+    entryLinkVerified=!!href&&navigationTarget(new URL(href,page.url()).href,"mobile.xhtml");
+    const [entry]=await Promise.all([page.waitForResponse(r=>r.request().isNavigationRequest()&&navigationTarget(r.url(),"mobile.xhtml")),link.click()]);
+    sourceStatus=entry.status();
+    entryChainVerified=dashboardUrlVerified&&entryLinkVerified&&navigationTarget(page.url(),"mobile.xhtml");
+    check("Handling replacement uses current dashboard entry "+role,entryChainVerified&&sourceStatus===200);
+    await page.getByRole("heading",{name:"Report handling",exact:true}).waitFor();
+    const fields=["Cargo","Event","Location","Completion time (YYYY-MM-DD HH:mm)","Voyage (required for LOAD/UNLOAD)"].map(label=>page.getByLabel(label,{exact:true}));
+    const formIds=await Promise.all(fields.map(field=>field.evaluate(el=>el.form?.id||"")));
+    allFieldsSameForm=formIds.every(id=>id==="handling")&&new Set(formIds).size===1;
+    check("Handling replacement fields share one form "+role,allFieldsSameForm);
+    await fields[0].selectOption(tracking);await fields[1].selectOption("LOAD");await fields[2].selectOption(actor.who==="operator"?"USCHI":"DEHAM");
+    await fields[3].fill("2032-02-30 10:00");
+    await page.getByRole("button",{name:"Submit handling report",exact:true}).click();
+    await page.getByText("Enter a valid completion time in YYYY-MM-DD HH:mm format.",{exact:true}).waitFor();
+    invalidCalendarRejected=true;
+    await fields[3].fill(actor.who==="operator"?"2032-02-01 10:00":"2032-02-03 10:00");
+    await page.getByRole("button",{name:"Submit handling report",exact:true}).click();
+    await page.getByText("Choose a voyage for LOAD or UNLOAD.",{exact:true}).waitFor();
+    missingVoyageRejected=true;
+    await fields[1].selectOption("CUSTOMS");await fields[3].fill("2032-02-05 10:00");
+    unsavedEditsVerified=await fields[0].inputValue()===tracking&&await fields[1].inputValue()==="CUSTOMS"&&
+      await fields[2].inputValue()===(actor.who==="operator"?"USCHI":"DEHAM")&&await fields[3].inputValue()==="2032-02-05 10:00"&&await fields[4].inputValue()==="";
+    check("Handling replacement retains unsaved edits "+role,unsavedEditsVerified);
+    const cargoList=page.getByRole("link",{name:"Cargo list",exact:true});
+    const [returned]=await Promise.all([page.waitForResponse(r=>r.request().isNavigationRequest()&&navigationTarget(r.url(),"admin/dashboard.xhtml")),cargoList.click()]);
+    returnStatus=returned.status();
+    leaveNavigationVerified=returnStatus===200&&navigationTarget(page.url(),"admin/dashboard.xhtml");
+    check("Handling replacement leaves through cargo list "+role,leaveNavigationVerified);
+   }else{
+    const context=actor?actor.context:anon;
+    const response=await context.request.get(base+"mobile.xhtml",{maxRedirects:0});
+    sourceStatus=response.status();const body=await response.text();
+    const markers=["Report handling","Cargo","Event","Location","Completion time","Submit handling report",tracking,cargoBefore.originName,cargoBefore.destinationName];
+    sourcePayloadAbsent=markers.every(marker=>typeof marker!=="string"||marker.length===0||!body.includes(marker));
+    sourceLoginVerified=role==="anonymous"&&sourceStatus===303&&new URL(response.headers().location,base).href===base+"login";
+    check("Handling replacement source denied "+role,(role==="anonymous"?sourceLoginVerified:sourceStatus===403)&&sourcePayloadAbsent);
+   }
+   const cargoAfter=await readCargo(tracking,"ROUTED");
+   const persistedStateUnchanged=JSON.stringify(stableEffectJSON(cargoBefore))===JSON.stringify(stableEffectJSON(cargoAfter));
+   check("Handling replacement leaves cargo unchanged "+role,persistedStateUnchanged);
+   const after=await observeEffects(stage+":after");
+   check("Handling replacement effect channels unchanged "+role,unchangedEffects(before,after,1));
+   return {replacement_driver:"browser-replacement-v1",group:"handling-single-page",tracking_id:tracking,
+    source_path:"/cargo-tracker/mobile.xhtml",entry_source:"admin/dashboard.xhtml",return_path:"/cargo-tracker/admin/dashboard.xhtml",
+    source_status:sourceStatus,return_status:returnStatus,
+    dashboard_url_verified:dashboardUrlVerified,entry_link_verified:entryLinkVerified,
+    entry_chain_verified:entryChainVerified,all_fields_same_form:allFieldsSameForm,
+    unsaved_edits_verified:unsavedEditsVerified,invalid_calendar_rejected:invalidCalendarRejected,
+    missing_voyage_rejected:missingVoyageRejected,leave_navigation_verified:leaveNavigationVerified,
+    persisted_state_unchanged:persistedStateUnchanged,protected_payload_absent:sourcePayloadAbsent,
+    source_login_verified:sourceLoginVerified,before,after,
+    ...(actor?{identity:{server_verified:true,principal:actor.identity.principal,roles:actor.identity.roles}}:{})};
+  }
+  async function handlingReplacementProofs(tracking){
+   for(const actor of [null,reader,operator,admin]){
+    const proof=await prepareHandlingReplacement(actor,tracking);
+    const role=actor?cargoRole(actor):"anonymous";
+    replacementProofs["REPLACEMENT::handling-single-page::"+role]=proof;
+   }
+  }
   async function book(actor){
    const pending={};
    for(const group of ["booking-deadline","booking-single-page"])
@@ -548,6 +624,7 @@ function unchangedEffects(before,after,expectedReadDelta=1){
   await operator.page.getByRole("link",{name:"Assign route",exact:true}).click();
   await operator.page.getByText("No sample routes meet this cargo's arrival deadline.",{exact:true}).waitFor();
   check("No candidates for expired deadline handled",await operator.page.getByRole("button",{name:"Assign selected route",exact:true}).count()===0);
+  await handlingReplacementProofs(id);
   const readerMobile=await reader.context.request.get(base+"mobile.xhtml");
   check("Reader direct handling UI denied",readerMobile.status()===403);
   for(const actor of [operator,admin]){

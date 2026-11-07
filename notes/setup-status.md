@@ -128,3 +128,5 @@ The [return and tracking checkpoint](../docs/candidate/current-return-and-tracki
 The [initial replacement checkpoint](../docs/candidate/replacement-capabilities.md) passed 12 cases with independent cancellation snapshots and owned cleanup. Current coverage is 392 PASS / 78 BLOCKED.
 
 The [booking replacement checkpoint](../docs/candidate/booking-replacement-capabilities.md) passed eight role cases with invalid-deadline no-change snapshots and positive booking POST, database, and independent readback evidence. The fresh fixture passed 661 native and 669 browser checks, with owned cleanup verified. Current coverage is 400 PASS / 70 BLOCKED. All 76 retirement checks remain BLOCKED.
+
+The [handling single-page checkpoint](../docs/candidate/handling-single-page.md) passed four role cases against the real mobile handling page. The fresh fixture passed 661 native and 703 browser checks, with owned cleanup verified. Current coverage is 404 PASS / 66 BLOCKED. Remaining current blocks are 20 replacement and 46 internal cases. All 76 retirement checks remain BLOCKED. Evidence: [validation](evidence/kan-15-handling-single-page/validation.json).

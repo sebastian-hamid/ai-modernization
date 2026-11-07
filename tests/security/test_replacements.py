@@ -5,7 +5,7 @@ from replacements import replacement_observation
 
 class ReplacementTests(unittest.TestCase):
     def case(self, group="cancel-editor", actor="Operator"):
-        ids = {"cancel-editor":["ACTION-08"], "booking-cancel":["ACTION-28","ACTION-31","ACTION-33"], "tracking-discovery":["ACTION-23","ACTION-44"], "booking-deadline":["ACTION-26","ACTION-32"], "booking-single-page":["ACTION-27","ACTION-30","ACTION-34"]}
+        ids = {"cancel-editor":["ACTION-08"], "booking-cancel":["ACTION-28","ACTION-31","ACTION-33"], "tracking-discovery":["ACTION-23","ACTION-44"], "booking-deadline":["ACTION-26","ACTION-32"], "booking-single-page":["ACTION-27","ACTION-30","ACTION-34"], "handling-single-page":["ACTION-35","ACTION-40","ACTION-43"]}
         method="POST" if group in {"booking-deadline","booking-single-page","tracking-discovery"} else "GET"
         return {"capability_id":group,"actor":actor,"binding_status":"browser-replacement-v1",
                 "method":method,"legacy_ids":ids[group]}
@@ -137,6 +137,54 @@ class ReplacementTests(unittest.TestCase):
         proof["positive_before"]["fixture_id"]="a"*64
         with self.assertRaises(UnsupportedCase):
             replacement_observation(self.case("booking-deadline","Operator"),proof)
+
+    def handling(self, actor="Operator"):
+        sample={"fixture_id":"9"*64,"tables":{"CARGO":{"rows":2,"sha256":"a"*64}},
+                "queues":{"handling":{"MessagesAdded":3}},
+                "business_invocations":{"net.java.cargotracker.interfaces.booking.rest.CargoMonitoringService#getAllCargo":4,"other":2}}
+        before={**copy.deepcopy(sample),"stage":"handling-single-page:"+actor+":before"}
+        after={**copy.deepcopy(sample),"stage":"handling-single-page:"+actor+":after"}
+        after["business_invocations"]["net.java.cargotracker.interfaces.booking.rest.CargoMonitoringService#getAllCargo"]=5
+        allowed=actor in {"Operator","Administrator"}
+        proof={"replacement_driver":"browser-replacement-v1","group":"handling-single-page","tracking_id":"ABCDEFGH",
+          "source_path":"/cargo-tracker/mobile.xhtml","entry_source":"admin/dashboard.xhtml",
+          "source_status":200 if allowed else 403 if actor=="Reader" else 303,
+          "return_status":200 if allowed else None,"return_path":"/cargo-tracker/admin/dashboard.xhtml" if allowed else None,
+          "dashboard_url_verified":allowed,"entry_link_verified":allowed,"entry_chain_verified":allowed,
+          "all_fields_same_form":allowed,"unsaved_edits_verified":allowed,
+          "invalid_calendar_rejected":allowed,"missing_voyage_rejected":allowed,"leave_navigation_verified":allowed,
+          "persisted_state_unchanged":allowed,"protected_payload_absent":not allowed,
+          "source_login_verified":actor=="anonymous","before":before,"after":after}
+        if actor!="anonymous":
+            principal={"Reader":"reader","Operator":"operator","Administrator":"admin"}[actor]
+            proof["identity"]={"server_verified":True,"principal":principal,"roles":[actor]}
+        return proof
+
+    def test_handling_single_page_requires_entry_edit_denial_and_clean_effects(self):
+        for actor in ["anonymous","Reader","Operator","Administrator"]:
+            proof=self.handling(actor)
+            result=replacement_observation(self.case("handling-single-page",actor),proof)
+            allowed=actor in {"Operator","Administrator"}
+            self.assertEqual(result["semantic_success"],allowed)
+            self.assertEqual(result["invocation_denied"],not allowed)
+            changed=copy.deepcopy(proof);changed["after"]["queues"]["handling"]["MessagesAdded"]=4
+            with self.subTest(actor=actor),self.assertRaises(UnsupportedCase):
+                replacement_observation(self.case("handling-single-page",actor),changed)
+        for field in ["dashboard_url_verified","entry_link_verified","entry_chain_verified","all_fields_same_form","unsaved_edits_verified",
+                      "invalid_calendar_rejected","missing_voyage_rejected","leave_navigation_verified",
+                      "persisted_state_unchanged"]:
+            proof=self.handling("Operator");proof[field]=False
+            with self.subTest(field=field),self.assertRaises(UnsupportedCase):
+                replacement_observation(self.case("handling-single-page","Operator"),proof)
+        for field,value in [("return_path","/other"),("return_status",303)]:
+            proof=self.handling("Operator");proof[field]=value
+            with self.subTest(field=field),self.assertRaises(UnsupportedCase):
+                replacement_observation(self.case("handling-single-page","Operator"),proof)
+        for actor,field,value in [("Reader","source_status",200),("Reader","protected_payload_absent",False),
+                                  ("anonymous","source_login_verified",False)]:
+            proof=self.handling(actor);proof[field]=value
+            with self.subTest(actor=actor,field=field),self.assertRaises(UnsupportedCase):
+                replacement_observation(self.case("handling-single-page",actor),proof)
 
     def test_discovery_requires_actual_list_and_typed_lookup_of_same_cargo(self):
         identity={"server_verified":True,"principal":"reader","roles":["Reader"]}

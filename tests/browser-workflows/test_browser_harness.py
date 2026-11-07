@@ -11,16 +11,24 @@ class BrowserCleanupTests(unittest.TestCase):
                 calls.append(args)
                 if args[:2]==["docker","inspect"]:return subprocess.CompletedProcess(args,1)
                 if args[:2]==["docker","exec"]:
-                    self.assertIn("input",kwargs)
-                    self.assertEqual(json.loads(kwargs["input"])["fixture_tracking_id"],"FIXTURE123")
-                    self.assertNotIn("secret-test-value",str(args))
+                    if "input" not in kwargs:
+                        self.assertEqual(args[3:],["rm","-f","/out/results.json"])
+                    else:
+                        self.assertEqual(json.loads(kwargs["input"])["fixture_tracking_id"],"FIXTURE123")
+                        self.assertNotIn("secret-test-value",str(args))
                     return subprocess.CompletedProcess(args,0,"")
                 if args[:3]==["docker","rm","-f"] and mode=="remove-fails":
                     return subprocess.CompletedProcess(args,1)
                 return subprocess.CompletedProcess(args,0,"")
             def run_browser(args,capture,timeout):
                 calls.append(args)
-                if mode=="timeout":raise subprocess.TimeoutExpired("docker exec",300)
+                if mode=="timeout":
+                    error=subprocess.TimeoutExpired("docker exec",420)
+                    error.elapsed_seconds=421
+                    error.last_completed_effect_stage="handling-single-page:Reader:after"
+                    error.pending_effect_stage="handling-single-page:Operator:before"
+                    error.completed_effect_stages=["handling-single-page:Reader:before","handling-single-page:Reader:after"]
+                    raise error
                 return subprocess.CompletedProcess(args,1,"")
             def output(args,**kwargs):
                 calls.append(args)
@@ -33,6 +41,13 @@ class BrowserCleanupTests(unittest.TestCase):
             with patch.object(harness,"WORK",work),patch.object(harness.subprocess,"run",run),patch.object(harness.subprocess,"check_output",output),patch.object(harness.app,"main",app),patch.object(harness.bridge,"run_browser_with_effects",run_browser),contextlib.redirect_stdout(io.StringIO()):
                 expected=subprocess.TimeoutExpired if mode=="timeout" else RuntimeError if mode=="remove-fails" else AssertionError
                 with self.assertRaises(expected):harness.main()
+            if mode=="timeout":
+                diagnostic=json.loads((work/"browser-timeout.json").read_text())
+                self.assertEqual(diagnostic["timeout_seconds"],420)
+                self.assertEqual(diagnostic["elapsed_seconds"],421)
+                self.assertEqual(diagnostic["last_completed_effect_stage"],"handling-single-page:Reader:after")
+                self.assertEqual(diagnostic["pending_effect_stage"],"handling-single-page:Operator:before")
+                self.assertEqual(diagnostic["completed_effect_stage_count"],2)
             self.assertIn(["docker","rm","-f","owned-browser"],calls)
             self.assertIn(["docker","network","disconnect","-f","owned-network","owned-app"],calls)
             self.assertIn(["docker","network","rm","owned-network"],calls)
