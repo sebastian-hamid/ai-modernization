@@ -1,0 +1,121 @@
+{
+  "schema_version": 1,
+  "jira_ticket": "KAN-15",
+  "increment": "handling-cargo-voyage",
+  "legacy_callback": "ACTION-36",
+  "scope": "Authorized cargo and voyage choices on the current mobile handling form, required-voyage validation for LOAD/UNLOAD, and rejection of forged cargo/voyage selections.",
+  "fresh_fixture": {
+    "kind": "fresh-owned-runtime",
+    "inputs_fingerprint": "1c47e9fca3b3180437fe47631601eeb076311981421c018af4e46a1b83bf7d07",
+    "canonical_contracts_sha256": "bc0ec74fc46330441ff52b3434ed2e41f3b0f46a14e810b5d2062e2784ced887",
+    "native": {
+      "checks": 661,
+      "passed": 661,
+      "status": "PASS",
+      "browser_checks": {
+        "count": 725,
+        "passed": true
+      },
+      "owned_container_removed": true,
+      "private_files_removed": true,
+      "browser_cleanup": {
+        "container_removed": true,
+        "network_removed": true,
+        "errors": []
+      }
+    },
+    "browser": {
+      "checks": 725,
+      "passed": 725,
+      "all_pass": true
+    },
+    "replacement_cases": {
+      "anonymous": {
+        "outcome": "PASS",
+        "source_status": 303,
+        "protected_payload_absent": true,
+        "valid_cargo_option": null,
+        "known_voyage_option": null,
+        "valid_cargo_selection": null,
+        "load_requires_voyage": null,
+        "unload_requires_voyage": null,
+        "valid_voyage_selection": null,
+        "forged_cargo_rejected": null,
+        "forged_voyage_rejected": null,
+        "persisted_cargo_routed": true
+      },
+      "Reader": {
+        "outcome": "PASS",
+        "source_status": 403,
+        "protected_payload_absent": true,
+        "valid_cargo_option": null,
+        "known_voyage_option": null,
+        "valid_cargo_selection": null,
+        "load_requires_voyage": null,
+        "unload_requires_voyage": null,
+        "valid_voyage_selection": null,
+        "forged_cargo_rejected": null,
+        "forged_voyage_rejected": null,
+        "persisted_cargo_routed": true
+      },
+      "Operator": {
+        "outcome": "PASS",
+        "source_status": 200,
+        "protected_payload_absent": null,
+        "valid_cargo_option": true,
+        "known_voyage_option": true,
+        "valid_cargo_selection": true,
+        "load_requires_voyage": true,
+        "unload_requires_voyage": true,
+        "valid_voyage_selection": true,
+        "forged_cargo_rejected": true,
+        "forged_voyage_rejected": true,
+        "persisted_cargo_routed": true
+      },
+      "Administrator": {
+        "outcome": "PASS",
+        "source_status": 200,
+        "protected_payload_absent": null,
+        "valid_cargo_option": true,
+        "known_voyage_option": true,
+        "valid_cargo_selection": true,
+        "load_requires_voyage": true,
+        "unload_requires_voyage": true,
+        "valid_voyage_selection": true,
+        "forged_cargo_rejected": true,
+        "forged_voyage_rejected": true,
+        "persisted_cargo_routed": true
+      }
+    }
+  },
+  "gate": {
+    "before": {
+      "PASS": 404,
+      "BLOCKED": 66
+    },
+    "after": {
+      "PASS": 408,
+      "BLOCKED": 62
+    },
+    "historical_audit": {
+      "PASS": 324,
+      "BLOCKED": 178
+    },
+    "retirement": {
+      "BLOCKED": 76
+    }
+  },
+  "frozen_changed_file_sha256": {
+    "specifications/current-capability-mapping-v2.json": "a85584bddd46d161bb4d0b9aa2eaf8b28641c3a9b62668066fa58ba386381fb0",
+    "tests/security/replacements.py": "bf4b8dc5b3c0262dae0a8aaa73970957ec387f6416554b8197ca4b56870496a0",
+    "tests/security/test_replacements.py": "956628492059dae262a771b03a2bbc099ef1c51f6caefed847f91ef59aa496f4",
+    "tests/browser-workflows/workflows.cjs": "a9bc11bec91b5a368496728219a11e998f370cad8452400f74d6b07636206235",
+    "tests/browser-workflows/effects_bridge.py": "a3aae1b85dd1262d0219fdbc67ef5710f25ec0140068fcfee831139ccf351970",
+    "tests/browser-workflows/run_browser.py": "52b428af9fa1198a8b9ab0cae66d5e9796b1ee38037c641e16341ab693fa2157"
+  },
+  "source_hash_manifest_scope": "Six changed specification, oracle, test, browser producer, bridge and harness files were hashed immediately before the successful run.",
+  "evidence_limits": [
+    "The fresh input fingerprint covers on-disk inputs and constructed canonical contracts, not identity of already-imported Python code.",
+    "Raw browser output and detailed database snapshots remain private under .work/. The committed validation contains counts and sanitized booleans."
+  ]
+}

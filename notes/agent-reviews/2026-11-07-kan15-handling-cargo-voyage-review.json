@@ -1,0 +1,51 @@
+{
+  "date": "2026-11-07",
+  "jira_ticket": "KAN-15",
+  "increment": "handling-cargo-voyage",
+  "legacy_callback": "ACTION-36",
+  "reviewer": "review_current_capability_gate (independent agent)",
+  "review_status": "APPROVED_FOR_COMMIT_AND_PUSH",
+  "verification": {
+    "promotions": 4,
+    "current_gate": {
+      "PASS": 408,
+      "BLOCKED": 62
+    },
+    "historical_audit": {
+      "PASS": 324,
+      "BLOCKED": 178
+    },
+    "retirement": {
+      "BLOCKED": 76
+    },
+    "native_checks": {
+      "passed": 661,
+      "total": 661
+    },
+    "browser_checks": {
+      "passed": 725,
+      "total": 725
+    },
+    "all_four_actor_cases_passed": true,
+    "load_and_unload_missing_voyage_rejected": true,
+    "forged_cargo_and_voyage_rejected": true,
+    "effect_intervals": "Four same-fixture intervals show unchanged database/queues and only getAllCargo +1.",
+    "independent_replay": "All result arrays replayed; historical and retirement arrays match prior checkpoint.",
+    "tests": {
+      "reviewer_security_current": 32,
+      "local_bridge_harness": 7,
+      "all_passed": true
+    },
+    "scope": {
+      "synced_sources_edited": false,
+      "legacy_reference_edited": false
+    },
+    "owned_cleanup": "Passed with no errors"
+  },
+  "publication_file_sha256": {
+    "docs/candidate/handling-cargo-voyage.md": "df6c4ef29a9cef3ae35e50e9711e519c9e287d3dbd75c1fa4e4fce72f97b5d93",
+    "notes/setup-status.md": "4ec8effe2bb93d221d595d54a29eb1117e3bb8e82188484f6c97859879e01663",
+    "notes/work-completed-brief.md": "2435c4035293eaa10651017885fae369e499319af8e2e0538fe0e6a3c8b6af76",
+    "notes/evidence/kan-15-handling-cargo-voyage/validation.json": "464d0bea371508c92aa4f9a392523fc357ddd7f3932ac06b9204b6083f421c4e"
+  }
+}

@@ -5,8 +5,8 @@ from replacements import replacement_observation
 
 class ReplacementTests(unittest.TestCase):
     def case(self, group="cancel-editor", actor="Operator"):
-        ids = {"cancel-editor":["ACTION-08"], "booking-cancel":["ACTION-28","ACTION-31","ACTION-33"], "tracking-discovery":["ACTION-23","ACTION-44"], "booking-deadline":["ACTION-26","ACTION-32"], "booking-single-page":["ACTION-27","ACTION-30","ACTION-34"], "handling-single-page":["ACTION-35","ACTION-40","ACTION-43"]}
-        method="POST" if group in {"booking-deadline","booking-single-page","tracking-discovery"} else "GET"
+        ids = {"cancel-editor":["ACTION-08"], "booking-cancel":["ACTION-28","ACTION-31","ACTION-33"], "tracking-discovery":["ACTION-23","ACTION-44"], "booking-deadline":["ACTION-26","ACTION-32"], "booking-single-page":["ACTION-27","ACTION-30","ACTION-34"], "handling-single-page":["ACTION-35","ACTION-40","ACTION-43"], "handling-cargo-voyage":["ACTION-36"]}
+        method="POST" if group in {"booking-deadline","booking-single-page","tracking-discovery","handling-cargo-voyage"} else "GET"
         return {"capability_id":group,"actor":actor,"binding_status":"browser-replacement-v1",
                 "method":method,"legacy_ids":ids[group]}
 
@@ -137,6 +137,46 @@ class ReplacementTests(unittest.TestCase):
         proof["positive_before"]["fixture_id"]="a"*64
         with self.assertRaises(UnsupportedCase):
             replacement_observation(self.case("booking-deadline","Operator"),proof)
+
+    def handling_cargo_voyage(self, actor="Operator"):
+        sample={"fixture_id":"9"*64,"tables":{"CARGO":{"rows":2,"sha256":"a"*64}},
+                "queues":{"handling":{"MessagesAdded":3}},
+                "business_invocations":{"net.java.cargotracker.interfaces.booking.rest.CargoMonitoringService#getAllCargo":4,"other":2}}
+        before={**copy.deepcopy(sample),"stage":"handling-cargo-voyage:"+actor+":before"}
+        after={**copy.deepcopy(sample),"stage":"handling-cargo-voyage:"+actor+":after"}
+        after["business_invocations"]["net.java.cargotracker.interfaces.booking.rest.CargoMonitoringService#getAllCargo"]=5
+        allowed=actor in {"Operator","Administrator"}
+        proof={"replacement_driver":"browser-replacement-v1","group":"handling-cargo-voyage","tracking_id":"ABCDEFGH",
+          "source_path":"/cargo-tracker/mobile.xhtml","source_status":200 if allowed else 403 if actor=="Reader" else 303,
+          "valid_cargo_option":allowed,"known_voyage_option":allowed,"valid_cargo_selection":allowed,
+          "load_requires_voyage":allowed,"unload_requires_voyage":allowed,"valid_voyage_selection":allowed,
+          "forged_cargo_rejected":allowed,"forged_voyage_rejected":allowed,"persisted_cargo_routed":allowed,
+          "protected_payload_absent":not allowed,"source_login_verified":actor=="anonymous",
+          "before":before,"after":after}
+        if actor!="anonymous":
+            principal={"Reader":"reader","Operator":"operator","Administrator":"admin"}[actor]
+            proof["identity"]={"server_verified":True,"principal":principal,"roles":[actor]}
+        return proof
+
+    def test_handling_cargo_voyage_requires_valid_choices_and_denials(self):
+        for actor in ["anonymous","Reader","Operator","Administrator"]:
+            proof=self.handling_cargo_voyage(actor)
+            result=replacement_observation(self.case("handling-cargo-voyage",actor),proof)
+            self.assertEqual(result["semantic_success"],actor in {"Operator","Administrator"})
+            self.assertEqual(result["invocation_denied"],actor in {"anonymous","Reader"})
+            changed=copy.deepcopy(proof);changed["after"]["tables"]["CARGO"]["rows"]=3
+            with self.subTest(actor=actor),self.assertRaises(UnsupportedCase):
+                replacement_observation(self.case("handling-cargo-voyage",actor),changed)
+        for field in ["valid_cargo_option","known_voyage_option","valid_cargo_selection","load_requires_voyage","unload_requires_voyage",
+                      "valid_voyage_selection","forged_cargo_rejected","forged_voyage_rejected","persisted_cargo_routed"]:
+            proof=self.handling_cargo_voyage("Operator");proof[field]=False
+            with self.subTest(field=field),self.assertRaises(UnsupportedCase):
+                replacement_observation(self.case("handling-cargo-voyage","Operator"),proof)
+        for actor,field,value in [("Reader","source_status",200),("Reader","protected_payload_absent",False),
+                                  ("anonymous","source_login_verified",False)]:
+            proof=self.handling_cargo_voyage(actor);proof[field]=value
+            with self.subTest(actor=actor,field=field),self.assertRaises(UnsupportedCase):
+                replacement_observation(self.case("handling-cargo-voyage",actor),proof)
 
     def handling(self, actor="Operator"):
         sample={"fixture_id":"9"*64,"tables":{"CARGO":{"rows":2,"sha256":"a"*64}},

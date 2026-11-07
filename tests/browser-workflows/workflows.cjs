@@ -440,6 +440,106 @@ function unchangedEffects(before,after,expectedReadDelta=1){
     source_login_verified:sourceLoginVerified,before,after,
     ...(actor?{identity:{server_verified:true,principal:actor.identity.principal,roles:actor.identity.roles}}:{})};
   }
+  async function handlingCargoVoyageProof(actor,tracking){
+   const role=actor?cargoRole(actor):"anonymous";
+   const stage="handling-cargo-voyage:"+role;
+   const before=await observeEffects(stage+":before");
+   let sourceStatus=null,protectedPayloadAbsent=false,sourceLoginVerified=false;
+   let validCargoOption=false,knownVoyageOption=false,validCargoSelection=false,
+    loadRequiresVoyage=false,unloadRequiresVoyage=false,validVoyageSelection=false,forgedCargoRejected=false,forgedVoyageRejected=false;
+   if(actor&&["operator","admin"].includes(actor.who)){
+    const page=actor.page;
+    const response=await page.goto(base+"mobile.xhtml");
+    sourceStatus=response.status();
+    const cargo=page.getByLabel("Cargo",{exact:true});
+    const voyage=page.getByLabel("Voyage (required for LOAD/UNLOAD)",{exact:true});
+    const cargoValues=await cargo.locator("option").evaluateAll(options=>options.map(option=>option.value));
+    const voyageValues=await voyage.locator("option").evaluateAll(options=>options.map(option=>option.value));
+    validCargoOption=cargoValues.includes(tracking);
+    knownVoyageOption=voyageValues.includes("0100S");
+    await cargo.selectOption(tracking);
+    await page.getByLabel("Event",{exact:true}).selectOption("LOAD");
+    await page.getByLabel("Location",{exact:true}).selectOption(actor.who==="operator"?"USCHI":"DEHAM");
+    await page.getByLabel("Completion time (YYYY-MM-DD HH:mm)").fill("2032-02-07 10:00");
+    validCargoSelection=await cargo.inputValue()===tracking;
+    await page.getByRole("button",{name:"Submit handling report",exact:true}).click();
+    await page.getByText("Choose a voyage for LOAD or UNLOAD.",{exact:true}).waitFor();
+    loadRequiresVoyage=true;
+    await page.goto(base+"mobile.xhtml");
+    await page.getByLabel("Cargo",{exact:true}).selectOption(tracking);
+    await page.getByLabel("Event",{exact:true}).selectOption("UNLOAD");
+    await page.getByLabel("Location",{exact:true}).selectOption(actor.who==="operator"?"USCHI":"DEHAM");
+    await page.getByLabel("Completion time (YYYY-MM-DD HH:mm)").fill("2032-02-07 10:00");
+    await page.getByRole("button",{name:"Submit handling report",exact:true}).click();
+    await page.getByText("Choose a voyage for LOAD or UNLOAD.",{exact:true}).waitFor();
+    unloadRequiresVoyage=true;
+    await page.goto(base+"mobile.xhtml");
+    const cargo2=page.getByLabel("Cargo",{exact:true});
+    const voyage2=page.getByLabel("Voyage (required for LOAD/UNLOAD)",{exact:true});
+    await cargo2.selectOption(tracking);
+    await page.getByLabel("Event",{exact:true}).selectOption("LOAD");
+    await page.getByLabel("Location",{exact:true}).selectOption(actor.who==="operator"?"USCHI":"DEHAM");
+    await page.getByLabel("Completion time (YYYY-MM-DD HH:mm)").fill("2032-02-07 10:00");
+    await voyage2.selectOption("0100S");
+    validVoyageSelection=await voyage2.inputValue()==="0100S";
+    await page.goto(base+"mobile.xhtml");
+    const badCargo=page.getByLabel("Cargo",{exact:true});
+    await badCargo.evaluate(el=>{const option=document.createElement("option");option.value="ZZZINVALID";option.textContent="invalid";el.append(option);el.value=option.value;});
+    await page.getByLabel("Event",{exact:true}).selectOption("CUSTOMS");
+    await page.getByLabel("Location",{exact:true}).selectOption(actor.who==="operator"?"USCHI":"DEHAM");
+    await page.getByLabel("Completion time (YYYY-MM-DD HH:mm)").fill("2032-02-07 10:00");
+    const cargoResponsePromise=page.waitForResponse(r=>r.request().isNavigationRequest()&&r.request().method()==="POST"&&new URL(r.url()).pathname.endsWith("/mobile.xhtml"));
+    await page.getByRole("button",{name:"Submit handling report",exact:true}).click();
+    const cargoResponse=await cargoResponsePromise;
+    const cargoBody=await page.locator("body").innerText();
+    forgedCargoRejected=cargoResponse.status()===200&&!cargoBody.includes("Accepted for processing.")&&
+      (cargoBody.includes("Validation Error: Value is not valid")||cargoBody.includes("Choose a currently routed, unclaimed cargo."));
+    check("Forged handling cargo rejected "+role,forgedCargoRejected);
+    await page.goto(base+"mobile.xhtml");
+    const validCargo=page.getByLabel("Cargo",{exact:true});
+    const badVoyage=page.getByLabel("Voyage (required for LOAD/UNLOAD)",{exact:true});
+    await validCargo.selectOption(tracking);
+    await page.getByLabel("Event",{exact:true}).selectOption("UNLOAD");
+    await page.getByLabel("Location",{exact:true}).selectOption(actor.who==="operator"?"USCHI":"DEHAM");
+    await page.getByLabel("Completion time (YYYY-MM-DD HH:mm)").fill("2032-02-07 10:00");
+    await badVoyage.evaluate(el=>{const option=document.createElement("option");option.value="ZZZINVALID";option.textContent="invalid";el.append(option);el.value=option.value;});
+    const voyageResponsePromise=page.waitForResponse(r=>r.request().isNavigationRequest()&&r.request().method()==="POST"&&new URL(r.url()).pathname.endsWith("/mobile.xhtml"));
+    await page.getByRole("button",{name:"Submit handling report",exact:true}).click();
+    const voyageResponse=await voyageResponsePromise;
+    const voyageBody=await page.locator("body").innerText();
+    forgedVoyageRejected=voyageResponse.status()===200&&!voyageBody.includes("Accepted for processing.")&&
+      (voyageBody.includes("Validation Error: Value is not valid")||voyageBody.includes("Choose a voyage for LOAD or UNLOAD."));
+    check("Forged handling voyage rejected "+role,forgedVoyageRejected);
+   }else{
+    const context=actor?actor.context:anon;
+    const response=await context.request.get(base+"mobile.xhtml",{maxRedirects:0});
+    sourceStatus=response.status();
+    const body=await response.text();
+    const markers=["Choose cargo","Voyage (required for LOAD/UNLOAD)","0100S",tracking];
+    protectedPayloadAbsent=markers.every(marker=>!body.includes(marker));
+    sourceLoginVerified=role==="anonymous"&&sourceStatus===303&&new URL(response.headers().location,base).href===base+"login";
+    check("Handling cargo/voyage source denied "+role,(role==="anonymous"?sourceLoginVerified:sourceStatus===403)&&protectedPayloadAbsent);
+   }
+   const persistedCargo=await readCargo(tracking,"ROUTED");
+   const after=await observeEffects(stage+":after");
+   check("Handling cargo/voyage effects unchanged "+role,unchangedEffects(before,after,1));
+   return {replacement_driver:"browser-replacement-v1",group:"handling-cargo-voyage",tracking_id:tracking,
+    source_path:"/cargo-tracker/mobile.xhtml",source_status:sourceStatus,
+    protected_payload_absent:protectedPayloadAbsent,source_login_verified:sourceLoginVerified,
+    valid_cargo_option:validCargoOption,known_voyage_option:knownVoyageOption,
+    valid_cargo_selection:validCargoSelection,load_requires_voyage:loadRequiresVoyage,
+    unload_requires_voyage:unloadRequiresVoyage,valid_voyage_selection:validVoyageSelection,forged_cargo_rejected:forgedCargoRejected,
+    forged_voyage_rejected:forgedVoyageRejected,persisted_cargo_routed:persistedCargo.routingStatus==="ROUTED",
+    before,after,
+    ...(actor?{identity:{server_verified:true,principal:actor.identity.principal,roles:actor.identity.roles}}:{})};
+  }
+  async function handlingCargoVoyageProofs(tracking){
+   for(const actor of [null,reader,operator,admin]){
+    const proof=await handlingCargoVoyageProof(actor,tracking);
+    const role=actor?cargoRole(actor):"anonymous";
+    replacementProofs["REPLACEMENT::handling-cargo-voyage::"+role]=proof;
+   }
+  }
   async function handlingReplacementProofs(tracking){
    for(const actor of [null,reader,operator,admin]){
     const proof=await prepareHandlingReplacement(actor,tracking);
@@ -625,6 +725,7 @@ function unchangedEffects(before,after,expectedReadDelta=1){
   await operator.page.getByText("No sample routes meet this cargo's arrival deadline.",{exact:true}).waitFor();
   check("No candidates for expired deadline handled",await operator.page.getByRole("button",{name:"Assign selected route",exact:true}).count()===0);
   await handlingReplacementProofs(id);
+  await handlingCargoVoyageProofs(id);
   const readerMobile=await reader.context.request.get(base+"mobile.xhtml");
   check("Reader direct handling UI denied",readerMobile.status()===403);
   for(const actor of [operator,admin]){
