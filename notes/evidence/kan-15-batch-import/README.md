@@ -8,4 +8,4 @@ The authorized empty import ran as batch-worker and left business state unchange
 
 The BatchApiProbe servlet is injected only into the disposable build context by the test harness. It is absent from candidate source and production WAR configuration. The owned container and generated credentials were removed; cleanup errors were empty. No shared baseline or Jenkins container was used, and synced sources/ were not modified.
 
-This evidence covers BG-01 initiation only. It does not complete KAN-15's overall access acceptance inventory or later batch recovery, crash deduplication, and independent worker/broker boundary work (BG-02 through BG-05). Independent review approved the BG-01 scope; KAN-15 remains In Review.
+This evidence covers BG-01 initiation only. It does not complete KAN-15's overall access acceptance inventory or later batch recovery, crash deduplication, and independent worker/broker boundary work (BG-02 through BG-05). Independent review approved the BG-01 scope; KAN-15 remains In Progress.
