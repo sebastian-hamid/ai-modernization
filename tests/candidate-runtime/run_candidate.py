@@ -605,44 +605,84 @@ def main(after_checks=None):
         # BG-01: the protected page rejects other roles, fixed-root validation
         # rejects adversarial staged entries, and a valid empty file proves the
         # actual JBeret execution identity without changing cargo business data.
-        for actor in ("reader","operator"):
+        def effects_unchanged(before,after):
+            return (before["tables"]==after["tables"] and before["queues"]==after["queues"]
+                and before["business_invocations"]==after["business_invocations"])
+        def effects_receipt(before,after):
+            return {"settled":True,"fixture_id":container,"before_fixture":container,"after_fixture":container,
+                "before":{"database":before["tables"],"queue":before["queues"],"business_audit":before["business_invocations"]},
+                "after":{"database":after["tables"],"queue":after["queues"],"business_audit":after["business_invocations"]}}
+        def batch_payload_absent(body):
+            return payload_absent(body) and not any(marker in body for marker in
+                ["Import accepted","runId=","batch-worker","IMPORT_AUDIT"])
+        batch_actor_observations={}
+        for actor,role in [("reader","Reader"),("operator","Operator")]:
+            denied_before=settled()
             denied_get=request(sessions[actor][1],"admin/import.xhtml")
             denied_post=request(sessions[actor][1],"admin/import.xhtml",
                 {"csrf":sessions[actor][2],"jakarta.faces.ViewState":"forged","batchImport:start":""},
                 sessions[actor][2])
-            check("Batch import route denied: "+actor,
-                denied_get[0]==403 and denied_post[0]==403)
+            denied_after=settled()
+            unchanged=effects_unchanged(denied_before,denied_after)
+            absent=batch_payload_absent(denied_get[1]) and batch_payload_absent(denied_post[1])
+            check("Batch import route denied without effects: "+actor,
+                denied_get[0]==403 and denied_post[0]==403 and unchanged and absent)
+            batch_actor_observations[role]={"driver":"native-batch-import-v1","actor":role,
+                "supported":True,"status":denied_post[0],"invocation_denied":True,
+                "effects":effects_receipt(denied_before,denied_after),
+                "get_status":denied_get[0],"post_status":denied_post[0],
+                "protected_payload_absent":absent,"independent_effects_unchanged":unchanged,
+                "identity":report["identities"][actor]}
 
         admin_opener=sessions["admin"][1]
         probe_path="__fixture/batch-probe"
+        anonymous_import_before=settled()
         anonymous_import_get=request(anonymous,"admin/import.xhtml")
         anonymous_import_post=request(anonymous,"admin/import.xhtml",
             {"batchImport":"batchImport","batchImport:start":"Process staged files"})
+        anonymous_import_after=settled()
+        anonymous_unchanged=effects_unchanged(anonymous_import_before,anonymous_import_after)
+        anonymous_absent=(batch_payload_absent(anonymous_import_get[1])
+            and batch_payload_absent(anonymous_import_post[1]))
+        anonymous_login=(anonymous_import_get[2].get("Location")=="/cargo-tracker/login"
+            and anonymous_import_post[2].get("Location")=="/cargo-tracker/login")
         check("Anonymous batch import GET and POST denied before dispatch",
-            anonymous_import_get[0]==303
-            and anonymous_import_get[2].get("Location")=="/cargo-tracker/login"
-            and payload_absent(anonymous_import_get[1])
-            and anonymous_import_post[0]==303
-            and anonymous_import_post[2].get("Location")=="/cargo-tracker/login"
-            and payload_absent(anonymous_import_post[1]))
+            anonymous_import_get[0]==303 and anonymous_login and anonymous_absent
+            and anonymous_import_post[0]==303 and anonymous_unchanged)
+        batch_actor_observations["anonymous"]={"driver":"native-batch-import-v1","actor":"anonymous",
+            "supported":True,"status":anonymous_import_post[0],"invocation_denied":True,
+            "effects":effects_receipt(anonymous_import_before,anonymous_import_after),
+            "get_status":anonymous_import_get[0],"post_status":anonymous_import_post[0],
+            "redirect_is_configured_login":anonymous_login,
+            "protected_payload_absent":anonymous_absent,
+            "independent_effects_unchanged":anonymous_unchanged}
         api_before=settled()
-        direct_api_denials={}
+        direct_api_denials={};direct_api_payload_absent={}
         for actor in ("reader","operator","admin"):
             opener=sessions[actor][1]
-            statuses={}
+            statuses={};payloads={}
             for operation in ("read","start"):
-                statuses[operation]=request(opener,probe_path+"?operation="+operation)[0]
+                code,body,_=request(opener,probe_path+"?operation="+operation)
+                statuses[operation]=code;payloads[operation]=batch_payload_absent(body)
             direct_api_denials[actor]=statuses
+            direct_api_payload_absent[actor]=payloads
             check("Direct JobOperator "+actor+" read/start denied",
-                all(status==403 for status in statuses.values()))
+                all(status==403 for status in statuses.values()) and all(payloads.values()))
         api_after=settled()
+        api_effects_unchanged=effects_unchanged(api_before,api_after)
+        for role,actor in [("Reader","reader"),("Operator","operator"),("Administrator","admin")]:
+            proof=batch_actor_observations.get(role)
+            if proof is not None:
+                proof["direct_api_denials"]=direct_api_denials[actor]
+                proof["direct_api_payload_absent"]=direct_api_payload_absent[actor]
+                proof["direct_api_effects_unchanged"]=api_effects_unchanged
         report["batch_import_direct_api_denials"]=direct_api_denials
         api_job_start_delta=(api_after["business_invocations"].get(
             "net.java.cargotracker.interfaces.handling.file.BatchWorkerAudit#jobStarted",0)
             - api_before["business_invocations"].get(
                 "net.java.cargotracker.interfaces.handling.file.BatchWorkerAudit#jobStarted",0))
         check("Direct JobOperator probes create no batch execution",
-            api_job_start_delta==0 and "IMPORT_AUDIT" not in command("docker","logs",container))
+            api_job_start_delta==0 and api_effects_unchanged and "IMPORT_AUDIT" not in command("docker","logs",container))
 
         # Obtain an enabled form first, then flip the switch off before submitting
         # that still-valid form. This reaches the server-side RequestService gate.
@@ -972,8 +1012,29 @@ def main(after_checks=None):
         def effect_sample(sample):
             return {"tables":sample["tables"],"queues":sample["queues"],
                 "business_invocations":sample["business_invocations"]}
+        admin_semantic=(accepted is not None and worker_verified and valid_positive and valid_queues
+            and valid_tables and valid_call_deltas and file_removed and valid_file_removed)
+        batch_actor_observations["Administrator"]={"driver":"native-batch-import-v1","actor":"Administrator",
+            "supported":True,"status":200,"semantic_success":admin_semantic,
+            "authorized_effect_verified":admin_semantic,
+            "authorized_form_status":enabled_form_status,
+            "csrf_present":enabled_form_csrf is not None,
+            "viewstate_present":enabled_form_view is not None,
+            "authorized_start_accepted":accepted is not None and len(accepted_values)==1
+                and concurrent_submissions==1 and all(result[0]==200 for result in concurrent_results),
+            "empty_business_state_unchanged":business_unchanged,
+            "empty_control_calls_bounded":control_calls_bounded,
+            "worker_identity_verified":worker_verified,
+            "valid_event_persisted":valid_positive,"valid_queue_cycles":valid_queues,
+            "valid_table_deltas":valid_tables,"valid_invocation_deltas_bounded":valid_call_deltas,
+            "direct_api_denials":direct_api_denials.get("admin",{}),
+            "direct_api_payload_absent":direct_api_payload_absent.get("admin",{}),
+            "direct_api_effects_unchanged":api_effects_unchanged,
+            "identity":report["identities"]["admin"]}
+        report["batch_import_actor_observations"]=batch_actor_observations
         report["batch_import"]={"anonymous_get_post_denied":True,
             "direct_api_denials":direct_api_denials,
+            "direct_api_effects_unchanged":api_effects_unchanged,
             "restart_denials":restart_denials,"disabled_switch_denied":True,
             "csrf_denied":True,"revoked_session_denied":True,
             "concurrent_single_start":True,"replay_denied":True,

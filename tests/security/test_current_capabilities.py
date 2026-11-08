@@ -3,7 +3,7 @@ from pathlib import Path
 from unittest.mock import patch
 sys.path.insert(0,str(Path(__file__).parent))
 import current_capabilities as c
-from contracts import UnsupportedCase
+from contracts import UnsupportedCase,evaluate
 class FakeLegacy:
     """Privileged counterfactual unit double; never runtime evidence."""
     def __init__(self,observation):self.observation=observation
@@ -325,4 +325,63 @@ class CurrentCapabilityTests(unittest.TestCase):
                             ("identity",{"server_verified":True,"principal":"operator","roles":["Operator"]})]:
             adapter.legacy.retirement_observations={case["id"]:{**proof,field:value}}
             with self.subTest(field=field),self.assertRaises(UnsupportedCase):adapter.execute_retirement(case,replacement)
+    def test_bg01_current_gate_requires_actor_specific_denial_or_admin_worker_evidence(self):
+        adapter=c.CurrentAdapter()
+        adapter._run_fingerprint="a"*64
+        adapter.provenance={"kind":"fresh-owned-runtime","inputs_fingerprint":"a"*64,"legacy_fixture_cleanup_verified":True}
+        adapter.legacy=FakeLegacy({})
+        direct={"read":403,"start":403}
+        direct_absent={"read":True,"start":True}
+        common={"driver":"native-batch-import-v1","direct_api_denials":direct,
+                "direct_api_payload_absent":direct_absent,"direct_api_effects_unchanged":True}
+        admin={"driver":"native-batch-import-v1","actor":"Administrator",**common,
+               "supported":True,"status":200,"semantic_success":True,"authorized_effect_verified":True,
+               "authorized_form_status":200,"csrf_present":True,"viewstate_present":True,
+               "authorized_start_accepted":True,"empty_business_state_unchanged":True,
+               "empty_control_calls_bounded":True,"worker_identity_verified":True,
+               "valid_event_persisted":True,"valid_queue_cycles":True,"valid_table_deltas":True,
+               "valid_invocation_deltas_bounded":True,
+               "identity":{"server_verified":True,"principal":"admin","roles":["Administrator"]}}
+        adapter.legacy.batch_import_observations={"Administrator":admin}
+        admin_case=adapter.contracts["CURRENT::BG-01::Administrator::active"]
+        self.assertEqual(evaluate(admin_case,adapter.execute(admin_case))[0],"PASS")
+        for field,value in [("worker_identity_verified",False),("authorized_start_accepted",False),
+                            ("direct_api_effects_unchanged",False)]:
+            adapter.legacy.batch_import_observations={"Administrator":{**admin,field:value}}
+            with self.subTest(field=field),self.assertRaises(UnsupportedCase):adapter.execute(admin_case)
+        for role,actor,expected_status in [("Reader","reader",403),("Operator","operator",403)]:
+            sample={"tables":{"CARGO":{"rows":1,"sha256":"a"*64}},
+                    "queues":{"test":{"MessageCount":0}},
+                    "business_invocations":{"BatchImport#start":0}}
+            effects={"settled":True,"fixture_id":"owned","before_fixture":"owned","after_fixture":"owned",
+                     "before":{"database":sample["tables"],"queue":sample["queues"],"business_audit":sample["business_invocations"]},
+                     "after":{"database":sample["tables"],"queue":sample["queues"],"business_audit":sample["business_invocations"]}}
+            denied={"driver":"native-batch-import-v1","actor":role,**common,
+                    "supported":True,"status":expected_status,"invocation_denied":True,"effects":effects,
+                    "get_status":expected_status,"post_status":expected_status,
+                    "protected_payload_absent":True,"independent_effects_unchanged":True,
+                    "identity":{"server_verified":True,"principal":actor,"roles":[role]}}
+            adapter.legacy.batch_import_observations={role:denied}
+            case=adapter.contracts["CURRENT::BG-01::"+role+"::active"]
+            self.assertEqual(evaluate(case,adapter.execute(case))[0],"PASS")
+            for field,value in [("independent_effects_unchanged",False),("protected_payload_absent",False),("get_status",200)]:
+                adapter.legacy.batch_import_observations={role:{**denied,field:value}}
+                with self.subTest(role=role,field=field),self.assertRaises(UnsupportedCase):adapter.execute(case)
+        sample={"tables":{"CARGO":{"rows":1,"sha256":"a"*64}},
+                "queues":{"test":{"MessageCount":0}},
+                "business_invocations":{"BatchImport#start":0}}
+        effects={"settled":True,"fixture_id":"owned","before_fixture":"owned","after_fixture":"owned",
+                 "before":{"database":sample["tables"],"queue":sample["queues"],"business_audit":sample["business_invocations"]},
+                 "after":{"database":sample["tables"],"queue":sample["queues"],"business_audit":sample["business_invocations"]}}
+        anonymous={"driver":"native-batch-import-v1","actor":"anonymous",**common,
+                   "supported":True,"status":303,"invocation_denied":True,"effects":effects,
+                   "get_status":303,"post_status":303,"redirect_is_configured_login":True,
+                   "protected_payload_absent":True,"independent_effects_unchanged":True}
+        adapter.legacy.batch_import_observations={"anonymous":anonymous}
+        anon_case=adapter.contracts["CURRENT::BG-01::anonymous::active"]
+        self.assertEqual(evaluate(anon_case,adapter.execute(anon_case))[0],"PASS")
+        for field,value in [("redirect_is_configured_login",False),("independent_effects_unchanged",False),
+                            ("identity",{"principal":"admin","roles":["Administrator"]})]:
+            adapter.legacy.batch_import_observations={"anonymous":{**anonymous,field:value}}
+            with self.subTest(field=field),self.assertRaises(UnsupportedCase):adapter.execute(anon_case)
 if __name__=="__main__":unittest.main()

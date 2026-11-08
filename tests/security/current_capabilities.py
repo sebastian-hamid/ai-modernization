@@ -121,7 +121,7 @@ def build_current(model,inventory):
         if old["surface_id"] in retired:continue
         row=mapped.get(old["surface_id"]) or pending.get(old["surface_id"])
         case=deepcopy(old)
-        case.update(id="CURRENT::"+old["id"],contract_version=2,kind="current",legacy_case_id=old["id"],legacy_contract=deepcopy(old),capability_id=row["capability_id"] if row else old["surface_id"].lower(),binding_status="pending" if old["surface_id"] in pending else "native-staged-return" if old["surface_id"]=="ACTION-13" else "native-current-load" if old["surface_id"] in NATIVE_CURRENT_LOADS else "browser-current-navigation" if old["surface_id"] in {"ACTION-10","ACTION-11","ACTION-12","ACTION-21","ACTION-22","ACTION-24","ACTION-25","ACTION-45"} else "existing-runtime-driver")
+        case.update(id="CURRENT::"+old["id"],contract_version=2,kind="current",legacy_case_id=old["id"],legacy_contract=deepcopy(old),capability_id=row["capability_id"] if row else old["surface_id"].lower(),binding_status="pending" if old["surface_id"] in pending else "native-batch-import" if old["surface_id"]=="BG-01" else "native-staged-return" if old["surface_id"]=="ACTION-13" else "native-current-load" if old["surface_id"] in NATIVE_CURRENT_LOADS else "browser-current-navigation" if old["surface_id"] in {"ACTION-10","ACTION-11","ACTION-12","ACTION-21","ACTION-22","ACTION-24","ACTION-25","ACTION-45"} else "existing-runtime-driver")
         if row:
             source="index.xhtml" if old["surface_id"]!="ACTION-13" and old["actor"]=="anonymous" and old["expected"]=="deny" and row["modern_method"]=="GET" else row["modern_source"]
             case.update(path=row["modern_target"],method=row["modern_method"],current_source=source)
@@ -163,11 +163,43 @@ class CurrentAdapter:
         if canonical is None or canonical!=case:raise UnsupportedCase()
         if case["kind"] not in {"current","replacement"} or self.legacy is None or self.provenance is None:
             raise UnsupportedCase()
-        if case["kind"]=="current" and case.get("binding_status") not in {"existing-runtime-driver","native-current-load","browser-current-navigation","native-staged-return"}:
+        if case["kind"]=="current" and case.get("binding_status") not in {"existing-runtime-driver","native-current-load","browser-current-navigation","native-staged-return","native-batch-import"}:
             raise UnsupportedCase()
         if not isinstance(self.provenance,dict) or self.provenance.get("kind")!="fresh-owned-runtime" or self.provenance.get("legacy_fixture_cleanup_verified") is not True or self.provenance.get("inputs_fingerprint")!=self._run_fingerprint or re.fullmatch("[0-9a-f]{64}",str(self._run_fingerprint)) is None:raise UnsupportedCase()
         if case["kind"]=="replacement":
             observation=replacement_observation(case,getattr(self.legacy,"replacement_observations",{}).get(case["id"],{}))
+        elif case["binding_status"]=="native-batch-import":
+            observation=deepcopy(getattr(self.legacy,"batch_import_observations",{}).get(case["actor"],{}))
+            if (observation.get("driver")!="native-batch-import-v1" or observation.get("actor")!=case["actor"]
+                    or observation.get("supported") is not True):
+                raise UnsupportedCase()
+            if case["actor"]!="anonymous":
+                if observation.get("direct_api_effects_unchanged") is not True or any(
+                        observation.get("direct_api_denials",{}).get(operation)!=403
+                        or observation.get("direct_api_payload_absent",{}).get(operation) is not True
+                        for operation in ("read","start")):
+                    raise UnsupportedCase()
+            if case["expected"]=="allow":
+                if (case["actor"]!="Administrator" or observation.get("authorized_form_status")!=200
+                        or observation.get("csrf_present") is not True or observation.get("viewstate_present") is not True
+                        or observation.get("authorized_start_accepted") is not True
+                        or observation.get("empty_business_state_unchanged") is not True
+                        or observation.get("empty_control_calls_bounded") is not True
+                        or observation.get("worker_identity_verified") is not True
+                        or observation.get("valid_event_persisted") is not True
+                        or observation.get("valid_queue_cycles") is not True
+                        or observation.get("valid_table_deltas") is not True
+                        or observation.get("valid_invocation_deltas_bounded") is not True):
+                    raise UnsupportedCase()
+            elif (observation.get("independent_effects_unchanged") is not True
+                    or observation.get("protected_payload_absent") is not True):
+                raise UnsupportedCase()
+            elif case["actor"]=="anonymous":
+                if (observation.get("get_status")!=303 or observation.get("post_status")!=303
+                        or observation.get("redirect_is_configured_login") is not True):
+                    raise UnsupportedCase()
+            elif observation.get("get_status")!=403 or observation.get("post_status")!=403:
+                raise UnsupportedCase()
         elif case["binding_status"]=="native-staged-return":
             observation=return_observation(case,getattr(self.legacy,"current_observations",{}).get(case["id"],{}))
         elif case["binding_status"]=="native-current-load":

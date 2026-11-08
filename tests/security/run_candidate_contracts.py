@@ -18,6 +18,8 @@ class LiveSubsetCandidate:
         if report.get("status")!="PASS" or not report.get("owned_container_removed") or not report.get("private_files_removed"):raise RuntimeError("Live fixture failed or cleanup incomplete")
         browser=report.get("browser_checks",{});cleanup=report.get("browser_cleanup",{})
         if browser.get("passed") is not True or not browser.get("count") or cleanup.get("container_removed") is not True or cleanup.get("network_removed") is not True or cleanup.get("errors"):raise RuntimeError("Browser verification or cleanup incomplete")
+        self.report=report
+        self.batch_import_observations=report.get("batch_import_actor_observations",{})
         self.observations=report["access_observations"]
         self.current_observations=report.get("current_access_observations",{})
         self.replacement_observations=report.get("replacement_observations",{})
