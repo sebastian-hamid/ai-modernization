@@ -1,0 +1,146 @@
+{
+  "schema_version": 1,
+  "jira_ticket": "KAN-15",
+  "increment": "handling-voyage",
+  "legacy_callback": "ACTION-39",
+  "scope": "Known voyage option and selection, invalid voyage rejection, LOAD/UNLOAD voyage requirements, and null voyage persistence after selecting a voyage then changing to a non-load event.",
+  "fresh_fixture": {
+    "kind": "fresh-owned-runtime",
+    "inputs_fingerprint": "e85a090a36d2b633018b33095d80c8c502c20f46806650eea54acbb1f0c532da",
+    "canonical_contracts_sha256": "fb9441dec9b26998254f870cf5c257957c48dde9aaa74109e559b00549036476",
+    "native": {
+      "checks": 661,
+      "passed": 661,
+      "status": "PASS",
+      "browser_checks": {
+        "count": 791,
+        "passed": true
+      },
+      "owned_container_removed": true,
+      "private_files_removed": true,
+      "browser_cleanup": {
+        "container_removed": true,
+        "network_removed": true,
+        "errors": []
+      },
+      "cleanup_errors": []
+    },
+    "browser": {
+      "checks": 791,
+      "passed": 791,
+      "all_pass": true
+    },
+    "replacement_cases": {
+      "anonymous": {
+        "outcome": "PASS",
+        "source_status": 303,
+        "event_submit_status": null,
+        "protected_payload_absent": true,
+        "known_voyage_option": false,
+        "valid_voyage_selection": false,
+        "forged_voyage_rejected": false,
+        "load_requires_voyage": false,
+        "unload_requires_voyage": false,
+        "valid_voyage_retained_after_nonload_change": false,
+        "persisted_event_exactly_one": false,
+        "persisted_event_type": null,
+        "persisted_event_date": null,
+        "persisted_event_location": null,
+        "persisted_voyage_null": null,
+        "positive_effects_verified": null
+      },
+      "Reader": {
+        "outcome": "PASS",
+        "source_status": 403,
+        "event_submit_status": null,
+        "protected_payload_absent": true,
+        "known_voyage_option": false,
+        "valid_voyage_selection": false,
+        "forged_voyage_rejected": false,
+        "load_requires_voyage": false,
+        "unload_requires_voyage": false,
+        "valid_voyage_retained_after_nonload_change": false,
+        "persisted_event_exactly_one": false,
+        "persisted_event_type": null,
+        "persisted_event_date": null,
+        "persisted_event_location": null,
+        "persisted_voyage_null": null,
+        "positive_effects_verified": null
+      },
+      "Operator": {
+        "outcome": "PASS",
+        "source_status": 200,
+        "event_submit_status": 200,
+        "protected_payload_absent": false,
+        "known_voyage_option": true,
+        "valid_voyage_selection": true,
+        "forged_voyage_rejected": true,
+        "load_requires_voyage": true,
+        "unload_requires_voyage": true,
+        "valid_voyage_retained_after_nonload_change": true,
+        "persisted_event_exactly_one": true,
+        "persisted_event_type": "CUSTOMS",
+        "persisted_event_date": "2032-02-04T00:00:00",
+        "persisted_event_location": "USCHI",
+        "persisted_voyage_null": true,
+        "positive_effects_verified": true
+      },
+      "Administrator": {
+        "outcome": "PASS",
+        "source_status": 200,
+        "event_submit_status": 200,
+        "protected_payload_absent": false,
+        "known_voyage_option": true,
+        "valid_voyage_selection": true,
+        "forged_voyage_rejected": true,
+        "load_requires_voyage": true,
+        "unload_requires_voyage": true,
+        "valid_voyage_retained_after_nonload_change": true,
+        "persisted_event_exactly_one": true,
+        "persisted_event_type": "CUSTOMS",
+        "persisted_event_date": "2032-02-04T00:00:00",
+        "persisted_event_location": "DEHAM",
+        "persisted_voyage_null": true,
+        "positive_effects_verified": true
+      }
+    },
+    "evidence_composition": "This ACTION-39 proof deliberately combines two same-fixture observations for the same role and booked cargo: the cargo/voyage form control interval (known option, valid selection, forged voyage denial and required LOAD/UNLOAD) and the already-submitted ACTION-38 CUSTOMS positive control (selected voyage retained in the UI, exact persisted row with null voyage, and positive effects). It does not claim a second event submission. The read-only observer returns exactly one CUSTOMS row for the same cargo ID, persisted date 2032-02-04, and actor-specific location."
+  },
+  "gate": {
+    "before": {
+      "PASS": 416,
+      "BLOCKED": 54
+    },
+    "after": {
+      "PASS": 420,
+      "BLOCKED": 50
+    },
+    "historical_audit": {
+      "PASS": 324,
+      "BLOCKED": 178
+    },
+    "retirement": {
+      "BLOCKED": 76
+    },
+    "gate_exit": 2,
+    "exit_explanation": "The native/browser fixture passed. Gate exit 2 reflects remaining BLOCKED current and retirement inventory."
+  },
+  "frozen_changed_file_sha256": {
+    "specifications/current-capability-mapping-v2.json": "592b602c083c43f6337c051f6674ce3cf821921d6f0f578357e953fdb8f85ed0",
+    "tests/browser-workflows/effects_bridge.py": "010d0c4e0c9d7d2d7c80f3b9d5b42274fbe976b693a884a5558b7174585d833a",
+    "tests/browser-workflows/run_browser.py": "32dcc5831a31128881048a04a0f9818878fadde71895a8b7f4ecab6832956625",
+    "tests/browser-workflows/workflows.cjs": "c53afdf541d2f16750ccf09998b0268f621fdfe3fb332298c319d596da04d323",
+    "tests/security/replacements.py": "f6de6a9fcc3976bf3142003a83485631f580967c8f24f2c7040425df9c1bd023",
+    "tests/security/test_replacements.py": "a256f8a2df1ec1fbec20469b026acd5c017ab81084267e63e09ddebc9635947b"
+  },
+  "source_hash_manifest_scope": "Mapping, browser producer/bridge/harness and verifier files were hashed immediately before the successful fixture.",
+  "result_sha256": {
+    ".work/kan15-handling-voyage/attempt-1/results.json": "ceac78ecedfd3c17e255cd871585e259107252a090fd68cbcb8a9d6ea9c4db23",
+    ".work/kan18/results.json": "854177f152b32e8a3d287cf454ff6c3ebf45918ecd49a787a8984be3165b619c"
+  },
+  "evidence_limits": [
+    "The fresh fingerprint covers on-disk inputs and constructed canonical contracts, not identity of already-imported Python code.",
+    "Raw browser output, tracking identifiers and detailed database snapshots remain private under .work/. This committed validation contains sanitized values and booleans.",
+    "50 current cases remain BLOCKED (4 replacement drivers and 46 internal/worker cases); all 76 retirement checks remain BLOCKED. This is not full security acceptance or production deployment."
+  ]
+}

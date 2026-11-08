@@ -59,3 +59,7 @@ The [booking replacement increment](booking-replacement-capabilities.md) adds ei
 ## Handling event increment — 8 November 2026
 
 The [ACTION-38 handling-event increment](handling-event.md) adds four current role cases. The fresh native/browser fixture passed 661 native and 779 browser checks with owned cleanup. Current gate: **416 PASS / 54 BLOCKED**. Historical audit remains 324 PASS / 178 BLOCKED and all 76 retirement cases remain BLOCKED. The live gate exits 2 while that inventory is blocked; it is not the fixture result. See [sanitized validation](../../notes/evidence/kan-15-handling-event/validation.json).
+
+## Handling voyage increment — 8 November 2026
+
+The [ACTION-39 handling-voyage increment](handling-voyage.md) adds four current role cases. The fresh native/browser fixture passed 661 native and 791 browser checks with owned cleanup. Current gate: **420 PASS / 50 BLOCKED**. Historical audit remains 324 PASS / 178 BLOCKED and all 76 retirement cases remain BLOCKED. The proof reuses the same-fixture ACTION-38 positive event observation and does not claim an additional event submission. See [sanitized validation](../../notes/evidence/kan-15-handling-voyage/validation.json).

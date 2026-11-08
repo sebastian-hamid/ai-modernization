@@ -336,7 +336,7 @@
       "anonymous": false,
       "modern_method": "POST",
       "requirement": "Known-voyage validation, LOAD/UNLOAD requirements and non-load voyage clearing.",
-      "driver": "pending"
+      "driver": "browser-replacement-v1"
     },
     {
       "id": "handling-completion",

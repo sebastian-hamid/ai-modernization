@@ -450,6 +450,8 @@ function unchangedEffects(before,after,expectedReadDelta=1){
    const role=actor?cargoRole(actor):"anonymous";
    const stage="handling-cargo-voyage:"+role;
    const before=await observeEffects(stage+":before");
+   const voyageStage="handling-voyage:"+role;
+   const voyageBefore=await observeEffects(voyageStage+":before");
    let sourceStatus=null,protectedPayloadAbsent=false,sourceLoginVerified=false;
    let validCargoOption=false,knownVoyageOption=false,validCargoSelection=false,
     loadRequiresVoyage=false,unloadRequiresVoyage=false,validVoyageSelection=false,forgedCargoRejected=false,forgedVoyageRejected=false;
@@ -528,7 +530,9 @@ function unchangedEffects(before,after,expectedReadDelta=1){
    }
    const persistedCargo=await readCargo(tracking,"ROUTED");
    const after=await observeEffects(stage+":after");
+   const voyageAfter=await observeEffects(voyageStage+":after");
    check("Handling cargo/voyage effects unchanged "+role,unchangedEffects(before,after,1));
+   check("Handling voyage validation effects unchanged "+role,unchangedEffects(voyageBefore,voyageAfter,1));
    return {replacement_driver:"browser-replacement-v1",group:"handling-cargo-voyage",tracking_id:tracking,
     source_path:"/cargo-tracker/mobile.xhtml",source_status:sourceStatus,
     protected_payload_absent:protectedPayloadAbsent,source_login_verified:sourceLoginVerified,
@@ -536,7 +540,7 @@ function unchangedEffects(before,after,expectedReadDelta=1){
     valid_cargo_selection:validCargoSelection,load_requires_voyage:loadRequiresVoyage,
     unload_requires_voyage:unloadRequiresVoyage,valid_voyage_selection:validVoyageSelection,forged_cargo_rejected:forgedCargoRejected,
     forged_voyage_rejected:forgedVoyageRejected,persisted_cargo_routed:persistedCargo.routingStatus==="ROUTED",
-    before,after,
+    before,after,voyage_before:voyageBefore,voyage_after:voyageAfter,
     ...(actor?{identity:{server_verified:true,principal:actor.identity.principal,roles:actor.identity.roles}}:{})};
   }
   async function handlingLocationProof(actor,tracking){
@@ -706,6 +710,27 @@ function unchangedEffects(before,after,expectedReadDelta=1){
     const proof=await handlingCargoVoyageProof(actor,tracking);
     const role=actor?cargoRole(actor):"anonymous";
     replacementProofs["REPLACEMENT::handling-cargo-voyage::"+role]=proof;
+   }
+  }
+  async function handlingVoyageProofs(){
+   for(const actor of [null,reader,operator,admin]){
+    const role=actor?cargoRole(actor):"anonymous";
+    const control=replacementProofs["REPLACEMENT::handling-cargo-voyage::"+role];
+    const event=replacementProofs["REPLACEMENT::handling-event::"+role];
+    if(!control||!event||control.tracking_id!==event.tracking_id)throw new Error("Handling voyage evidence does not bind to the same cargo");
+    replacementProofs["REPLACEMENT::handling-voyage::"+role]={
+     replacement_driver:"browser-replacement-v1",group:"handling-voyage",tracking_id:control.tracking_id,
+     source_path:"/cargo-tracker/mobile.xhtml",source_status:control.source_status,
+     protected_payload_absent:control.protected_payload_absent,source_login_verified:control.source_login_verified,
+     known_voyage_option:control.known_voyage_option,valid_voyage_selection:control.valid_voyage_selection,
+     forged_voyage_rejected:control.forged_voyage_rejected,load_requires_voyage:control.load_requires_voyage,
+     unload_requires_voyage:control.unload_requires_voyage,valid_voyage_selected:event.valid_voyage_selected,
+     nonload_kept_selected_voyage:event.nonload_kept_selected_voyage,event_submit_status:event.event_submit_status,
+     nonload_event_persisted:event.nonload_event_persisted,nonload_voyage_cleared:event.nonload_voyage_cleared,
+     persisted_event_observation:event.persisted_event_observation,persisted_cargo_routed:event.persisted_cargo_routed,
+     positive_effects_verified:event.positive_effects_verified,positive_before:event.positive_before,positive_after:event.positive_after,
+     before:control.voyage_before,after:control.voyage_after,
+     ...(actor?{identity:{server_verified:true,principal:actor.identity.principal,roles:actor.identity.roles}}:{})};
    }
   }
   async function handlingReplacementProofs(tracking){
@@ -940,6 +965,7 @@ function unchangedEffects(before,after,expectedReadDelta=1){
   }
 
   await handlingEventProofs(id);
+  await handlingVoyageProofs();
   for(const [event,date] of [["UNLOAD","2032-02-05 10:00"],["CLAIM","2032-02-06 10:00"]]){
    const token=(await (await admin.context.request.get(base+"session")).json()).csrf;
    const result=await admin.context.request.post(base+"rest/handling/reports",{headers:{"X-CSRF-Token":token},data:{trackingId:id,eventType:event,unLocode:"FIHEL",completionTime:date,...(event==="UNLOAD"?{voyageNumber:"0100S"}:{})}});

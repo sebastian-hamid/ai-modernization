@@ -5,8 +5,8 @@ from replacements import replacement_observation, HANDLING_EVENT_WRITE_CALLS, HA
 
 class ReplacementTests(unittest.TestCase):
     def case(self, group="cancel-editor", actor="Operator"):
-        ids = {"cancel-editor":["ACTION-08"], "booking-cancel":["ACTION-28","ACTION-31","ACTION-33"], "tracking-discovery":["ACTION-23","ACTION-44"], "booking-deadline":["ACTION-26","ACTION-32"], "booking-single-page":["ACTION-27","ACTION-30","ACTION-34"], "handling-single-page":["ACTION-35","ACTION-40","ACTION-43"], "handling-cargo-voyage":["ACTION-36"], "handling-location":["ACTION-37"], "handling-event":["ACTION-38"]}
-        method="POST" if group in {"booking-deadline","booking-single-page","tracking-discovery","handling-cargo-voyage","handling-location","handling-event"} else "GET"
+        ids = {"cancel-editor":["ACTION-08"], "booking-cancel":["ACTION-28","ACTION-31","ACTION-33"], "tracking-discovery":["ACTION-23","ACTION-44"], "booking-deadline":["ACTION-26","ACTION-32"], "booking-single-page":["ACTION-27","ACTION-30","ACTION-34"], "handling-single-page":["ACTION-35","ACTION-40","ACTION-43"], "handling-cargo-voyage":["ACTION-36"], "handling-location":["ACTION-37"], "handling-event":["ACTION-38"], "handling-voyage":["ACTION-39"]}
+        method="POST" if group in {"booking-deadline","booking-single-page","tracking-discovery","handling-cargo-voyage","handling-location","handling-event","handling-voyage"} else "GET"
         return {"capability_id":group,"actor":actor,"binding_status":"browser-replacement-v1",
                 "method":method,"legacy_ids":ids[group]}
 
@@ -137,6 +137,50 @@ class ReplacementTests(unittest.TestCase):
         proof["positive_before"]["fixture_id"]="a"*64
         with self.assertRaises(UnsupportedCase):
             replacement_observation(self.case("booking-deadline","Operator"),proof)
+
+    def handling_voyage(self, actor="Operator"):
+        event=self.handling_event(actor)
+        fixture="9"*64
+        sample={"fixture_id":fixture,"tables":{"CARGO":{"rows":2,"sha256":"a"*64}},
+                "queues":{"handling":{"MessagesAdded":3}},
+                "business_invocations":{"net.java.cargotracker.interfaces.booking.rest.CargoMonitoringService#getAllCargo":4,"other":2}}
+        before={**copy.deepcopy(sample),"stage":"handling-voyage:"+actor+":before"}
+        after={**copy.deepcopy(sample),"stage":"handling-voyage:"+actor+":after"}
+        after["business_invocations"]["net.java.cargotracker.interfaces.booking.rest.CargoMonitoringService#getAllCargo"]=5
+        allowed=actor in {"Operator","Administrator"}
+        proof={"replacement_driver":"browser-replacement-v1","group":"handling-voyage","tracking_id":"ABCDEFGH",
+          "source_path":"/cargo-tracker/mobile.xhtml","source_status":event["source_status"],
+          "protected_payload_absent":not allowed,"source_login_verified":actor=="anonymous",
+          "known_voyage_option":allowed,"valid_voyage_selection":allowed,"forged_voyage_rejected":allowed,
+          "load_requires_voyage":allowed,"unload_requires_voyage":allowed,"valid_voyage_selected":allowed,
+          "nonload_kept_selected_voyage":allowed,"event_submit_status":event["event_submit_status"],
+          "nonload_event_persisted":allowed,"nonload_voyage_cleared":allowed,
+          "persisted_event_observation":copy.deepcopy(event.get("persisted_event_observation")),
+          "persisted_cargo_routed":True,"positive_effects_verified":allowed,
+          "before":before,"after":after}
+        if allowed:proof.update(positive_before=event["positive_before"],positive_after=event["positive_after"])
+        if actor!="anonymous":proof["identity"]=event["identity"]
+        return proof
+
+    def test_handling_voyage_combines_known_choice_forgery_and_nonload_clearing(self):
+        for actor in ["anonymous","Reader","Operator","Administrator"]:
+            proof=self.handling_voyage(actor)
+            result=replacement_observation(self.case("handling-voyage",actor),proof)
+            allowed=actor in {"Operator","Administrator"}
+            self.assertEqual(result["semantic_success"],allowed)
+            self.assertEqual(result["invocation_denied"],not allowed)
+        for field in ["known_voyage_option","valid_voyage_selection","forged_voyage_rejected","load_requires_voyage",
+                      "unload_requires_voyage","valid_voyage_selected","nonload_kept_selected_voyage",
+                      "nonload_event_persisted","nonload_voyage_cleared","persisted_cargo_routed","positive_effects_verified"]:
+            proof=self.handling_voyage("Operator");proof[field]=False
+            with self.subTest(field=field),self.assertRaises(UnsupportedCase):replacement_observation(self.case("handling-voyage","Operator"),proof)
+        for mutate in [
+            lambda p:p["persisted_event_observation"]["matches"][0].update(voyage_number="0100S"),
+            lambda p:p["persisted_event_observation"].update(row_count=2),
+            lambda p:p["after"]["tables"]["CARGO"].update(rows=3),
+        ]:
+            proof=self.handling_voyage("Operator");mutate(proof)
+            with self.assertRaises(UnsupportedCase):replacement_observation(self.case("handling-voyage","Operator"),proof)
 
     def handling_location(self, actor="Operator"):
         sample={"fixture_id":"9"*64,"tables":{"CARGO":{"rows":2,"sha256":"a"*64}},

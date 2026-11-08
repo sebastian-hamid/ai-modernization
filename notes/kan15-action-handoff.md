@@ -2,7 +2,7 @@
 
 ## Current verified checkpoint
 
-KAN-15 remains In Progress. The latest fresh current gate is 416 PASS / 54 BLOCKED; the preserved historical audit is 324 PASS / 178 BLOCKED, and 76 retirement cases remain BLOCKED. ACTION-38 handling-event verification passed four actor cases, 661 native checks and 779 browser checks, with owned cleanup. Its sanitized evidence is notes/evidence/kan-15-handling-event/validation.json. Source review approved the observer and verifier before execution; independent review of the runtime evidence and publication package remains pending. Full security acceptance is incomplete.
+KAN-15 remains In Progress. The latest fresh current gate is 420 PASS / 50 BLOCKED; the preserved historical audit is 324 PASS / 178 BLOCKED, and 76 retirement cases remain BLOCKED. ACTION-39 handling-voyage verification passed four actor cases, 661 native checks and 791 browser checks, with owned cleanup. Its sanitized evidence is notes/evidence/kan-15-handling-voyage/validation.json. Independent runtime/publication review is pending. Full security acceptance is incomplete.
 
 The user explicitly approved specifications/current-ui-access-acceptance-proposal.md on 2 November 2026; see notes/decisions/2026-11-02-current-ui-acceptance.md. Next implement the versioned mapping/gate while retaining all502 historical definitions and RETIRED distinct from PASS. No retirement has been applied yet. Replacement and negative-entry evidence plus independent review remain mandatory; the internal/worker gaps are not accepted by this decision.
 
@@ -22,7 +22,7 @@ Exit2 is expected while unsupported cases remain. Require actual successful appl
 
 ## Remaining action priorities
 
-Next in KAN-15 is ACTION-39 handling-voyage: verify known-voyage validation and non-load voyage clearing with the approved current mobile form. After ACTION-38, 54 current cases remain BLOCKED: eight replacement drivers and 46 internal/worker cases.
+Next in KAN-15 is ACTION-42 handling-completion: verify strict completion-time validation on the current mobile form. After ACTION-39, 50 current cases remain BLOCKED: four replacement-driver cases and 46 internal/worker cases.
 
 All five write-behavior mappings are now bound: booking, destination change, initial/replacement route selection and handling submission. Forty active/logout/expiry definitions have independent per-POST effects and action-specific permitted controls. Handling additionally proves real core JMS add/ack, registration and inspection workers, and independent Reader state. Modern replacements already have real happy/invalid/Reader-forgery/CSRF browser scenarios, but those assertions alone do not satisfy every catalogue write definition.
 
@@ -54,3 +54,5 @@ Other remaining definitions include read-only legacy callbacks that need explici
 - docs/candidate/handling-action-matrix.md and notes/evidence/kan-15-handling-action: asynchronous submission/worker/state and session proofs.
 
 - docs/candidate/handling-event.md and notes/evidence/kan-15-handling-event: ACTION-38 current event validation and exact persisted date/location/voyage association proof.
+
+- docs/candidate/handling-voyage.md and notes/evidence/kan-15-handling-voyage: ACTION-39 known-voyage, invalid-voyage, and non-load association evidence, with shared ACTION-38 positive control disclosed.
