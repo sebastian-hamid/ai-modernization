@@ -1,8 +1,6 @@
 package net.java.cargotracker.interfaces.handling.file;
 
-import java.io.BufferedWriter;
 import java.io.File;
-import java.io.FileWriter;
 import java.io.PrintWriter;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -24,23 +22,16 @@ public class LineParseExceptionListener implements SkipReadListener {
 
     @Override
     public void onSkipReadItem(Exception e) throws Exception {
-        File failedDirectory = new File(jobContext.getProperties().getProperty(
-                FAILED_DIRECTORY));
-
-        if (!failedDirectory.exists()) {
-            failedDirectory.mkdirs();
-        }
-
         EventLineParseException parseException = (EventLineParseException) e;
 
         logger.log(Level.WARNING, "Problem parsing event file line",
                 parseException);
 
-        try (PrintWriter failed = new PrintWriter(new BufferedWriter(new FileWriter(
-                new File(failedDirectory,
-                        "failed_" + jobContext.getJobName()
-                        + "_" + jobContext.getInstanceId()
-                        + ".csv"), true)))) {
+        String filename = "failed_" + jobContext.getJobName()
+                + "_" + jobContext.getInstanceId() + ".csv";
+        try (PrintWriter failed = new PrintWriter(BatchImportPaths.openAppendOutput(
+                BatchImportPaths.FAILED,
+                jobContext.getProperties().getProperty(FAILED_DIRECTORY), filename))) {
             failed.println(parseException.getLine());
         }
     }

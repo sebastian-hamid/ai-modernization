@@ -15,6 +15,10 @@ public class EventFilesCheckpoint implements Serializable {
         this.files = files;
     }
 
+    public List<File> getFiles() {
+        return List.copyOf(files);
+    }
+
     public long getFilePointer() {
         return filePointer;
     }

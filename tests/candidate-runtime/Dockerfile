@@ -21,6 +21,7 @@ COPY --from=build /opt/java/openjdk /opt/java/openjdk
 COPY --from=build /build/candidate/target/surefire-reports /opt/jboss/lab-evidence/surefire
 COPY --from=build --chown=jboss:root /build/candidate/target/cargo-tracker.war /opt/jboss/wildfly/standalone/deployments/
 COPY --chown=jboss:root tests/candidate-runtime/start.sh /opt/jboss/start-kan18.sh
+COPY --chown=jboss:root tests/candidate-runtime/configure-batch-security.cli /opt/jboss/configure-batch-security.cli
 COPY --from=build /tmp/observer-client /opt/jboss/observer-client
 RUN java -version && chmod 750 /opt/jboss/start-kan18.sh
 CMD ["/opt/jboss/start-kan18.sh"]

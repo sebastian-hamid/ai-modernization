@@ -255,3 +255,10 @@ Bound ACTION-41 eight actual form/role/logout/expiry cases. Accepted form respon
 First fresh run565application/431Chromium/35reported domain PASS(one inherited emptyTODO),81tooling checks PASS; catalogue324PASS/178BLOCKED/nativeexit2. Monitor/reviewer temporarily hit usage limits while fixture ran; new implementation/publication held, fixture completed/cleaned, then one bounded same-agent recovery afterreportedretrytime succeeded. No repeatedfixture or quota workaround. Independent final review required before publication. HistoricalHTTP200/sourceclean/sharedJenkinspreserved; no production deployment.
 
 User answered 'Approve recommended approach' for the independently reviewed current-UI acceptance proposal. Recorded decision separately; historical502-case gate and retirement classifications remain unchanged until versioned implementation and required evidence/review. Human effort/cost unavailable.
+
+
+## 8 November 2026 - KAN-15 BG-01 batch import initiation evidence
+
+Implemented the protected staged-file import flow, constrained batch identities and fixed-root validation, and removed the periodic scanner. Added a fixture-only probe injected into the disposable WildFly image for direct JobOperator checks. Runtime acceptance verified anonymous GET/POST, direct read/start/restart denials for application roles, disabled backend switch, CSRF/session denial, one-time replay/concurrency, and unsafe staged entry denial. The valid RECEIVE event persisted expected state and JMS effects.
+
+Final isolated run: 696 checks PASS; domain tests 35/35 with zero failures/errors/skips. Expected and observed control counters matched: issueNonce 3, request-service start 4, launcher start 3, worker start/finish 1 each; remaining invocation counters unchanged in the measured interval. Sanitized output and hashes: notes/evidence/kan-15-batch-import. Owned container and generated credentials removed; shared baseline/Jenkins untouched; synced sources unchanged. Independent reviewer approved BG-01 scope. This evidence does not complete KAN-15 or BG-02 through BG-05; Jira remains In Review.

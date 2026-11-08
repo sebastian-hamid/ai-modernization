@@ -1,0 +1,8 @@
+embed-server --server-config=standalone-full.xml --std-out=discard
+/subsystem=messaging-activemq/server=default:write-attribute(name=jmx-management-enabled,value=true)
+/subsystem=elytron/permission-set=default-permissions:write-attribute(name=permissions,value=[{class-name="org.wildfly.transaction.client.RemoteTransactionPermission",module="org.wildfly.transaction.client"},{class-name="org.jboss.ejb.client.RemoteEJBPermission",module="org.jboss.ejb-client"}])
+/subsystem=elytron/permission-set=batch-worker-permissions:add(permissions=[{class-name="org.wildfly.extension.batch.jberet.deployment.BatchPermission",module="org.wildfly.extension.batch.jberet",target-name="start"},{class-name="org.wildfly.extension.batch.jberet.deployment.BatchPermission",module="org.wildfly.extension.batch.jberet",target-name="read"}])
+/subsystem=elytron/simple-permission-mapper=default-permission-mapper:write-attribute(name=mapping-mode,value=first)
+/subsystem=elytron/simple-permission-mapper=default-permission-mapper:write-attribute(name=permission-mappings,value=[{principals=["anonymous"],permission-sets=[{permission-set=default-permissions}]},{principals=["batch-worker"],permission-sets=[{permission-set=login-permission},{permission-set=default-permissions},{permission-set=batch-worker-permissions}]},{match-all=true,permission-sets=[{permission-set=login-permission},{permission-set=default-permissions}]}])
+/subsystem=batch-jberet:write-attribute(name=security-domain,value=ApplicationDomain)
+stop-embedded-server

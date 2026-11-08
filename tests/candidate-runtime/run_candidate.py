@@ -1,8 +1,9 @@
 #!/usr/bin/env python3
 """Run limited real Cargo Tracker migration checks in a disposable lab runtime."""
 from pathlib import Path
-import hashlib,http.cookiejar,json,re,secrets,shutil,subprocess,tempfile,time,urllib.request,urllib.error,urllib.parse
+import hashlib,http.cookiejar,html,json,re,secrets,shutil,subprocess,tempfile,time,urllib.request,urllib.error,urllib.parse
 import xml.etree.ElementTree as ET
+from concurrent.futures import ThreadPoolExecutor
 from datetime import datetime
 ROOT=Path(__file__).resolve().parents[2]
 WORK=ROOT/".work/kan18"
@@ -27,6 +28,24 @@ def capture_effects(container,timeout=30):
     text = command("docker", "exec", container, "java", "-cp",
                    "/opt/jboss/observer-client", "ReadEffects", candidates[0], timeout=budget())
     return json.loads(text)
+
+def batch_finished_line(log_text,run_id):
+    marker="IMPORT_AUDIT event=finished:"
+    run_marker="runId="+run_id
+    return next((line for line in log_text.splitlines()
+        if marker in line and run_marker in line),None)
+
+def expected_batch_control_deltas():
+    """Document EJB entries for two unsafe callbacks and one concurrent one-use form."""
+    methods={
+        "issueNonce":"net.java.cargotracker.interfaces.handling.file.BatchImportRequestService#issueNonce",
+        "serviceStart":"net.java.cargotracker.interfaces.handling.file.BatchImportRequestService#start",
+        "launcherStart":"net.java.cargotracker.interfaces.handling.file.BatchImportLauncher#start",
+        "jobStarted":"net.java.cargotracker.interfaces.handling.file.BatchWorkerAudit#jobStarted",
+        "jobFinished":"net.java.cargotracker.interfaces.handling.file.BatchWorkerAudit#jobFinished"}
+    events=(["issueNonce","serviceStart","launcherStart"]*2
+        + ["issueNonce","serviceStart","serviceStart","launcherStart","jobStarted","jobFinished"])
+    return {methods[name]:events.count(name) for name in methods}
 
 def finalize(container,paths,report):
     errors=[]
@@ -403,13 +422,29 @@ def main(after_checks=None):
         for relative in ["candidate/security","candidate/cargotracker","tests/candidate-runtime"]:
             target=context/relative
             shutil.copytree(ROOT/relative,target,dirs_exist_ok=True,ignore=shutil.ignore_patterns("target","__pycache__"))
+        fixture_java=context/"candidate/cargotracker/src/main/java/lab/fixture/BatchApiProbe.java"
+        fixture_java.parent.mkdir(parents=True,exist_ok=True)
+        shutil.copy2(context/"tests/candidate-runtime/BatchApiProbe.java",fixture_java)
+        web=context/"candidate/cargotracker/src/main/webapp/WEB-INF/web.xml"
+        web_text=web.read_text()
+        mapping=('<servlet><servlet-name>batchProbe</servlet-name>'
+            '<servlet-class>lab.fixture.BatchApiProbe</servlet-class></servlet>'
+            '<servlet-mapping><servlet-name>batchProbe</servlet-name>'
+            '<url-pattern>/__fixture/batch-probe</url-pattern></servlet-mapping>')
+        if "__fixture/batch-probe" not in web_text:
+            web.write_text(web_text.replace("</web-app>",mapping+"</web-app>"))
+        routes=context/"candidate/cargotracker/src/main/webapp/WEB-INF/access-routes.tsv"
+        route_text=routes.read_text()
+        probe_route="/__fixture/batch-probe\tReader,Operator,Administrator"
+        if probe_route not in route_text.splitlines():
+            routes.write_text(route_text+probe_route+"\n")
         with (WORK/"image-build.log").open("w") as log:
             proc=subprocess.run(["docker","build","--progress=plain","-f",str(context/"tests/candidate-runtime/Dockerfile"),"-t",IMAGE,str(context)],stdout=log,stderr=subprocess.STDOUT)
         check("Pinned runtime fixture builds",proc.returncode==0)
         report["image_id"]=command("docker","image","inspect","--format","{{.Id}}",IMAGE)
         guard=subprocess.run(["docker","run","--rm",IMAGE],capture_output=True,text=True)
         check("Disposable image refuses absent opt-in",guard.returncode==2 and "Disposable lab opt-in required" in guard.stderr)
-        container=command("docker","run","-d","--name",NAME,"--label","ai-modernization.task=KAN-18","--init","-e","DISPOSABLE_CANDIDATE_LAB=true","-p","127.0.0.1::8080","--mount",f"type=bind,src={private},dst=/run/kan18,readonly",IMAGE)
+        container=command("docker","run","-d","--name",NAME,"--label","ai-modernization.task=KAN-18","--init","-e","DISPOSABLE_CANDIDATE_LAB=true","-e","LAB_IMPORT_ENABLED=true","-p","127.0.0.1::8080","--mount",f"type=bind,src={private},dst=/run/kan18,readonly",IMAGE)
         with tempfile.TemporaryDirectory(prefix="domain-reports-",dir=WORK) as temporary:
             command("docker","cp",container+":/opt/jboss/lab-evidence/surefire",temporary+"/surefire")
             suites=[ET.parse(path).getroot() for path in Path(temporary).rglob("TEST-*.xml")]
@@ -566,6 +601,394 @@ def main(after_checks=None):
         def effects():
             return capture_effects(container)
         def settled():return settle_effects(effects)
+
+        # BG-01: the protected page rejects other roles, fixed-root validation
+        # rejects adversarial staged entries, and a valid empty file proves the
+        # actual JBeret execution identity without changing cargo business data.
+        for actor in ("reader","operator"):
+            denied_get=request(sessions[actor][1],"admin/import.xhtml")
+            denied_post=request(sessions[actor][1],"admin/import.xhtml",
+                {"csrf":sessions[actor][2],"jakarta.faces.ViewState":"forged","batchImport:start":""},
+                sessions[actor][2])
+            check("Batch import route denied: "+actor,
+                denied_get[0]==403 and denied_post[0]==403)
+
+        admin_opener=sessions["admin"][1]
+        probe_path="__fixture/batch-probe"
+        anonymous_import_get=request(anonymous,"admin/import.xhtml")
+        anonymous_import_post=request(anonymous,"admin/import.xhtml",
+            {"batchImport":"batchImport","batchImport:start":"Process staged files"})
+        check("Anonymous batch import GET and POST denied before dispatch",
+            anonymous_import_get[0]==303
+            and anonymous_import_get[2].get("Location")=="/cargo-tracker/login"
+            and payload_absent(anonymous_import_get[1])
+            and anonymous_import_post[0]==303
+            and anonymous_import_post[2].get("Location")=="/cargo-tracker/login"
+            and payload_absent(anonymous_import_post[1]))
+        api_before=settled()
+        direct_api_denials={}
+        for actor in ("reader","operator","admin"):
+            opener=sessions[actor][1]
+            statuses={}
+            for operation in ("read","start"):
+                statuses[operation]=request(opener,probe_path+"?operation="+operation)[0]
+            direct_api_denials[actor]=statuses
+            check("Direct JobOperator "+actor+" read/start denied",
+                all(status==403 for status in statuses.values()))
+        api_after=settled()
+        report["batch_import_direct_api_denials"]=direct_api_denials
+        api_job_start_delta=(api_after["business_invocations"].get(
+            "net.java.cargotracker.interfaces.handling.file.BatchWorkerAudit#jobStarted",0)
+            - api_before["business_invocations"].get(
+                "net.java.cargotracker.interfaces.handling.file.BatchWorkerAudit#jobStarted",0))
+        check("Direct JobOperator probes create no batch execution",
+            api_job_start_delta==0 and "IMPORT_AUDIT" not in command("docker","logs",container))
+
+        # Obtain an enabled form first, then flip the switch off before submitting
+        # that still-valid form. This reaches the server-side RequestService gate.
+        enabled_form_status,enabled_form_body,_=request(admin_opener,"admin/import.xhtml")
+        enabled_form_view=re.search(r'name="jakarta.faces.ViewState"[^>]*value="([^"]+)"',enabled_form_body)
+        enabled_form_csrf=re.search(r'name="csrf" value="([^"]+)"',enabled_form_body)
+        enabled_button=re.search(r'<input[^>]*id="batchImport:start"[^>]*disabled',enabled_form_body) is None
+        command("docker","exec",container,"sh","-c",
+                ": > /opt/jboss/wildfly/standalone/data/cargo-import/incoming/bg01-disabled.csv")
+        switch_status,_,switch_headers=request(admin_opener,
+            probe_path+"?operation=switch&enabled=false")
+        issued_nonce=switch_headers.get("X-Fixture-Issued-Nonce","")
+        switch_before=settled()
+        service_status,service_body,service_headers=request(admin_opener,
+            probe_path+"?operation=service-start&nonce="+urllib.parse.quote(issued_nonce))
+        switch_after=settled()
+        service_delta=(switch_after["business_invocations"].get(
+            "net.java.cargotracker.interfaces.handling.file.BatchImportRequestService#start",0)
+            - switch_before["business_invocations"].get(
+                "net.java.cargotracker.interfaces.handling.file.BatchImportRequestService#start",0))
+        launcher_delta=(switch_after["business_invocations"].get(
+            "net.java.cargotracker.interfaces.handling.file.BatchImportLauncher#start",0)
+            - switch_before["business_invocations"].get(
+                "net.java.cargotracker.interfaces.handling.file.BatchImportLauncher#start",0))
+        disabled_status,disabled_body,_=request(admin_opener,"admin/import.xhtml")
+        button_disabled=re.search(r'<input[^>]*id="batchImport:start"[^>]*disabled',disabled_body) is not None
+        disabled_post_status,disabled_post_body,_=request(admin_opener,"admin/import.xhtml",
+            {"csrf":enabled_form_csrf[1] if enabled_form_csrf else "",
+             "batchImport":"batchImport",
+             "jakarta.faces.ViewState":html.unescape(enabled_form_view[1]) if enabled_form_view else "",
+             "batchImport:start":"Process staged files"},
+            enabled_form_csrf[1] if enabled_form_csrf else "missing")
+        marker_exists=subprocess.run(["docker","exec",container,"test","-f",
+            "/opt/jboss/wildfly/standalone/data/cargo-import/incoming/bg01-disabled.csv"]).returncode==0
+        switch_on=request(admin_opener,probe_path+"?operation=switch&enabled=true")[0]
+        check("Disabled import switch rejects an earlier enabled form",
+            enabled_form_status==200 and enabled_form_csrf is not None
+            and enabled_form_view is not None and enabled_button
+            and switch_status==204 and bool(re.fullmatch("[0-9a-f-]{36}",issued_nonce))
+            and service_status==409 and service_headers.get("X-Fixture-Probe-Result")=="disabled-before-launch"
+            and service_delta==1 and launcher_delta==0
+            and disabled_status==200 and "disabled" in disabled_body.lower() and button_disabled
+            and disabled_post_status==200
+            and marker_exists and switch_on==204
+            and "IMPORT_JOB_SUBMIT" not in command("docker","logs",container)
+            and "IMPORT_AUDIT" not in command("docker","logs",container))
+        command("docker","exec",container,"rm","-f",
+                "/opt/jboss/wildfly/standalone/data/cargo-import/incoming/bg01-disabled.csv")
+
+        # Missing and incorrect CSRF values must be rejected before JSF action dispatch.
+        csrf_form_status,csrf_form_body,_=request(admin_opener,"admin/import.xhtml")
+        csrf_view=re.search(r'name="jakarta.faces.ViewState"[^>]*value="([^"]+)"',csrf_form_body)
+        csrf_nonce=re.search(r'name="csrf" value="([^"]+)"',csrf_form_body)
+        csrf_payload={"batchImport":"batchImport",
+            "jakarta.faces.ViewState":html.unescape(csrf_view[1]) if csrf_view else "",
+            "batchImport:start":"Process staged files"}
+        missing_csrf=request(admin_opener,"admin/import.xhtml",csrf_payload)[0]
+        wrong_csrf=request(admin_opener,"admin/import.xhtml",csrf_payload,"invalid-token")[0]
+        check("Batch import missing and wrong CSRF denied",
+            csrf_form_status==200 and csrf_nonce is not None
+            and missing_csrf==403 and wrong_csrf==403
+            and "IMPORT_JOB_SUBMIT" not in command("docker","logs",container)
+            and "IMPORT_AUDIT" not in command("docker","logs",container))
+
+        # A form obtained in an authenticated session is unusable after logout.
+        revoked_jar,revoked_admin,revoked_csrf=login("admin")
+        revoked_status,revoked_body,_=request(revoked_admin,"admin/import.xhtml")
+        revoked_view=re.search(r'name="jakarta.faces.ViewState"[^>]*value="([^"]+)"',revoked_body)
+        revoked_form_csrf=re.search(r'name="csrf" value="([^"]+)"',revoked_body)
+        stale_payload={"csrf":revoked_form_csrf[1] if revoked_form_csrf else "",
+            "batchImport":"batchImport",
+            "jakarta.faces.ViewState":html.unescape(revoked_view[1]) if revoked_view else "",
+            "batchImport:start":"Process staged files"}
+        logout_status=request(revoked_admin,"logout",{"csrf":revoked_csrf},revoked_csrf)[0]
+        stale_status,_,stale_headers=request(revoked_admin,"admin/import.xhtml",
+            stale_payload,revoked_form_csrf[1] if revoked_form_csrf else "missing")
+        check("Revoked Administrator session cannot submit an earlier import form",
+            revoked_status==200 and logout_status==204 and stale_status==303
+            and stale_headers.get("Location")=="/cargo-tracker/login"
+            and "IMPORT_JOB_SUBMIT" not in command("docker","logs",container)
+            and "IMPORT_AUDIT" not in command("docker","logs",container))
+
+        batch_before=settled()
+        def import_form():
+            status,body,_=request(admin_opener,"admin/import.xhtml")
+            csrf=re.search(r'name="csrf" value="([^"]+)"',body)
+            view=re.search(r'name="jakarta.faces.ViewState"[^>]*value="([^"]+)"',body)
+            check("Administrator batch import form and enabled kill switch",
+                status==200 and "Process staged files" in body
+                and csrf is not None and view is not None)
+            return csrf[1],view[1]
+        def submit_import():
+            csrf,view=import_form()
+            return request(admin_opener,"admin/import.xhtml",
+                {"csrf":csrf,"batchImport":"batchImport","jakarta.faces.ViewState":html.unescape(view),
+                 "batchImport:start":"Process staged files"},csrf)
+
+        command("docker","exec",container,"sh","-c",
+                "ln -s /etc/passwd /opt/jboss/wildfly/standalone/data/cargo-import/incoming/bg01-link.csv")
+        status,body,_=submit_import()
+        check("Batch import rejects staged symlink without job submission",
+            status==200 and "Import was not started" in body and "Import accepted" not in body
+            and "IMPORT_JOB_SUBMIT" not in command("docker","logs",container)
+            and "IMPORT_AUDIT" not in command("docker","logs",container))
+        command("docker","exec",container,"rm","-f",
+                "/opt/jboss/wildfly/standalone/data/cargo-import/incoming/bg01-link.csv")
+        command("docker","exec",container,"mkdir",
+                "/opt/jboss/wildfly/standalone/data/cargo-import/incoming/bg01-directory")
+        status,body,_=submit_import()
+        check("Batch import rejects non-regular staged entry without job submission",
+            status==200 and "Import was not started" in body
+            and "IMPORT_JOB_SUBMIT" not in command("docker","logs",container)
+            and "IMPORT_AUDIT" not in command("docker","logs",container))
+        command("docker","exec",container,"rmdir",
+                "/opt/jboss/wildfly/standalone/data/cargo-import/incoming/bg01-directory")
+
+        command("docker","exec",container,"sh","-c",
+                ": > /opt/jboss/wildfly/standalone/data/cargo-import/incoming/bg01-empty.csv")
+        concurrent_csrf,concurrent_view=import_form()
+        concurrent_payload={"csrf":concurrent_csrf,"batchImport":"batchImport",
+            "jakarta.faces.ViewState":html.unescape(concurrent_view),
+            "batchImport:start":"Process staged files"}
+        concurrent_log_before=command("docker","logs",container)
+        with ThreadPoolExecutor(max_workers=2) as pool:
+            pending=[pool.submit(request,admin_opener,"admin/import.xhtml",
+                concurrent_payload,concurrent_csrf) for _ in range(2)]
+            concurrent_results=[future.result(timeout=30) for future in pending]
+        concurrent_log=command("docker","logs",container)
+        accepted_matches=[re.search(r"Import accepted as run ([0-9a-f-]{36})",result[1])
+            for result in concurrent_results]
+        accepted_values=[match[1] for match in accepted_matches if match]
+        concurrent_submissions=(concurrent_log.count("IMPORT_JOB_SUBMIT")
+            - concurrent_log_before.count("IMPORT_JOB_SUBMIT"))
+        check("Concurrent replay of one import form starts at most one job",
+            len(accepted_values)==1 and concurrent_submissions==1
+            and all(result[0]==200 for result in concurrent_results))
+        accepted=re.search(r"Import accepted as run ([0-9a-f-]{36})",
+            next((result[1] for result in concurrent_results if
+                "Import accepted as run " in result[1]),""))
+        check("Administrator batch trigger accepted",accepted is not None)
+        run_id=accepted[1] if accepted else ""
+        deadline=time.monotonic()+60
+        audit=""
+        while time.monotonic()<deadline:
+            audit=command("docker","logs",container)
+            if batch_finished_line(audit,run_id) is not None:break
+            time.sleep(.5)
+        empty_finished=batch_finished_line(audit,run_id)
+        worker_verified=("IMPORT_AUDIT event=started runId="+run_id+" initiator=admin worker=batch-worker" in audit
+            and empty_finished is not None and "event=finished:COMPLETED" in empty_finished
+            and "initiator=admin worker=batch-worker" in empty_finished)
+        check("JBeret uses restricted batch worker identity and preserves initiator",worker_verified)
+        file_removed=subprocess.run(["docker","exec",container,"test","!","-e",
+            "/opt/jboss/wildfly/standalone/data/cargo-import/incoming/bg01-empty.csv"]).returncode==0
+        check("Completed batch consumes staged empty file",file_removed)
+        batch_after=settled()
+        business_unchanged=(batch_before["tables"]==batch_after["tables"]
+            and batch_before["queues"]==batch_after["queues"])
+        before_calls=batch_before["business_invocations"]
+        after_calls=batch_after["business_invocations"]
+        expected_deltas=expected_batch_control_deltas()
+        observed_deltas={key:after_calls.get(key,0)-before_calls.get(key,0)
+            for key in sorted(set(before_calls)|set(after_calls)|set(expected_deltas))}
+        control_calls_bounded=all(
+            observed_deltas.get(key,0)==expected_deltas.get(key,0)
+            for key in set(observed_deltas)|set(expected_deltas))
+        report["batch_control_audit_invocations"]={
+            "expected":expected_deltas,"observed":observed_deltas,
+            "passed":control_calls_bounded}
+        check("Empty batch import leaves business state unchanged",business_unchanged)
+        check("Batch control/audit invocation deltas are exactly bounded",control_calls_bounded)
+        started_match=re.search(r"IMPORT_JOB_STARTED runId="+re.escape(run_id)+r" executionId=([0-9]+)",audit)
+        execution_id=started_match[1] if started_match else ""
+        restart_denials={}
+        for actor in ("reader","operator","admin"):
+            restart_denials[actor]=request(sessions[actor][1],
+                probe_path+"?operation=restart&executionId="+execution_id)[0]
+        check("Direct JobOperator restart denied for application roles",
+            execution_id.isdigit() and all(status==403 for status in restart_denials.values()))
+        command("docker","exec",container,"sh","-c",
+                ": > /opt/jboss/wildfly/standalone/data/cargo-import/incoming/bg01-replay.csv")
+        replay_status,replay_body,_=request(admin_opener,"admin/import.xhtml",
+            concurrent_payload,concurrent_csrf)
+        replay_file_exists=subprocess.run(["docker","exec",container,"test","-f",
+            "/opt/jboss/wildfly/standalone/data/cargo-import/incoming/bg01-replay.csv"]).returncode==0
+        check("One-time import form replay is denied without a second job",
+            replay_status==200 and "Import was not started" in replay_body
+            and "IMPORT_JOB_SUBMIT runId="+run_id in command("docker","logs",container)
+            and command("docker","logs",container).count("IMPORT_JOB_SUBMIT")==1
+            and replay_file_exists)
+        command("docker","exec",container,"rm","-f",
+                "/opt/jboss/wildfly/standalone/data/cargo-import/incoming/bg01-replay.csv")
+
+        reader_opener=sessions["reader"][1]
+        cargo_status,cargo_body,_=request(reader_opener,"rest/cargo")
+        valid_before_cargos=json.loads(cargo_body)
+        valid_target_before=next(c for c in valid_before_cargos if c["trackingId"]==fixture_id)
+        before_valid=settled()
+        valid_line=f"2030-01-05 10:00,{fixture_id},,CNHKG,RECEIVE"
+        command("docker","exec",container,"sh","-c",
+            "printf '%s\\n' '"+valid_line+"' > /opt/jboss/wildfly/standalone/data/cargo-import/incoming/bg01-valid.csv")
+        valid_status,valid_body,_=submit_import()
+        valid_accepted=re.search(r"Import accepted as run ([0-9a-f-]{36})",valid_body)
+        check("Administrator valid event file accepted",
+            valid_status==200 and valid_accepted is not None)
+        valid_run=valid_accepted[1] if valid_accepted else ""
+        valid_deadline=time.monotonic()+60
+        valid_audit=""
+        while time.monotonic()<valid_deadline:
+            valid_audit=command("docker","logs",container)
+            if batch_finished_line(valid_audit,valid_run) is not None:break
+            time.sleep(.5)
+        valid_finished=batch_finished_line(valid_audit,valid_run)
+        valid_worker=("IMPORT_AUDIT event=started runId="+valid_run+" initiator=admin worker=batch-worker" in valid_audit
+            and valid_finished is not None and "event=finished:COMPLETED" in valid_finished
+            and "initiator=admin worker=batch-worker" in valid_finished)
+        if not valid_worker:
+            diagnostics={"run_id":valid_run}
+            started=re.search(r"IMPORT_JOB_STARTED runId="+re.escape(valid_run)+r" executionId=([0-9]+)",valid_audit)
+            execution_id=started[1] if started else None
+            diagnostics["execution_id"]=execution_id
+            if execution_id:
+                status_address="/deployment=cargo-tracker.war/subsystem=batch-jberet/job=EventFilesProcessorJob/execution="+execution_id
+                try:
+                    output=command("docker","exec",container,"/opt/jboss/wildfly/bin/jboss-cli.sh",
+                        "--connect","--commands="+status_address+":read-resource(include-runtime=true)",timeout=12)
+                    report_path=WORK/"batch-job-status.txt"
+                    report_path.write_text(output)
+                    diagnostics["job_status_path"]=str(report_path.relative_to(ROOT))
+                    diagnostics["job_status_sha256"]=hashlib.sha256(output.encode()).hexdigest()
+                except subprocess.CalledProcessError as failure:
+                    output=(failure.output or "")
+                    output_path=WORK/"batch-job-status-error.txt"
+                    output_path.write_text(output)
+                    diagnostics["job_status_error"]={"exit_code":failure.returncode,
+                        "path":str(output_path.relative_to(ROOT)),
+                        "sha256":hashlib.sha256(output.encode()).hexdigest()}
+                except Exception as failure:
+                    diagnostics["job_status_error"]=type(failure).__name__
+            try:
+                snapshot=capture_effects(container,timeout=12)
+                diagnostics["queues"]=snapshot["queues"]
+                diagnostics["table_counts"]={name:value["rows"] for name,value in snapshot["tables"].items()}
+            except Exception as failure:
+                diagnostics["observer_error"]=type(failure).__name__
+            try:
+                files=command("docker","exec",container,"sh","-c",
+                    "find /opt/jboss/wildfly/standalone/data/cargo-import/archive -maxdepth 1 -type f -printf '%f %s\\n'",
+                    timeout=8)
+                diagnostics["archive_files"]=files
+            except Exception as failure:
+                diagnostics["archive_error"]=type(failure).__name__
+            try:
+                processes=command("docker","exec",container,"jcmd","-l",timeout=8).splitlines()
+                jvms=[line.split()[0] for line in processes
+                    if "org.jboss.as.standalone" in line or "jboss-modules.jar" in line]
+                diagnostics["jvm_count"]=len(jvms)
+                if len(jvms)==1:
+                    for index in (1,2):
+                        dump=command("docker","exec",container,"jcmd",jvms[0],"Thread.print","-l",timeout=12)
+                        dump_path=WORK/("batch-thread-"+str(index)+".txt")
+                        dump_path.write_text(dump)
+                        diagnostics["thread_dump_"+str(index)]={"path":str(dump_path.relative_to(ROOT)),
+                            "sha256":hashlib.sha256(dump.encode()).hexdigest(),"bytes":len(dump)}
+                        if index==1:time.sleep(5)
+            except Exception as failure:
+                diagnostics["thread_dump_error"]=type(failure).__name__
+            report["batch_diagnostics"]=diagnostics
+        check("Valid event batch completed under batch worker",valid_worker)
+        valid_after=settled()
+        cargo_status,cargo_body,_=request(reader_opener,"rest/cargo")
+        valid_after_cargos=json.loads(cargo_body)
+        valid_target_after=next(c for c in valid_after_cargos if c["trackingId"]==fixture_id)
+        valid_positive=(cargo_status==200
+            and valid_target_before.get("transportStatus")=="NOT_RECEIVED"
+            and valid_target_after.get("transportStatus")=="IN_PORT"
+            and valid_target_after.get("lastKnownLocationCode")=="CNHKG"
+            and all(valid_target_before.get(k)==valid_target_after.get(k)
+                for k in ["trackingId","originCode","destinationCode","arrivalDeadline","routingStatus"])
+            and {c["trackingId"]:c for c in valid_before_cargos if c["trackingId"]!=fixture_id}
+                =={c["trackingId"]:c for c in valid_after_cargos if c["trackingId"]!=fixture_id})
+        check("Valid file event persists to independent Reader state",valid_positive)
+        queue_before=before_valid["queues"];queue_after=valid_after["queues"]
+        target_queues={"jms.queue.HandlingEventRegistrationAttemptQueue","jms.queue.CargoHandledQueue"}
+        valid_queues=(set(queue_before)==set(queue_after)
+            and all(queue_after[q]["MessageCount"]==queue_after[q]["DeliveringCount"]
+                ==queue_after[q]["ScheduledCount"]==0 for q in queue_after)
+            and all(
+                (queue_after[q]["MessagesAdded"]-queue_before[q]["MessagesAdded"]==1
+                 and queue_after[q]["MessagesAcknowledged"]-queue_before[q]["MessagesAcknowledged"]==1)
+                if q in target_queues else queue_after[q]==queue_before[q]
+                for q in queue_before)
+            and all(queue_after[q]["MessagesExpired"]==queue_before[q]["MessagesExpired"]
+                and queue_after[q]["MessagesKilled"]==queue_before[q]["MessagesKilled"]
+                and queue_after[q]["AcknowledgeAttempts"]-queue_before[q]["AcknowledgeAttempts"] in {0,1}
+                for q in target_queues))
+        check("Valid file event produces exactly two settled queue cycles",valid_queues)
+        table_before=before_valid["tables"];table_after=valid_after["tables"]
+        valid_tables=(set(table_before)==set(table_after)
+            and table_after["HANDLINGEVENT"]["rows"]-table_before["HANDLINGEVENT"]["rows"]==1
+            and table_after["CARGO"]["rows"]==table_before["CARGO"]["rows"]
+            and table_after["CARGO"]["sha256"]!=table_before["CARGO"]["sha256"]
+            and all(table_after[name]==table_before[name]
+                for name in table_before if name not in {"HANDLINGEVENT","CARGO"}))
+        check("Valid file event changes only cargo and handling tables",valid_tables)
+        valid_deltas={
+            "net.java.cargotracker.interfaces.handling.file.BatchImportRequestService#issueNonce":1,
+            "net.java.cargotracker.interfaces.handling.file.BatchImportRequestService#start":1,
+            "net.java.cargotracker.interfaces.handling.file.BatchImportLauncher#start":1,
+            "net.java.cargotracker.interfaces.handling.file.BatchWorkerAudit#jobStarted":1,
+            "net.java.cargotracker.interfaces.handling.file.BatchWorkerAudit#jobFinished":1,
+            "net.java.cargotracker.infrastructure.messaging.jms.HandlingEventRegistrationAttemptConsumer#onMessage":1,
+            "net.java.cargotracker.application.internal.DefaultHandlingEventService#registerHandlingEvent":1,
+            "net.java.cargotracker.infrastructure.messaging.jms.CargoHandledConsumer#onMessage":1,
+            "net.java.cargotracker.application.internal.DefaultCargoInspectionService#inspectCargo":1,
+            "net.java.cargotracker.interfaces.booking.socket.RealtimeCargoTrackingService#onCargoInspected":1}
+        valid_before_calls=before_valid["business_invocations"]
+        valid_after_calls=valid_after["business_invocations"]
+        valid_call_deltas=all(valid_after_calls.get(k,0)-valid_before_calls.get(k,0)==n
+            for k,n in valid_deltas.items()) and all(
+            valid_after_calls.get(k,0)-valid_before_calls.get(k,0)==valid_deltas.get(k,0)
+            for k in set(valid_before_calls)|set(valid_after_calls))
+        check("Valid file business and control invocation deltas are bounded",valid_call_deltas)
+        valid_file_removed=subprocess.run(["docker","exec",container,"test","!","-e",
+            "/opt/jboss/wildfly/standalone/data/cargo-import/incoming/bg01-valid.csv"]).returncode==0
+        check("Valid batch consumes staged event file",valid_file_removed)
+        def effect_sample(sample):
+            return {"tables":sample["tables"],"queues":sample["queues"],
+                "business_invocations":sample["business_invocations"]}
+        report["batch_import"]={"anonymous_get_post_denied":True,
+            "direct_api_denials":direct_api_denials,
+            "restart_denials":restart_denials,"disabled_switch_denied":True,
+            "csrf_denied":True,"revoked_session_denied":True,
+            "concurrent_single_start":True,"replay_denied":True,
+            "symlink_rejected":True,"non_regular_rejected":True,
+            "authorized_empty_start":accepted is not None,"worker_identity_verified":worker_verified,
+            "empty_execution_completed":worker_verified,"empty_file_consumed":file_removed,
+            "empty_business_state_unchanged":business_unchanged,"empty_control_calls_bounded":control_calls_bounded,
+            "authorized_valid_start":valid_accepted is not None,"valid_execution_completed":valid_worker,
+            "valid_event_persisted":valid_positive,"valid_queue_cycles":valid_queues,
+            "valid_table_deltas":valid_tables,"valid_invocation_deltas_bounded":valid_call_deltas,
+            "valid_file_consumed":valid_file_removed,
+            "effects_before_empty":effect_sample(batch_before),"effects_after_empty":effect_sample(batch_after),
+            "effects_before_valid":effect_sample(before_valid),"effects_after_valid":effect_sample(valid_after),
+            "valid_invocation_deltas":{k:valid_after_calls.get(k,0)-valid_before_calls.get(k,0)
+                for k in sorted(set(valid_before_calls)|set(valid_after_calls))}}
         route_path="rest/graph-traversal/shortest-path?origin=CNHKG&destination=FIHEL&deadline=2030-12-31"
         def routing_payload_absent(body):
             return payload_absent(body) and not any(marker in body for marker in ["transitEdges","voyageNumber","CNHKG","FIHEL"])

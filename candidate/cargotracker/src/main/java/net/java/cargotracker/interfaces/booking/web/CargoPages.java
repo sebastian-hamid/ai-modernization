@@ -16,6 +16,7 @@ public class CargoPages implements Serializable {
     public List<CargoRoute> getCargos(){return facade.listAllCargos();}
     public List<Location> getLocations(){return facade.listShippingLocations();}
     public boolean isOperator(){return request.isUserInRole("Operator") || request.isUserInRole("Administrator");}
+    public boolean isAdministrator(){return request.isUserInRole("Administrator");}
     public String getCsrf(){return SessionTokens.get(request.getSession());}
     public String getTrackingId(){return trackingId;}
     public void setTrackingId(String value){trackingId=value;}

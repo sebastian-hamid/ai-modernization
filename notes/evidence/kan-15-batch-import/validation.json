@@ -1,0 +1,82 @@
+{
+  "ticket": "KAN-15",
+  "scope": "BG-01 batch import initiation; evidence only",
+  "run_status": "PASS",
+  "checks": 696,
+  "failed_checks": [],
+  "domain_tests": {
+    "tests": 35,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0,
+    "empty_legacy_todo_retained": true
+  },
+  "batch_import": {
+    "anonymous_get_post_denied": true,
+    "direct_api_denials": {
+      "reader": {
+        "read": 403,
+        "start": 403
+      },
+      "operator": {
+        "read": 403,
+        "start": 403
+      },
+      "admin": {
+        "read": 403,
+        "start": 403
+      }
+    },
+    "restart_denials": {
+      "reader": 403,
+      "operator": 403,
+      "admin": 403
+    },
+    "disabled_switch_denied": true,
+    "csrf_denied": true,
+    "revoked_session_denied": true,
+    "concurrent_single_start": true,
+    "replay_denied": true,
+    "symlink_rejected": true,
+    "non_regular_rejected": true,
+    "authorized_empty_start": true,
+    "worker_identity_verified": true,
+    "empty_business_state_unchanged": true,
+    "authorized_valid_start": true,
+    "valid_execution_completed": true,
+    "valid_event_persisted": true,
+    "valid_queue_cycles": true,
+    "valid_table_deltas": true,
+    "valid_invocation_deltas_bounded": true
+  },
+  "control_invocation_deltas": {
+    "expected": {
+      "net.java.cargotracker.interfaces.handling.file.BatchImportRequestService#issueNonce": 3,
+      "net.java.cargotracker.interfaces.handling.file.BatchImportRequestService#start": 4,
+      "net.java.cargotracker.interfaces.handling.file.BatchImportLauncher#start": 3,
+      "net.java.cargotracker.interfaces.handling.file.BatchWorkerAudit#jobStarted": 1,
+      "net.java.cargotracker.interfaces.handling.file.BatchWorkerAudit#jobFinished": 1
+    },
+    "observed": {
+      "net.java.cargotracker.application.internal.DefaultBookingService#bookNewCargo": 0,
+      "net.java.cargotracker.application.internal.DefaultBookingService#requestPossibleRoutesForCargo": 0,
+      "net.java.cargotracker.infrastructure.routing.ExternalRoutingService#fetchRoutesForSpecification": 0,
+      "net.java.cargotracker.interfaces.booking.rest.CargoMonitoringService#getAllCargo": 0,
+      "net.java.cargotracker.interfaces.handling.file.BatchImportLauncher#start": 3,
+      "net.java.cargotracker.interfaces.handling.file.BatchImportRequestService#issueNonce": 3,
+      "net.java.cargotracker.interfaces.handling.file.BatchImportRequestService#start": 4,
+      "net.java.cargotracker.interfaces.handling.file.BatchWorkerAudit#jobFinished": 1,
+      "net.java.cargotracker.interfaces.handling.file.BatchWorkerAudit#jobStarted": 1,
+      "net.java.pathfinder.api.GraphTraversalService#findShortestPath": 0
+    },
+    "passed": true
+  },
+  "image_id": "sha256:357c0e76627b944c118a53358a3c6d5ab3f4a86207adfb63b62c82bb5d96ffc3",
+  "owned_container_removed": true,
+  "private_files_removed": true,
+  "cleanup_errors": [],
+  "results_sha256": "688501e00812f4d395483f7de52cfd703a4ea9bc6caa5738ac2887a1407d3d6c",
+  "server_log_sha256": "3092c7a5ed1428992815106558b1d98ca37b4762be1b710326665c18b2680a9a",
+  "independent_review": "approved",
+  "scope_note": "This does not complete KAN-15 or batch recovery/replay controls BG-02 through BG-05."
+}

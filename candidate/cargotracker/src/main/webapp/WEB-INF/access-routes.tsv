@@ -41,3 +41,4 @@
 /admin/listClaimed.xhtml	Reader,Operator,Administrator
 /error.xhtml	PUBLIC
 /error_404.xhtml	PUBLIC
+/admin/import.xhtml	Administrator

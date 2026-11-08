@@ -3,9 +3,9 @@
      xmlns="http://xmlns.jcp.org/xml/ns/javaee"
      version="1.0">
     <properties>
-        <property name="upload_directory" value="/tmp/uploads"/>
-        <property name="archive_directory" value="/tmp/archive"/>
-        <property name="failed_directory" value="/tmp/failed"/>
+        <property name="upload_directory" value="/opt/jboss/wildfly/standalone/data/cargo-import/incoming"/>
+        <property name="archive_directory" value="/opt/jboss/wildfly/standalone/data/cargo-import/archive"/>
+        <property name="failed_directory" value="/opt/jboss/wildfly/standalone/data/cargo-import/failed"/>
     </properties>
     <listeners>
         <listener ref="FileProcessorJobListener"/>

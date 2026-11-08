@@ -1,0 +1,12 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml" xmlns:ui="jakarta.faces.facelets" xmlns:h="jakarta.faces.html" template="/WEB-INF/templates/candidate.xhtml">
+<ui:define name="title">Handling event import</ui:define>
+<ui:define name="content"><h1>Handling event import</h1>
+<p>Import files must be staged by an authorized server operator in the protected incoming directory. This page cannot upload files, select paths, or choose a job.</p>
+<p>Import feature: <strong><h:outputText value="#{batchImportView.enabled ? 'enabled' : 'disabled'}"/></strong></p>
+<h:messages/>
+<h:form id="batchImport"><input type="hidden" name="csrf" value="#{batchImportView.csrf}"/>
+
+<h:commandButton id="start" value="Process staged files" action="#{batchImportView.start}" disabled="#{not batchImportView.enabled}"/>
+</h:form>
+<h:panelGroup rendered="#{not empty batchImportView.result}"><p>Run identifier: <h:outputText value="#{batchImportView.result.runId}"/></p><p>Initiated by: <h:outputText value="#{batchImportView.result.initiatedBy}"/></p></h:panelGroup>
+</ui:define></ui:composition>

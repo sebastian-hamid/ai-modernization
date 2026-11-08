@@ -3,6 +3,33 @@ from pathlib import Path
 from unittest.mock import patch
 spec=importlib.util.spec_from_file_location("kan18",Path(__file__).with_name("run_candidate.py"))
 harness=importlib.util.module_from_spec(spec);spec.loader.exec_module(harness)
+class BatchInvocationAccountingTests(unittest.TestCase):
+    def test_two_unsafe_attempts_and_one_concurrent_form_have_exact_deltas(self):
+        self.assertEqual(harness.expected_batch_control_deltas(),{
+            "net.java.cargotracker.interfaces.handling.file.BatchImportRequestService#issueNonce":3,
+            "net.java.cargotracker.interfaces.handling.file.BatchImportRequestService#start":4,
+            "net.java.cargotracker.interfaces.handling.file.BatchImportLauncher#start":3,
+            "net.java.cargotracker.interfaces.handling.file.BatchWorkerAudit#jobStarted":1,
+            "net.java.cargotracker.interfaces.handling.file.BatchWorkerAudit#jobFinished":1})
+
+class BatchAuditCorrelationTests(unittest.TestCase):
+    def test_other_run_completion_and_target_start_do_not_match(self):
+        log=("IMPORT_AUDIT event=finished:COMPLETED runId=empty-run initiator=admin worker=batch-worker\n"
+             "IMPORT_JOB_SUBMIT runId=valid-run initiator=admin trigger=batch-trigger worker=batch-worker\n"
+             "IMPORT_AUDIT event=started runId=valid-run initiator=admin worker=batch-worker\n")
+        self.assertIsNone(harness.batch_finished_line(log,"valid-run"))
+
+    def test_same_run_completion_matches_exact_line(self):
+        log=("IMPORT_AUDIT event=finished:COMPLETED runId=empty-run initiator=admin worker=batch-worker\n"
+             "IMPORT_AUDIT event=finished:COMPLETED runId=valid-run initiator=admin worker=batch-worker\n")
+        self.assertIn("runId=valid-run",harness.batch_finished_line(log,"valid-run"))
+
+    def test_same_run_failure_is_observed_as_finished(self):
+        log="IMPORT_AUDIT event=finished:FAILED runId=valid-run initiator=admin worker=batch-worker\n"
+        line=harness.batch_finished_line(log,"valid-run")
+        self.assertIsNotNone(line)
+        self.assertIn("event=finished:FAILED",line)
+
 class CleanupTests(unittest.TestCase):
     def test_partial_private_initialization_is_removed(self):
         with tempfile.TemporaryDirectory() as temp:

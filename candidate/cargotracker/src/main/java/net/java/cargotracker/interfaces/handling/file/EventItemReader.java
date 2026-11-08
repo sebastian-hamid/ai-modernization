@@ -5,7 +5,6 @@ import java.io.RandomAccessFile;
 import java.io.Serializable;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.Arrays;
 import java.util.Date;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -35,22 +34,18 @@ public class EventItemReader extends AbstractItemReader {
 
     @Override
     public void open(Serializable checkpoint) throws Exception {
-        File uploadDirectory = new File(
-                jobContext.getProperties().getProperty(UPLOAD_DIRECTORY));
-
+        String configuredDirectory = jobContext.getProperties().getProperty(UPLOAD_DIRECTORY);
+        BatchImportPaths.requireDirectory(BatchImportPaths.INCOMING, configuredDirectory);
         if (checkpoint == null) {
             this.checkpoint = new EventFilesCheckpoint();
-            logger.log(Level.INFO, "Scanning upload directory: {0}", uploadDirectory);
-
-            if (!uploadDirectory.exists()) {
-                logger.log(Level.INFO, "Upload directory does not exist, creating it");
-                uploadDirectory.mkdirs();
-            } else {
-                this.checkpoint.setFiles(Arrays.asList(uploadDirectory.listFiles()));
-            }
+            logger.log(Level.INFO, "Scanning approved import directory: {0}", configuredDirectory);
+            this.checkpoint.setFiles(BatchImportPaths.incomingFiles(configuredDirectory));
         } else {
             logger.log(Level.INFO, "Starting from previous checkpoint");
             this.checkpoint = (EventFilesCheckpoint) checkpoint;
+            for (File saved : this.checkpoint.getFiles()) {
+                BatchImportPaths.requireIncomingFile(saved);
+            }
         }
 
         File file = this.checkpoint.currentFile();
@@ -59,7 +54,7 @@ public class EventItemReader extends AbstractItemReader {
             logger.log(Level.INFO, "No files to process");
             currentFile = null;
         } else {
-            currentFile = new RandomAccessFile(file, "r");
+            currentFile = new RandomAccessFile(BatchImportPaths.requireIncomingFile(file), "r");
             logger.log(Level.INFO, "Processing file: {0}", file);
             currentFile.seek(this.checkpoint.getFilePointer());
         }
@@ -84,7 +79,7 @@ public class EventItemReader extends AbstractItemReader {
                     logger.log(Level.INFO, "No more files to process");
                     return null;
                 } else {
-                    currentFile = new RandomAccessFile(nextFile, "r");
+                    currentFile = new RandomAccessFile(BatchImportPaths.requireIncomingFile(nextFile), "r");
                     logger.log(Level.INFO, "Processing file: {0}", nextFile);
                     return readItem();
                 }
