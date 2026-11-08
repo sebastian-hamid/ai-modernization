@@ -121,7 +121,7 @@ def build_current(model,inventory):
         if old["surface_id"] in retired:continue
         row=mapped.get(old["surface_id"]) or pending.get(old["surface_id"])
         case=deepcopy(old)
-        case.update(id="CURRENT::"+old["id"],contract_version=2,kind="current",legacy_case_id=old["id"],legacy_contract=deepcopy(old),capability_id=row["capability_id"] if row else old["surface_id"].lower(),binding_status="pending" if old["surface_id"] in pending else "native-batch-import" if old["surface_id"]=="BG-01" else "native-staged-return" if old["surface_id"]=="ACTION-13" else "native-current-load" if old["surface_id"] in NATIVE_CURRENT_LOADS else "browser-current-navigation" if old["surface_id"] in {"ACTION-10","ACTION-11","ACTION-12","ACTION-21","ACTION-22","ACTION-24","ACTION-25","ACTION-45"} else "existing-runtime-driver")
+        case.update(id="CURRENT::"+old["id"],contract_version=2,kind="current",legacy_case_id=old["id"],legacy_contract=deepcopy(old),capability_id=row["capability_id"] if row else old["surface_id"].lower(),binding_status="pending" if old["surface_id"] in pending else "native-batch-import" if old["surface_id"]=="BG-01" else "native-batch-processing" if old["surface_id"]=="BG-02" else "native-staged-return" if old["surface_id"]=="ACTION-13" else "native-current-load" if old["surface_id"] in NATIVE_CURRENT_LOADS else "browser-current-navigation" if old["surface_id"] in {"ACTION-10","ACTION-11","ACTION-12","ACTION-21","ACTION-22","ACTION-24","ACTION-25","ACTION-45"} else "existing-runtime-driver")
         if row:
             source="index.xhtml" if old["surface_id"]!="ACTION-13" and old["actor"]=="anonymous" and old["expected"]=="deny" and row["modern_method"]=="GET" else row["modern_source"]
             case.update(path=row["modern_target"],method=row["modern_method"],current_source=source)
@@ -163,12 +163,12 @@ class CurrentAdapter:
         if canonical is None or canonical!=case:raise UnsupportedCase()
         if case["kind"] not in {"current","replacement"} or self.legacy is None or self.provenance is None:
             raise UnsupportedCase()
-        if case["kind"]=="current" and case.get("binding_status") not in {"existing-runtime-driver","native-current-load","browser-current-navigation","native-staged-return","native-batch-import"}:
+        if case["kind"]=="current" and case.get("binding_status") not in {"existing-runtime-driver","native-current-load","browser-current-navigation","native-staged-return","native-batch-import","native-batch-processing"}:
             raise UnsupportedCase()
         if not isinstance(self.provenance,dict) or self.provenance.get("kind")!="fresh-owned-runtime" or self.provenance.get("legacy_fixture_cleanup_verified") is not True or self.provenance.get("inputs_fingerprint")!=self._run_fingerprint or re.fullmatch("[0-9a-f]{64}",str(self._run_fingerprint)) is None:raise UnsupportedCase()
         if case["kind"]=="replacement":
             observation=replacement_observation(case,getattr(self.legacy,"replacement_observations",{}).get(case["id"],{}))
-        elif case["binding_status"]=="native-batch-import":
+        elif case["binding_status"] in {"native-batch-import","native-batch-processing"}:
             observation=deepcopy(getattr(self.legacy,"batch_import_observations",{}).get(case["actor"],{}))
             if (observation.get("driver")!="native-batch-import-v1" or observation.get("actor")!=case["actor"]
                     or observation.get("supported") is not True):
@@ -179,6 +179,27 @@ class CurrentAdapter:
                         or observation.get("direct_api_payload_absent",{}).get(operation) is not True
                         for operation in ("read","start")):
                     raise UnsupportedCase()
+            if case["binding_status"]=="native-batch-processing" and case["actor"]=="Administrator":
+                processing=deepcopy(getattr(self.legacy,"batch_processing_observation",{}))
+                required_processing=("native-batch-processing-v1","Administrator",200)
+                if (processing.get("driver")!=required_processing[0]
+                        or processing.get("actor")!=required_processing[1]
+                        or processing.get("status")!=required_processing[2]
+                        or processing.get("supported") is not True
+                        or processing.get("authorized_job_completed") is not True
+                        or processing.get("batch_worker_identity_verified") is not True
+                        or processing.get("directory_policy_verified") is not True
+                        or processing.get("valid_input_consumed") is not True
+                        or processing.get("valid_event_persisted") is not True
+                        or processing.get("valid_archive_verified") is not True
+                        or processing.get("invalid_input_consumed") is not True
+                        or processing.get("invalid_failed_output_verified") is not True
+                        or processing.get("business_side_effects_bounded") is not True
+                        or processing.get("administrator_identity",{}).get("server_verified") is not True
+                        or processing.get("administrator_identity",{}).get("principal")!="admin"
+                        or processing.get("administrator_identity",{}).get("roles")!=["Administrator"]):
+                    raise UnsupportedCase()
+                observation["processing_evidence"]=processing
             if case["expected"]=="allow":
                 if (case["actor"]!="Administrator" or observation.get("authorized_form_status")!=200
                         or observation.get("csrf_present") is not True or observation.get("viewstate_present") is not True

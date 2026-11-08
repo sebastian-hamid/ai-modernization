@@ -325,6 +325,39 @@ class CurrentCapabilityTests(unittest.TestCase):
                             ("identity",{"server_verified":True,"principal":"operator","roles":["Operator"]})]:
             adapter.legacy.retirement_observations={case["id"]:{**proof,field:value}}
             with self.subTest(field=field),self.assertRaises(UnsupportedCase):adapter.execute_retirement(case,replacement)
+    def test_bg02_requires_private_processing_and_exact_archive_failed_outputs(self):
+        adapter=c.CurrentAdapter()
+        adapter._run_fingerprint="a"*64
+        adapter.provenance={"kind":"fresh-owned-runtime","inputs_fingerprint":"a"*64,"legacy_fixture_cleanup_verified":True}
+        adapter.legacy=FakeLegacy({})
+        admin={"driver":"native-batch-import-v1","actor":"Administrator","supported":True,
+               "status":200,"semantic_success":True,"authorized_effect_verified":True,
+               "authorized_form_status":200,"csrf_present":True,"viewstate_present":True,
+               "authorized_start_accepted":True,"empty_business_state_unchanged":True,
+               "empty_control_calls_bounded":True,"worker_identity_verified":True,
+               "valid_event_persisted":True,"valid_queue_cycles":True,"valid_table_deltas":True,
+               "valid_invocation_deltas_bounded":True,"direct_api_denials":{"read":403,"start":403},
+               "direct_api_payload_absent":{"read":True,"start":True},"direct_api_effects_unchanged":True,
+               "identity":{"server_verified":True,"principal":"admin","roles":["Administrator"]}}
+        processing={"driver":"native-batch-processing-v1","actor":"Administrator","supported":True,"status":200,
+                    "authorized_job_completed":True,"batch_worker_identity_verified":True,
+                    "directory_policy_verified":True,"valid_input_consumed":True,"valid_event_persisted":True,
+                    "valid_archive_verified":True,"invalid_input_consumed":True,
+                    "invalid_failed_output_verified":True,"business_side_effects_bounded":True,
+                    "administrator_identity":{"server_verified":True,"principal":"admin","roles":["Administrator"]}}
+        adapter.legacy.batch_import_observations={"Administrator":admin}
+        adapter.legacy.batch_processing_observation=processing
+        case=adapter.contracts["CURRENT::BG-02::Administrator::active"]
+        self.assertEqual(evaluate(case,adapter.execute(case))[0],"PASS")
+        for field,value in [("directory_policy_verified",False),("valid_archive_verified",False),
+                            ("invalid_failed_output_verified",False),("business_side_effects_bounded",False),
+                            ("batch_worker_identity_verified",False)]:
+            adapter.legacy.batch_processing_observation={**processing,field:value}
+            with self.subTest(field=field),self.assertRaises(UnsupportedCase):adapter.execute(case)
+        adapter.legacy.batch_processing_observation=processing
+        adapter.legacy.batch_import_observations={"Administrator":{**admin,"identity":{"server_verified":False}}}
+        with self.assertRaises(UnsupportedCase):adapter.execute(case)
+        self.assertEqual(case["binding_status"],"native-batch-processing")
     def test_bg01_current_gate_requires_actor_specific_denial_or_admin_worker_evidence(self):
         adapter=c.CurrentAdapter()
         adapter._run_fingerprint="a"*64

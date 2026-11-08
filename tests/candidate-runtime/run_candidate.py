@@ -882,6 +882,9 @@ def main(after_checks=None):
         valid_target_before=next(c for c in valid_before_cargos if c["trackingId"]==fixture_id)
         before_valid=settled()
         valid_line=f"2030-01-05 10:00,{fixture_id},,CNHKG,RECEIVE"
+        invalid_line="invalid,batch,event,line"
+        command("docker","exec",container,"sh","-c",
+            "printf '%s\\n' '"+invalid_line+"' > /opt/jboss/wildfly/standalone/data/cargo-import/incoming/bg02-invalid.csv")
         command("docker","exec",container,"sh","-c",
             "printf '%s\\n' '"+valid_line+"' > /opt/jboss/wildfly/standalone/data/cargo-import/incoming/bg01-valid.csv")
         valid_status,valid_body,_=submit_import()
@@ -1009,6 +1012,45 @@ def main(after_checks=None):
         valid_file_removed=subprocess.run(["docker","exec",container,"test","!","-e",
             "/opt/jboss/wildfly/standalone/data/cargo-import/incoming/bg01-valid.csv"]).returncode==0
         check("Valid batch consumes staged event file",valid_file_removed)
+        import_root="/opt/jboss/wildfly/standalone/data/cargo-import"
+        directory_state=command("docker","exec",container,"sh","-c",
+            "stat -c '%a:%u' "+import_root+"/incoming "+import_root+"/archive "
+            +import_root+"/failed; id -u").splitlines()
+        private_directories=(len(directory_state)==4 and directory_state[0]==directory_state[1]
+            ==directory_state[2] and directory_state[0].startswith("700:")
+            and directory_state[3]==directory_state[0].split(":",1)[1])
+        check("Incoming archive and failed directories are private to the server OS identity",
+            private_directories)
+        invalid_file_removed=subprocess.run(["docker","exec",container,"test","!","-e",
+            import_root+"/incoming/bg02-invalid.csv"]).returncode==0
+        archive_names=command("docker","exec",container,"sh","-c",
+            "find "+import_root+"/archive -mindepth 1 -maxdepth 1 -type f -printf '%f\\n'").splitlines()
+        failed_names=command("docker","exec",container,"sh","-c",
+            "find "+import_root+"/failed -mindepth 1 -maxdepth 1 -type f -printf '%f\\n'").splitlines()
+        archive_text=command("docker","exec",container,"sh","-c",
+            "cat "+import_root+"/archive/archive_*.csv") if archive_names else ""
+        failed_text=command("docker","exec",container,"sh","-c",
+            "cat "+import_root+"/failed/failed_*.csv") if failed_names else ""
+        archive_output_verified=(len(archive_names)==1
+            and re.fullmatch(r"archive_EventFilesProcessorJob_[0-9]+\.csv",archive_names[0]) is not None
+            and len(archive_text.splitlines())==1 and fixture_id in archive_text
+            and "CNHKG" in archive_text and "RECEIVE" in archive_text
+            and invalid_line not in archive_text)
+        failed_output_verified=(len(failed_names)==1
+            and re.fullmatch(r"failed_EventFilesProcessorJob_[0-9]+\.csv",failed_names[0]) is not None
+            and failed_text.splitlines()==[invalid_line] and fixture_id not in failed_text)
+        check("Valid event is archived under a generated in-root name",archive_output_verified)
+        check("Malformed event is isolated in failed output without business processing",
+            failed_output_verified and invalid_file_removed and valid_positive
+            and valid_tables and valid_queues and valid_call_deltas)
+        batch_processing_observation={"driver":"native-batch-processing-v1","supported":True,
+            "actor":"Administrator","administrator_identity":report["identities"]["admin"],
+            "authorized_job_completed":valid_worker,"batch_worker_identity_verified":worker_verified,
+            "directory_policy_verified":private_directories,"valid_input_consumed":valid_file_removed,
+            "valid_event_persisted":valid_positive,"valid_archive_verified":archive_output_verified,
+            "invalid_input_consumed":invalid_file_removed,"invalid_failed_output_verified":failed_output_verified,
+            "business_side_effects_bounded":valid_tables and valid_queues and valid_call_deltas,
+            "status":200}
         def effect_sample(sample):
             return {"tables":sample["tables"],"queues":sample["queues"],
                 "business_invocations":sample["business_invocations"]}
@@ -1032,6 +1074,7 @@ def main(after_checks=None):
             "direct_api_effects_unchanged":api_effects_unchanged,
             "identity":report["identities"]["admin"]}
         report["batch_import_actor_observations"]=batch_actor_observations
+        report["batch_processing_observation"]=batch_processing_observation
         report["batch_import"]={"anonymous_get_post_denied":True,
             "direct_api_denials":direct_api_denials,
             "direct_api_effects_unchanged":api_effects_unchanged,
