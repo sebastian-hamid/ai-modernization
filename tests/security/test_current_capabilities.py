@@ -325,6 +325,61 @@ class CurrentCapabilityTests(unittest.TestCase):
                             ("identity",{"server_verified":True,"principal":"operator","roles":["Operator"]})]:
             adapter.legacy.retirement_observations={case["id"]:{**proof,field:value}}
             with self.subTest(field=field),self.assertRaises(UnsupportedCase):adapter.execute_retirement(case,replacement)
+    def test_bg03_requires_all_human_denials_and_dedicated_worker_identity(self):
+        adapter=c.CurrentAdapter()
+        adapter._run_fingerprint="a"*64
+        adapter.provenance={"kind":"fresh-owned-runtime","inputs_fingerprint":"a"*64,"legacy_fixture_cleanup_verified":True}
+        adapter.legacy=FakeLegacy({})
+        sample={"tables":{"CARGO":{"rows":1,"sha256":"a"*64}},
+                "queues":{"test":{"MessageCount":0}},
+                "business_invocations":{"HandlingEventRegistrationAttemptConsumer#onMessage":0}}
+        effects={"settled":True,"fixture_id":"owned","before_fixture":"owned","after_fixture":"owned",
+                 "before":{"database":sample["tables"],"queue":sample["queues"],"business_audit":sample["business_invocations"]},
+                 "after":{"database":sample["tables"],"queue":sample["queues"],"business_audit":sample["business_invocations"]}}
+        identities={"Reader":{"server_verified":True,"principal":"reader","roles":["Reader"]},
+                    "Operator":{"server_verified":True,"principal":"operator","roles":["Operator"]},
+                    "Administrator":{"server_verified":True,"principal":"admin","roles":["Administrator"]}}
+        denials={}
+        for actor in ["anonymous","Reader","Operator","Administrator"]:
+            proof={"driver":"native-handling-worker-v1","actor":actor,"supported":True,
+                   "status":401 if actor=="anonymous" else 403,"invocation_denied":True,
+                   "direct_service_denied":True,"protected_payload_absent":True,
+                   "independent_effects_unchanged":True,"effects":effects}
+            if actor!="anonymous":proof["identity"]=identities[actor]
+            denials[actor]=proof
+            case=adapter.contracts["CURRENT::BG-03::"+actor+"::active"]
+            adapter.legacy.handling_worker_denials={actor:proof}
+            self.assertEqual(evaluate(case,adapter.execute(case))[0],"PASS")
+            for field,value in [("direct_service_denied",False),("protected_payload_absent",False),
+                                ("independent_effects_unchanged",False)]:
+                adapter.legacy.handling_worker_denials={actor:{**proof,field:value}}
+                with self.subTest(actor=actor,field=field):
+                    if field=="protected_payload_absent":
+                        self.assertNotEqual(evaluate(case,adapter.execute(case))[0],"PASS")
+                    else:
+                        with self.assertRaises(UnsupportedCase):adapter.execute(case)
+        machine={"driver":"native-handling-worker-v1","supported":True,"status":200,
+                 "machine_identity_verified":True,
+                 "machine_scope":"Dedicated server worker authority; human identity does not automatically propagate through ObjectMessage",
+                 "authorized_adapter_events_verified":True,"producer_boundary_verified":True,
+                 "human_direct_denials_effects_unchanged":True,"semantic_success":True,
+                 "authorized_effect_verified":True,
+                 "native_identity":{"server_verified":True,"principal":"handling-worker","roles":["HandlingWorker"]}}
+        adapter.legacy.handling_worker_denials=denials
+        adapter.legacy.handling_worker_observation=machine
+        case=adapter.contracts["CURRENT::BG-03-MACHINE::worker-BG-03::active"]
+        self.assertEqual(case["binding_status"],"native-handling-worker")
+        self.assertEqual(evaluate(case,adapter.execute(case))[0],"PASS")
+        for field,value in [("machine_identity_verified",False),
+                            ("machine_scope","human identity forwarded"),
+                            ("authorized_adapter_events_verified",False),
+                            ("producer_boundary_verified",False),
+                            ("human_direct_denials_effects_unchanged",False)]:
+            adapter.legacy.handling_worker_observation={**machine,field:value}
+            with self.subTest(field=field),self.assertRaises(UnsupportedCase):adapter.execute(case)
+        adapter.legacy.handling_worker_observation={**machine,
+            "native_identity":{"server_verified":True,"principal":"operator","roles":["Operator"]}}
+        with self.assertRaises(UnsupportedCase):adapter.execute(case)
     def test_bg02_requires_private_processing_and_exact_archive_failed_outputs(self):
         adapter=c.CurrentAdapter()
         adapter._run_fingerprint="a"*64

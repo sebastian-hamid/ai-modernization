@@ -415,7 +415,7 @@ def main(after_checks=None):
         return jar,opener,identity["csrf"]
     try:
         users.write_text("#$REALM_NAME=ApplicationRealm$\n"+"".join(who+"="+hashlib.md5((who+":ApplicationRealm:"+pw).encode()).hexdigest()+"\n" for who,pw in {**credentials,"routing":routing_password}.items()))
-        roles.write_text("reader=Reader\noperator=Operator\nadmin=Administrator\nrouting=RoutingService\n")
+        roles.write_text("reader=Reader\noperator=Operator\nadmin=Administrator\nrouting=RoutingService\nhandling-worker=HandlingWorker\n")
         routing.write_text("username=routing\npassword="+routing_password+"\n")
         users.chmod(0o600);roles.chmod(0o600);routing.chmod(0o600)
         context=Path(tempfile.mkdtemp(prefix="context-",dir=WORK))
@@ -677,6 +677,30 @@ def main(after_checks=None):
                 proof["direct_api_payload_absent"]=direct_api_payload_absent[actor]
                 proof["direct_api_effects_unchanged"]=api_effects_unchanged
         report["batch_import_direct_api_denials"]=direct_api_denials
+        handling_worker_denials={}
+        for actor,opener in [("anonymous",anonymous),("Reader",sessions["reader"][1]),
+                ("Operator",sessions["operator"][1]),("Administrator",sessions["admin"][1])]:
+            denied_before=settled()
+            denied_status,denied_body,denied_headers=request(opener,
+                probe_path+"?operation=handling-service")
+            denied_after=settled()
+            expected_status=401 if actor=="anonymous" else 403
+            worker_only=(denied_headers.get("X-Fixture-Probe-Result")=="worker-only-denied")
+            unchanged=effects_unchanged(denied_before,denied_after)
+            absent=payload_absent(denied_body)
+            check("Direct handling-service worker-only denial without effects: "+actor,
+                denied_status==expected_status and unchanged and absent
+                and (actor=="anonymous" or worker_only))
+            proof={"driver":"native-handling-worker-v1","actor":actor,
+                "supported":True,"status":denied_status,"invocation_denied":True,
+                "direct_service_denied":actor=="anonymous" or worker_only,
+                "protected_payload_absent":absent,"independent_effects_unchanged":unchanged,
+                "effects":effects_receipt(denied_before,denied_after)}
+            if actor!="anonymous":
+                principal={"Reader":"reader","Operator":"operator","Administrator":"admin"}[actor]
+                proof["identity"]=report["identities"][principal]
+            handling_worker_denials[actor]=proof
+        report["handling_worker_denials"]=handling_worker_denials
         api_job_start_delta=(api_after["business_invocations"].get(
             "net.java.cargotracker.interfaces.handling.file.BatchWorkerAudit#jobStarted",0)
             - api_before["business_invocations"].get(
@@ -998,12 +1022,16 @@ def main(after_checks=None):
             "net.java.cargotracker.interfaces.handling.file.BatchWorkerAudit#jobStarted":1,
             "net.java.cargotracker.interfaces.handling.file.BatchWorkerAudit#jobFinished":1,
             "net.java.cargotracker.infrastructure.messaging.jms.HandlingEventRegistrationAttemptConsumer#onMessage":1,
+            "net.java.cargotracker.infrastructure.messaging.jms.HandlingWorkerAudit#recordConsumedAttempt":1,
             "net.java.cargotracker.application.internal.DefaultHandlingEventService#registerHandlingEvent":1,
             "net.java.cargotracker.infrastructure.messaging.jms.CargoHandledConsumer#onMessage":1,
             "net.java.cargotracker.application.internal.DefaultCargoInspectionService#inspectCargo":1,
             "net.java.cargotracker.interfaces.booking.socket.RealtimeCargoTrackingService#onCargoInspected":1}
         valid_before_calls=before_valid["business_invocations"]
         valid_after_calls=valid_after["business_invocations"]
+        report["valid_invocation_deltas"]={
+            k:valid_after_calls.get(k,0)-valid_before_calls.get(k,0)
+            for k in sorted(set(valid_before_calls)|set(valid_after_calls))}
         valid_call_deltas=all(valid_after_calls.get(k,0)-valid_before_calls.get(k,0)==n
             for k,n in valid_deltas.items()) and all(
             valid_after_calls.get(k,0)-valid_before_calls.get(k,0)==valid_deltas.get(k,0)
@@ -1198,6 +1226,8 @@ def main(after_checks=None):
 
         check("Denied report leaves monitor unchanged",next(c for c in cargos(sessions["reader"][1]) if c["trackingId"]=="DEF789")==before)
         check("Denied booking callback leaves cargo list unchanged",cargos(sessions["reader"][1])==before_book)
+        operator_worker_audit_before=command("docker","logs",container).count(
+            "HANDLING_WORKER_AUDIT event=consumed principal=handling-worker role=HandlingWorker")
         check("Operator report accepted",handling("operator")==204)
         deadline=time.monotonic()+30;after=before
         while time.monotonic()<deadline:
@@ -1209,17 +1239,30 @@ def main(after_checks=None):
         check("Real JPA/JMS handling changes cargo",after!=before and after["lastKnownLocation"]=="FIHEL" and after["transportStatus"]=="IN_PORT")
 
         positive_effects=settled()
+        operator_worker_audit_after=command("docker","logs",container).count(
+            "HANDLING_WORKER_AUDIT event=consumed principal=handling-worker role=HandlingWorker")
+        operator_worker_audit_delta=operator_worker_audit_after-operator_worker_audit_before
+        operator_consumer_delta=(positive_effects["business_invocations"].get(
+            "net.java.cargotracker.infrastructure.messaging.jms.HandlingEventRegistrationAttemptConsumer#onMessage",0)
+            - after_denied["business_invocations"].get(
+            "net.java.cargotracker.infrastructure.messaging.jms.HandlingEventRegistrationAttemptConsumer#onMessage",0))
+        check("Operator handling message runs under the dedicated worker identity",
+            operator_worker_audit_delta==1 and operator_consumer_delta==1)
         check("DB observer detects allowed persisted handling",positive_effects["tables"]!=after_denied["tables"])
         check("Cumulative broker observer detects allowed processing",positive_effects["queues"]!=after_denied["queues"] and any(q["MessagesAdded"]>after_denied["queues"][name]["MessagesAdded"] for name,q in positive_effects["queues"].items()))
         check("Business invocation observer detects allowed processing",positive_effects["business_invocations"]!=after_denied["business_invocations"] and any("registerHandlingEvent" in name and count>after_denied["business_invocations"].get(name,0) for name,count in positive_effects["business_invocations"].items()))
         for worker in ["HandlingEventRegistrationAttemptConsumer","CargoHandledConsumer"]:
             check("MDB invocation observer connected: "+worker,any(worker+"#onMessage" in name and count>after_denied["business_invocations"].get(name,0) for name,count in positive_effects["business_invocations"].items()))
         report["scoped_denied_effects"]["positive_control"]=positive_effects
+        handling_worker_audit_effects={"operator":{"audit_delta":operator_worker_audit_delta,
+            "consumer_invocation_delta":operator_consumer_delta}}
         report["access_observations"]["API-02::Operator::active"]={"supported":True,"status":204,"identity":report["identities"]["operator"],"semantic_success":True,"authorized_effect_verified":True,"processing_evidence":{"database_changed":positive_effects["tables"]!=after_denied["tables"],"worker_invocations_observed":True}}
         report["cargo_before"]=before;report["cargo_after"]=after
         check("Administrator fixture starts away from FIHEL",next(c for c in initial if c["trackingId"]=="MNO456")["lastKnownLocation"]!="FIHEL")
         payload=json.dumps({"trackingId":"MNO456","eventType":"CUSTOMS","unLocode":"FIHEL","completionTime":"2030-01-02 10:00"}).encode()
         admin_before=settled()
+        admin_worker_audit_before=command("docker","logs",container).count(
+            "HANDLING_WORKER_AUDIT event=consumed principal=handling-worker role=HandlingWorker")
         check("Administrator report accepted",handling("admin")==204)
         deadline=time.monotonic()+30
         while time.monotonic()<deadline:
@@ -1229,7 +1272,31 @@ def main(after_checks=None):
         else:raise AssertionError("Administrator handling did not persist")
         check("Administrator real asynchronous handling effect",True)
         admin_after=settled()
+        admin_worker_audit_after=command("docker","logs",container).count(
+            "HANDLING_WORKER_AUDIT event=consumed principal=handling-worker role=HandlingWorker")
+        admin_worker_audit_delta=admin_worker_audit_after-admin_worker_audit_before
+        admin_consumer_delta=(admin_after["business_invocations"].get(
+            "net.java.cargotracker.infrastructure.messaging.jms.HandlingEventRegistrationAttemptConsumer#onMessage",0)
+            - admin_before["business_invocations"].get(
+            "net.java.cargotracker.infrastructure.messaging.jms.HandlingEventRegistrationAttemptConsumer#onMessage",0))
+        check("Administrator handling message runs under the dedicated worker identity",
+            admin_worker_audit_delta==1 and admin_consumer_delta==1)
         check("Administrator independent persisted handling effect",admin_after["tables"]!=admin_before["tables"] and any(q["MessagesAdded"]>admin_before["queues"][name]["MessagesAdded"] for name,q in admin_after["queues"].items()) and any("registerHandlingEvent" in name and count>admin_before["business_invocations"].get(name,0) for name,count in admin_after["business_invocations"].items()))
+        handling_worker_audit_effects["administrator"]={"audit_delta":admin_worker_audit_delta,
+            "consumer_invocation_delta":admin_consumer_delta}
+        report["handling_worker_audit_effects"]=handling_worker_audit_effects
+        report["handling_worker_observation"]={"driver":"native-handling-worker-v1","supported":True,
+            "machine_identity_verified":operator_worker_audit_delta==1 and admin_worker_audit_delta==1,
+            "native_identity":{"server_verified":True,"principal":"handling-worker","roles":["HandlingWorker"]},
+            "machine_scope":"Dedicated server worker authority; human identity does not automatically propagate through ObjectMessage",
+            "authorized_adapter_events_verified":operator_worker_audit_delta==admin_worker_audit_delta==1
+                and operator_consumer_delta==admin_consumer_delta==1,
+            "producer_boundary_verified":False,
+            "producer_boundary_note":"Arbitrary producer/JNDI access restriction is outside this fixture",
+            "human_direct_denials_effects_unchanged":all(x.get("independent_effects_unchanged") is True
+                for x in handling_worker_denials.values()),
+            "status":200,"semantic_success":operator_worker_audit_delta==admin_worker_audit_delta==1,
+            "authorized_effect_verified":operator_worker_audit_delta==admin_worker_audit_delta==1}
         report["admin_handling_effects"]={"before":admin_before,"after":admin_after}
         report["access_observations"]["API-02::Administrator::active"]={"supported":True,"status":204,"identity":report["identities"]["admin"],"semantic_success":True,"authorized_effect_verified":True}
 

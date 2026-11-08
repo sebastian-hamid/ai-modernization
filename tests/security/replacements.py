@@ -74,6 +74,7 @@ def positive_booking_samples(before, after, actor, expected_fixture):
 HANDLING_EVENT_WRITE_CALLS = {
     "net.java.cargotracker.interfaces.handling.rest.HandlingReportService#submitReport",
     "net.java.cargotracker.infrastructure.messaging.jms.HandlingEventRegistrationAttemptConsumer#onMessage",
+    "net.java.cargotracker.infrastructure.messaging.jms.HandlingWorkerAudit#recordConsumedAttempt",
     "net.java.cargotracker.application.internal.DefaultHandlingEventService#registerHandlingEvent",
     "net.java.cargotracker.infrastructure.messaging.jms.CargoHandledConsumer#onMessage",
     "net.java.cargotracker.application.internal.DefaultCargoInspectionService#inspectCargo",

@@ -21,4 +21,4 @@
 <jms-destination><name>java:app/jms/DeliveredCargoQueue</name><interface-name>jakarta.jms.Queue</interface-name><destination-name>DeliveredCargoQueue</destination-name></jms-destination>
 <jms-destination><name>java:app/jms/RejectedRegistrationAttemptsQueue</name><interface-name>jakarta.jms.Queue</interface-name><destination-name>RejectedRegistrationAttemptsQueue</destination-name></jms-destination>
 <jms-destination><name>java:app/jms/HandlingEventRegistrationAttemptQueue</name><interface-name>jakarta.jms.Queue</interface-name><destination-name>HandlingEventRegistrationAttemptQueue</destination-name></jms-destination>
-<security-role><role-name>BatchWorker</role-name></security-role><security-role><role-name>BatchTrigger</role-name></security-role><security-role><role-name>BatchWorker</role-name></security-role></web-app>
+<security-role><role-name>HandlingWorker</role-name></security-role><security-role><role-name>BatchWorker</role-name></security-role><security-role><role-name>BatchTrigger</role-name></security-role><security-role><role-name>BatchWorker</role-name></security-role></web-app>

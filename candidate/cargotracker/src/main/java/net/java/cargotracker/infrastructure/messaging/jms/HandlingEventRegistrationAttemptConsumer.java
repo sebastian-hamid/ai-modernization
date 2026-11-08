@@ -3,6 +3,7 @@ package net.java.cargotracker.infrastructure.messaging.jms;
 import jakarta.ejb.ActivationConfigProperty;
 import jakarta.ejb.MessageDriven;
 import jakarta.inject.Inject;
+import jakarta.ejb.EJB;
 import jakarta.jms.JMSException;
 import jakarta.jms.Message;
 import jakarta.jms.MessageListener;
@@ -26,6 +27,8 @@ public class HandlingEventRegistrationAttemptConsumer implements MessageListener
 
     @Inject
     private HandlingEventService handlingEventService;
+    @EJB
+    private HandlingWorkerAudit workerAudit;
 //    private static final Logger logger = Logger.getLogger(
 //            HandlingEventRegistrationAttemptConsumer.class.getName());
 
@@ -36,6 +39,7 @@ public class HandlingEventRegistrationAttemptConsumer implements MessageListener
             ObjectMessage objectMessage = (ObjectMessage) message;
             HandlingEventRegistrationAttempt attempt
                     = (HandlingEventRegistrationAttempt) objectMessage.getObject();
+            workerAudit.recordConsumedAttempt();
             handlingEventService.registerHandlingEvent(
                     attempt.getCompletionTime(),
                     attempt.getTrackingId(),

@@ -5,6 +5,7 @@ import jakarta.batch.operations.JobSecurityException;
 import jakarta.batch.runtime.BatchRuntime;
 import jakarta.ejb.EJB;
 import jakarta.ejb.EJBException;
+import jakarta.ejb.EJBAccessException;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -12,11 +13,19 @@ import java.io.IOException;
 import java.util.Properties;
 import java.util.UUID;
 import net.java.cargotracker.interfaces.handling.file.BatchImportRequestService;
+import net.java.cargotracker.application.HandlingEventService;
+import net.java.cargotracker.domain.model.handling.HandlingEvent;
+import net.java.cargotracker.domain.model.handling.CannotCreateHandlingEventException;
+import net.java.cargotracker.domain.model.cargo.TrackingId;
+import net.java.cargotracker.domain.model.location.UnLocode;
+import java.util.Date;
 
 /** Test-only endpoint for exercising BatchRuntime under real HTTP principals. */
 public final class BatchApiProbe extends HttpServlet {
     @EJB
     private BatchImportRequestService importRequests;
+    @EJB
+    private HandlingEventService handlingEventService;
 
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException {
@@ -81,6 +90,26 @@ public final class BatchApiProbe extends HttpServlet {
                             ? wrapped.getClass().getSimpleName() : cause.getClass().getSimpleName());
                     response.sendError(500);
                 }
+            } catch (RuntimeException unexpected) {
+                response.setHeader("X-Fixture-Probe-Failure", unexpected.getClass().getSimpleName());
+                response.sendError(500);
+            }
+            return;
+        }
+        if ("handling-service".equals(operation)) {
+            try {
+                handlingEventService.registerHandlingEvent(new Date(),
+                        new TrackingId("ABC123"), null, new UnLocode("FIHEL"),
+                        HandlingEvent.Type.RECEIVE);
+                response.setStatus(200);
+                response.setContentType("text/plain;charset=UTF-8");
+                response.getWriter().write("handling service call completed");
+            } catch (EJBAccessException denied) {
+                response.setHeader("X-Fixture-Probe-Result", "worker-only-denied");
+                response.sendError(403);
+            } catch (CannotCreateHandlingEventException invalidEvent) {
+                response.setHeader("X-Fixture-Probe-Result", "handling-event-rejected");
+                response.sendError(422);
             } catch (RuntimeException unexpected) {
                 response.setHeader("X-Fixture-Probe-Failure", unexpected.getClass().getSimpleName());
                 response.sendError(500);
