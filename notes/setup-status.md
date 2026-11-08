@@ -142,3 +142,8 @@ ACTION-38 now verifies current event enum behavior, invalid event rejection, req
 ## Latest access checkpoint — 8 November 2026 (KAN-15 handling voyage)
 
 ACTION-39 now verifies the known 0100S option and selection, forged voyage rejection, required voyages for LOAD/UNLOAD, and same-cargo non-load voyage clearing. Its promoted proof explicitly composes the real voyage-control interval with the same-fixture ACTION-38 CUSTOMS positive control; no second event submission is claimed. All four actor cases passed. The fixture passed 661 native and 791 browser checks with owned cleanup. Current gate is 420 PASS / 50 BLOCKED; historical audit 324 PASS / 178 BLOCKED; all 76 retirement checks remain BLOCKED. See [handling-voyage evidence](../docs/candidate/handling-voyage.md) and [sanitized validation](evidence/kan-15-handling-voyage/validation.json).
+
+
+## Latest current-capability checkpoint - 8 November 2026 (KAN-15 ACTION-42)
+
+The handling completion checkpoint passed all four current role cases after strict invalid-time checks and unchanged-effects validation. Fresh fixture attempt 5 passed 661 native checks and owned cleanup. Current gate: 424 PASS / 46 BLOCKED; historical audit: 324 PASS / 178 BLOCKED; retirement: 76 BLOCKED. The overall gate exits 2 while those unrelated cases remain. Four prior fixture attempts and their dispositions are summarized in sanitized evidence at notes/evidence/kan-15-handling-completion/validation.json. Independent publication review is pending.

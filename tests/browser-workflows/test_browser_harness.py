@@ -4,6 +4,16 @@ from unittest.mock import patch
 spec=importlib.util.spec_from_file_location("browser_harness",Path(__file__).with_name("run_browser.py"))
 harness=importlib.util.module_from_spec(spec);spec.loader.exec_module(harness)
 class BrowserCleanupTests(unittest.TestCase):
+    def test_replacement_output_requires_exact_canonical_actor_keys(self):
+        keys=harness.expected_replacement_keys()
+        self.assertEqual(len(keys),44)
+        harness.validate_replacement_keys({key:{} for key in keys})
+        with self.assertRaises(AssertionError):
+            harness.validate_replacement_keys({key:{} for key in keys if key!="REPLACEMENT::handling-completion::Operator"})
+        extra={key:{} for key in keys}
+        extra["HANDLING_COMPLETION_INPUT::Operator"]={}
+        with self.assertRaises(AssertionError):
+            harness.validate_replacement_keys(extra)
     def exercise(self,mode):
         with tempfile.TemporaryDirectory() as temporary:
             work=Path(temporary);report={"page_fixture_tracking_id":"FIXTURE123"};calls=[]
@@ -43,7 +53,7 @@ class BrowserCleanupTests(unittest.TestCase):
                 with self.assertRaises(expected):harness.main()
             if mode=="timeout":
                 diagnostic=json.loads((work/"browser-timeout.json").read_text())
-                self.assertEqual(diagnostic["timeout_seconds"],420)
+                self.assertEqual(diagnostic["timeout_seconds"],600)
                 self.assertEqual(diagnostic["elapsed_seconds"],421)
                 self.assertEqual(diagnostic["last_completed_effect_stage"],"handling-single-page:Reader:after")
                 self.assertEqual(diagnostic["pending_effect_stage"],"handling-single-page:Operator:before")

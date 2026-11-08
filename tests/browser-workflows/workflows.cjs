@@ -2,7 +2,7 @@ const {chromium,request:requestFactory}=require("playwright");
 const fs=require("fs");
 const cfg=JSON.parse(fs.readFileSync("/run/credentials.json","utf8"));
 const base=cfg.base;
-const navigationActions=require("./navigation-actions.json");const actionProofs={};const claimedCargoProofs={};const cargoEntryProofs={};const trackingActionProofs={};const replacementProofs={};
+const navigationActions=require("./navigation-actions.json");const actionProofs={};const claimedCargoProofs={};const cargoEntryProofs={};const trackingActionProofs={};const replacementProofs={};const handlingCompletionInputs={};
 const checks=[];const failures=[];const pageSemantics={};const socketObservations={};const socketTrace=[];const disconnectEvidence={};let abruptPeer=null;let witnessForDiagnostics=null;let stage="initialize";let navigation=null;
 function check(name,ok){stage=name;checks.push({name,passed:!!ok});if(!ok)throw new Error(name);}
 async function traceSocket(label,actor){
@@ -698,6 +698,82 @@ function unchangedEffects(before,after,expectedReadDelta=1){
     replacementProofs["REPLACEMENT::handling-event::"+role]=proof;
    }
   }
+  async function handlingCompletionInputProof(actor,tracking){
+   const role=actor?cargoRole(actor):"anonymous",stage="handling-completion:"+role;
+   const before=await observeEffects(stage+":before");
+   const values={
+    impossible_calendar_date:"2032-02-30 10:00",
+    malformed_syntax:"2032/02/04 10:00",
+    missing_minutes:"2032-02-04 10",
+    hour_overflow:"2032-02-04 24:00",
+    minute_overflow:"2032-02-04 10:60",
+    empty:""
+   };
+   let sourceStatus=null,protectedPayloadAbsent=false,sourceLoginVerified=false;
+   let invalidValuesRejected=Object.fromEntries(Object.keys(values).map(key=>[key,false]));
+   if(actor&&["operator","admin"].includes(actor.who)){
+    const page=actor.page,entry=await page.goto(base+"mobile.xhtml");
+    sourceStatus=entry.status();
+    const cargo=page.getByLabel("Cargo",{exact:true});
+    const event=page.getByLabel("Event",{exact:true});
+    const location=page.getByLabel("Location",{exact:true});
+    const time=page.getByLabel("Completion time (YYYY-MM-DD HH:mm)");
+    await cargo.selectOption(tracking);
+    await event.selectOption("CUSTOMS");
+    await location.selectOption(actor.who==="operator"?"USCHI":"DEHAM");
+    await page.evaluate(()=>{const form=document.querySelector('form[id$="handling"]');if(form)form.noValidate=true;});
+    for(const [caseName,value] of Object.entries(values)){
+     await time.fill(value);
+     const pending=page.waitForResponse(r=>r.request().isNavigationRequest()&&r.request().method()==="POST"&&new URL(r.url()).pathname.endsWith("/mobile.xhtml"));
+     await page.getByRole("button",{name:"Submit handling report",exact:true}).click();
+     const response=await pending,body=await page.locator("body").innerText();
+     const expectedValidation=caseName==="empty"?"Validation Error: Value is required":
+      "Enter a valid completion time in YYYY-MM-DD HH:mm format.";
+     invalidValuesRejected[caseName]=response.status()===200&&body.includes(expectedValidation)&&
+      !body.includes("Accepted for processing.");
+     check("Invalid completion-time value rejected "+caseName+" "+role,invalidValuesRejected[caseName]);
+    }
+    check("Handling completion source available "+role,sourceStatus===200);
+   }else{
+    const context=actor?actor.context:anon,response=await context.request.get(base+"mobile.xhtml",{maxRedirects:0});
+    sourceStatus=response.status();const body=await response.text();
+    protectedPayloadAbsent=["Report handling","Cargo","Event","Completion time","Submit handling report",tracking].every(marker=>!body.includes(marker));
+    sourceLoginVerified=role==="anonymous"&&sourceStatus===303&&new URL(response.headers().location,base).href===base+"login";
+    check("Handling completion source denied "+role,(role==="anonymous"?sourceLoginVerified:sourceStatus===403)&&protectedPayloadAbsent);
+   }
+   const persistedCargo=await readCargo(tracking,"ROUTED");
+   const after=await observeEffects(stage+":after");
+   check("Handling completion invalid attempts preserve effects "+role,unchangedEffects(before,after,1));
+   return {replacement_driver:"browser-replacement-v1",group:"handling-completion",tracking_id:tracking,
+    source_path:"/cargo-tracker/mobile.xhtml",source_status:sourceStatus,
+    protected_payload_absent:protectedPayloadAbsent,source_login_verified:sourceLoginVerified,
+    invalid_values_rejected:invalidValuesRejected,persisted_cargo_routed:persistedCargo.routingStatus==="ROUTED",before,after,
+    ...(actor?{identity:{server_verified:true,principal:actor.identity.principal,roles:actor.identity.roles}}:{})};
+  }
+  async function handlingCompletionInputProofs(tracking){
+   for(const actor of [null,reader,operator,admin]){
+    const proof=await handlingCompletionInputProof(actor,tracking),role=actor?cargoRole(actor):"anonymous";
+    handlingCompletionInputs[role]=proof;
+   }
+  }
+  async function handlingCompletionProofs(){
+   for(const actor of [null,reader,operator,admin]){
+    const role=actor?cargoRole(actor):"anonymous";
+    const input=handlingCompletionInputs[role];
+    const event=replacementProofs["REPLACEMENT::handling-event::"+role];
+    if(!input||!event||input.tracking_id!==event.tracking_id)throw new Error("Handling completion evidence does not bind to the same cargo");
+    replacementProofs["REPLACEMENT::handling-completion::"+role]={
+     replacement_driver:"browser-replacement-v1",group:"handling-completion",tracking_id:input.tracking_id,
+     source_path:input.source_path,source_status:input.source_status,
+     protected_payload_absent:input.protected_payload_absent,source_login_verified:input.source_login_verified,
+     invalid_values_rejected:input.invalid_values_rejected,persisted_cargo_routed:input.persisted_cargo_routed,
+     valid_completion_accepted:event.event_submit_status===200&&event.nonload_event_persisted===true,
+     event_submit_status:event.event_submit_status,persisted_event_observation:event.persisted_event_observation,
+     positive_effects_verified:event.positive_effects_verified,positive_before:event.positive_before,
+     positive_after:event.positive_after,before:input.before,after:input.after,
+     ...(actor?{identity:{server_verified:true,principal:actor.identity.principal,roles:actor.identity.roles}}:{})};
+   }
+  }
   async function handlingLocationProofs(tracking){
    for(const actor of [null,reader,operator,admin]){
     const proof=await handlingLocationProof(actor,tracking);
@@ -964,8 +1040,10 @@ function unchangedEffects(before,after,expectedReadDelta=1){
    check("Mobile LOAD actually changes transport state",loaded);
   }
 
+  await handlingCompletionInputProofs(id);
   await handlingEventProofs(id);
   await handlingVoyageProofs();
+  await handlingCompletionProofs();
   for(const [event,date] of [["UNLOAD","2032-02-05 10:00"],["CLAIM","2032-02-06 10:00"]]){
    const token=(await (await admin.context.request.get(base+"session")).json()).csrf;
    const result=await admin.context.request.post(base+"rest/handling/reports",{headers:{"X-CSRF-Token":token},data:{trackingId:id,eventType:event,unLocode:"FIHEL",completionTime:date,...(event==="UNLOAD"?{voyageNumber:"0100S"}:{})}});

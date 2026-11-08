@@ -15,6 +15,7 @@ SUPPORTED_REPLACEMENTS = {
     "handling-location": ("POST", ["ACTION-37"]),
     "handling-event": ("POST", ["ACTION-38"]),
     "handling-voyage": ("POST", ["ACTION-39"]),
+    "handling-completion": ("POST", ["ACTION-42"]),
     "tracking-discovery": ("POST", ["ACTION-23", "ACTION-44"]),
 }
 
@@ -79,6 +80,8 @@ HANDLING_EVENT_WRITE_CALLS = {
     "net.java.cargotracker.interfaces.booking.socket.RealtimeCargoTrackingService#onCargoInspected",
 }
 HANDLING_EVENT_QUEUES = {"jms.queue.HandlingEventRegistrationAttemptQueue", "jms.queue.CargoHandledQueue"}
+MISDIRECTED_QUEUE = "jms.queue.MisdirectedCargoQueue"
+MISDIRECTED_CONSUMER = "net.java.cargotracker.infrastructure.messaging.jms.MisdirectedCargoConsumer#onMessage"
 HANDLING_QUEUE_COUNTERS = {"MessageCount","DeliveringCount","ScheduledCount","MessagesAdded","MessagesAcknowledged","MessagesExpired","MessagesKilled","AcknowledgeAttempts"}
 
 def positive_handling_samples(before, after, actor, expected_fixture):
@@ -98,25 +101,29 @@ def positive_handling_samples(before, after, actor, expected_fixture):
             if new[table].get("rows")!=old[table].get("rows") or new[table].get("sha256")==old[table].get("sha256"): raise UnsupportedCase()
         elif new[table]!=old[table]: raise UnsupportedCase()
     oldq,newq=before.get("queues"),after.get("queues")
-    if not isinstance(oldq,dict) or not oldq or not isinstance(newq,dict) or set(oldq)!=set(newq) or not HANDLING_EVENT_QUEUES.issubset(oldq): raise UnsupportedCase()
+    if (not isinstance(oldq,dict) or not oldq or not isinstance(newq,dict) or set(oldq)!=set(newq)
+            or not HANDLING_EVENT_QUEUES.issubset(oldq) or MISDIRECTED_QUEUE not in oldq): raise UnsupportedCase()
     target_allowed={"MessagesAdded","MessagesAcknowledged","AcknowledgeAttempts"}
+    misdirected_delta=newq[MISDIRECTED_QUEUE].get("MessagesAdded",0)-oldq[MISDIRECTED_QUEUE].get("MessagesAdded",0)
+    if type(misdirected_delta) is not int or misdirected_delta not in (0,1): raise UnsupportedCase()
     for queue in oldq:
         if (not isinstance(oldq[queue],dict) or not isinstance(newq[queue],dict)
                 or set(oldq[queue])!=HANDLING_QUEUE_COUNTERS or set(newq[queue])!=HANDLING_QUEUE_COUNTERS): raise UnsupportedCase()
         for counter in ("MessageCount","DeliveringCount","ScheduledCount"):
             if oldq[queue].get(counter)!=0 or newq[queue].get(counter)!=0: raise UnsupportedCase()
-        if queue in HANDLING_EVENT_QUEUES:
+        if queue in HANDLING_EVENT_QUEUES or queue==MISDIRECTED_QUEUE:
             for counter in oldq[queue]:
-                delta=1 if counter in target_allowed else 0
+                delta=(1 if counter in target_allowed else 0) if queue in HANDLING_EVENT_QUEUES else (misdirected_delta if counter in target_allowed else 0)
                 if type(oldq[queue][counter]) is not int or type(newq[queue][counter]) is not int or newq[queue][counter]-oldq[queue][counter]!=delta: raise UnsupportedCase()
         elif newq[queue]!=oldq[queue]: raise UnsupportedCase()
     a,b=before.get("business_invocations"),after.get("business_invocations")
     if not isinstance(a,dict) or not isinstance(b,dict): raise UnsupportedCase()
     for method in HANDLING_EVENT_WRITE_CALLS:
         if b.get(method,0)-a.get(method,0)!=1: raise UnsupportedCase()
+    if b.get(MISDIRECTED_CONSUMER,0)-a.get(MISDIRECTED_CONSUMER,0)!=misdirected_delta: raise UnsupportedCase()
     if b.get(CANCELLATION_READ,0)-a.get(CANCELLATION_READ,0) not in (0,1): raise UnsupportedCase()
     for method in set(a)|set(b):
-        if method not in HANDLING_EVENT_WRITE_CALLS|{CANCELLATION_READ} and a.get(method,0)!=b.get(method,0): raise UnsupportedCase()
+        if method not in HANDLING_EVENT_WRITE_CALLS|{CANCELLATION_READ,MISDIRECTED_CONSUMER} and a.get(method,0)!=b.get(method,0): raise UnsupportedCase()
 
 def replacement_observation(case, proof):
     group = case["capability_id"]
@@ -185,6 +192,38 @@ def replacement_observation(case, proof):
             if actor=="anonymous" and proof.get("source_login_verified") is not True: raise UnsupportedCase()
         result=deepcopy(proof)
         result.update(supported=True,semantic_success=allowed,invocation_denied=not allowed,status=proof["source_status"],protected_payload_absent=not allowed,evaluated_stage="source")
+        return result
+    if group == "handling-completion":
+        if proof.get("source_path") != "/cargo-tracker/mobile.xhtml": raise UnsupportedCase()
+        unchanged_samples(group,actor,proof.get("before"),proof.get("after"),expected_read_delta=1)
+        if actor != "anonymous":
+            identity=proof.get("identity",{}); expected={"Reader":"reader","Operator":"operator","Administrator":"admin"}[actor]
+            if identity.get("server_verified") is not True or identity.get("principal")!=expected or identity.get("roles")!=[actor]: raise UnsupportedCase()
+        expected_invalids={"impossible_calendar_date","malformed_syntax","missing_minutes","hour_overflow","minute_overflow","empty"}
+        invalids=proof.get("invalid_values_rejected")
+        if not isinstance(invalids,dict) or set(invalids)!=expected_invalids: raise UnsupportedCase()
+        if proof.get("persisted_cargo_routed") is not True: raise UnsupportedCase()
+        if allowed:
+            if (proof.get("source_status")!=200 or not all(value is True for value in invalids.values())
+                    or proof.get("valid_completion_accepted") is not True or proof.get("event_submit_status")!=200
+                    or proof.get("positive_effects_verified") is not True): raise UnsupportedCase()
+            observation=proof.get("persisted_event_observation")
+            expected_location="USCHI" if actor=="Operator" else "DEHAM"
+            if (not isinstance(observation,dict) or observation.get("row_count")!=1
+                    or not isinstance(observation.get("matches"),list) or len(observation["matches"])!=1): raise UnsupportedCase()
+            row=observation["matches"][0]
+            if row!={"tracking_id":tracking,"event_type":"CUSTOMS","completion_time":"2032-02-04T00:00:00",
+                     "location_code":expected_location,"voyage_number":None}: raise UnsupportedCase()
+            positive_handling_samples(proof.get("positive_before"),proof.get("positive_after"),actor,proof.get("before",{}).get("fixture_id"))
+        else:
+            if (proof.get("source_status")!=(403 if actor=="Reader" else 303)
+                    or proof.get("protected_payload_absent") is not True
+                    or any(value is not False for value in invalids.values())
+                    or proof.get("valid_completion_accepted") is not False): raise UnsupportedCase()
+            if actor=="anonymous" and proof.get("source_login_verified") is not True: raise UnsupportedCase()
+        result=deepcopy(proof)
+        result.update(supported=True,semantic_success=allowed,invocation_denied=not allowed,
+                      status=proof["source_status"],protected_payload_absent=not allowed,evaluated_stage="source")
         return result
     if group == "handling-location":
         if proof.get("source_path") != "/cargo-tracker/mobile.xhtml":

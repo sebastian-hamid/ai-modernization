@@ -164,6 +164,20 @@ def promote_tracking_actions(report,results):
     report["current_access_observations"].update(proofs)
 
 
+REPLACEMENT_GROUPS=(
+    "cancel-editor","booking-cancel","tracking-discovery","booking-deadline","booking-single-page",
+    "handling-single-page","handling-cargo-voyage","handling-location","handling-event","handling-voyage",
+    "handling-completion",
+)
+REPLACEMENT_ROLES=("anonymous","Reader","Operator","Administrator")
+
+def expected_replacement_keys():
+    return {"REPLACEMENT::"+group+"::"+role for group in REPLACEMENT_GROUPS for role in REPLACEMENT_ROLES}
+
+def validate_replacement_keys(proofs):
+    if set(proofs)!=expected_replacement_keys():
+        raise AssertionError("Missing or unexpected replacement observations")
+
 def main():
     WORK.mkdir(parents=True,exist_ok=True)
     name="ai-modernization-kan19-browser"
@@ -210,7 +224,11 @@ def main():
                 if len(candidates)!=1:raise RuntimeError("Cannot identify unique app JVM for event observer")
                 raw=app.command("docker","exec",container,"java","-cp","/opt/jboss/observer-client","ReadEffects",candidates[0],"handling-event",tracking_id,completion_date,location_code,timeout=max(.1,deadline-time.monotonic()))
                 return json.loads(raw)
-            bound_seconds=420
+            # The lifecycle workflow contains two independent five-by-15-second
+            # browser idle windows (150 seconds total), in addition to page,
+            # event-worker and post-revocation checks. Leave a bounded 600-second
+            # budget for the full browser suite after the added handling matrix.
+            bound_seconds=600
             try:
                 proc=bridge.run_browser_with_effects(
                     ["docker","exec","-i",bid,"node","workflows.cjs"],capture,timeout=bound_seconds,inspect_event=inspect_event,
@@ -237,11 +255,7 @@ def main():
             promote_cargo_entry_actions(report,results)
             promote_tracking_actions(report,results)
             replacement_proofs=results.get("replacement_actions",{})
-            expected_replacements={"REPLACEMENT::"+group+"::"+role
-                for group in ("cancel-editor","booking-cancel","tracking-discovery","booking-deadline","booking-single-page","handling-single-page","handling-cargo-voyage","handling-location","handling-event","handling-voyage")
-                for role in ("anonymous","Reader","Operator","Administrator")}
-            if set(replacement_proofs)!=expected_replacements:
-                raise AssertionError("Missing or unexpected replacement observations")
+            validate_replacement_keys(replacement_proofs)
             report["replacement_observations"]=replacement_proofs
         finally:
             cleanup=[]

@@ -2,9 +2,9 @@
 
 ## Current verified checkpoint
 
-KAN-15 remains In Progress. The latest fresh current gate is 420 PASS / 50 BLOCKED; the preserved historical audit is 324 PASS / 178 BLOCKED, and 76 retirement cases remain BLOCKED. ACTION-39 handling-voyage verification passed four actor cases, 661 native checks and 791 browser checks, with owned cleanup. Its sanitized evidence is notes/evidence/kan-15-handling-voyage/validation.json. Independent runtime/publication review is pending. Full security acceptance is incomplete.
+KAN-15 remains In Progress. The latest fresh current gate is 424 PASS / 46 BLOCKED; the preserved historical audit is 324 PASS / 178 BLOCKED, and 76 retirement cases remain BLOCKED. ACTION-42 handling-completion verification passed all four actor cases and 661 native checks; the existing handling-event and handling-voyage role cases also remain PASS. Attempt 5 owned cleanup passed. Sanitized evidence is notes/evidence/kan-15-handling-completion/validation.json. Independent runtime/publication review is pending. Full security acceptance is incomplete.
 
-The user explicitly approved specifications/current-ui-access-acceptance-proposal.md on 2 November 2026; see notes/decisions/2026-11-02-current-ui-acceptance.md. Next implement the versioned mapping/gate while retaining all502 historical definitions and RETIRED distinct from PASS. No retirement has been applied yet. Replacement and negative-entry evidence plus independent review remain mandatory; the internal/worker gaps are not accepted by this decision.
+The user explicitly approved specifications/current-ui-access-acceptance-proposal.md on 2 November 2026; see notes/decisions/2026-11-02-current-ui-acceptance.md. The versioned current-capability mapping and gate are implemented, retaining all 502 historical definitions and keeping RETIRED distinct from PASS. No retirement has been applied. Replacement and negative-entry evidence plus independent review remain mandatory; the 46 remaining current cases concern internal/worker capabilities and are not accepted by this decision.
 
 KAN-26 is Done at febde7a4de7294ec6ff0d714cdd11e175b2ac341. The candidate protocol heartbeat keeps the original connection live beyond the measured 90-second listener timeout without HTTP renewal. Reset isolation, unrelated cargo persistence, normal close response and all-role logout/expiry were verified. General slow-peer/pool-saturation behavior remains unverified.
 
@@ -22,7 +22,7 @@ Exit2 is expected while unsupported cases remain. Require actual successful appl
 
 ## Remaining action priorities
 
-Next in KAN-15 is ACTION-42 handling-completion: verify strict completion-time validation on the current mobile form. After ACTION-39, 50 current cases remain BLOCKED: four replacement-driver cases and 46 internal/worker cases.
+ACTION-42 is now verified. Next priority is select the next still-blocked current capability action from the mapping and maintain the 46 internal/worker blockers; inspect gate IDs before choosing. There are no remaining blocked replacement-driver cases in the current gate. The 76 retirement checks remain BLOCKED.
 
 All five write-behavior mappings are now bound: booking, destination change, initial/replacement route selection and handling submission. Forty active/logout/expiry definitions have independent per-POST effects and action-specific permitted controls. Handling additionally proves real core JMS add/ack, registration and inspection workers, and independent Reader state. Modern replacements already have real happy/invalid/Reader-forgery/CSRF browser scenarios, but those assertions alone do not satisfy every catalogue write definition.
 
@@ -56,3 +56,6 @@ Other remaining definitions include read-only legacy callbacks that need explici
 - docs/candidate/handling-event.md and notes/evidence/kan-15-handling-event: ACTION-38 current event validation and exact persisted date/location/voyage association proof.
 
 - docs/candidate/handling-voyage.md and notes/evidence/kan-15-handling-voyage: ACTION-39 known-voyage, invalid-voyage, and non-load association evidence, with shared ACTION-38 positive control disclosed.
+
+
+- docs/candidate/handling-completion.md and notes/evidence/kan-15-handling-completion: ACTION-42 strict time validation, denied roles, composed positive control, bounded correlated misdirection effects and attempt history.

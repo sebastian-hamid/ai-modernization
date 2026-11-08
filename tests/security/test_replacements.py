@@ -1,12 +1,12 @@
 import copy
 import unittest
 from contracts import UnsupportedCase
-from replacements import replacement_observation, HANDLING_EVENT_WRITE_CALLS, HANDLING_EVENT_QUEUES
+from replacements import replacement_observation, HANDLING_EVENT_WRITE_CALLS, HANDLING_EVENT_QUEUES, MISDIRECTED_QUEUE, MISDIRECTED_CONSUMER
 
 class ReplacementTests(unittest.TestCase):
     def case(self, group="cancel-editor", actor="Operator"):
-        ids = {"cancel-editor":["ACTION-08"], "booking-cancel":["ACTION-28","ACTION-31","ACTION-33"], "tracking-discovery":["ACTION-23","ACTION-44"], "booking-deadline":["ACTION-26","ACTION-32"], "booking-single-page":["ACTION-27","ACTION-30","ACTION-34"], "handling-single-page":["ACTION-35","ACTION-40","ACTION-43"], "handling-cargo-voyage":["ACTION-36"], "handling-location":["ACTION-37"], "handling-event":["ACTION-38"], "handling-voyage":["ACTION-39"]}
-        method="POST" if group in {"booking-deadline","booking-single-page","tracking-discovery","handling-cargo-voyage","handling-location","handling-event","handling-voyage"} else "GET"
+        ids = {"cancel-editor":["ACTION-08"], "booking-cancel":["ACTION-28","ACTION-31","ACTION-33"], "tracking-discovery":["ACTION-23","ACTION-44"], "booking-deadline":["ACTION-26","ACTION-32"], "booking-single-page":["ACTION-27","ACTION-30","ACTION-34"], "handling-single-page":["ACTION-35","ACTION-40","ACTION-43"], "handling-cargo-voyage":["ACTION-36"], "handling-location":["ACTION-37"], "handling-event":["ACTION-38"], "handling-voyage":["ACTION-39"], "handling-completion":["ACTION-42"]}
+        method="POST" if group in {"booking-deadline","booking-single-page","tracking-discovery","handling-cargo-voyage","handling-location","handling-event","handling-voyage","handling-completion"} else "GET"
         return {"capability_id":group,"actor":actor,"binding_status":"browser-replacement-v1",
                 "method":method,"legacy_ids":ids[group]}
 
@@ -208,8 +208,9 @@ class ReplacementTests(unittest.TestCase):
         after_tables=copy.deepcopy(before_tables)
         counters=("MessageCount","DeliveringCount","ScheduledCount","MessagesAdded","MessagesAcknowledged","MessagesExpired","MessagesKilled","AcknowledgeAttempts")
         queues={name:{key:(3 if name in HANDLING_EVENT_QUEUES and key in {"MessagesAdded","MessagesAcknowledged","AcknowledgeAttempts"} else 0) for key in counters}
-                for name in [*HANDLING_EVENT_QUEUES,"jms.queue.DLQ"]}
+                for name in [*HANDLING_EVENT_QUEUES,MISDIRECTED_QUEUE,"jms.queue.DLQ"]}
         calls={method:2 for method in HANDLING_EVENT_WRITE_CALLS}
+        calls[MISDIRECTED_CONSUMER]=2
         read="net.java.cargotracker.interfaces.booking.rest.CargoMonitoringService#getAllCargo"
         calls[read]=4
         before={"fixture_id":fixture,"stage":"handling-event:"+actor+":before","tables":before_tables,
@@ -241,6 +242,25 @@ class ReplacementTests(unittest.TestCase):
             principal={"Reader":"reader","Operator":"operator","Administrator":"admin"}[actor]
             proof["identity"]={"server_verified":True,"principal":principal,"roles":[actor]}
         return proof
+
+    def test_handling_event_correlates_optional_misdirected_worker_effect(self):
+        proof=self.handling_event("Operator")
+        queue=proof["positive_after"]["queues"][MISDIRECTED_QUEUE]
+        for counter in ["MessagesAdded","MessagesAcknowledged","AcknowledgeAttempts"]:
+            queue[counter]+=1
+        proof["positive_after"]["business_invocations"][MISDIRECTED_CONSUMER]+=1
+        result=replacement_observation(self.case("handling-event","Operator"),proof)
+        self.assertTrue(result["semantic_success"])
+        for mutate in [
+            lambda p:p["positive_after"]["queues"][MISDIRECTED_QUEUE].update(MessagesAdded=5,MessagesAcknowledged=5,AcknowledgeAttempts=5),
+            lambda p:p["positive_after"]["business_invocations"].update({MISDIRECTED_CONSUMER:3}),
+            lambda p:p["positive_after"]["queues"][MISDIRECTED_QUEUE].update(MessagesKilled=1),
+            lambda p:p["positive_after"]["queues"][MISDIRECTED_QUEUE].update(MessagesAdded=1,MessagesAcknowledged=1,AcknowledgeAttempts=1),
+        ]:
+            changed=self.handling_event("Operator")
+            mutate(changed)
+            with self.assertRaises(UnsupportedCase):
+                replacement_observation(self.case("handling-event","Operator"),changed)
 
     def test_handling_event_requires_validation_clearing_effects_and_denials(self):
         for actor in ["anonymous","Reader","Operator","Administrator"]:
@@ -279,6 +299,62 @@ class ReplacementTests(unittest.TestCase):
             proof=self.handling_event(actor);proof[field]=value
             with self.subTest(actor=actor,field=field),self.assertRaises(UnsupportedCase):
                 replacement_observation(self.case("handling-event",actor),proof)
+
+    def handling_completion(self, actor="Operator"):
+        event=self.handling_event(actor)
+        fixture="9"*64
+        sample={"fixture_id":fixture,"tables":{"CARGO":{"rows":2,"sha256":"a"*64},"HANDLINGEVENT":{"rows":5,"sha256":"b"*64}},
+                "queues":{"handling":{"MessagesAdded":3}},
+                "business_invocations":{"net.java.cargotracker.interfaces.booking.rest.CargoMonitoringService#getAllCargo":4,"other":2}}
+        before={**copy.deepcopy(sample),"stage":"handling-completion:"+actor+":before"}
+        after={**copy.deepcopy(sample),"stage":"handling-completion:"+actor+":after"}
+        after["business_invocations"]["net.java.cargotracker.interfaces.booking.rest.CargoMonitoringService#getAllCargo"]=5
+        allowed=actor in {"Operator","Administrator"}
+        invalids={key:allowed for key in ["impossible_calendar_date","malformed_syntax","missing_minutes","hour_overflow","minute_overflow","empty"]}
+        proof={"replacement_driver":"browser-replacement-v1","group":"handling-completion","tracking_id":"ABCDEFGH",
+          "source_path":"/cargo-tracker/mobile.xhtml","source_status":event["source_status"],
+          "protected_payload_absent":not allowed,"source_login_verified":actor=="anonymous",
+          "invalid_values_rejected":invalids,"persisted_cargo_routed":True,"valid_completion_accepted":allowed,
+          "event_submit_status":event["event_submit_status"],"persisted_event_observation":copy.deepcopy(event.get("persisted_event_observation")),
+          "positive_effects_verified":allowed,"before":before,"after":after}
+        if allowed:proof.update(positive_before=event["positive_before"],positive_after=event["positive_after"])
+        if actor!="anonymous":proof["identity"]=event["identity"]
+        return proof
+
+    def test_handling_completion_requires_all_strict_invalid_values_and_valid_control(self):
+        for actor in ["anonymous","Reader","Operator","Administrator"]:
+            proof=self.handling_completion(actor)
+            result=replacement_observation(self.case("handling-completion",actor),proof)
+            allowed=actor in {"Operator","Administrator"}
+            self.assertEqual(result["semantic_success"],allowed)
+            self.assertEqual(result["invocation_denied"],not allowed)
+        for case_name in ["impossible_calendar_date","malformed_syntax","missing_minutes","hour_overflow","minute_overflow","empty"]:
+            proof=self.handling_completion()
+            proof["invalid_values_rejected"][case_name]=False
+            with self.subTest(case_name=case_name),self.assertRaises(UnsupportedCase):
+                replacement_observation(self.case("handling-completion","Operator"),proof)
+        misdirected=self.handling_completion()
+        queue=misdirected["positive_after"]["queues"][MISDIRECTED_QUEUE]
+        for counter in ["MessagesAdded","MessagesAcknowledged","AcknowledgeAttempts"]:queue[counter]+=1
+        misdirected["positive_after"]["business_invocations"][MISDIRECTED_CONSUMER]+=1
+        self.assertTrue(replacement_observation(self.case("handling-completion","Operator"),misdirected)["semantic_success"])
+        for mutate in [
+            lambda p:p.update(valid_completion_accepted=False),
+            lambda p:p.update(persisted_cargo_routed=False),
+            lambda p:p["persisted_event_observation"]["matches"][0].update(completion_time="2032-02-05T00:00:00"),
+            lambda p:p["persisted_event_observation"]["matches"][0].update(tracking_id="OTHERID1"),
+            lambda p:p["after"]["tables"]["HANDLINGEVENT"].update(rows=6),
+            lambda p:p["positive_after"]["business_invocations"].update(unexpected=1),
+        ]:
+            proof=self.handling_completion()
+            mutate(proof)
+            with self.assertRaises(UnsupportedCase):
+                replacement_observation(self.case("handling-completion","Operator"),proof)
+        for actor,field,value in [("Reader","source_status",200),("Reader","protected_payload_absent",False),
+                                  ("anonymous","source_login_verified",False)]:
+            proof=self.handling_completion(actor);proof[field]=value
+            with self.subTest(actor=actor,field=field),self.assertRaises(UnsupportedCase):
+                replacement_observation(self.case("handling-completion",actor),proof)
 
     def test_handling_location_requires_known_required_value_and_denials(self):
         for actor in ["anonymous","Reader","Operator","Administrator"]:

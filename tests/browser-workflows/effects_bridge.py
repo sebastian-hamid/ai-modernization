@@ -7,7 +7,7 @@ import time
 
 PREFIX = "@@LAB_EFFECTS@@"
 EVENT_PREFIX = "@@LAB_HANDLING_EVENT@@"
-GROUPS = ("cancel-editor", "booking-cancel", "booking-deadline", "booking-single-page", "booking-positive", "handling-single-page", "handling-cargo-voyage", "handling-location", "handling-event", "handling-voyage")
+GROUPS = ("cancel-editor", "booking-cancel", "booking-deadline", "booking-single-page", "booking-positive", "handling-single-page", "handling-cargo-voyage", "handling-location", "handling-event", "handling-voyage", "handling-completion")
 ROLES = ("anonymous", "Reader", "Operator", "Administrator")
 STAGES = frozenset(
     group + ":" + role + ":" + phase

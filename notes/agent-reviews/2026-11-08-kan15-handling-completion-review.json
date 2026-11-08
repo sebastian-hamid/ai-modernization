@@ -1,0 +1,61 @@
+{
+  "ticket": "KAN-15",
+  "action": "ACTION-42 handling completion-time validation",
+  "date": "2026-11-08",
+  "reviewer": "independent agent /root/review_kan15_action42_source",
+  "verdict": "APPROVED",
+  "review_scope": [
+    "source diff",
+    "test coverage",
+    "attempt-5 fixture and raw browser results",
+    "sanitized validation and documentation",
+    "attempt history",
+    "canonical replacement key validation",
+    "timeout/cleanup behavior",
+    "secret and raw-identifier scan"
+  ],
+  "findings": "No remaining material findings.",
+  "fixture": {
+    "attempt": 5,
+    "native_checks": 661,
+    "browser_checks": 823,
+    "browser_failures": 0,
+    "current_gate": {
+      "PASS": 424,
+      "BLOCKED": 46
+    },
+    "historical_audit": {
+      "PASS": 324,
+      "BLOCKED": 178
+    },
+    "retirement": {
+      "BLOCKED": 76
+    },
+    "cleanup_verified": true,
+    "gate_exit": 2
+  },
+  "targeted_tests": {
+    "security": 81,
+    "browser_workflow": 29,
+    "syntax_and_py_compile": "passed",
+    "rerun_by_reviewer": false
+  },
+  "reviewed_sha256": {
+    "specifications/current-capability-mapping-v2.json": "93bf83a24700c85f11345a38786aa0031dff10c2e9e6c68588279466ef878065",
+    "tests/browser-workflows/effects_bridge.py": "ea340a060ed658ec9be4206acf444d31a2d7a66d94af7406f6fa97fa263317f7",
+    "tests/browser-workflows/run_browser.py": "9ce4110a52dd5c52d0cf0f12edb7b9924197a3b0b657db294196b6b0b611b183",
+    "tests/browser-workflows/test_browser_harness.py": "3462eeb9aa42a89f64285289f1b9b8d90feb8595c1474e066b3db5e7022a1923",
+    "tests/browser-workflows/workflows.cjs": "24cd47e7e67eeeb97fd49410cd43dcca93fc0ab452f1071c3228123785eefc3d",
+    "tests/security/replacements.py": "c79c5114b23898758bdf873fd517646f50da563a0bf19492b5307f53ebb7977a",
+    "tests/security/test_replacements.py": "277b534b05a4a42c5c829256083f3fb41d09eb569a81698932a16ef1fa801b4e",
+    "docs/candidate/handling-completion.md": "ca39a1f2a87d4719c8096f92611fff862fbecde842338bd32bcf553d16c1a71f",
+    "notes/evidence/kan-15-handling-completion/validation.json": "8e80d99beab112fb82af2618a03655853a2662d88796cb084870bee362790dab",
+    "notes/kan15-action-handoff.md": "1911cba6b0947224f17d056ab27b0fb58595fc3c8dea50e8b0d11a56c5779d0e",
+    "notes/setup-status.md": "baa0e12b77fc6ba132a187d45d02b842f122024c6e134fb4c58cc753f17debb5"
+  },
+  "limitations": [
+    "Current gate remains incomplete: 46 current cases and 76 retirement cases are BLOCKED.",
+    "Overall gate exit 2 is expected with remaining blocked cases.",
+    "Fixture provenance does not attest identity of already-imported native Python code."
+  ]
+}

@@ -1,0 +1,79 @@
+{
+  "ticket": "KAN-15",
+  "action": "ACTION-42",
+  "fixture_attempt": 5,
+  "execution": "fresh-owned-runtime",
+  "native_checks": 661,
+  "current_gate": {
+    "PASS": 424,
+    "BLOCKED": 46
+  },
+  "historical_audit": {
+    "PASS": 324,
+    "BLOCKED": 178
+  },
+  "retirement_gate": {
+    "BLOCKED": 76
+  },
+  "gate_exit": 2,
+  "cleanup_verified": true,
+  "provenance": {
+    "kind": "fresh-owned-runtime",
+    "inputs_fingerprint": "c5d0dadbbf40e57a0163761489ae9df9b6783d7b6b78042286c9ac46f42b4178",
+    "canonical_contracts_sha256": "8e74d47d9ac0ffe0f3311f01c810be2a7a9b223a0981725b0475ae0eb541ff84",
+    "legacy_fixture_cleanup_verified": true,
+    "imported_code_attested": false,
+    "fingerprint_scope": "On-disk inputs and constructed canonical contracts; already imported Python code identity is not attested."
+  },
+  "handling_completion_cases": [
+    {
+      "case": "REPLACEMENT::handling-completion::anonymous",
+      "outcome": "PASS",
+      "reason": "Desired denial observed with required evidence"
+    },
+    {
+      "case": "REPLACEMENT::handling-completion::Reader",
+      "outcome": "PASS",
+      "reason": "Desired denial observed with required evidence"
+    },
+    {
+      "case": "REPLACEMENT::handling-completion::Operator",
+      "outcome": "PASS",
+      "reason": "Allowed workflow and identity evidence observed"
+    },
+    {
+      "case": "REPLACEMENT::handling-completion::Administrator",
+      "outcome": "PASS",
+      "reason": "Allowed workflow and identity evidence observed"
+    }
+  ],
+  "attempt_history": [
+    {
+      "attempt": 1,
+      "result": "Browser assertions failed at the Anonymous completion invalid-attempts preserve-effects check (two failure entries); cleanup completed."
+    },
+    {
+      "attempt": 2,
+      "result": "Native checks passed; browser runner reached 420-second timeout late in WebSocket lifecycle after all 84 observer stages completed; cleanup completed."
+    },
+    {
+      "attempt": 3,
+      "result": "Native checks passed and 823 browser checks passed; output validator rejected four temporary completion-input keys beyond the canonical 44 replacement keys; cleanup completed."
+    },
+    {
+      "attempt": 4,
+      "result": "Native checks passed and browser proof was accepted; gate remained 418 PASS / 52 BLOCKED because completion composition omitted persisted-cargo routing evidence and Operator handling effects included a correlated misdirected-cargo queue/consumer effect not yet admitted by verifier; cleanup completed."
+    },
+    {
+      "attempt": 5,
+      "result": "Native checks passed; exact four ACTION-42 role cases and existing handling-event/voyage role cases passed; current gate 424 PASS / 46 BLOCKED; cleanup verified."
+    }
+  ],
+  "limitations": [
+    "Native imported-code identity is not attested by this fixture provenance.",
+    "Gate exit 2 is expected while other current and retirement cases remain blocked.",
+    "This evidence promotes the handling-completion cases only; it does not complete KAN-15 acceptance."
+  ],
+  "browser_checks": 823,
+  "browser_failures": 0
+}
