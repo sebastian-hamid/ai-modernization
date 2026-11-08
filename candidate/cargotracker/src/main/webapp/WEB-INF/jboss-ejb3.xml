@@ -21,5 +21,10 @@
       <s:security-domain>other</s:security-domain>
       <s:run-as-principal>handling-worker</s:run-as-principal>
     </s:security>
+    <s:security>
+      <ejb-name>CargoHandledConsumer</ejb-name>
+      <s:security-domain>other</s:security-domain>
+      <s:run-as-principal>inspection-worker</s:run-as-principal>
+    </s:security>
   </assembly-descriptor>
 </jboss:jboss>

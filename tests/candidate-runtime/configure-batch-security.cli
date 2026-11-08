@@ -1,4 +1,5 @@
 embed-server --server-config=standalone-full.xml --std-out=discard
+/subsystem=metrics:write-attribute(name=exposed-subsystems,value=[])
 /subsystem=messaging-activemq/server=default:write-attribute(name=jmx-management-enabled,value=true)
 /subsystem=elytron/permission-set=default-permissions:write-attribute(name=permissions,value=[{class-name="org.wildfly.transaction.client.RemoteTransactionPermission",module="org.wildfly.transaction.client"},{class-name="org.jboss.ejb.client.RemoteEJBPermission",module="org.jboss.ejb-client"}])
 /subsystem=elytron/permission-set=batch-worker-permissions:add(permissions=[{class-name="org.wildfly.extension.batch.jberet.deployment.BatchPermission",module="org.wildfly.extension.batch.jberet",target-name="start"},{class-name="org.wildfly.extension.batch.jberet.deployment.BatchPermission",module="org.wildfly.extension.batch.jberet",target-name="read"}])

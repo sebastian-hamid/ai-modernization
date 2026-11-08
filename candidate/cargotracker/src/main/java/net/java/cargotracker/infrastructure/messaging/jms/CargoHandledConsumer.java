@@ -4,6 +4,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import jakarta.ejb.ActivationConfigProperty;
 import jakarta.ejb.MessageDriven;
+import jakarta.ejb.EJB;
 import jakarta.inject.Inject;
 import jakarta.jms.JMSException;
 import jakarta.jms.Message;
@@ -19,7 +20,7 @@ import net.java.cargotracker.domain.model.cargo.TrackingId;
  * This is a programmatic hook into the JMS infrastructure to make cargo
  * inspection message-driven.
  */
-@jakarta.annotation.security.RunAs("HandlingWorker")
+@jakarta.annotation.security.RunAs("InspectionWorker")
 @MessageDriven(activationConfig = {
     @ActivationConfigProperty(propertyName = "destinationType",
         propertyValue = "jakarta.jms.Queue"),
@@ -30,6 +31,8 @@ public class CargoHandledConsumer implements MessageListener {
 
     @Inject
     private CargoInspectionService cargoInspectionService;
+    @EJB
+    private InspectionWorkerAudit workerAudit;
     private static final Logger logger = Logger.getLogger(
             CargoHandledConsumer.class.getName());
 
@@ -39,6 +42,9 @@ public class CargoHandledConsumer implements MessageListener {
         try {
             TextMessage textMessage = (TextMessage) message;
             String trackingIdString = textMessage.getText();
+            workerAudit.recordConsumedAttempt(
+                    message.getJMSCorrelationID(),
+                    message.getStringProperty("producerOrigin"));
 
             cargoInspectionService.inspectCargo(new TrackingId(trackingIdString));
         } catch (JMSException e) {

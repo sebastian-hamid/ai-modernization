@@ -415,7 +415,7 @@ def main(after_checks=None):
         return jar,opener,identity["csrf"]
     try:
         users.write_text("#$REALM_NAME=ApplicationRealm$\n"+"".join(who+"="+hashlib.md5((who+":ApplicationRealm:"+pw).encode()).hexdigest()+"\n" for who,pw in {**credentials,"routing":routing_password}.items()))
-        roles.write_text("reader=Reader\noperator=Operator\nadmin=Administrator\nrouting=RoutingService\nhandling-worker=HandlingWorker\n")
+        roles.write_text("reader=Reader\noperator=Operator\nadmin=Administrator\nrouting=RoutingService\nhandling-worker=HandlingWorker\ninspection-worker=InspectionWorker\n")
         routing.write_text("username=routing\npassword="+routing_password+"\n")
         users.chmod(0o600);roles.chmod(0o600);routing.chmod(0o600)
         context=Path(tempfile.mkdtemp(prefix="context-",dir=WORK))
@@ -701,6 +701,30 @@ def main(after_checks=None):
                 proof["identity"]=report["identities"][principal]
             handling_worker_denials[actor]=proof
         report["handling_worker_denials"]=handling_worker_denials
+        inspection_worker_denials={}
+        for actor,opener in [("anonymous",anonymous),("Reader",sessions["reader"][1]),
+                ("Operator",sessions["operator"][1]),("Administrator",sessions["admin"][1])]:
+            denied_before=settled()
+            denied_status,denied_body,denied_headers=request(opener,
+                probe_path+"?operation=inspection-service")
+            denied_after=settled()
+            expected_status=401 if actor=="anonymous" else 403
+            worker_only=(denied_headers.get("X-Fixture-Probe-Result")=="worker-only-denied")
+            unchanged=effects_unchanged(denied_before,denied_after)
+            absent=payload_absent(denied_body)
+            check("Direct inspection-service worker-only denial without effects: "+actor,
+                denied_status==expected_status and unchanged and absent
+                and (actor=="anonymous" or worker_only))
+            proof={"driver":"native-inspection-worker-v1","actor":actor,
+                "supported":True,"status":denied_status,"invocation_denied":True,
+                "direct_service_denied":actor=="anonymous" or worker_only,
+                "protected_payload_absent":absent,"independent_effects_unchanged":unchanged,
+                "effects":effects_receipt(denied_before,denied_after)}
+            if actor!="anonymous":
+                principal={"Reader":"reader","Operator":"operator","Administrator":"admin"}[actor]
+                proof["identity"]=report["identities"][principal]
+            inspection_worker_denials[actor]=proof
+        report["inspection_worker_denials"]=inspection_worker_denials
         api_job_start_delta=(api_after["business_invocations"].get(
             "net.java.cargotracker.interfaces.handling.file.BatchWorkerAudit#jobStarted",0)
             - api_before["business_invocations"].get(
@@ -1025,6 +1049,7 @@ def main(after_checks=None):
             "net.java.cargotracker.infrastructure.messaging.jms.HandlingWorkerAudit#recordConsumedAttempt":1,
             "net.java.cargotracker.application.internal.DefaultHandlingEventService#registerHandlingEvent":1,
             "net.java.cargotracker.infrastructure.messaging.jms.CargoHandledConsumer#onMessage":1,
+            "net.java.cargotracker.infrastructure.messaging.jms.InspectionWorkerAudit#recordConsumedAttempt":1,
             "net.java.cargotracker.application.internal.DefaultCargoInspectionService#inspectCargo":1,
             "net.java.cargotracker.interfaces.booking.socket.RealtimeCargoTrackingService#onCargoInspected":1}
         valid_before_calls=before_valid["business_invocations"]
@@ -1297,6 +1322,39 @@ def main(after_checks=None):
                 for x in handling_worker_denials.values()),
             "status":200,"semantic_success":operator_worker_audit_delta==admin_worker_audit_delta==1,
             "authorized_effect_verified":operator_worker_audit_delta==admin_worker_audit_delta==1}
+        inspection_effects=settled()
+        inspection_logs=command("docker","logs",container)
+        inspection_correlations=re.findall(
+            r"INSPECTION_WORKER_AUDIT event=consumed principal=inspection-worker role=InspectionWorker origin=handling-event-service correlation=([0-9a-f-]{36})",
+            inspection_logs)
+        inspection_queue=inspection_effects["queues"]["jms.queue.CargoHandledQueue"]
+        inspection_invocations=inspection_effects["business_invocations"].get(
+            "net.java.cargotracker.infrastructure.messaging.jms.CargoHandledConsumer#onMessage",0)
+        inspection_audit_verified=(len(inspection_correlations)>0
+            and len(set(inspection_correlations))==len(inspection_correlations)
+            and inspection_queue["MessageCount"]==0
+            and inspection_queue["MessagesAdded"]==len(inspection_correlations)
+            and inspection_queue["MessagesAcknowledged"]==len(inspection_correlations)
+            and inspection_invocations==len(inspection_correlations))
+        check("Cargo inspection runs under its dedicated worker with unique correlation audit",
+            inspection_audit_verified)
+        report["inspection_worker_observation"]={
+            "driver":"native-inspection-worker-v1","supported":True,
+            "machine_identity_verified":inspection_audit_verified,
+            "native_identity":{"server_verified":True,"principal":"inspection-worker","roles":["InspectionWorker"]},
+            "machine_scope":"Server worker; audit origin/correlation to be designed, not trusted role fields in payload",
+            "producer_origin_verified":inspection_audit_verified,
+            "correlation_verified":inspection_audit_verified,
+            "correlation_count":len(inspection_correlations),
+            "unique_correlation_count":len(set(inspection_correlations)),
+            "authorized_adapter_events_verified":inspection_audit_verified,
+            "producer_boundary_verified":False,
+            "producer_boundary_note":"Arbitrary CargoHandledQueue producer/JNDI restriction is outside this fixture",
+            "human_direct_denials_effects_unchanged":all(
+                x.get("independent_effects_unchanged") is True
+                for x in inspection_worker_denials.values()),
+            "status":200,"semantic_success":inspection_audit_verified,
+            "authorized_effect_verified":inspection_audit_verified}
         report["admin_handling_effects"]={"before":admin_before,"after":admin_after}
         report["access_observations"]["API-02::Administrator::active"]={"supported":True,"status":204,"identity":report["identities"]["admin"],"semantic_success":True,"authorized_effect_verified":True}
 

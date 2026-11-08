@@ -3,6 +3,7 @@ package net.java.cargotracker.infrastructure.messaging.jms;
 import java.io.Serializable;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.util.UUID;
 import jakarta.annotation.Resource;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
@@ -34,12 +35,20 @@ public class JmsApplicationEvents implements ApplicationEvents, Serializable {
     public void cargoWasHandled(HandlingEvent event) {
         Cargo cargo = event.getCargo();
         logger.log(Level.INFO, "Cargo was handled {0}", cargo);
+        String correlationId = UUID.randomUUID().toString();
+        jakarta.jms.TextMessage message = jmsContext.createTextMessage(
+                cargo.getTrackingId().getIdString());
+        try {
+            message.setJMSCorrelationID(correlationId);
+            message.setStringProperty("producerOrigin", "handling-event-service");
+        } catch (jakarta.jms.JMSException e) {
+            throw new IllegalStateException("Cannot mark trusted cargo-handling event", e);
+        }
         jmsContext.createProducer()
                 .setPriority(LOW_PRIORITY)
                 .setDisableMessageID(true)
                 .setDisableMessageTimestamp(true)
-                .send(cargoHandledQueue,
-                        cargo.getTrackingId().getIdString());
+                .send(cargoHandledQueue, message);
     }
 
     @Override

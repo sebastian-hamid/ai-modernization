@@ -121,7 +121,7 @@ def build_current(model,inventory):
         if old["surface_id"] in retired:continue
         row=mapped.get(old["surface_id"]) or pending.get(old["surface_id"])
         case=deepcopy(old)
-        case.update(id="CURRENT::"+old["id"],contract_version=2,kind="current",legacy_case_id=old["id"],legacy_contract=deepcopy(old),capability_id=row["capability_id"] if row else old["surface_id"].lower(),binding_status="pending" if old["surface_id"] in pending else "native-batch-import" if old["surface_id"]=="BG-01" else "native-batch-processing" if old["surface_id"]=="BG-02" else "native-handling-worker" if old["surface_id"] in {"BG-03","BG-03-MACHINE"} else "native-staged-return" if old["surface_id"]=="ACTION-13" else "native-current-load" if old["surface_id"] in NATIVE_CURRENT_LOADS else "browser-current-navigation" if old["surface_id"] in {"ACTION-10","ACTION-11","ACTION-12","ACTION-21","ACTION-22","ACTION-24","ACTION-25","ACTION-45"} else "existing-runtime-driver")
+        case.update(id="CURRENT::"+old["id"],contract_version=2,kind="current",legacy_case_id=old["id"],legacy_contract=deepcopy(old),capability_id=row["capability_id"] if row else old["surface_id"].lower(),binding_status="pending" if old["surface_id"] in pending else "native-batch-import" if old["surface_id"]=="BG-01" else "native-batch-processing" if old["surface_id"]=="BG-02" else "native-handling-worker" if old["surface_id"] in {"BG-03","BG-03-MACHINE"} else "native-inspection-worker" if old["surface_id"] in {"BG-04","BG-04-MACHINE"} else "native-staged-return" if old["surface_id"]=="ACTION-13" else "native-current-load" if old["surface_id"] in NATIVE_CURRENT_LOADS else "browser-current-navigation" if old["surface_id"] in {"ACTION-10","ACTION-11","ACTION-12","ACTION-21","ACTION-22","ACTION-24","ACTION-25","ACTION-45"} else "existing-runtime-driver")
         if row:
             source="index.xhtml" if old["surface_id"]!="ACTION-13" and old["actor"]=="anonymous" and old["expected"]=="deny" and row["modern_method"]=="GET" else row["modern_source"]
             case.update(path=row["modern_target"],method=row["modern_method"],current_source=source)
@@ -163,7 +163,7 @@ class CurrentAdapter:
         if canonical is None or canonical!=case:raise UnsupportedCase()
         if case["kind"] not in {"current","replacement"} or self.legacy is None or self.provenance is None:
             raise UnsupportedCase()
-        if case["kind"]=="current" and case.get("binding_status") not in {"existing-runtime-driver","native-current-load","browser-current-navigation","native-staged-return","native-batch-import","native-batch-processing","native-handling-worker"}:
+        if case["kind"]=="current" and case.get("binding_status") not in {"existing-runtime-driver","native-current-load","browser-current-navigation","native-staged-return","native-batch-import","native-batch-processing","native-handling-worker","native-inspection-worker"}:
             raise UnsupportedCase()
         if not isinstance(self.provenance,dict) or self.provenance.get("kind")!="fresh-owned-runtime" or self.provenance.get("legacy_fixture_cleanup_verified") is not True or self.provenance.get("inputs_fingerprint")!=self._run_fingerprint or re.fullmatch("[0-9a-f]{64}",str(self._run_fingerprint)) is None:raise UnsupportedCase()
         if case["kind"]=="replacement":
@@ -248,6 +248,35 @@ class CurrentAdapter:
                         or observation.get("direct_service_denied") is not True
                         or observation.get("independent_effects_unchanged") is not True):
                     raise UnsupportedCase()
+        elif case["binding_status"]=="native-inspection-worker":
+            if case["actor"]=="worker-BG-04":
+                observation=deepcopy(getattr(self.legacy,"inspection_worker_observation",{}))
+                identity=observation.get("native_identity",{})
+                if (observation.get("driver")!="native-inspection-worker-v1"
+                        or observation.get("supported") is not True
+                        or observation.get("status")!=200
+                        or observation.get("machine_identity_verified") is not True
+                        or observation.get("machine_scope")!=case.get("required_machine_scope")
+                        or observation.get("producer_origin_verified") is not True
+                        or observation.get("correlation_verified") is not True
+                        or observation.get("authorized_adapter_events_verified") is not True
+                        or observation.get("producer_boundary_verified") is not True
+                        or observation.get("human_direct_denials_effects_unchanged") is not True
+                        or identity.get("server_verified") is not True
+                        or identity.get("principal")!="inspection-worker"
+                        or identity.get("roles")!=["InspectionWorker"]):
+                    raise UnsupportedCase()
+            else:
+                observation=deepcopy(getattr(self.legacy,"inspection_worker_denials",{}).get(case["actor"],{}))
+                expected_status=401 if case["actor"]=="anonymous" else 403
+                if (observation.get("driver")!="native-inspection-worker-v1"
+                        or observation.get("actor")!=case["actor"]
+                        or observation.get("supported") is not True
+                        or observation.get("status")!=expected_status
+                        or observation.get("invocation_denied") is not True
+                        or observation.get("direct_service_denied") is not True
+                        or observation.get("independent_effects_unchanged") is not True):
+                    raise UnsupportedCase()
         elif case["binding_status"]=="native-staged-return":
             observation=return_observation(case,getattr(self.legacy,"current_observations",{}).get(case["id"],{}))
         elif case["binding_status"]=="native-current-load":
@@ -296,6 +325,9 @@ class CurrentAdapter:
         elif actor=="worker-BG-03":
             identity=observation.get("native_identity",{})
             if identity.get("server_verified") is not True or identity.get("principal")!="handling-worker" or identity.get("roles")!=["HandlingWorker"]:raise UnsupportedCase()
+        elif actor=="worker-BG-04":
+            identity=observation.get("native_identity",{})
+            if identity.get("server_verified") is not True or identity.get("principal")!="inspection-worker" or identity.get("roles")!=["InspectionWorker"]:raise UnsupportedCase()
         else:raise UnsupportedCase()
         if case["kind"]=="current" and case["binding_status"]!="native-staged-return" and (canonical["legacy_contract"]["channel"]=="action" or canonical["legacy_contract"].get("original_channel")=="action"):
             verify_action_proof(case,observation)

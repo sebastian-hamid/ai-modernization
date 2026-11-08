@@ -77,6 +77,7 @@ HANDLING_EVENT_WRITE_CALLS = {
     "net.java.cargotracker.infrastructure.messaging.jms.HandlingWorkerAudit#recordConsumedAttempt",
     "net.java.cargotracker.application.internal.DefaultHandlingEventService#registerHandlingEvent",
     "net.java.cargotracker.infrastructure.messaging.jms.CargoHandledConsumer#onMessage",
+    "net.java.cargotracker.infrastructure.messaging.jms.InspectionWorkerAudit#recordConsumedAttempt",
     "net.java.cargotracker.application.internal.DefaultCargoInspectionService#inspectCargo",
     "net.java.cargotracker.interfaces.booking.socket.RealtimeCargoTrackingService#onCargoInspected",
 }

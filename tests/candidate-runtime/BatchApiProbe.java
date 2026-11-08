@@ -14,6 +14,7 @@ import java.util.Properties;
 import java.util.UUID;
 import net.java.cargotracker.interfaces.handling.file.BatchImportRequestService;
 import net.java.cargotracker.application.HandlingEventService;
+import net.java.cargotracker.application.CargoInspectionService;
 import net.java.cargotracker.domain.model.handling.HandlingEvent;
 import net.java.cargotracker.domain.model.handling.CannotCreateHandlingEventException;
 import net.java.cargotracker.domain.model.cargo.TrackingId;
@@ -26,6 +27,8 @@ public final class BatchApiProbe extends HttpServlet {
     private BatchImportRequestService importRequests;
     @EJB
     private HandlingEventService handlingEventService;
+    @EJB
+    private CargoInspectionService cargoInspectionService;
 
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException {
@@ -90,6 +93,21 @@ public final class BatchApiProbe extends HttpServlet {
                             ? wrapped.getClass().getSimpleName() : cause.getClass().getSimpleName());
                     response.sendError(500);
                 }
+            } catch (RuntimeException unexpected) {
+                response.setHeader("X-Fixture-Probe-Failure", unexpected.getClass().getSimpleName());
+                response.sendError(500);
+            }
+            return;
+        }
+        if ("inspection-service".equals(operation)) {
+            try {
+                cargoInspectionService.inspectCargo(new TrackingId("ABC123"));
+                response.setStatus(200);
+                response.setContentType("text/plain;charset=UTF-8");
+                response.getWriter().write("inspection service call completed");
+            } catch (EJBAccessException denied) {
+                response.setHeader("X-Fixture-Probe-Result", "worker-only-denied");
+                response.sendError(403);
             } catch (RuntimeException unexpected) {
                 response.setHeader("X-Fixture-Probe-Failure", unexpected.getClass().getSimpleName());
                 response.sendError(500);

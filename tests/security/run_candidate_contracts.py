@@ -23,6 +23,8 @@ class LiveSubsetCandidate:
         self.batch_processing_observation=report.get("batch_processing_observation",{})
         self.handling_worker_denials=report.get("handling_worker_denials",{})
         self.handling_worker_observation=report.get("handling_worker_observation",{})
+        self.inspection_worker_denials=report.get("inspection_worker_denials",{})
+        self.inspection_worker_observation=report.get("inspection_worker_observation",{})
         self.observations=report["access_observations"]
         self.current_observations=report.get("current_access_observations",{})
         self.replacement_observations=report.get("replacement_observations",{})

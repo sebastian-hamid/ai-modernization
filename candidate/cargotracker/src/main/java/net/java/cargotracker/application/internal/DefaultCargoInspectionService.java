@@ -14,7 +14,7 @@ import net.java.cargotracker.domain.model.cargo.TrackingId;
 import net.java.cargotracker.domain.model.handling.HandlingEventRepository;
 import net.java.cargotracker.domain.model.handling.HandlingHistory;
 
-@jakarta.annotation.security.RolesAllowed({"HandlingWorker"})
+@jakarta.annotation.security.RolesAllowed({"InspectionWorker"})
 @Stateless
 public class DefaultCargoInspectionService implements CargoInspectionService {
 
