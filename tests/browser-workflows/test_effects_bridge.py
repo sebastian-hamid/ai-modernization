@@ -60,3 +60,8 @@ class EffectsBridgeTests(unittest.TestCase):
     def test_quiet_child_has_a_bounded_timeout(self):
         with self.assertRaises(subprocess.TimeoutExpired):
             bridge.run_browser_with_effects([sys.executable, "-c", "import time;time.sleep(60)"], lambda stage,budget: {}, 0.1)
+
+    def test_retired_action_stages_are_allowlisted_for_all_actors(self):
+        for role in bridge.ROLES:
+            for phase in ("before", "after"):
+                self.assertIn("retired-action:" + role + ":" + phase, bridge.STAGES)

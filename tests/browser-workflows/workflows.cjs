@@ -3,7 +3,7 @@ const fs=require("fs");
 const cfg=JSON.parse(fs.readFileSync("/run/credentials.json","utf8"));
 const base=cfg.base;
 const navigationActions=require("./navigation-actions.json");const actionProofs={};const claimedCargoProofs={};const cargoEntryProofs={};const trackingActionProofs={};const replacementProofs={};const handlingCompletionInputs={};
-const checks=[];const failures=[];const pageSemantics={};const socketObservations={};const socketTrace=[];const disconnectEvidence={};let abruptPeer=null;let witnessForDiagnostics=null;let stage="initialize";let navigation=null;
+const checks=[];const failures=[];const retiredActionProofs={};const pageSemantics={};const socketObservations={};const socketTrace=[];const disconnectEvidence={};let abruptPeer=null;let witnessForDiagnostics=null;let stage="initialize";let navigation=null;
 function check(name,ok){stage=name;checks.push({name,passed:!!ok});if(!ok)throw new Error(name);}
 async function traceSocket(label,actor){
  if(!actor)return;
@@ -52,6 +52,93 @@ function unchangedEffects(before,after,expectedReadDelta=1){
   &&(after.business_invocations[read]||0)-(before.business_invocations[read]||0)===expectedReadDelta
   &&JSON.stringify(stableEffectJSON(otherCalls(before)))===JSON.stringify(stableEffectJSON(otherCalls(after)));
 }
+
+async function retiredCancelAttempt(role,actor,context,base,trackingId,destinationCode){
+ const component="j_idt8:j_idt23";
+ const relative="admin/changeDestination.xhtml?trackingId="+trackingId;
+ const sourcePath="/cargo-tracker/"+relative;
+ let proof;
+ if(role==="Operator"||role==="Administrator"){
+  const page=await context.newPage();
+  try{
+   const entry=await page.goto(base+relative);
+   const values=await page.locator("form").first().evaluate(form=>{
+    const out={};
+    for(const el of form.querySelectorAll("input,select,textarea")){
+     if(!el.name)continue;
+     if((el.type==="checkbox"||el.type==="radio")&&!el.checked)continue;
+     out[el.name]=el.value;
+    }
+    return out;
+   });
+   const viewStateKey=Object.keys(values).find(key=>/^(jakarta|javax)\.faces\.ViewState$/.test(key));
+   const prefix=viewStateKey?viewStateKey.split(".")[0]:"jakarta";
+   const csrfPresent=typeof values.csrf==="string"&&values.csrf.length>0;
+   const viewStatePresent=!!viewStateKey&&typeof values[viewStateKey]==="string"&&values[viewStateKey].length>0;
+   check("ACTION-08 retired POST starts from a fresh authorized form "+role,entry.status()===200&&csrfPresent&&viewStatePresent);
+   const before=await observeEffects("retired-action:"+role+":before");
+   const fields={...values};
+   fields[prefix+".faces.partial.ajax"]="true";
+   fields[prefix+".faces.source"]=component;
+   fields[prefix+".faces.partial.execute"]="@all";
+   fields[component]=component;
+   fields["j_idt8"]="j_idt8";
+   fields["j_idt8:j_idt20_focus"]="";
+   fields["j_idt8:j_idt20_input"]=destinationCode||"USCHI";
+   fields["javax.faces.partial.ajax"]="true";
+   fields["javax.faces.source"]=component;
+   fields["javax.faces.partial.execute"]="@all";
+   const response=await context.request.post(page.url(),{
+    form:fields,headers:{"Faces-Request":"partial/ajax","X-Requested-With":"XMLHttpRequest"},maxRedirects:0
+   });
+   const body=await response.text();
+   const after=await observeEffects("retired-action:"+role+":after");
+   const effectsUnchanged=unchangedEffects(before,after,0);
+   const callbackResponseAbsent=!/(closeDialog|closeDynamic|dialogReturn)/i.test(body);
+   const responseUrl=new URL(response.url());
+   const postTargetVerified=responseUrl.pathname==="/cargo-tracker/admin/changeDestination.xhtml"&&responseUrl.searchParams.get("trackingId")===trackingId;
+   const status=response.status();
+   check("ACTION-08 historical source POST targets current route "+role,status===200&&callbackResponseAbsent&&postTargetVerified);
+   check("ACTION-08 retired POST has no business or queue effects "+role,effectsUnchanged);
+   proof={
+    driver:"browser-retired-action-v1",legacy_id:"ACTION-08",actor:role,method:"POST",source_path:sourcePath,
+    historical_source_component_id:component,historical_source_parameter:"javax.faces.source",
+    candidate_source_parameter:prefix+".faces.source",response_status:status,
+    current_form_verified:true,current_csrf_present:csrfPresent,current_viewstate_present:viewStatePresent,
+    callback_response_absent:callbackResponseAbsent,post_target_verified:postTargetVerified,
+    independent_effects_unchanged:effectsUnchanged,
+    identity:{server_verified:true,principal:actor.identity.principal,roles:actor.identity.roles}
+   };
+  }finally{await page.close();}
+ }else{
+  const before=await observeEffects("retired-action:"+role+":before");
+  const fields={
+   "javax.faces.partial.ajax":"true","javax.faces.source":component,"javax.faces.partial.execute":"@all",
+   [component]:component,"j_idt8":"j_idt8","j_idt8:j_idt20_focus":"","j_idt8:j_idt20_input":destinationCode||"USCHI"
+  };
+  const response=await context.request.post(base+relative,{form:fields,maxRedirects:0});
+  const body=await response.text();
+  const after=await observeEffects("retired-action:"+role+":after");
+  const effectsUnchanged=unchangedEffects(before,after,0);
+  const status=response.status();
+  const responseUrl=new URL(response.url());
+  const postTargetVerified=responseUrl.pathname==="/cargo-tracker/admin/changeDestination.xhtml"&&responseUrl.searchParams.get("trackingId")===trackingId;
+  const payloadAbsent=!body.includes(trackingId)&&!body.includes("Hong Kong")&&!body.includes("Helsinki");
+  const redirectIsLogin=status===303&&new URL(response.headers().location,base).href===base+"login";
+  const denied=role==="Reader"?status===403:(status===403||status===303);
+  check("ACTION-08 historical POST is denied for "+role,denied&&postTargetVerified&&payloadAbsent&&(status!==303||redirectIsLogin));
+  check("ACTION-08 denied POST has no business or queue effects "+role,effectsUnchanged);
+  proof={
+   driver:"browser-retired-action-v1",legacy_id:"ACTION-08",actor:role,method:"POST",source_path:sourcePath,
+   historical_source_component_id:component,historical_source_parameter:"javax.faces.source",
+   response_status:status,post_target_verified:postTargetVerified,authorization_denied:denied,protected_payload_absent:payloadAbsent,
+   redirect_is_configured_login:redirectIsLogin,independent_effects_unchanged:effectsUnchanged,
+   ...(actor?{identity:{server_verified:true,principal:actor.identity.principal,roles:actor.identity.roles}}:{})
+  };
+ }
+ return proof;
+}
+
 (async()=>{
  const browser=await chromium.launch({headless:true});let replayClient;
  try {
@@ -1236,6 +1323,9 @@ function unchangedEffects(before,after,expectedReadDelta=1){
       target_login_verified:role==="anonymous",before,after,
       ...(actor?{identity:{server_verified:true,principal:actor.identity.principal,roles:actor.identity.roles}}:{}),
      };
+     if(group==="cancel-editor"){
+      retiredActionProofs["RETIREMENT::ACTION-08::"+role]=await retiredCancelAttempt(role,actor,context,base,id,claimedCargo.destinationCode);
+     }
     }finally{await page.close();}
    }
   }
@@ -1457,5 +1547,5 @@ function unchangedEffects(before,after,expectedReadDelta=1){
   disconnectEvidence.graceful_close_code=1000;
   check("No page or asset errors",failures.length===0);
  } catch(error){try{await traceSocket("failure",witnessForDiagnostics);}catch(ignored){}checks.push({name:stage+" failed ("+error.name+")",outcome:"FAIL",passed:false});process.exitCode=1;}
- finally{effectsInput.close();process.stdin.destroy();if(abruptPeer&&!abruptPeer.socket.destroyed)abruptPeer.socket.destroy();if(replayClient)await replayClient.dispose();await browser.close();fs.writeFileSync("/out/results.json",JSON.stringify({scope:"Real Chromium cargo read/booking/destination/routing/live/handling workflows",checks,last_navigation:navigation,resource_errors:failures,page_semantics:pageSemantics,socket_observations:socketObservations,socket_diagnostics:socketTrace,disconnect_evidence:disconnectEvidence,navigation_actions:actionProofs,claimed_cargo_actions:claimedCargoProofs,cargo_entry_actions:cargoEntryProofs,tracking_actions:trackingActionProofs,replacement_actions:replacementProofs},null,2)+"\n");}
+ finally{effectsInput.close();process.stdin.destroy();if(abruptPeer&&!abruptPeer.socket.destroyed)abruptPeer.socket.destroy();if(replayClient)await replayClient.dispose();await browser.close();fs.writeFileSync("/out/results.json",JSON.stringify({scope:"Real Chromium cargo read/booking/destination/routing/live/handling workflows",checks,last_navigation:navigation,resource_errors:failures,page_semantics:pageSemantics,socket_observations:socketObservations,socket_diagnostics:socketTrace,disconnect_evidence:disconnectEvidence,navigation_actions:actionProofs,claimed_cargo_actions:claimedCargoProofs,cargo_entry_actions:cargoEntryProofs,tracking_actions:trackingActionProofs,replacement_actions:replacementProofs,retirement_actions:retiredActionProofs},null,2)+"\n");}
 })();

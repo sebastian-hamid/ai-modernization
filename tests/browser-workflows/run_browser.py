@@ -178,6 +178,24 @@ def validate_replacement_keys(proofs):
     if set(proofs)!=expected_replacement_keys():
         raise AssertionError("Missing or unexpected replacement observations")
 
+def expected_retirement_keys():
+    return {"RETIREMENT::ACTION-08::"+role for role in ("anonymous","Reader","Operator","Administrator")}
+
+def validate_retirement_keys(proofs):
+    if set(proofs)!=expected_retirement_keys():
+        raise AssertionError("Missing or unexpected ACTION-08 retired-entry observations")
+    for key,proof in proofs.items():
+        role=key.rsplit("::",1)[1]
+        if proof.get("driver")!="browser-retired-action-v1" or proof.get("legacy_id")!="ACTION-08" or proof.get("actor")!=role or proof.get("method")!="POST" or proof.get("historical_source_component_id")!="j_idt8:j_idt23" or proof.get("independent_effects_unchanged") is not True:
+            raise AssertionError("Invalid ACTION-08 retired-entry observation")
+        if proof.get("post_target_verified") is not True or proof.get("callback_implementation_absent") is not True:
+            raise AssertionError("ACTION-08 replay lacks exact POST target or removed callback proof")
+        if role in {"Operator","Administrator"}:
+            if proof.get("current_form_verified") is not True or proof.get("current_csrf_present") is not True or proof.get("current_viewstate_present") is not True or proof.get("callback_response_absent") is not True or proof.get("response_status") != 200 or proof.get("identity",{}).get("server_verified") is not True:
+                raise AssertionError("Authorized ACTION-08 replay lacks current-session denial proof")
+        elif proof.get("authorization_denied") is not True or proof.get("protected_payload_absent") is not True or proof.get("response_status") != (403 if role=="Reader" else 303) or (role=="anonymous" and proof.get("redirect_is_configured_login") is not True):
+            raise AssertionError("Unauthorized ACTION-08 replay lacks denial proof")
+
 def main():
     WORK.mkdir(parents=True,exist_ok=True)
     name="ai-modernization-kan19-browser"
@@ -257,6 +275,14 @@ def main():
             replacement_proofs=results.get("replacement_actions",{})
             validate_replacement_keys(replacement_proofs)
             report["replacement_observations"]=replacement_proofs
+            retirement_proofs=results.get("retirement_actions",{})
+            callback_source=ROOT/"candidate/cargotracker/src/main/java/net/java/cargotracker/interfaces/booking/web/ChangeDestinationDialog.java"
+            if callback_source.exists():
+                raise AssertionError("Obsolete destination dialog callback implementation remains in the candidate")
+            for proof in retirement_proofs.values():
+                proof["callback_implementation_absent"]=True
+            validate_retirement_keys(retirement_proofs)
+            report["retirement_observations"]=retirement_proofs
         finally:
             cleanup=[]
             if bid:

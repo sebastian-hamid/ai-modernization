@@ -219,9 +219,50 @@ class CurrentAdapter:
         observation["current_provenance"]=deepcopy(self.provenance)
         return observation
     def execute_retirement(self,case,replacement_results):
-        # No specific fresh negative-entry/review verifier exists yet.
-        # Even a fabricated all-PASS replacement summary cannot retire anything.
-        raise UnsupportedCase()
+        if (not isinstance(case,dict) or case.get("legacy_id")!="ACTION-08"
+                or case.get("actor") not in ACTORS
+                or case.get("replacement_case_id")!="REPLACEMENT::cancel-editor::"+str(case.get("actor"))
+                or self.legacy is None or not isinstance(self.provenance,dict)
+                or self.provenance.get("kind")!="fresh-owned-runtime"
+                or self.provenance.get("legacy_fixture_cleanup_verified") is not True
+                or self.provenance.get("inputs_fingerprint")!=self._run_fingerprint
+                or re.fullmatch("[0-9a-f]{64}",str(self._run_fingerprint)) is None):
+            raise UnsupportedCase()
+        replacement=next((row for row in replacement_results if row.get("case")==case["replacement_case_id"]),None)
+        if not isinstance(replacement,dict) or replacement.get("outcome")!="PASS":
+            raise UnsupportedCase()
+        proof=deepcopy(getattr(self.legacy,"retirement_observations",{}).get(case["id"],{}))
+        actor=case["actor"]
+        if (proof.get("driver")!="browser-retired-action-v1" or proof.get("legacy_id")!="ACTION-08"
+                or proof.get("actor")!=actor or proof.get("method")!="POST"
+                or re.fullmatch(r"/cargo-tracker/admin/changeDestination\.xhtml\?trackingId=[A-Z0-9]{8}",str(proof.get("source_path"))) is None
+                or proof.get("historical_source_component_id")!="j_idt8:j_idt23"
+                or proof.get("historical_source_parameter")!="javax.faces.source"
+                or proof.get("callback_implementation_absent") is not True
+                or proof.get("post_target_verified") is not True
+                or proof.get("independent_effects_unchanged") is not True):
+            raise UnsupportedCase()
+        if actor in {"Operator","Administrator"}:
+            identity=proof.get("identity",{})
+            if (proof.get("current_form_verified") is not True or proof.get("current_csrf_present") is not True
+                    or proof.get("current_viewstate_present") is not True or proof.get("callback_response_absent") is not True
+                    or proof.get("response_status") != 200
+                    or identity.get("server_verified") is not True or identity.get("principal")!=USERS[actor]
+                    or identity.get("roles")!=[actor]):
+                raise UnsupportedCase()
+        elif actor=="Reader":
+            identity=proof.get("identity",{})
+            if (proof.get("response_status")!=403 or proof.get("authorization_denied") is not True
+                    or proof.get("protected_payload_absent") is not True
+                    or identity.get("server_verified") is not True or identity.get("principal")!=USERS[actor]
+                    or identity.get("roles")!=[actor]):
+                raise UnsupportedCase()
+        elif (proof.get("response_status")!=303 or proof.get("authorization_denied") is not True
+                or proof.get("protected_payload_absent") is not True
+                or proof.get("redirect_is_configured_login") is not True
+                or proof.get("identity") is not None):
+            raise UnsupportedCase()
+        return proof
 
 def retirement_results(model,adapter,current_results):
     results=[]
@@ -230,7 +271,7 @@ def retirement_results(model,adapter,current_results):
             case={"id":"RETIREMENT::"+row["legacy_id"]+"::"+actor,"legacy_id":row["legacy_id"],"actor":actor,"replacement_case_id":"REPLACEMENT::"+row["replacement_id"]+"::"+actor}
             try:
                 adapter.execute_retirement(case,current_results)
-                raise RuntimeError("No supported retirement verifier")
+                results.append({"case":case["id"],"legacy_case_id":row["legacy_id"]+"::"+actor+"::active","replacement_case_id":case["replacement_case_id"],"outcome":"BLOCKED","specific_negative_entry_verified":True,"outcome_note":"Fresh replacement and retired-entry evidence validated; independent review pending, so not RETIRED or PASS"})
             except UnsupportedCase:
                 results.append({"case":case["id"],"legacy_case_id":row["legacy_id"]+"::"+actor+"::active","replacement_case_id":case["replacement_case_id"],"outcome":"BLOCKED","reason":"Replacement and specific fresh negative-entry/review verifier pending; not RETIRED or PASS"})
     return results
@@ -242,4 +283,5 @@ def report(live=False):
     audit=run_cases(deepcopy(adapter.legacy_contracts),adapter.legacy if live else legacy.PendingCandidate())
     status=exit_code(current)
     if status==0 and any(r["outcome"]!="RETIRED" for r in retirements):status=2
-    return {"schema_version":2,"execution":"fresh-owned-runtime" if live else "not executed","current_counts":dict(Counter(r["outcome"] for r in current)),"current_results":current,"retirement_counts":dict(Counter(r["outcome"] for r in retirements)),"retirement_results":retirements,"legacy_audit":{"total":len(audit),"counts":dict(Counter(r["outcome"] for r in audit)),"results":audit},"gate_exit":status,"provenance":adapter.provenance}
+    retirement_observations=deepcopy(getattr(adapter.legacy,"retirement_observations",{})) if live else {}
+    return {"schema_version":2,"execution":"fresh-owned-runtime" if live else "not executed","current_counts":dict(Counter(r["outcome"] for r in current)),"current_results":current,"retirement_counts":dict(Counter(r["outcome"] for r in retirements)),"retirement_results":retirements,"retirement_observations":retirement_observations,"legacy_audit":{"total":len(audit),"counts":dict(Counter(r["outcome"] for r in audit)),"results":audit},"gate_exit":status,"provenance":adapter.provenance}

@@ -131,6 +131,32 @@ class CurrentCapabilityTests(unittest.TestCase):
             with self.assertRaises(RuntimeError):c.CurrentAdapter(live=True)
             factory.assert_not_called()
         self.assertEqual(events,["fingerprint","load-model","fingerprint"])
+    def test_action08_retirement_requires_fresh_specific_entry_and_replacement_proof(self):
+        adapter=c.CurrentAdapter()
+        adapter._run_fingerprint="a"*64
+        adapter.provenance={"kind":"fresh-owned-runtime","inputs_fingerprint":"a"*64,"legacy_fixture_cleanup_verified":True}
+        adapter.legacy=FakeLegacy({})
+        case={"id":"RETIREMENT::ACTION-08::Operator","legacy_id":"ACTION-08","actor":"Operator","replacement_case_id":"REPLACEMENT::cancel-editor::Operator"}
+        proof={"driver":"browser-retired-action-v1","legacy_id":"ACTION-08","actor":"Operator","method":"POST",
+               "source_path":"/cargo-tracker/admin/changeDestination.xhtml?trackingId=ABCDEFGH",
+               "historical_source_component_id":"j_idt8:j_idt23","historical_source_parameter":"javax.faces.source",
+               "current_form_verified":True,"current_csrf_present":True,"current_viewstate_present":True,
+               "callback_response_absent":True,"post_target_verified":True,"callback_implementation_absent":True,"response_status":200,
+               "independent_effects_unchanged":True,
+               "identity":{"server_verified":True,"principal":"operator","roles":["Operator"]}}
+        adapter.legacy.retirement_observations={case["id"]:proof}
+        replacement=[{"case":case["replacement_case_id"],"outcome":"PASS"}]
+        self.assertEqual(adapter.execute_retirement(case,replacement),proof)
+        for field,value in [("historical_source_component_id","wrong"),("current_csrf_present",False),
+                            ("callback_response_absent",False),("post_target_verified",False),
+                            ("callback_implementation_absent",False),("independent_effects_unchanged",False)]:
+            adapter.legacy.retirement_observations={case["id"]:{**proof,field:value}}
+            with self.subTest(field=field),self.assertRaises(UnsupportedCase):adapter.execute_retirement(case,replacement)
+        adapter.legacy.retirement_observations={case["id"]:proof}
+        with self.assertRaises(UnsupportedCase):adapter.execute_retirement(case,[])
+        adapter._run_fingerprint="b"*64
+        with self.assertRaises(UnsupportedCase):adapter.execute_retirement(case,replacement)
+
     def test_report_uses_constructed_contracts_not_mutable_definition_objects(self):
         adapter=c.CurrentAdapter()
         adapter.model["replacement_capabilities"]=[]
@@ -280,4 +306,23 @@ class CurrentCapabilityTests(unittest.TestCase):
         proof["after"]["fixture_id"]="b"*64
         with self.assertRaises(UnsupportedCase):adapter.execute(case)
 
+    def test_action08_anonymous_retirement_requires_login_redirect_and_no_identity(self):
+        adapter=c.CurrentAdapter()
+        adapter._run_fingerprint="a"*64
+        adapter.provenance={"kind":"fresh-owned-runtime","inputs_fingerprint":"a"*64,"legacy_fixture_cleanup_verified":True}
+        case={"id":"RETIREMENT::ACTION-08::anonymous","legacy_id":"ACTION-08","actor":"anonymous","replacement_case_id":"REPLACEMENT::cancel-editor::anonymous"}
+        proof={"driver":"browser-retired-action-v1","legacy_id":"ACTION-08","actor":"anonymous","method":"POST",
+               "source_path":"/cargo-tracker/admin/changeDestination.xhtml?trackingId=ABCDEFGH",
+               "historical_source_component_id":"j_idt8:j_idt23","historical_source_parameter":"javax.faces.source",
+               "post_target_verified":True,"callback_implementation_absent":True,"response_status":303,
+               "authorization_denied":True,"protected_payload_absent":True,"redirect_is_configured_login":True,
+               "independent_effects_unchanged":True}
+        adapter.legacy=FakeLegacy({})
+        adapter.legacy.retirement_observations={case["id"]:proof}
+        replacement=[{"case":case["replacement_case_id"],"outcome":"PASS"}]
+        self.assertEqual(adapter.execute_retirement(case,replacement),proof)
+        for field,value in [("response_status",403),("redirect_is_configured_login",False),
+                            ("identity",{"server_verified":True,"principal":"operator","roles":["Operator"]})]:
+            adapter.legacy.retirement_observations={case["id"]:{**proof,field:value}}
+            with self.subTest(field=field),self.assertRaises(UnsupportedCase):adapter.execute_retirement(case,replacement)
 if __name__=="__main__":unittest.main()
