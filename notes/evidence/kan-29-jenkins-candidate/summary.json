@@ -26,7 +26,7 @@
       "git": "2.53.0"
     },
     "dockerSocketMounted": false,
-    "status": "renamed; replacement credential staged with mode 600; offline pending reconnection verification"
+    "status": "online; WebSocket connected; post-rotation candidate build 5 passed"
   },
   "trigger": {
     "kind": "Pipeline SCM poll",
@@ -127,8 +127,82 @@
     "finalBuildEvidence": "Approved by separate agent /root/review_bg04_probe"
   },
   "agentCredentialRemediation": {
-    "status": "Build 3 used the prior node identity ai-modernization-candidate. Afterward, that node was renamed to ai-modernization-candidate-secure (label preserved); the old identity is absent. Replacement secret copied to ignored .work/jenkins-ci/candidate-secrets/agent-secret with mode 600. New node remains stopped pending independent review of launcher-name update and reconnection.",
+    "status": "Rotated to ai-modernization-candidate-secure; new identity connected and passed build 5. Local credential remains in ignored .work/jenkins-ci/candidate-secrets/agent-secret with mode 600; obsolete identity and temporary staged files removed.",
     "secretValueRecorded": false
   },
-  "baselinePreservation": "Historical ai-modernization-baseline job/node/controller executor settings were not modified."
+  "baselinePreservation": "Historical ai-modernization-baseline job/node/controller executor settings were not modified.",
+  "postRotationBuild": {
+    "number": 5,
+    "result": "SUCCESS",
+    "durationSeconds": 391.949,
+    "buildDescription": "fff69afad47a",
+    "revision": "fff69afad47a6ead3df49db1b834a1d78c76ceee",
+    "workspaceRevisionMatchesGitPluginRevision": true,
+    "agentNodeAtExecution": "ai-modernization-candidate-secure",
+    "checks": {
+      "setupRegressionTests": {
+        "tests": 8,
+        "failures": 0,
+        "errors": 0
+      },
+      "securityContractSuites": {
+        "test_contract_engine.py": {
+          "tests": 16,
+          "failures": 0,
+          "errors": 0
+        },
+        "test_current_capabilities.py": {
+          "tests": 34,
+          "failures": 0,
+          "errors": 0
+        },
+        "test_replacements.py": {
+          "tests": 13,
+          "failures": 0,
+          "errors": 0
+        },
+        "test_staged_returns.py": {
+          "tests": 5,
+          "failures": 0,
+          "errors": 0
+        }
+      },
+      "runtimeHarnesses": {
+        "candidate-runtime": {
+          "tests": 8,
+          "failures": 0,
+          "errors": 0
+        },
+        "security-runtime": {
+          "tests": 3,
+          "failures": 0,
+          "errors": 0
+        }
+      },
+      "mavenDomain": {
+        "reports": 6,
+        "tests": 35,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      "requiredArtifacts": {
+        "war": true,
+        "securityJar": true,
+        "revisionFile": true,
+        "nonemptySurefireReports": true
+      }
+    },
+    "artifactSha256": {
+      "candidate/cargotracker/target/cargo-tracker.war": "1d0f78735937e8d7e3393ba05ecb47de8f33ed2f615823b01ea28edd3caed982",
+      "candidate/security/target/candidate-security.jar": "143fe10e2d185922c20ce4a252b3bb778a99df7e02cca3362b43e2427c068951",
+      "ci-results/candidate/revision.txt": "d02de4521d295b8ed949b1d63762c43cefbc4a1e50c855bae0c3ca6de0786baf"
+    },
+    "polling": "H/15 * * * * remains configured"
+  },
+  "abortedBuild": {
+    "number": 4,
+    "result": "ABORTED",
+    "reason": "Cancelled while queued on the offline pre-rotation candidate node; no pipeline execution or test result is claimed."
+  }
 }
