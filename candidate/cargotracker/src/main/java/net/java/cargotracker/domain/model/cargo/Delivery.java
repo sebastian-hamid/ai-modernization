@@ -46,6 +46,7 @@ public class Delivery implements Serializable {
     @ManyToOne
     @JoinColumn(name = "current_voyage_id")
     private Voyage currentVoyage;
+    @Column(name = "misdirected")
     @NotNull
     private boolean misdirected;
     @Temporal(TemporalType.DATE)

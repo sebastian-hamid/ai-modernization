@@ -8,6 +8,9 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.SequenceGenerator;
+import jakarta.persistence.Table;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
@@ -46,13 +49,15 @@ import org.apache.commons.lang3.builder.HashCodeBuilder;
  * {@link Type#CUSTOMS}.
  */
 @Entity
+@Table(name = "handling_event")
+@SequenceGenerator(name = "HandlingEventIdGenerator", sequenceName = "cargotracker_id_seq", allocationSize = 1)
 @NamedQuery(name = "HandlingEvent.findByTrackingId",
         query = "Select e from HandlingEvent e where e.cargo.trackingId = :trackingId")
 public class HandlingEvent implements Serializable {
 
     private static final long serialVersionUID = 1L;
     @Id
-    @GeneratedValue
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "HandlingEventIdGenerator")
     private Long id;
     @Enumerated(EnumType.STRING)
     @NotNull
@@ -66,11 +71,11 @@ public class HandlingEvent implements Serializable {
     private Location location;
     @Temporal(TemporalType.DATE)
     @NotNull
-    @Column(name = "completionTime")
+    @Column(name = "completion_date")
     private Date completionTime;
     @Temporal(TemporalType.DATE)
     @NotNull
-    @Column(name = "registration")
+    @Column(name = "registration_date")
     private Date registrationTime;
     @ManyToOne
     @JoinColumn(name = "cargo_id")

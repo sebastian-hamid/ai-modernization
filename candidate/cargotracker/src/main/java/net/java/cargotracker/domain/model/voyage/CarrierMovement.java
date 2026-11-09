@@ -5,6 +5,8 @@ import java.util.Date;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.SequenceGenerator;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
@@ -22,11 +24,12 @@ import org.apache.commons.lang3.builder.HashCodeBuilder;
  */
 @Entity
 @Table(name = "carrier_movement")
+@SequenceGenerator(name = "CarrierMovementIdGenerator", sequenceName = "cargotracker_id_seq", allocationSize = 1)
 public class CarrierMovement implements Serializable {
 
     private static final long serialVersionUID = 1L;
     @Id
-    @GeneratedValue
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "CarrierMovementIdGenerator")
     private Long id;
     @ManyToOne
     @JoinColumn(name = "departure_location_id")

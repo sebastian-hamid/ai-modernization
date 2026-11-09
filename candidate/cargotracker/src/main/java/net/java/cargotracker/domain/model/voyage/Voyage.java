@@ -8,6 +8,9 @@ import java.util.List;
 import jakarta.persistence.Embedded;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.SequenceGenerator;
+import jakarta.persistence.Table;
 import jakarta.persistence.Id;
 import jakarta.persistence.NamedQueries;
 import jakarta.persistence.NamedQuery;
@@ -18,6 +21,8 @@ import net.java.cargotracker.domain.model.location.Location;
 import org.apache.commons.lang3.Validate;
 
 @Entity
+@Table(name = "voyage")
+@SequenceGenerator(name = "VoyageIdGenerator", sequenceName = "cargotracker_id_seq", allocationSize = 1)
 @NamedQueries({
 @NamedQuery(name = "Voyage.findByVoyageNumber", query = "Select v from Voyage v where v.voyageNumber = :voyageNumber"),
 @NamedQuery(name = "Voyage.findAll", query = "Select v from Voyage v order by v.voyageNumber")})
@@ -26,7 +31,7 @@ public class Voyage implements Serializable {
 
     private static final long serialVersionUID = 1L;
     @Id
-    @GeneratedValue
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "VoyageIdGenerator")
     private Long id;
     @Embedded
     @NotNull

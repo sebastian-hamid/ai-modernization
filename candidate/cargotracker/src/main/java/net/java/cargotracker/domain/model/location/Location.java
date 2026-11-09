@@ -4,6 +4,9 @@ import java.io.Serializable;
 import jakarta.persistence.Embedded;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.SequenceGenerator;
+import jakarta.persistence.Table;
 import jakarta.persistence.Id;
 import jakarta.persistence.NamedQueries;
 import jakarta.persistence.NamedQuery;
@@ -17,6 +20,8 @@ import org.apache.commons.lang3.Validate;
  * It is uniquely identified by a UN location code.
  */
 @Entity
+@Table(name = "location")
+@SequenceGenerator(name = "LocationIdGenerator", sequenceName = "cargotracker_id_seq", allocationSize = 1)
 @NamedQueries({
     @NamedQuery(name = "Location.findAll", query = "Select l from Location l"),
     @NamedQuery(name = "Location.findByUnLocode",
@@ -25,7 +30,7 @@ public class Location implements Serializable {
 
     private static final long serialVersionUID = 1L;
     @Id
-    @GeneratedValue
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "LocationIdGenerator")
     private Long id;
     @Embedded
     private UnLocode unLocode;

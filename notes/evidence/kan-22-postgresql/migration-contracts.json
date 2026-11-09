@@ -1,0 +1,88 @@
+{
+  "status": "PASS",
+  "ticket": "KAN-22",
+  "verified_at": "2026-11-09",
+  "postgres": "18.6",
+  "flyway": "13.12.1",
+  "java_build": {
+    "runtime": "pinned Java 25 container",
+    "tests": 35,
+    "failures": 0,
+    "errors": 0,
+    "war_packaged": true
+  },
+  "fresh": {
+    "migrations": [
+      "V1",
+      "V2",
+      "V3"
+    ],
+    "bootstrap_before_migration": "PASS; no relation grants in init script",
+    "app_runtime_table_insert": "PASS",
+    "app_schema_ddl": "DENIED",
+    "app_flyway_history_update": "DENIED",
+    "app_legacy_sequence_state_update": "DENIED",
+    "app_temporary_table_ddl": "DENIED",
+    "transaction_rollback": "PASS; uncommitted row absent after ROLLBACK",
+    "container_restart_persistence": "PASS; committed row remained after PostgreSQL container restart",
+    "post_restart_app_dml": "PASS"
+  },
+  "upgrade": {
+    "flow": "V1 only -> synthetic import -> V2 and V3",
+    "synthetic_import": {
+      "location": 2,
+      "voyage": 1,
+      "cargo": 1,
+      "leg": 1,
+      "handling_event": 1,
+      "carrier_movement": 1,
+      "legacy_sequence_state": 1
+    },
+    "preserved_counts": {
+      "location": 2,
+      "voyage": 1,
+      "cargo": 1,
+      "leg": 1,
+      "handling_event": 1,
+      "carrier_movement": 1
+    },
+    "date_equality": "PASS",
+    "legacy_sequence_high_water": 8000,
+    "dba_nextval": 8001,
+    "app_generated_id": 8002,
+    "app_date_round_trip": "PASS"
+  },
+  "cleanup": {
+    "projects_removed": [
+      "kan22freshverify",
+      "kan22upgradeverify",
+      "kan22tempdeny",
+      "kan22upgradefinal",
+      "kan22durability"
+    ],
+    "remaining_task_container": "ai-modernization-jenkins",
+    "kan22_containers": 0,
+    "kan22_networks": 0,
+    "kan22_volumes": 0,
+    "generated_secrets_removed": true
+  },
+  "sha256": {
+    "infrastructure/database/compose.yaml": "fdb90061a56dbc5f5b5515af6978a35f59acdb4e1af118501e58036e1d61c0aa",
+    "infrastructure/database/bootstrap/10-create-roles.sh": "766e33a567e87db3fd08af454e6f5eed5ece7eae300abad52ca0b59b4dca7f08",
+    "infrastructure/database/migrations/V1__initial_schema.sql": "7013c202de93b97d733288d92fc3244d72e25aedd53c6bf672027cedadf52baa",
+    "infrastructure/database/migrations/V2__query_indexes_and_sequence_reconciliation.sql": "8b329db0aa9bd264ff6f2c39697105261cd713a810c53b05adbb1730a6633610",
+    "infrastructure/database/migrations/V3__grant_application_runtime_privileges.sql": "5c3e7021e8fe54dcf6347b90ecaa7160e2666cbea83558d24ae377e120d6745a",
+    "candidate/cargotracker/src/main/java/net/java/cargotracker/domain/model/cargo/Cargo.java": "861546843a2e96ba6042e4b6cd0074ecb2ee2331e715bdf7f1d50615fe1d5014",
+    "candidate/cargotracker/src/main/java/net/java/cargotracker/domain/model/cargo/Delivery.java": "520f90ab65c19620c157e52f83be951dbb3b1b8e475a21c77c1a72577f646e24",
+    "candidate/cargotracker/src/main/java/net/java/cargotracker/domain/model/cargo/Leg.java": "521e1aeb8a01ce8c8941e120c599eda864201bac9f6f51c3e402aa3284e8a0fa",
+    "candidate/cargotracker/src/main/java/net/java/cargotracker/domain/model/handling/HandlingEvent.java": "0a58f4d55cc99d8fef469ff2659fc90232a16322503b18d335fe7eff936c9e48",
+    "candidate/cargotracker/src/main/java/net/java/cargotracker/domain/model/location/Location.java": "e98df2a2c9194d60e971f37a6b0ec8c470f8d311e79de0e7903415d21720d854",
+    "candidate/cargotracker/src/main/java/net/java/cargotracker/domain/model/voyage/CarrierMovement.java": "c0b7540838e114123ec6a3433418087e21564d2273ee5bac5c3edf35ca941b58",
+    "candidate/cargotracker/src/main/java/net/java/cargotracker/domain/model/voyage/Voyage.java": "08387af19065202401ce5ea8678611b4eb899ec6f5d67611c683c6291bc52eb7"
+  },
+  "limitations": [
+    "Synthetic data only; no retained/production importer or rehearsal.",
+    "Candidate WildFly PostgreSQL datasource startup and persistent restart behavior are not verified."
+  ],
+  "independent_review": "pending"
+}

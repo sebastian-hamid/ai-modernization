@@ -163,3 +163,14 @@ The combined browser run logged one delivered and three misdirected notification
 Evidence: `notes/evidence/kan-15-bg05-gate/current-capability-gate.json`, `full-runtime-browser.json`, `candidate-runtime.json`, `notification-audit-lines.log`, and `rejection-delta-replay.json`. Independent review found no authorization defect and requested the wording/counter precision corrections; a final review of the corrected comparator and evidence remains pending. External producer authorization remains the next blocker.
 
 The earlier WSL/Docker restart interrupted one full gate attempt and left only task-owned exited containers, an internal private network, and three mode-600 generated fixture credentials. The stale owned resources were identified and removed; the successful fresh run above confirms cleanup. Jenkins was not removed or restarted. The separate baseline-agent container is currently exited with code 127 after the restart and was not needed by this KAN-15 fixture.
+
+
+## KAN-22 PostgreSQL/Flyway checkpoint (2026-11-09)
+
+The pinned Java 25 candidate container build passed 35 tests (0 failures/errors). Fresh install applied Flyway V1, V2, and V3 on PostgreSQL 18.6 / Flyway 13.12.1. Runtime app insert succeeded; app DDL, Flyway history updates, and migration-state updates were denied. DATE equality and shared sequence generation passed.
+
+Upgrade flow applied V1 alone, loaded synthetic rows across all six runtime tables plus legacy sequence state (high-water 8000), then applied V2 and V3. All rows remained present, DATE values were preserved, and the next shared ID was 8001. Detailed receipts and migration checksums: evidence/kan-22-postgresql/migration-contracts.json. Workflow: ../docs/database/postgresql-flyway-lab.md.
+
+All disposable KAN-22 containers, networks, volumes, and generated secret files were removed; only the retained Jenkins container remains. WSL command rule: use a valid Windows working directory for the command runner and pass the Linux checkout using wsl.exe --distribution Ubuntu-24.04 --cd /home/yasinrdp/projects/ai-modernization --exec.
+
+Independent review of the corrected ACL and upgrade workflow is pending. No production or retained data import was tested; PostgreSQL candidate-app deployment remains unverified; disposable named-volume restart persistence and transaction rollback passed. Do not commit until the reviewer approves.

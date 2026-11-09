@@ -43,6 +43,9 @@ import java.io.Serializable;
 import jakarta.persistence.Embedded;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.SequenceGenerator;
+import jakarta.persistence.Table;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
@@ -92,6 +95,8 @@ import org.apache.commons.lang3.Validate;
  * the cargo is (on board carrier, in port etc), are captured in this aggregate.
  */
 @Entity
+@Table(name = "cargo")
+@SequenceGenerator(name = "CargoIdGenerator", sequenceName = "cargotracker_id_seq", allocationSize = 1)
 @NamedQueries({
     @NamedQuery(name = "Cargo.findAll",
             query = "Select c from Cargo c"),
@@ -104,7 +109,7 @@ public class Cargo implements Serializable {
     private static final long serialVersionUID = 1L;
     // Auto-generated surrogate key
     @Id
-    @GeneratedValue
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "CargoIdGenerator")
     private Long id;
     @Embedded
     private TrackingId trackingId;
