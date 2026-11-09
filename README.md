@@ -21,6 +21,7 @@ Windows 11 + WSL2 Ubuntu development environment, local Jenkins and a preserved 
 - [Test coverage review and access-control findings](notes/test-coverage-review.md)
 - [Legacy baseline findings and next steps](notes/legacy-baseline.md)
 - [Running application, runtime recovery and integration tests](notes/legacy-runtime.md)
+- [Legacy Derby physical schema inventory and PostgreSQL conversion recommendations](docs/database/legacy-derby-schema-inventory.md)
 - [Passing Jenkins baseline pipeline](notes/jenkins-baseline.md)
 - [Setup review and versioning](notes/setup-review-2026-10-26.md)
 - [Reusable legacy Java baseline skill](notes/skills.md)
