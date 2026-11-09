@@ -174,3 +174,12 @@ Upgrade flow applied V1 alone, loaded synthetic rows across all six runtime tabl
 All disposable KAN-22 containers, networks, volumes, and generated secret files were removed; only the retained Jenkins container remains. WSL command rule: use a valid Windows working directory for the command runner and pass the Linux checkout using wsl.exe --distribution Ubuntu-24.04 --cd /home/yasinrdp/projects/ai-modernization --exec.
 
 Independent review of the corrected ACL and upgrade workflow is pending. No production or retained data import was tested; PostgreSQL candidate-app deployment remains unverified; disposable named-volume restart persistence and transaction rollback passed. Do not commit until the reviewer approves.
+
+
+## KAN-28 PostgreSQL recovery rehearsal (2026-11-09)
+
+A disposable PostgreSQL 18.6 / Flyway 13.12.1 rehearsal passed. The V1 custom archive restored marker id 4501 and history version 1 in a separate rollback database while the active database stayed at version 3. After `restore-permissions.sql` repaired schema ownership and ACLs, `schema_migrator` applied V2, V3, and a temporary V4 probe. `cargo_app` inserted an explicit synthetic row. The V3 archive restored marker id 4501 at version 3; the repaired app role read it and Flyway applied the V4 probe. Both database states remained after a PostgreSQL container restart.
+
+The tested restore repair is checked in at `infrastructure/database/restore/restore-permissions.sql`; exact procedure and evidence are in [the recovery guide](../docs/database/postgresql-backup-restore-rollback.md) and [rehearsal evidence](evidence/kan-28-recovery/rehearsal.json).
+
+The disposable `kan28recovery` containers, named volume, private network, temporary credentials, and archive files were removed. Only the retained Jenkins container remains. This was single-host/single-version synthetic-data testing. It did not cover off-host or encrypted backups, scheduled automation, point-in-time recovery, cross-version restore, production-sized data, or compatibility with an actual older WildFly binary. Independent review approved the restore procedure, ownership/ACL repair, migration continuation and app-access evidence.

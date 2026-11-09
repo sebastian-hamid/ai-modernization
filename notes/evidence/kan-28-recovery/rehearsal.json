@@ -1,0 +1,44 @@
+{
+  "status": "PASS",
+  "ticket": "KAN-28",
+  "verified_at": "2026-11-09",
+  "postgres": "18.6",
+  "flyway": "13.12.1",
+  "backup_format": "pg_dump custom",
+  "test_data": "synthetic marker rows only",
+  "checks": {
+    "persistent_named_volume_restart": "PASS; active database remained at Flyway 3 and marker id=4501 remained present after PostgreSQL container restart",
+    "v1_restore_integrity": "PASS; separate rollback database restored marker id=4501 and Flyway version 1",
+    "v1_restore_permissions": "PASS; restore-permissions.sql applied; schema_migrator applied V2, V3, and temporary V4 probe; cargo_app inserted explicit id=4502",
+    "v1_rollback_isolation": "PASS; active cargotracker database stayed at Flyway version 3 while the V1 archive was restored separately",
+    "v3_restore_integrity": "PASS; marker id=4501 restored and Flyway version 3 verified",
+    "v3_restore_permissions": "PASS; restore-permissions.sql applied; cargo_app read marker and schema_migrator applied temporary V4 probe",
+    "post_restart_state": "PASS; both restored databases retained their verified state after PostgreSQL container restart"
+  },
+  "backups": {
+    "v1_archive_sha256": "c85ce70b5e1fd553e82553b2fa72f4d7dbad71266f6620dda7fb141ec8c36078",
+    "v3_archive_sha256": "f048530d0221c9f247ca340b00a3d9c99a3c2b4b255d33d6ec7cbaacdadb758b",
+    "archives_removed_after_test": true
+  },
+  "source_sha256": {
+    "infrastructure/database/compose.yaml": "fdb90061a56dbc5f5b5515af6978a35f59acdb4e1af118501e58036e1d61c0aa",
+    "infrastructure/database/bootstrap/10-create-roles.sh": "766e33a567e87db3fd08af454e6f5eed5ece7eae300abad52ca0b59b4dca7f08",
+    "infrastructure/database/migrations/V1__initial_schema.sql": "7013c202de93b97d733288d92fc3244d72e25aedd53c6bf672027cedadf52baa",
+    "infrastructure/database/migrations/V2__query_indexes_and_sequence_reconciliation.sql": "8b329db0aa9bd264ff6f2c39697105261cd713a810c53b05adbb1730a6633610",
+    "infrastructure/database/migrations/V3__grant_application_runtime_privileges.sql": "5c3e7021e8fe54dcf6347b90ecaa7160e2666cbea83558d24ae377e120d6745a",
+    "infrastructure/database/restore/restore-permissions.sql": "0b9343d8a1e5db4ff969a606914e0b30e9c5057b5746f267f95e36d47ab85e97"
+  },
+  "cleanup": {
+    "project": "kan28recovery",
+    "containers": 0,
+    "networks": 0,
+    "volumes": 0,
+    "secrets_removed": true,
+    "only_retained_container": "ai-modernization-jenkins"
+  },
+  "limitations": [
+    "Single WSL/Docker host and PostgreSQL version only.",
+    "No encrypted off-host backup, scheduled backup, point-in-time recovery, cross-version restore, production-sized data, or actual older WildFly application rollback tested."
+  ],
+  "independent_review": "approved"
+}
