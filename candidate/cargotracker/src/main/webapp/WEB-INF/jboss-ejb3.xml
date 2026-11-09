@@ -26,5 +26,20 @@
       <s:security-domain>other</s:security-domain>
       <s:run-as-principal>inspection-worker</s:run-as-principal>
     </s:security>
+    <s:security>
+      <ejb-name>DeliveredCargoConsumer</ejb-name>
+      <s:security-domain>other</s:security-domain>
+      <s:run-as-principal>notification-worker</s:run-as-principal>
+    </s:security>
+    <s:security>
+      <ejb-name>MisdirectedCargoConsumer</ejb-name>
+      <s:security-domain>other</s:security-domain>
+      <s:run-as-principal>notification-worker</s:run-as-principal>
+    </s:security>
+    <s:security>
+      <ejb-name>RejectedRegistrationAttemptsConsumer</ejb-name>
+      <s:security-domain>other</s:security-domain>
+      <s:run-as-principal>notification-worker</s:run-as-principal>
+    </s:security>
   </assembly-descriptor>
 </jboss:jboss>

@@ -428,6 +428,49 @@ class CurrentCapabilityTests(unittest.TestCase):
             with self.subTest(field=field),self.assertRaises(UnsupportedCase):
                 adapter.execute(case)
 
+    def test_bg05_requires_consumer_view_denials_and_rejection_disposition(self):
+        adapter=c.CurrentAdapter()
+        adapter._run_fingerprint="c"*64
+        adapter.provenance={"kind":"fresh-owned-runtime","inputs_fingerprint":"c"*64,"legacy_fixture_cleanup_verified":True}
+        adapter.legacy=FakeLegacy({})
+        sample={"tables":{"CARGO":{"rows":1,"sha256":"a"*64}},
+                "queues":{"jms.queue.HandlingEventRegistrationAttemptQueue":{"MessageCount":0}},
+                "business_invocations":{"HandlingEventRegistrationAttemptConsumer#onMessage":0}}
+        effects={"settled":True,"fixture_id":"owned","before_fixture":"owned","after_fixture":"owned",
+                 "before":{"database":sample["tables"],"queue":sample["queues"],"business_audit":sample["business_invocations"]},
+                 "after":{"database":sample["tables"],"queue":sample["queues"],"business_audit":sample["business_invocations"]}}
+        identities={"Reader":{"server_verified":True,"principal":"reader","roles":["Reader"]},
+                    "Operator":{"server_verified":True,"principal":"operator","roles":["Operator"]},
+                    "Administrator":{"server_verified":True,"principal":"admin","roles":["Administrator"]}}
+        denials={}
+        for actor in ["anonymous","Reader","Operator","Administrator"]:
+            proof={"driver":"native-notification-worker-v1","actor":actor,"supported":True,
+                   "status":401 if actor=="anonymous" else 403,"invocation_denied":True,
+                   "direct_service_denied":True,"protected_payload_absent":True,
+                   "independent_effects_unchanged":True,"effects":effects}
+            if actor!="anonymous":proof["identity"]=identities[actor]
+            denials[actor]=proof
+            case=adapter.contracts["CURRENT::BG-05::"+actor+"::active"]
+            adapter.legacy.notification_worker_denials={actor:proof}
+            self.assertEqual(evaluate(case,adapter.execute(case))[0],"PASS")
+            adapter.legacy.notification_worker_denials={actor:{**proof,"independent_effects_unchanged":False}}
+            with self.subTest(actor=actor),self.assertRaises(UnsupportedCase):adapter.execute(case)
+        machine={"driver":"native-notification-worker-v1","supported":True,"status":200,
+                 "machine_identity_verified":True,"machine_scope":"Server workers",
+                 "consumer_bindings_verified":True,"sanitized_logs_verified":True,
+                 "queue_cycles_verified":True,"producer_boundary_verified":False,
+                 "rejection_producer_verified":True,"final_disposition_verified":True,
+                 "native_identity":{"server_verified":True,"principal":"notification-worker","roles":["NotificationWorker"]}}
+        adapter.legacy.notification_worker_denials=denials
+        adapter.legacy.notification_worker_observation=machine
+        adapter.legacy.rejection_disposition_observation={"trusted_broker_dead_letter_verified":True,
+            "sanitized_rejection_audit_verified":True,"business_side_effects_unchanged":True}
+        case=adapter.contracts["CURRENT::BG-05-MACHINE::worker-BG-05::active"]
+        with self.assertRaises(UnsupportedCase):adapter.execute(case)
+        adapter.legacy.notification_worker_observation={**machine,"producer_boundary_verified":True}
+        adapter.legacy.rejection_disposition_observation["trusted_broker_dead_letter_verified"]=False
+        with self.assertRaises(UnsupportedCase):adapter.execute(case)
+
     def test_bg02_requires_private_processing_and_exact_archive_failed_outputs(self):
         adapter=c.CurrentAdapter()
         adapter._run_fingerprint="a"*64

@@ -59,3 +59,8 @@ Other remaining definitions include read-only legacy callbacks that need explici
 
 
 - docs/candidate/handling-completion.md and notes/evidence/kan-15-handling-completion: ACTION-42 strict time validation, denied roles, composed positive control, bounded correlated misdirection effects and attempt history.
+
+
+## Latest checkpoint  9 November 2026 (KAN-15 BG-05)
+
+BG-05 notification consumers now use a dedicated `notification-worker` identity and generic identifier-free audit. The handling-attempt message TTL is 30 seconds (previously 1 second) to allow the configured 250 ms redelivery delay and retry deliveries to complete before expiry. The original full fresh run passed 723 native and 841 browser checks; its untouched gate artifact records 438 PASS / 32 BLOCKED and 76 retirement cases BLOCKED. Offline re-evaluation of six retained Operator/Administrator proofs for handling-event, handling-voyage and handling-completion corrects unrelated notification-audit overcounting: **444 PASS / 26 BLOCKED**. This is a re-evaluation, not a new runtime run. Four BG-05 human denials pass; BG-05 machine case remains blocked on external JMS/JNDI producer authorization. Browser audit evidence: one delivered, three misdirected, one rejection notification. Rejection-effect comparison now requires identical queue inventories as well as exact bounded queue/invocation deltas. Four focused comparator tests and 88 security unit tests pass. Cleanup passed and Jenkins stayed up. Independent final review pending. See [notification worker boundary](../docs/candidate/notification-worker-boundary.md), [original gate](evidence/kan-15-bg05-gate/current-capability-gate.json), and [offline replacement replay](evidence/kan-15-bg05-gate/replacement-gate-replay.json).

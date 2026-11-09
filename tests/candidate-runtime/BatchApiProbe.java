@@ -10,6 +10,13 @@ import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import javax.naming.InitialContext;
+import javax.naming.NamingException;
+import jakarta.jms.MessageListener;
+import jakarta.jms.JMSContext;
+import jakarta.jms.Queue;
+import jakarta.annotation.Resource;
+import jakarta.jms.ObjectMessage;
 import java.util.Properties;
 import java.util.UUID;
 import net.java.cargotracker.interfaces.handling.file.BatchImportRequestService;
@@ -19,6 +26,7 @@ import net.java.cargotracker.domain.model.handling.HandlingEvent;
 import net.java.cargotracker.domain.model.handling.CannotCreateHandlingEventException;
 import net.java.cargotracker.domain.model.cargo.TrackingId;
 import net.java.cargotracker.domain.model.location.UnLocode;
+import net.java.cargotracker.interfaces.handling.HandlingEventRegistrationAttempt;
 import java.util.Date;
 
 /** Test-only endpoint for exercising BatchRuntime under real HTTP principals. */
@@ -29,6 +37,10 @@ public final class BatchApiProbe extends HttpServlet {
     private HandlingEventService handlingEventService;
     @EJB
     private CargoInspectionService cargoInspectionService;
+    @jakarta.inject.Inject
+    private JMSContext jmsContext;
+    @Resource(lookup = "java:app/jms/HandlingEventRegistrationAttemptQueue")
+    private Queue handlingEventQueue;
 
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException {
@@ -96,6 +108,53 @@ public final class BatchApiProbe extends HttpServlet {
             } catch (RuntimeException unexpected) {
                 response.setHeader("X-Fixture-Probe-Failure", unexpected.getClass().getSimpleName());
                 response.sendError(500);
+            }
+            return;
+        }
+        if ("poison-handling-attempt".equals(operation)) {
+            if (request.getUserPrincipal() == null || !request.isUserInRole("Administrator")) {
+                response.sendError(403);
+                return;
+            }
+            try {
+                Date now = new Date();
+                HandlingEventRegistrationAttempt attempt = new HandlingEventRegistrationAttempt(
+                        now, now, new TrackingId("NOCARGO1"), null, HandlingEvent.Type.RECEIVE,
+                        new UnLocode("USCHI"));
+                ObjectMessage message = jmsContext.createObjectMessage(attempt);
+                jmsContext.createProducer().send(handlingEventQueue, message);
+                response.setStatus(202);
+            } catch (RuntimeException rejected) {
+                response.sendError(500);
+            }
+            return;
+        }
+        if ("notification-consumer".equals(operation)) {
+            String[] consumers = {"DeliveredCargoConsumer", "MisdirectedCargoConsumer",
+                "RejectedRegistrationAttemptsConsumer"};
+            boolean exposed = false;
+            try {
+                InitialContext context = new InitialContext();
+                for (String consumer : consumers) {
+                    String name = "java:app/cargo-tracker/" + consumer + "!" + MessageListener.class.getName();
+                    try {
+                        context.lookup(name);
+                        exposed = true;
+                    } catch (NamingException notExposed) {
+                        // Message-driven beans must not publish a caller-facing business view.
+                    }
+                }
+                context.close();
+            } catch (NamingException lookupFailure) {
+                response.sendError(500);
+                return;
+            }
+            if (exposed) {
+                response.setHeader("X-Fixture-Probe-Failure", "consumer-view-exposed");
+                response.sendError(500);
+            } else {
+                response.setHeader("X-Fixture-Probe-Result", "no-consumer-client-view");
+                response.sendError(403);
             }
             return;
         }

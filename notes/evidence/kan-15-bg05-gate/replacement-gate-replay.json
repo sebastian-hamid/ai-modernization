@@ -1,0 +1,59 @@
+{
+  "task": "KAN-15 BG-05 saved replacement gate re-evaluation",
+  "basis": "Offline re-evaluation of retained same-fixture browser proof; no runtime or browser fixture launched.",
+  "source_gate_sha256": "502d94c53c86d48e9c9016788fd96ec0cda24630630444cbd9eda4abe400d398",
+  "source_browser_workflows_sha256": "eaf9d786125eb17c688e0d41a3e9cdd20b01a3e33b679180ef6578ad42e0e657",
+  "source_candidate_runtime_sha256": "3cecfdb178fab3fe0f7e5bbf538f3689463f8dab55a84a00c7da35c53e88a975",
+  "replay_scope": "handling-event, handling-voyage, and handling-completion replacement proofs for Operator and Administrator",
+  "changes": [
+    {
+      "case": "REPLACEMENT::handling-event::Operator",
+      "previous": "BLOCKED",
+      "replayed": "PASS",
+      "reason": "Allowed workflow and identity evidence observed"
+    },
+    {
+      "case": "REPLACEMENT::handling-event::Administrator",
+      "previous": "BLOCKED",
+      "replayed": "PASS",
+      "reason": "Allowed workflow and identity evidence observed"
+    },
+    {
+      "case": "REPLACEMENT::handling-voyage::Operator",
+      "previous": "BLOCKED",
+      "replayed": "PASS",
+      "reason": "Allowed workflow and identity evidence observed"
+    },
+    {
+      "case": "REPLACEMENT::handling-voyage::Administrator",
+      "previous": "BLOCKED",
+      "replayed": "PASS",
+      "reason": "Allowed workflow and identity evidence observed"
+    },
+    {
+      "case": "REPLACEMENT::handling-completion::Operator",
+      "previous": "BLOCKED",
+      "replayed": "PASS",
+      "reason": "Allowed workflow and identity evidence observed"
+    },
+    {
+      "case": "REPLACEMENT::handling-completion::Administrator",
+      "previous": "BLOCKED",
+      "replayed": "PASS",
+      "reason": "Allowed workflow and identity evidence observed"
+    }
+  ],
+  "previous_current_counts": {
+    "PASS": 438,
+    "BLOCKED": 32
+  },
+  "replayed_current_counts": {
+    "PASS": 444,
+    "BLOCKED": 26
+  },
+  "retirement_counts": {
+    "BLOCKED": 76
+  },
+  "gate_exit": 2,
+  "note": "Preserves the original fresh-run fingerprint and results; this record only corrects harness evaluation of six saved proofs."
+}

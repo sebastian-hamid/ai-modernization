@@ -35,6 +35,45 @@ def batch_finished_line(log_text,run_id):
     return next((line for line in log_text.splitlines()
         if marker in line and run_marker in line),None)
 
+def compare_rejection_effect_deltas(before, after, input_name, rejected_name):
+    """Require only the exact broker and audit deltas expected for one rejected message."""
+    queue_counter_names=sorted(QUEUE_ATTRIBUTES)
+    observed_queue_deltas={}
+    same_queue_inventory=(set(before["queues"])==set(after["queues"]))
+    for queue_name,before_queue in before["queues"].items():
+        after_queue=after["queues"].get(queue_name,{})
+        if set(before_queue)!=set(after_queue):
+            same_queue_inventory=False
+            continue
+        changed={attribute:after_queue[attribute]-before_queue[attribute]
+            for attribute in queue_counter_names
+            if after_queue[attribute]!=before_queue[attribute]}
+        if changed:
+            observed_queue_deltas[queue_name]=changed
+    expected_queue_deltas={
+        input_name:{"MessagesAdded":1,"MessagesKilled":1,"AcknowledgeAttempts":4},
+        rejected_name:{"MessagesAdded":1,"MessagesAcknowledged":1,"AcknowledgeAttempts":1}}
+    invocation_names=set(before["business_invocations"]) | set(after["business_invocations"])
+    observed_invocation_deltas={
+        name:after["business_invocations"].get(name,0)-before["business_invocations"].get(name,0)
+        for name in invocation_names
+        if after["business_invocations"].get(name,0)!=before["business_invocations"].get(name,0)}
+    expected_invocation_deltas={
+        "net.java.cargotracker.application.internal.DefaultHandlingEventService#registerHandlingEvent":3,
+        "net.java.cargotracker.infrastructure.messaging.jms.HandlingEventRegistrationAttemptConsumer#onMessage":3,
+        "net.java.cargotracker.infrastructure.messaging.jms.HandlingWorkerAudit#recordConsumedAttempt":3,
+        "net.java.cargotracker.infrastructure.messaging.jms.RejectedRegistrationAttemptsConsumer#onMessage":1,
+        "net.java.cargotracker.infrastructure.messaging.jms.NotificationWorkerAudit#recordConsumed":1}
+    return {
+        "queue_counter_deltas":observed_queue_deltas,
+        "expected_queue_counter_deltas":expected_queue_deltas,
+        "business_invocation_deltas":observed_invocation_deltas,
+        "expected_business_invocation_deltas":expected_invocation_deltas,
+        "all_queue_and_invocation_deltas_bounded":(
+            same_queue_inventory
+            and observed_queue_deltas==expected_queue_deltas
+            and observed_invocation_deltas==expected_invocation_deltas)}
+
 def expected_batch_control_deltas():
     """Document EJB entries for two unsafe callbacks and one concurrent one-use form."""
     methods={
@@ -415,7 +454,7 @@ def main(after_checks=None):
         return jar,opener,identity["csrf"]
     try:
         users.write_text("#$REALM_NAME=ApplicationRealm$\n"+"".join(who+"="+hashlib.md5((who+":ApplicationRealm:"+pw).encode()).hexdigest()+"\n" for who,pw in {**credentials,"routing":routing_password}.items()))
-        roles.write_text("reader=Reader\noperator=Operator\nadmin=Administrator\nrouting=RoutingService\nhandling-worker=HandlingWorker\ninspection-worker=InspectionWorker\n")
+        roles.write_text("reader=Reader\noperator=Operator\nadmin=Administrator\nrouting=RoutingService\nhandling-worker=HandlingWorker\ninspection-worker=InspectionWorker\nnotification-worker=NotificationWorker\n")
         routing.write_text("username=routing\npassword="+routing_password+"\n")
         users.chmod(0o600);roles.chmod(0o600);routing.chmod(0o600)
         context=Path(tempfile.mkdtemp(prefix="context-",dir=WORK))
@@ -725,6 +764,128 @@ def main(after_checks=None):
                 proof["identity"]=report["identities"][principal]
             inspection_worker_denials[actor]=proof
         report["inspection_worker_denials"]=inspection_worker_denials
+        notification_worker_denials={}
+        for actor,opener in [("anonymous",anonymous),("Reader",sessions["reader"][1]),
+                ("Operator",sessions["operator"][1]),("Administrator",sessions["admin"][1])]:
+            denied_before=settled()
+            denied_status,denied_body,denied_headers=request(opener,
+                probe_path+"?operation=notification-consumer")
+            denied_after=settled()
+            expected_status=401 if actor=="anonymous" else 403
+            no_client_view=(denied_headers.get("X-Fixture-Probe-Result")=="no-consumer-client-view")
+            unchanged=effects_unchanged(denied_before,denied_after)
+            absent=payload_absent(denied_body)
+            check("Direct notification-consumer client-view denial without effects: "+actor,
+                denied_status==expected_status and unchanged and absent
+                and (actor=="anonymous" or no_client_view))
+            proof={"driver":"native-notification-worker-v1","actor":actor,
+                "supported":True,"status":denied_status,"invocation_denied":True,
+                "direct_service_denied":actor=="anonymous" or no_client_view,
+                "protected_payload_absent":absent,"independent_effects_unchanged":unchanged,
+                "effects":effects_receipt(denied_before,denied_after)}
+            if actor!="anonymous":
+                principal={"Reader":"reader","Operator":"operator","Administrator":"admin"}[actor]
+                proof["identity"]=report["identities"][principal]
+            notification_worker_denials[actor]=proof
+        report["notification_worker_denials"]=notification_worker_denials
+        for actor,opener in [("anonymous",anonymous),("Reader",sessions["reader"][1]),
+                ("Operator",sessions["operator"][1])]:
+            denied_before=settled()
+            denied_status,denied_body,_=request(opener,
+                probe_path+"?operation=poison-handling-attempt")
+            denied_after=settled()
+            expected_status=401 if actor=="anonymous" else 403
+            check("Unauthorized direct notification producer probe denied without effects: "+actor,
+                denied_status==expected_status and payload_absent(denied_body)
+                and effects_unchanged(denied_before,denied_after))
+        rejection_before=settled()
+        poison_status,poison_body,poison_headers=request(
+            sessions["admin"][1],probe_path+"?operation=poison-handling-attempt")
+        check("Administrator fixture publishes one invalid attempt for rejection-path verification",
+            poison_status==202 and payload_absent(poison_body))
+        rejection_wait_deadline=time.monotonic()+45
+        rejection_after=None
+        while time.monotonic()<rejection_wait_deadline:
+            snapshot=effects()
+            input_queue=snapshot["queues"]["jms.queue.HandlingEventRegistrationAttemptQueue"]
+            rejected_queue=snapshot["queues"]["jms.queue.RejectedRegistrationAttemptsQueue"]
+            input_calls=snapshot["business_invocations"].get(
+                "net.java.cargotracker.infrastructure.messaging.jms.HandlingEventRegistrationAttemptConsumer#onMessage",0)
+            reject_calls=snapshot["business_invocations"].get(
+                "net.java.cargotracker.infrastructure.messaging.jms.RejectedRegistrationAttemptsConsumer#onMessage",0)
+            if (input_queue["MessageCount"]==0 and rejected_queue["MessageCount"]==0
+                    and input_queue["MessagesAdded"]-rejection_before["queues"]["jms.queue.HandlingEventRegistrationAttemptQueue"]["MessagesAdded"]==1
+                    and rejected_queue["MessagesAdded"]-rejection_before["queues"]["jms.queue.RejectedRegistrationAttemptsQueue"]["MessagesAdded"]==1
+                    and reject_calls-rejection_before["business_invocations"].get(
+                        "net.java.cargotracker.infrastructure.messaging.jms.RejectedRegistrationAttemptsConsumer#onMessage",0)==1
+                    and input_calls-rejection_before["business_invocations"].get(
+                        "net.java.cargotracker.infrastructure.messaging.jms.HandlingEventRegistrationAttemptConsumer#onMessage",0)==3):
+                rejection_after=settled()
+                break
+            time.sleep(.5)
+        if rejection_after is None:
+            rejection_after=effects()
+        input_name="jms.queue.HandlingEventRegistrationAttemptQueue"
+        rejected_name="jms.queue.RejectedRegistrationAttemptsQueue"
+        rejected_audit_logs=command("docker","logs",container)
+        rejected_audit_line="NOTIFICATION_WORKER_AUDIT event=consumed consumer=rejected-registration principal=notification-worker role=NotificationWorker"
+        handling_attempt_delta=(rejection_after["business_invocations"].get(
+            "net.java.cargotracker.infrastructure.messaging.jms.HandlingEventRegistrationAttemptConsumer#onMessage",0)
+            - rejection_before["business_invocations"].get(
+            "net.java.cargotracker.infrastructure.messaging.jms.HandlingEventRegistrationAttemptConsumer#onMessage",0))
+        handling_audit_delta=(rejection_after["business_invocations"].get(
+            "net.java.cargotracker.infrastructure.messaging.jms.HandlingWorkerAudit#recordConsumedAttempt",0)
+            - rejection_before["business_invocations"].get(
+            "net.java.cargotracker.infrastructure.messaging.jms.HandlingWorkerAudit#recordConsumedAttempt",0))
+        rejected_consumer_delta=(rejection_after["business_invocations"].get(
+            "net.java.cargotracker.infrastructure.messaging.jms.RejectedRegistrationAttemptsConsumer#onMessage",0)
+            - rejection_before["business_invocations"].get(
+            "net.java.cargotracker.infrastructure.messaging.jms.RejectedRegistrationAttemptsConsumer#onMessage",0))
+        rejected_audit_delta=(rejection_after["business_invocations"].get(
+            "net.java.cargotracker.infrastructure.messaging.jms.NotificationWorkerAudit#recordConsumed",0)
+            - rejection_before["business_invocations"].get(
+            "net.java.cargotracker.infrastructure.messaging.jms.NotificationWorkerAudit#recordConsumed",0))
+        rejection_message=(
+            rejection_after["queues"][input_name]["MessagesAdded"]-
+                rejection_before["queues"][input_name]["MessagesAdded"]==1
+            and rejection_after["queues"][input_name]["MessagesKilled"]-
+                rejection_before["queues"][input_name]["MessagesKilled"]==1
+            and rejection_after["queues"][rejected_name]["MessagesAdded"]-
+                rejection_before["queues"][rejected_name]["MessagesAdded"]==1
+            and rejection_after["queues"][rejected_name]["MessagesAcknowledged"]-
+                rejection_before["queues"][rejected_name]["MessagesAcknowledged"]==1
+            and rejection_after["queues"][input_name]["MessageCount"]==0
+            and rejection_after["queues"][rejected_name]["MessageCount"]==0)
+        rejection_effect_comparison=compare_rejection_effect_deltas(
+            rejection_before,rejection_after,input_name,rejected_name)
+        rejection_no_business_effects=(
+            rejection_after["tables"]==rejection_before["tables"]
+            and rejection_effect_comparison["all_queue_and_invocation_deltas_bounded"])
+        rejection_log_sanitized=(rejected_audit_logs.count(rejected_audit_line)==1
+            and "NOCARGO1" not in rejected_audit_logs)
+        report["rejection_disposition_diagnostics"]={
+            **rejection_effect_comparison,
+            "tables_unchanged":rejection_after["tables"]==rejection_before["tables"],
+            "log_sanitized":rejection_log_sanitized}
+        check("Invalid handling attempts receive three bounded deliveries then broker dead-letter disposition",
+            poison_status==202 and rejection_message and handling_attempt_delta==3)
+        check("Rejected-attempt consumer acknowledges one identifier-free server-worker audit",
+            rejected_consumer_delta==1 and rejected_audit_delta==1 and rejection_log_sanitized)
+        check("Rejected attempts leave cargo and handling business tables unchanged",
+            rejection_no_business_effects)
+        report["rejection_disposition_observation"]={
+            "driver":"native-notification-worker-v1","supported":True,
+            "trusted_broker_dead_letter_verified":rejection_message and handling_attempt_delta==3,
+            "delivery_attempts":handling_attempt_delta,
+            "rejection_consumer_invocations":rejected_consumer_delta,
+            "notification_worker_audit_invocations":rejected_audit_delta,
+            "rejected_effects_unchanged":rejection_after["tables"]==rejection_before["tables"],
+            "final_disposition_verified":rejection_message and rejected_consumer_delta==1,
+            "sanitized_rejection_audit_verified":rejection_log_sanitized,
+            "business_side_effects_unchanged":rejection_no_business_effects,
+            "producer_boundary_verified":False,
+            "producer_boundary_note":"External JMS/JNDI producer authorization was not exercised",
+            "before":effects_receipt(rejection_before,rejection_after)}
         api_job_start_delta=(api_after["business_invocations"].get(
             "net.java.cargotracker.interfaces.handling.file.BatchWorkerAudit#jobStarted",0)
             - api_before["business_invocations"].get(
@@ -1355,6 +1516,72 @@ def main(after_checks=None):
                 for x in inspection_worker_denials.values()),
             "status":200,"semantic_success":inspection_audit_verified,
             "authorized_effect_verified":inspection_audit_verified}
+        notification_effects=settled()
+        notification_logs=command("docker","logs",container)
+        notification_specs={
+            "delivered":("DeliveredCargoQueue","DeliveredCargoConsumer"),
+            "misdirected":("MisdirectedCargoQueue","MisdirectedCargoConsumer"),
+            "rejected-registration":("RejectedRegistrationAttemptsQueue","RejectedRegistrationAttemptsConsumer")}
+        notification_audit_lines=re.findall(
+            r"NOTIFICATION_WORKER_AUDIT event=consumed consumer=(delivered|misdirected|rejected-registration) principal=notification-worker role=NotificationWorker",
+            notification_logs)
+        notification_counts={name:notification_audit_lines.count(name) for name in notification_specs}
+        notification_invocations={
+            event:notification_effects["business_invocations"].get(
+                "net.java.cargotracker.infrastructure.messaging.jms."+consumer+"#onMessage",0)
+            for event,(queue,consumer) in notification_specs.items()}
+        notification_audit_invocations=notification_effects["business_invocations"].get(
+            "net.java.cargotracker.infrastructure.messaging.jms.NotificationWorkerAudit#recordConsumed",0)
+        notification_queue_cycles={}
+        for event,(queue_name,consumer) in notification_specs.items():
+            queue=notification_effects["queues"]["jms.queue."+queue_name]
+            count=notification_counts[event]
+            notification_queue_cycles[event]=(queue["MessageCount"]==0
+                and queue["MessagesAdded"]==count
+                and queue["MessagesAcknowledged"]==count
+                and notification_invocations[event]==count)
+        notification_bindings_verified=all(
+            "Started message driven bean '"+consumer+"'" in notification_logs
+            for event,(queue,consumer) in notification_specs.items())
+        notification_log_lines=[line for line in notification_logs.splitlines()
+            if "NOTIFICATION_WORKER_AUDIT" in line
+            or any(consumer in line for queue,consumer in notification_specs.values())]
+        notification_logs_sanitized=all(
+            re.search(r"(?<![A-Z0-9])[A-Z0-9]{8}(?![A-Z0-9])|(?i:trackingId|tracking ID|body=)",line) is None
+            for line in notification_log_lines)
+        notification_worker_verified=(notification_bindings_verified
+            and notification_logs_sanitized
+            and notification_audit_invocations==sum(notification_counts.values())
+            and all(notification_queue_cycles.values()))
+        report["notification_worker_diagnostics"]={"bindings":notification_bindings_verified,"audit_counts":notification_counts,"invocation_counts":notification_invocations,"audit_invocations":notification_audit_invocations,"queue_cycles":notification_queue_cycles,"sanitized":notification_logs_sanitized,"relevant_log_lines":notification_log_lines}
+        check("Notification MDB bindings start and logs contain no cargo identifiers",
+            notification_bindings_verified and notification_logs_sanitized)
+        if any(notification_counts.values()):
+            check("Notification queue cycles match worker audit and invocations",
+                notification_worker_verified)
+        report["notification_worker_observation"]={
+            "driver":"native-notification-worker-v1","supported":True,
+            "machine_identity_verified":notification_bindings_verified
+                and any(notification_counts.values()) and notification_worker_verified,
+            "native_identity":{"server_verified":True,"principal":"notification-worker","roles":["NotificationWorker"]},
+            "machine_scope":"Server workers",
+            "consumer_bindings_verified":notification_bindings_verified,
+            "sanitized_logs_verified":notification_logs_sanitized,
+            "audit_counts":notification_counts,
+            "consumer_invocation_counts":notification_invocations,
+            "queue_cycles_verified":all(notification_queue_cycles.values()),
+            "queue_cycle_details":notification_queue_cycles,
+            "producer_boundary_verified":False,
+            "producer_boundary_note":"Arbitrary JMS/JNDI producer restrictions are outside this fixture",
+            "rejection_producer_verified":report["rejection_disposition_observation"].get(
+                "trusted_broker_dead_letter_verified") is True,
+            "final_disposition_verified":report["rejection_disposition_observation"].get(
+                "final_disposition_verified") is True,
+            "human_direct_denials_effects_unchanged":all(
+                proof.get("independent_effects_unchanged") is True
+                for proof in notification_worker_denials.values()),
+            "status":200,"semantic_success":notification_bindings_verified and notification_logs_sanitized,
+            "authorized_effect_verified":notification_worker_verified}
         report["admin_handling_effects"]={"before":admin_before,"after":admin_after}
         report["access_observations"]["API-02::Administrator::active"]={"supported":True,"status":204,"identity":report["identities"]["admin"],"semantic_success":True,"authorized_effect_verified":True}
 

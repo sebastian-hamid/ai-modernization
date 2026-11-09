@@ -46,11 +46,13 @@ public class HandlingEventRegistrationAttemptConsumer implements MessageListener
                     attempt.getVoyageNumber(),
                     attempt.getUnLocode(),
                     attempt.getType());
-        } catch (JMSException | CannotCreateHandlingEventException e) {
-            // Poison messages will be placed on dead-letter queue.
-            throw new RuntimeException("Error occurred processing message", e);
-//        } catch (JMSException e) {
-            // logger.log(Level.SEVERE, e.getMessage(), e);
+        } catch (CannotCreateHandlingEventException rejected) {
+            // The broker routes bounded repeated failures to the sanitized rejection queue.
+            // Do not attach the rejected DTO or nested validation text to server logs.
+            throw new RuntimeException("Handling registration rejected by validation");
+        } catch (JMSException unreadable) {
+            // Broker retry/dead-letter handling owns final disposition for unreadable messages.
+            throw new RuntimeException("Handling registration message could not be read");
         }
     }
 }

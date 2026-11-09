@@ -1,13 +1,13 @@
 package net.java.cargotracker.infrastructure.messaging.jms;
 
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import jakarta.ejb.ActivationConfigProperty;
+import jakarta.ejb.EJB;
 import jakarta.ejb.MessageDriven;
 import jakarta.jms.JMSException;
 import jakarta.jms.Message;
 import jakarta.jms.MessageListener;
 
+@jakarta.annotation.security.RunAs("NotificationWorker")
 @MessageDriven(activationConfig = {
     @ActivationConfigProperty(propertyName = "destinationType",
             propertyValue = "jakarta.jms.Queue"),
@@ -16,17 +16,18 @@ import jakarta.jms.MessageListener;
 })
 public class DeliveredCargoConsumer implements MessageListener {
 
-    private static final Logger logger = Logger.getLogger(
-            DeliveredCargoConsumer.class.getName());
+    @EJB
+    private NotificationWorkerAudit workerAudit;
 
+    @jakarta.annotation.security.PermitAll
     @Override
     public void onMessage(Message message) {
         try {
-            logger.log(Level.INFO,
-                    "Cargo with tracking ID {0} delivered.",
-                    message.getBody(String.class));
+            workerAudit.recordConsumed("delivered");
+            message.getBody(String.class);
         } catch (JMSException ex) {
-            logger.log(Level.WARNING, "Error processing message.", ex);
+            java.util.logging.Logger.getLogger(DeliveredCargoConsumer.class.getName())
+                    .warning("Delivered cargo notification could not be read.");
         }
     }
 }

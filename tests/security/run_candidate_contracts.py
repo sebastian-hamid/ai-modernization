@@ -25,6 +25,9 @@ class LiveSubsetCandidate:
         self.handling_worker_observation=report.get("handling_worker_observation",{})
         self.inspection_worker_denials=report.get("inspection_worker_denials",{})
         self.inspection_worker_observation=report.get("inspection_worker_observation",{})
+        self.notification_worker_denials=report.get("notification_worker_denials",{})
+        self.notification_worker_observation=report.get("notification_worker_observation",{})
+        self.rejection_disposition_observation=report.get("rejection_disposition_observation",{})
         self.observations=report["access_observations"]
         self.current_observations=report.get("current_access_observations",{})
         self.replacement_observations=report.get("replacement_observations",{})

@@ -1,0 +1,51 @@
+{
+  "task": "KAN-15 BG-05 rejection side-effect comparator replay",
+  "basis": "Replay of saved same-fixture before/after snapshot; no new runtime execution claimed",
+  "candidate_runtime_evidence_sha256": "3cecfdb178fab3fe0f7e5bbf538f3689463f8dab55a84a00c7da35c53e88a975",
+  "comparator_source_sha256": "ea56df886c11259523c3a641e10d07ad7bea51da539da5a92eb5380e749fffad",
+  "tables_unchanged": true,
+  "queue_counter_deltas": {
+    "jms.queue.HandlingEventRegistrationAttemptQueue": {
+      "AcknowledgeAttempts": 4,
+      "MessagesAdded": 1,
+      "MessagesKilled": 1
+    },
+    "jms.queue.RejectedRegistrationAttemptsQueue": {
+      "AcknowledgeAttempts": 1,
+      "MessagesAcknowledged": 1,
+      "MessagesAdded": 1
+    }
+  },
+  "expected_queue_counter_deltas": {
+    "jms.queue.HandlingEventRegistrationAttemptQueue": {
+      "MessagesAdded": 1,
+      "MessagesKilled": 1,
+      "AcknowledgeAttempts": 4
+    },
+    "jms.queue.RejectedRegistrationAttemptsQueue": {
+      "MessagesAdded": 1,
+      "MessagesAcknowledged": 1,
+      "AcknowledgeAttempts": 1
+    }
+  },
+  "business_invocation_deltas": {
+    "net.java.cargotracker.infrastructure.messaging.jms.NotificationWorkerAudit#recordConsumed": 1,
+    "net.java.cargotracker.infrastructure.messaging.jms.RejectedRegistrationAttemptsConsumer#onMessage": 1,
+    "net.java.cargotracker.application.internal.DefaultHandlingEventService#registerHandlingEvent": 3,
+    "net.java.cargotracker.infrastructure.messaging.jms.HandlingEventRegistrationAttemptConsumer#onMessage": 3,
+    "net.java.cargotracker.infrastructure.messaging.jms.HandlingWorkerAudit#recordConsumedAttempt": 3
+  },
+  "expected_business_invocation_deltas": {
+    "net.java.cargotracker.application.internal.DefaultHandlingEventService#registerHandlingEvent": 3,
+    "net.java.cargotracker.infrastructure.messaging.jms.HandlingEventRegistrationAttemptConsumer#onMessage": 3,
+    "net.java.cargotracker.infrastructure.messaging.jms.HandlingWorkerAudit#recordConsumedAttempt": 3,
+    "net.java.cargotracker.infrastructure.messaging.jms.RejectedRegistrationAttemptsConsumer#onMessage": 1,
+    "net.java.cargotracker.infrastructure.messaging.jms.NotificationWorkerAudit#recordConsumed": 1
+  },
+  "all_queue_and_invocation_deltas_bounded": true,
+  "negative_mutations": {
+    "unrelated_DLQ_counter_rejected": true,
+    "unrelated_business_invocation_rejected": true
+  },
+  "passed": true
+}

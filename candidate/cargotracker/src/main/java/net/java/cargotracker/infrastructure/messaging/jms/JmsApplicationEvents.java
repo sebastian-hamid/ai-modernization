@@ -34,7 +34,7 @@ public class JmsApplicationEvents implements ApplicationEvents, Serializable {
     @Override
     public void cargoWasHandled(HandlingEvent event) {
         Cargo cargo = event.getCargo();
-        logger.log(Level.INFO, "Cargo was handled {0}", cargo);
+        logger.log(Level.INFO, "Cargo handled notification queued.");
         String correlationId = UUID.randomUUID().toString();
         jakarta.jms.TextMessage message = jmsContext.createTextMessage(
                 cargo.getTrackingId().getIdString());
@@ -53,7 +53,7 @@ public class JmsApplicationEvents implements ApplicationEvents, Serializable {
 
     @Override
     public void cargoWasMisdirected(Cargo cargo) {
-        logger.log(Level.INFO, "Cargo was misdirected {0}", cargo);
+        logger.log(Level.INFO, "Misdirected cargo notification queued.");
         jmsContext.createProducer()
                 .setPriority(LOW_PRIORITY)
                 .setDisableMessageID(true)
@@ -64,7 +64,7 @@ public class JmsApplicationEvents implements ApplicationEvents, Serializable {
 
     @Override
     public void cargoHasArrived(Cargo cargo) {
-        logger.log(Level.INFO, "Cargo has arrived {0}", cargo);
+        logger.log(Level.INFO, "Delivered cargo notification queued.");
         jmsContext.createProducer()
                 .setPriority(LOW_PRIORITY)
                 .setDisableMessageID(true)
@@ -76,13 +76,12 @@ public class JmsApplicationEvents implements ApplicationEvents, Serializable {
     @Override
     public void receivedHandlingEventRegistrationAttempt(
             HandlingEventRegistrationAttempt attempt) {
-        logger.log(Level.INFO, "Received handling event registration attempt {0}",
-                attempt);
+        logger.log(Level.INFO, "Handling event registration attempt received.");
         jmsContext.createProducer()
                 .setPriority(LOW_PRIORITY)
                 .setDisableMessageID(true)
                 .setDisableMessageTimestamp(true)
-                .setTimeToLive(1000)
+                .setTimeToLive(30000)
                 .send(handlingEventQueue, attempt);
     }
 }

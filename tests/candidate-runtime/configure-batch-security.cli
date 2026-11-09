@@ -1,4 +1,5 @@
 embed-server --server-config=standalone-full.xml --std-out=discard
+/subsystem=messaging-activemq/server=default/address-setting=jms.queue.HandlingEventRegistrationAttemptQueue:add(dead-letter-address="jms.queue.RejectedRegistrationAttemptsQueue",max-delivery-attempts=3,redelivery-delay=250)
 /subsystem=metrics:write-attribute(name=exposed-subsystems,value=[])
 /subsystem=messaging-activemq/server=default:write-attribute(name=jmx-management-enabled,value=true)
 /subsystem=elytron/permission-set=default-permissions:write-attribute(name=permissions,value=[{class-name="org.wildfly.transaction.client.RemoteTransactionPermission",module="org.wildfly.transaction.client"},{class-name="org.jboss.ejb.client.RemoteEJBPermission",module="org.jboss.ejb-client"}])

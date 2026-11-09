@@ -1,13 +1,13 @@
 package net.java.cargotracker.infrastructure.messaging.jms;
 
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import jakarta.ejb.ActivationConfigProperty;
+import jakarta.ejb.EJB;
 import jakarta.ejb.MessageDriven;
 import jakarta.jms.JMSException;
 import jakarta.jms.Message;
 import jakarta.jms.MessageListener;
 
+@jakarta.annotation.security.RunAs("NotificationWorker")
 @MessageDriven(activationConfig = {
     @ActivationConfigProperty(propertyName = "destinationType",
             propertyValue = "jakarta.jms.Queue"),
@@ -16,17 +16,19 @@ import jakarta.jms.MessageListener;
 })
 public class RejectedRegistrationAttemptsConsumer implements MessageListener {
 
-    private static final Logger logger = Logger.getLogger(
-            RejectedRegistrationAttemptsConsumer.class.getName());
+    @EJB
+    private NotificationWorkerAudit workerAudit;
 
+    @jakarta.annotation.security.PermitAll
     @Override
     public void onMessage(Message message) {
         try {
-            logger.log(Level.INFO,
-                    "Rejected registration attempt of cargo with tracking ID {0}.",
-                    message.getBody(String.class));
+            workerAudit.recordConsumed("rejected-registration");
+            // Broker-dead-lettered ObjectMessages are acknowledged after the sanitized receipt.
+            message.getJMSMessageID();
         } catch (JMSException ex) {
-            logger.log(Level.WARNING, "Error processing message.", ex);
+            java.util.logging.Logger.getLogger(RejectedRegistrationAttemptsConsumer.class.getName())
+                    .warning("Rejected registration notification could not be read.");
         }
     }
 }
