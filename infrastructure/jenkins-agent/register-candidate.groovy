@@ -54,11 +54,14 @@ Files.writeString(temporarySecret, node.toComputer().getJnlpMac())
 Files.move(temporarySecret, new File(seed, 'agent-secret').toPath(),
         StandardCopyOption.REPLACE_EXISTING, StandardCopyOption.ATOMIC_MOVE)
 
-def scm = new GitSCM()
-scm.setUserRemoteConfigs([new UserRemoteConfig(repository, null, null, null)])
-scm.setBranches([new BranchSpec(branch)])
-scm.setDoGenerateSubmoduleConfigurations(false)
-scm.setExtensions([])
+def scm = new GitSCM(
+        [new UserRemoteConfig(repository, null, null, null)],
+        [new BranchSpec(branch)],
+        false,
+        [],
+        null,
+        null,
+        [])
 def definition = new CpsScmFlowDefinition(scm, scriptPath)
 definition.setLightweight(true)
 

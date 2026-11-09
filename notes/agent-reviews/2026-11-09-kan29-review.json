@@ -31,5 +31,15 @@
   "limitations": [
     "Live Jenkins SCM build and archived artifacts are pending.",
     "Unit-level contract/harness tests do not replace full live security/runtime/browser acceptance."
-  ]
+  ],
+  "deployment_diagnostic": {
+    "finding": "Installed Jenkins Git plugin has no zero-argument GitSCM constructor; bootstrap stopped before candidate job creation. Jenkins remained healthy and the baseline job was preserved.",
+    "correction": "Use the installed seven-argument GitSCM constructor with explicit remote, branch, submodule, browser, tool and extension values.",
+    "follow_up_reviewer": "/root/review_bg04_probe",
+    "follow_up_verdict": "approved",
+    "follow_up_checks": [
+      "Constructor order/types match the overload reported by the installed Jenkins plugin",
+      "Surrounding Pipeline SCM, public branch, no-credential and guarded job logic remain intact"
+    ]
+  }
 }
