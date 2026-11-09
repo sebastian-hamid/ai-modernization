@@ -84,5 +84,5 @@
     "Synthetic data only; no retained/production importer or rehearsal.",
     "Candidate WildFly PostgreSQL datasource startup and persistent restart behavior are not verified."
   ],
-  "independent_review": "pending"
+  "independent_review": "approved"
 }

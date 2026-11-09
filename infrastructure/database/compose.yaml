@@ -14,7 +14,7 @@ services:
       - postgres_data:/var/lib/postgresql
       - ./bootstrap/10-create-roles.sh:/docker-entrypoint-initdb.d/10-create-roles.sh:ro
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U db_bootstrap -d cargotracker"]
+      test: ["CMD-SHELL", "pg_isready -h 127.0.0.1 -U db_bootstrap -d cargotracker && PGPASSWORD=\"$(cat /run/secrets/bootstrap_password)\" psql -h 127.0.0.1 -U db_bootstrap -d cargotracker -Atqc \"SELECT EXISTS (SELECT 1 FROM pg_roles WHERE rolname = 'schema_migrator') AND EXISTS (SELECT 1 FROM pg_roles WHERE rolname = 'cargo_app') AND EXISTS (SELECT 1 FROM pg_namespace WHERE nspname = 'cargo')\" | grep -qx t"]
       interval: 3s
       timeout: 3s
       retries: 30
@@ -48,6 +48,24 @@ services:
     networks: [database]
     restart: "no"
 
+  candidate-app:
+    profiles: [candidate-app]
+    image: ${KAN18_APP_IMAGE:-ai-modernization-candidate-postgresql:local}
+    build:
+      context: ../..
+      dockerfile: tests/candidate-runtime/postgresql/Dockerfile
+    depends_on:
+      postgres:
+        condition: service_healthy
+    ports:
+      - "127.0.0.1:8082:8080"
+    secrets:
+      - app_password
+      - application_users
+      - application_roles
+    networks: [database, candidate-host-access]
+    restart: "no"
+
 secrets:
   bootstrap_password:
     file: ${KAN22_SECRET_DIR:?Set KAN22_SECRET_DIR}/bootstrap_password
@@ -55,6 +73,10 @@ secrets:
     file: ${KAN22_SECRET_DIR:?Set KAN22_SECRET_DIR}/app_password
   migrator_password:
     file: ${KAN22_SECRET_DIR:?Set KAN22_SECRET_DIR}/migrator_password
+  application_users:
+    file: ${KAN22_SECRET_DIR:?Set KAN22_SECRET_DIR}/application-users.properties
+  application_roles:
+    file: ${KAN22_SECRET_DIR:?Set KAN22_SECRET_DIR}/application-roles.properties
 
 volumes:
   postgres_data:
@@ -62,3 +84,4 @@ volumes:
 networks:
   database:
     internal: true
+  candidate-host-access:

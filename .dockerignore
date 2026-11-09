@@ -1,0 +1,17 @@
+# Keep local Docker build contexts free of synced references, credentials, and generated artifacts.
+.git/
+.work/
+sources/
+**/target/
+**/__pycache__/
+**/*.py[cod]
+.env
+.env.*
+**/*.env
+**/*.pem
+**/*.key
+**/*secret*
+**/*password*
+**/application-users.properties
+**/application-roles.properties
+**/id_rsa*

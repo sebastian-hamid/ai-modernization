@@ -1,0 +1,201 @@
+{
+  "task": "KAN-18/KAN-15 BG-06",
+  "status": "PASS",
+  "checks": {
+    "migration_secret_bootstrap_diagnostics": {
+      "secret_readable": true,
+      "role_state": [
+        "schema_migrator:true:SCRA"
+      ],
+      "initialization_messages": [
+        "postgres-1  | /usr/local/bin/docker-entrypoint.sh: sourcing /docker-entrypoint-initdb.d/10-create-roles.sh",
+        "postgres-1  | CREATE ROLE",
+        "postgres-1  | CREATE ROLE"
+      ]
+    },
+    "migration_identity_authentication": {
+      "passed": true,
+      "authenticated_as": "schema_migrator",
+      "failure_code": null
+    },
+    "fresh_migrations": {
+      "passed": true,
+      "versions": [
+        "1:true",
+        "2:true",
+        "3:true"
+      ]
+    },
+    "role_separation": {
+      "passed": true,
+      "database_roles": [
+        "cargo_app:false:false:false",
+        "schema_migrator:false:false:false"
+      ]
+    },
+    "least_privilege_acl": {
+      "passed": true,
+      "observed": [
+        "true:false:false:false"
+      ]
+    },
+    "runtime_dml": {
+      "passed": true
+    },
+    "application_ddl_denied": {
+      "persistent_schema_ddl": true,
+      "temporary_table_ddl": true,
+      "flyway_history_update": true,
+      "migration_state_update": true
+    },
+    "anonymous_api_denied": {
+      "passed": true,
+      "status": 401
+    },
+    "startup_no_orm_ddl_or_seed": {
+      "passed": true,
+      "before": {
+        "location": {
+          "count": 1,
+          "digest": "d0b28cae7ef9001607d91f09444237d9"
+        },
+        "voyage": {
+          "count": 0,
+          "digest": "d41d8cd98f00b204e9800998ecf8427e"
+        },
+        "cargo": {
+          "count": 0,
+          "digest": "d41d8cd98f00b204e9800998ecf8427e"
+        },
+        "leg": {
+          "count": 0,
+          "digest": "d41d8cd98f00b204e9800998ecf8427e"
+        },
+        "handling_event": {
+          "count": 0,
+          "digest": "d41d8cd98f00b204e9800998ecf8427e"
+        },
+        "carrier_movement": {
+          "count": 0,
+          "digest": "d41d8cd98f00b204e9800998ecf8427e"
+        },
+        "legacy_sequence_state": {
+          "count": 0,
+          "digest": "d41d8cd98f00b204e9800998ecf8427e"
+        }
+      },
+      "after": {
+        "location": {
+          "count": 1,
+          "digest": "d0b28cae7ef9001607d91f09444237d9"
+        },
+        "voyage": {
+          "count": 0,
+          "digest": "d41d8cd98f00b204e9800998ecf8427e"
+        },
+        "cargo": {
+          "count": 0,
+          "digest": "d41d8cd98f00b204e9800998ecf8427e"
+        },
+        "leg": {
+          "count": 0,
+          "digest": "d41d8cd98f00b204e9800998ecf8427e"
+        },
+        "handling_event": {
+          "count": 0,
+          "digest": "d41d8cd98f00b204e9800998ecf8427e"
+        },
+        "carrier_movement": {
+          "count": 0,
+          "digest": "d41d8cd98f00b204e9800998ecf8427e"
+        },
+        "legacy_sequence_state": {
+          "count": 0,
+          "digest": "d41d8cd98f00b204e9800998ecf8427e"
+        }
+      },
+      "marker_preserved": true
+    },
+    "human_roles": {
+      "Reader": {
+        "passed": true,
+        "identity_verified": true,
+        "db_unchanged": true
+      },
+      "Operator": {
+        "passed": true,
+        "identity_verified": true,
+        "db_unchanged": true
+      },
+      "Administrator": {
+        "passed": true,
+        "identity_verified": true,
+        "db_unchanged": true
+      }
+    },
+    "restart_preserves_data": {
+      "passed": true,
+      "after_restart": {
+        "location": {
+          "count": 1,
+          "digest": "d0b28cae7ef9001607d91f09444237d9"
+        },
+        "voyage": {
+          "count": 0,
+          "digest": "d41d8cd98f00b204e9800998ecf8427e"
+        },
+        "cargo": {
+          "count": 0,
+          "digest": "d41d8cd98f00b204e9800998ecf8427e"
+        },
+        "leg": {
+          "count": 0,
+          "digest": "d41d8cd98f00b204e9800998ecf8427e"
+        },
+        "handling_event": {
+          "count": 0,
+          "digest": "d41d8cd98f00b204e9800998ecf8427e"
+        },
+        "carrier_movement": {
+          "count": 0,
+          "digest": "d41d8cd98f00b204e9800998ecf8427e"
+        },
+        "legacy_sequence_state": {
+          "count": 0,
+          "digest": "d41d8cd98f00b204e9800998ecf8427e"
+        }
+      }
+    }
+  },
+  "cleanup": {
+    "compose_down": true,
+    "resource_check_passed": true,
+    "residual_containers": [],
+    "residual_networks": [],
+    "residual_volumes": [],
+    "work_removed": true,
+    "image_removed": true,
+    "secrets_preserved": false
+  },
+  "schema_hashes": {
+    ".dockerignore": "0470eb69c6f13a37c5476289eb4b691f36a366278a602e0f8d8a475527a00e5c",
+    "tests/candidate-runtime/postgresql/Dockerfile": "ac4332decc9b203a6530f24202c0b0de24b2671cde0a239eb5729667a07c5b49",
+    "tests/candidate-runtime/postgresql/module.xml": "c6cf60d912ecaa7a4560b1288d478b7cc2bbc10f22316f6edb241093edb0aee1",
+    "tests/candidate-runtime/postgresql/configure-datasource.cli": "c1afb5791cc612e0b449f13fd7b8dfe6f0eb96b1365ce9acd21a2eb853efc5b8",
+    "tests/candidate-runtime/postgresql/start.sh": "09ec1f8e3481d2d9a9cda6556521078769b44b388f2e87da93626e6e52627bb0",
+    "tests/candidate-runtime/postgresql/verify_runtime.py": "6a110176335ff858d7888ff9dee44a514e06f3b951eb764a97e27daefd31ebd6",
+    "infrastructure/database/compose.yaml": "75d8326fe745285a85284908987459abe6fee100489f4c3d2fca979ee097cd0a",
+    "infrastructure/database/bootstrap/10-create-roles.sh": "766e33a567e87db3fd08af454e6f5eed5ece7eae300abad52ca0b59b4dca7f08",
+    "infrastructure/database/migrations/V1__initial_schema.sql": "7013c202de93b97d733288d92fc3244d72e25aedd53c6bf672027cedadf52baa",
+    "infrastructure/database/migrations/V2__query_indexes_and_sequence_reconciliation.sql": "8b329db0aa9bd264ff6f2c39697105261cd713a810c53b05adbb1730a6633610",
+    "infrastructure/database/migrations/V3__grant_application_runtime_privileges.sql": "5c3e7021e8fe54dcf6347b90ecaa7160e2666cbea83558d24ae377e120d6745a",
+    "candidate/cargotracker/src/main/resources/META-INF/persistence.xml": "812bd4194df2eb4abcd3dd1971d80e688a2f7f8793e0273c1f1fa7b85aa0cbdf",
+    "candidate/cargotracker/src/main/java/net/java/cargotracker/application/util/SampleDataGenerator.java": "5c2506285330ebaa51fcbe78c2e4da1074c95360dfac1cae054e399987beb271"
+  },
+  "versions": {
+    "postgres": "18.6",
+    "flyway": "13.12.1",
+    "wildfly": "42",
+    "jdbc": "42.7.14"
+  }
+}
