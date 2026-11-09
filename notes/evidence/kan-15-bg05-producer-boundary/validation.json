@@ -1,0 +1,71 @@
+{
+  "task": "KAN-15 BG-05 producer boundary and current-capability gate refresh",
+  "date": "2026-11-09",
+  "fixture": {
+    "status": "PASS",
+    "checks_passed": 722,
+    "all_checks_passed": true,
+    "owned_container_removed": true,
+    "private_files_removed": true
+  },
+  "producer_boundary": {
+    "driver": "remote-jms-producer-v1",
+    "supported": true,
+    "identity_verified": true,
+    "principal": "handling-attempt-producer",
+    "roles": [
+      "HandlingAttemptProducer"
+    ],
+    "anonymous_denied": true,
+    "human_users_authenticated": [
+      true,
+      true,
+      true
+    ],
+    "human_send_denials": [
+      true,
+      true,
+      true
+    ],
+    "other_queue_denials": {
+      "rejected_registration": true,
+      "delivered_notifications": true
+    },
+    "unauthorized_effects_unchanged": true,
+    "transport": "remote+http WildFly JMS connection from a separate JVM"
+  },
+  "rejection_disposition": {
+    "trusted_broker_dead_letter_verified": true,
+    "delivery_attempts": 3,
+    "rejection_consumer_invocations": 1,
+    "notification_worker_audit_invocations": 1,
+    "final_disposition_verified": true,
+    "sanitized_rejection_audit_verified": true,
+    "business_side_effects_unchanged": true
+  },
+  "current_capability_gate": {
+    "counts": {
+      "PASS": 439,
+      "BLOCKED": 31
+    },
+    "previous_gate_counts": {
+      "PASS": 438,
+      "BLOCKED": 32
+    },
+    "retirement_counts": {
+      "BLOCKED": 76
+    },
+    "legacy_audit_counts": {
+      "PASS": 324,
+      "BLOCKED": 178
+    },
+    "gate_exit": 2,
+    "inputs_fingerprint": "5b9b6c91234032087685f6c2c7e0471da06a27621826b01561620e23ba8366ad",
+    "cleanup_verified": true,
+    "machine_case": {
+      "case": "CURRENT::BG-05-MACHINE::worker-BG-05::active",
+      "outcome": "PASS",
+      "reason": "Allowed workflow and identity evidence observed"
+    }
+  }
+}

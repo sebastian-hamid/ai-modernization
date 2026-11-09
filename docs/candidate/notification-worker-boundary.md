@@ -20,7 +20,7 @@ The fresh fixture run on 9 November 2026 passed all 722 checks. A separate JVM c
 
 The broker redelivered that attempt exactly three times, then dead-lettered it once. The rejection consumer acknowledged it, emitted one sanitized audit entry, and left business tables unchanged. The capability gate recorded producer_boundary_verified, trusted_broker_dead_letter_verified, and final_disposition_verified as true. The security unit suite also passed: 88 tests.
 
-Run evidence is in .work/kan18/results.json (local generated fixture output; not committed). This is candidate-runtime evidence only. It does not establish production credentials, TLS policy, firewall rules, secret rotation, or deployment-specific broker configuration.
+Sanitized run evidence is committed at notes/evidence/kan-15-bg05-producer-boundary/validation.json; the larger raw fixture report remains local in .work/kan18/results.json. The refreshed integrated current gate reports 439 PASS / 31 BLOCKED, with BG-05-MACHINE PASS; all 76 retirement checks remain BLOCKED. This is candidate-runtime evidence only. It does not establish production credentials, TLS policy, firewall rules, secret rotation, or deployment-specific broker configuration.
 
 ## Limits and remaining blocks
 
