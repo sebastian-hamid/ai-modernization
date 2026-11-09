@@ -504,6 +504,30 @@ class CurrentCapabilityTests(unittest.TestCase):
         adapter.legacy.batch_import_observations={"Administrator":{**admin,"identity":{"server_verified":False}}}
         with self.assertRaises(UnsupportedCase):adapter.execute(case)
         self.assertEqual(case["binding_status"],"native-batch-processing")
+    def test_bg01_machine_requires_distinct_batch_worker_and_scoped_processing(self):
+        adapter=c.CurrentAdapter()
+        adapter._run_fingerprint="a"*64
+        adapter.provenance={"kind":"fresh-owned-runtime","inputs_fingerprint":"a"*64,"legacy_fixture_cleanup_verified":True}
+        adapter.legacy=FakeLegacy({})
+        processing={"driver":"native-batch-processing-v1","actor":"Administrator","supported":True,"status":200,
+                    "authorized_job_completed":True,"batch_worker_identity_verified":True,
+                    "directory_policy_verified":True,"valid_input_consumed":True,"valid_event_persisted":True,
+                    "valid_archive_verified":True,"invalid_input_consumed":True,
+                    "invalid_failed_output_verified":True,"business_side_effects_bounded":True,
+                    "administrator_identity":{"server_verified":True,"principal":"admin","roles":["Administrator"]}}
+        adapter.legacy.batch_processing_observation=processing
+        case=adapter.contracts["CURRENT::BG-01-MACHINE::worker-BG-01::active"]
+        self.assertEqual(case["binding_status"],"native-batch-worker")
+        observation=adapter.execute(case)
+        self.assertEqual(observation["native_identity"],{"server_verified":True,"principal":"batch-worker","roles":["BatchWorker"]})
+        self.assertEqual(observation["initiator_identity"]["principal"],"admin")
+        self.assertEqual(evaluate(case,observation)[0],"PASS")
+        for field,value in [("authorized_job_completed",False),("valid_event_persisted",False),
+                            ("directory_policy_verified",False),("business_side_effects_bounded",False),
+                            ("administrator_identity",{"server_verified":True,"principal":"batch-worker","roles":["BatchWorker"]})]:
+            adapter.legacy.batch_processing_observation={**processing,field:value}
+            with self.subTest(field=field),self.assertRaises(UnsupportedCase):adapter.execute(case)
+
     def test_bg01_current_gate_requires_actor_specific_denial_or_admin_worker_evidence(self):
         adapter=c.CurrentAdapter()
         adapter._run_fingerprint="a"*64

@@ -1,14 +1,65 @@
 {
-  "task": "KAN-15 same-run replacement proof re-evaluation",
-  "basis": "Offline re-evaluation of retained same-fixture browser proofs; no runtime or browser fixture launched.",
+  "task": "KAN-15 current-capability proof re-evaluation",
+  "basis": "Offline re-evaluation of retained same-fixture workflow and server-worker proofs; no runtime or browser fixture launched.",
   "source_gate_sha256": "1a2a92096b0738ad058874a74a05f00ddc27580e152c562b267d77918a656f5b",
   "source_proofs_sha256": "3a9ec1d8763ef19b4b3fa1b7792e39eaff225510fe0b34c4d3386d11d1e7bc50",
   "source_inputs_fingerprint": "5b9b6c91234032087685f6c2c7e0471da06a27621826b01561620e23ba8366ad",
-  "replay_scope": "handling-event, handling-voyage, and handling-completion replacement proofs for Operator and Administrator",
+  "replay_scope": "handling-event, handling-voyage, and handling-completion replacement proofs for Operator and Administrator; BG-01-MACHINE batch worker identity",
+  "machine_identity": {
+    "case": "CURRENT::BG-01-MACHINE::worker-BG-01::active",
+    "outcome": "PASS",
+    "machine_principal": "batch-worker",
+    "machine_role": "BatchWorker",
+    "initiator_principal": "admin",
+    "valid_job_audit_correlated": true,
+    "server_audit_pairs_in_fixture_log": 2,
+    "server_log_sha256": "e78d320b8367e2b9d1073dce9b2b5b7d0d6c60189379dba66a84afd5ccb8b1ea",
+    "scope": "Trusted scheduler/batch worker; no implied logged-in human principal",
+    "processing_evidence": {
+      "authorized_job_completed": true,
+      "directory_policy_verified": true,
+      "valid_input_consumed": true,
+      "valid_event_persisted": true,
+      "valid_archive_verified": true,
+      "invalid_input_consumed": true,
+      "invalid_failed_output_verified": true,
+      "business_side_effects_bounded": true
+    }
+  },
   "oracle_correction": {
     "handling_attempt_producer": "When its invocation metric is present, require exactly one publish per accepted handling event; older receipts without this metric remain explicitly unobserved.",
     "misdirected_notification": "Require MisdirectedCargoQueue, MisdirectedCargoConsumer, and NotificationWorkerAudit deltas to match exactly (zero or one)."
   },
+  "rechecked_cases": [
+    {
+      "case": "REPLACEMENT::handling-event::Operator",
+      "outcome": "PASS"
+    },
+    {
+      "case": "REPLACEMENT::handling-event::Administrator",
+      "outcome": "PASS"
+    },
+    {
+      "case": "REPLACEMENT::handling-voyage::Operator",
+      "outcome": "PASS"
+    },
+    {
+      "case": "REPLACEMENT::handling-voyage::Administrator",
+      "outcome": "PASS"
+    },
+    {
+      "case": "REPLACEMENT::handling-completion::Operator",
+      "outcome": "PASS"
+    },
+    {
+      "case": "REPLACEMENT::handling-completion::Administrator",
+      "outcome": "PASS"
+    },
+    {
+      "case": "CURRENT::BG-01-MACHINE::worker-BG-01::active",
+      "outcome": "PASS"
+    }
+  ],
   "changes": [
     {
       "case": "REPLACEMENT::handling-event::Operator",
@@ -45,6 +96,12 @@
       "previous": "BLOCKED",
       "replayed": "PASS",
       "reason": "Allowed workflow and identity evidence observed"
+    },
+    {
+      "case": "CURRENT::BG-01-MACHINE::worker-BG-01::active",
+      "previous": "BLOCKED",
+      "replayed": "PASS",
+      "reason": "Allowed workflow and identity evidence observed"
     }
   ],
   "previous_current_counts": {
@@ -52,12 +109,12 @@
     "BLOCKED": 31
   },
   "replayed_current_counts": {
-    "PASS": 445,
-    "BLOCKED": 25
+    "PASS": 446,
+    "BLOCKED": 24
   },
   "retirement_counts": {
     "BLOCKED": 76
   },
   "gate_exit": 2,
-  "note": "Preserves the fresh gate's original outcomes and fingerprint. This supplemental offline evaluation corrects harness interpretation of six same-run proofs; it does not claim the fresh gate itself produced these revised outcomes."
+  "note": "Preserves the fresh gate's original outcomes and fingerprint. This supplemental offline evaluation rechecks 7 same-run proofs; it does not claim the fresh gate itself produced these revised outcomes."
 }

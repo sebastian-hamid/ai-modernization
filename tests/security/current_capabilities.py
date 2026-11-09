@@ -12,6 +12,7 @@ from replacements import SUPPORTED_REPLACEMENTS, replacement_observation
 MANIFEST=ROOT/"specifications/current-capability-mapping-v2.json"
 INVENTORY=ROOT/"specifications/access-policy-inventory.json"
 NATIVE_CURRENT_LOADS=frozenset({"ACTION-07","ACTION-15","ACTION-16","ACTION-18","ACTION-20"})
+BG01_MACHINE_SCOPE="Trusted scheduler/batch worker; no implied logged-in human principal"
 ACTORS=["anonymous","Reader","Operator","Administrator"]
 USERS={"Reader":"reader","Operator":"operator","Administrator":"admin"}
 
@@ -58,6 +59,29 @@ def verify_action_proof(case,observation):
     source_query.pop("jfwid",None)
     if source_path!=expected_path or source_query!=expected_query:raise UnsupportedCase()
 
+
+def batch_worker_observation(case,processing):
+    """Bind the fresh batch audit proof to its distinct server worker identity."""
+    required=("authorized_job_completed","directory_policy_verified",
+              "valid_input_consumed","valid_event_persisted","valid_archive_verified",
+              "invalid_input_consumed","invalid_failed_output_verified","business_side_effects_bounded")
+    initiator=processing.get("administrator_identity",{})
+    if (case.get("id")!="CURRENT::BG-01-MACHINE::worker-BG-01::active"
+            or case.get("actor")!="worker-BG-01" or case.get("expected")!="allow"
+            or case.get("required_machine_scope")!=BG01_MACHINE_SCOPE
+            or processing.get("driver")!="native-batch-processing-v1"
+            or processing.get("actor")!="Administrator" or processing.get("status")!=200
+            or processing.get("supported") is not True
+            or not all(processing.get(key) is True for key in required)
+            or initiator.get("server_verified") is not True or initiator.get("principal")!="admin"
+            or initiator.get("roles")!=["Administrator"]):
+        raise UnsupportedCase()
+    observation=deepcopy(processing)
+    observation.update(driver="native-batch-worker-v1",actor="worker-BG-01",
+        machine_identity_verified=processing["authorized_job_completed"],machine_scope=BG01_MACHINE_SCOPE,
+        native_identity={"server_verified":True,"principal":"batch-worker","roles":["BatchWorker"]},
+        initiator_identity=deepcopy(initiator),semantic_success=True,authorized_effect_verified=True)
+    return observation
 
 def load_model():
     raw=INVENTORY.read_bytes();inventory=json.loads(raw);model=json.loads(MANIFEST.read_text())
@@ -121,7 +145,7 @@ def build_current(model,inventory):
         if old["surface_id"] in retired:continue
         row=mapped.get(old["surface_id"]) or pending.get(old["surface_id"])
         case=deepcopy(old)
-        case.update(id="CURRENT::"+old["id"],contract_version=2,kind="current",legacy_case_id=old["id"],legacy_contract=deepcopy(old),capability_id=row["capability_id"] if row else old["surface_id"].lower(),binding_status="pending" if old["surface_id"] in pending else "native-batch-import" if old["surface_id"]=="BG-01" else "native-batch-processing" if old["surface_id"]=="BG-02" else "native-handling-worker" if old["surface_id"] in {"BG-03","BG-03-MACHINE"} else "native-inspection-worker" if old["surface_id"] in {"BG-04","BG-04-MACHINE"} else "native-notification-worker" if old["surface_id"] in {"BG-05","BG-05-MACHINE"} else "native-staged-return" if old["surface_id"]=="ACTION-13" else "native-current-load" if old["surface_id"] in NATIVE_CURRENT_LOADS else "browser-current-navigation" if old["surface_id"] in {"ACTION-10","ACTION-11","ACTION-12","ACTION-21","ACTION-22","ACTION-24","ACTION-25","ACTION-45"} else "existing-runtime-driver")
+        case.update(id="CURRENT::"+old["id"],contract_version=2,kind="current",legacy_case_id=old["id"],legacy_contract=deepcopy(old),capability_id=row["capability_id"] if row else old["surface_id"].lower(),binding_status="pending" if old["surface_id"] in pending else "native-batch-worker" if old["surface_id"]=="BG-01-MACHINE" else "native-batch-import" if old["surface_id"]=="BG-01" else "native-batch-processing" if old["surface_id"]=="BG-02" else "native-handling-worker" if old["surface_id"] in {"BG-03","BG-03-MACHINE"} else "native-inspection-worker" if old["surface_id"] in {"BG-04","BG-04-MACHINE"} else "native-notification-worker" if old["surface_id"] in {"BG-05","BG-05-MACHINE"} else "native-staged-return" if old["surface_id"]=="ACTION-13" else "native-current-load" if old["surface_id"] in NATIVE_CURRENT_LOADS else "browser-current-navigation" if old["surface_id"] in {"ACTION-10","ACTION-11","ACTION-12","ACTION-21","ACTION-22","ACTION-24","ACTION-25","ACTION-45"} else "existing-runtime-driver")
         if row:
             source="index.xhtml" if old["surface_id"]!="ACTION-13" and old["actor"]=="anonymous" and old["expected"]=="deny" and row["modern_method"]=="GET" else row["modern_source"]
             case.update(path=row["modern_target"],method=row["modern_method"],current_source=source)
@@ -163,11 +187,13 @@ class CurrentAdapter:
         if canonical is None or canonical!=case:raise UnsupportedCase()
         if case["kind"] not in {"current","replacement"} or self.legacy is None or self.provenance is None:
             raise UnsupportedCase()
-        if case["kind"]=="current" and case.get("binding_status") not in {"existing-runtime-driver","native-current-load","browser-current-navigation","native-staged-return","native-batch-import","native-batch-processing","native-handling-worker","native-inspection-worker","native-notification-worker"}:
+        if case["kind"]=="current" and case.get("binding_status") not in {"existing-runtime-driver","native-current-load","browser-current-navigation","native-staged-return","native-batch-import","native-batch-processing","native-batch-worker","native-handling-worker","native-inspection-worker","native-notification-worker"}:
             raise UnsupportedCase()
         if not isinstance(self.provenance,dict) or self.provenance.get("kind")!="fresh-owned-runtime" or self.provenance.get("legacy_fixture_cleanup_verified") is not True or self.provenance.get("inputs_fingerprint")!=self._run_fingerprint or re.fullmatch("[0-9a-f]{64}",str(self._run_fingerprint)) is None:raise UnsupportedCase()
         if case["kind"]=="replacement":
             observation=replacement_observation(case,getattr(self.legacy,"replacement_observations",{}).get(case["id"],{}))
+        elif case["binding_status"]=="native-batch-worker":
+            observation=batch_worker_observation(case,getattr(self.legacy,"batch_processing_observation",{}))
         elif case["binding_status"] in {"native-batch-import","native-batch-processing"}:
             observation=deepcopy(getattr(self.legacy,"batch_import_observations",{}).get(case["actor"],{}))
             if (observation.get("driver")!="native-batch-import-v1" or observation.get("actor")!=case["actor"]
@@ -356,6 +382,12 @@ class CurrentAdapter:
         elif actor=="routing-service":
             identity=observation.get("native_identity",{})
             if identity.get("principal")!="routing" or identity.get("roles")!=["RoutingService"] or observation.get("machine_identity_verified") is not True or observation.get("machine_scope")!=case.get("required_machine_scope"):raise UnsupportedCase()
+        elif actor=="worker-BG-01":
+            identity=observation.get("native_identity",{})
+            if (identity.get("server_verified") is not True or identity.get("principal")!="batch-worker"
+                    or identity.get("roles")!=["BatchWorker"] or observation.get("machine_identity_verified") is not True
+                    or observation.get("machine_scope")!=BG01_MACHINE_SCOPE):
+                raise UnsupportedCase()
         elif actor=="worker-BG-03":
             identity=observation.get("native_identity",{})
             if identity.get("server_verified") is not True or identity.get("principal")!="handling-worker" or identity.get("roles")!=["HandlingWorker"]:raise UnsupportedCase()
