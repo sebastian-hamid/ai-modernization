@@ -12,8 +12,24 @@ services:
     networks:
       - controller
 
+  candidate-agent:
+    build:
+      context: ./jenkins-agent
+      dockerfile: Dockerfile.candidate
+    image: ai-modernization-jenkins-agent:candidate
+    container_name: ai-modernization-candidate-agent
+    init: true
+    restart: unless-stopped
+    volumes:
+      - candidate_agent_work:/home/jenkins/agent
+      - ../.work/jenkins-ci/candidate-secrets/agent-secret:/run/secrets/jenkins-agent:ro
+    networks:
+      - controller
+
 volumes:
   agent_work:
+  candidate_agent_work:
+
 
 networks:
   controller:

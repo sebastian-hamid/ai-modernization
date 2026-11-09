@@ -1,0 +1,35 @@
+{
+  "ticket": "KAN-29",
+  "reviewed_repository_base": "31cc238",
+  "reviewed_worktree": true,
+  "reviewer": "/root/review_bg04_probe",
+  "date": "2026-11-09",
+  "verdict": "approved",
+  "scope": [
+    "candidate/cargotracker/Jenkinsfile",
+    "infrastructure/compose.ci.yaml",
+    "infrastructure/jenkins-agent/Dockerfile.candidate",
+    "infrastructure/jenkins-agent/start-candidate.sh",
+    "infrastructure/jenkins-agent/register-candidate.groovy",
+    "docs/ci/jenkins-candidate-pipeline.md"
+  ],
+  "reviewer_checks": [
+    "Exact SCM revision verification and recording",
+    "Exclusive candidate node and job boundaries",
+    "SCM polling schedule and no GitHub credentials/webhook",
+    "Artifact names match Maven outputs",
+    "Existing baseline job/node/controller configuration remains unchanged"
+  ],
+  "findings": [],
+  "author_checks": {
+    "candidate_image_build": "PASS",
+    "toolchain": "Java 25.0.5; Maven 3.10.0; Python 3.14.4; Git 2.53.0",
+    "uid": 1000,
+    "docker_socket": "absent",
+    "compose_validation": "PASS"
+  },
+  "limitations": [
+    "Live Jenkins SCM build and archived artifacts are pending.",
+    "Unit-level contract/harness tests do not replace full live security/runtime/browser acceptance."
+  ]
+}

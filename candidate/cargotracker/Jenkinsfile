@@ -1,0 +1,63 @@
+pipeline {
+    agent { label 'ai-modernization-candidate' }
+    options {
+        skipDefaultCheckout(true)
+        disableConcurrentBuilds()
+        timeout(time: 30, unit: 'MINUTES')
+        buildDiscarder(logRotator(numToKeepStr: '10', artifactNumToKeepStr: '5'))
+    }
+    stages {
+        stage('Checkout reviewed source') {
+            steps {
+                deleteDir()
+                script {
+                    def checkoutResult = checkout scm
+                    sh 'mkdir -p ci-results/candidate'
+                    def revision = checkoutResult.GIT_COMMIT
+                    def checkedOut = sh(returnStdout: true, script: 'git rev-parse HEAD').trim()
+                    if (!revision || checkedOut != revision) {
+                        error("SCM revision mismatch: checkout=${revision}, workspace=${checkedOut}")
+                    }
+                    env.CI_GIT_REVISION = checkedOut
+                    currentBuild.description = checkedOut.take(12)
+                    writeFile(file: 'ci-results/candidate/revision.txt', text: checkedOut + '\n')
+                    echo "BUILD_GIT_REVISION=${checkedOut}"
+                    echo 'SCM_URL=https://github.com/sebastian-hamid/ai-modernization.git'
+                }
+            }
+        }
+        stage('Verify toolchain') {
+            steps {
+                sh 'java -version && mvn -version && python3 --version && git --version'
+            }
+        }
+        stage('Setup regression tests') {
+            steps {
+                sh 'python3 -m unittest discover -s tests -p test_setup_tools.py -v'
+            }
+        }
+        stage('Security contract and harness tests') {
+            steps {
+                sh 'python3 -m unittest discover -s tests/security -p "test_*.py" -v'
+                sh 'python3 -m unittest discover -s tests/candidate-runtime -p test_harness.py -v'
+                sh 'python3 -m unittest discover -s tests/security-runtime -p test_harness.py -v'
+            }
+        }
+        stage('Build candidate security module') {
+            steps {
+                sh 'mvn -B -ntp -f candidate/security/pom.xml clean install'
+            }
+        }
+        stage('Candidate domain tests and WAR') {
+            steps {
+                sh 'mvn -B -ntp -f candidate/cargotracker/pom.xml clean verify'
+            }
+        }
+    }
+    post {
+        always {
+            junit testResults: 'candidate/cargotracker/target/surefire-reports/TEST-*.xml', allowEmptyResults: false
+            archiveArtifacts artifacts: 'candidate/security/target/candidate-security.jar,candidate/cargotracker/target/cargo-tracker.war,candidate/cargotracker/target/surefire-reports/TEST-*.xml,ci-results/candidate/revision.txt', allowEmptyArchive: false, fingerprint: true
+        }
+    }
+}
