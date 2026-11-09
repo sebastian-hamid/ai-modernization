@@ -1174,9 +1174,10 @@ def main(after_checks=None):
         before_valid=settled()
         valid_line=f"2030-01-05 10:00,{fixture_id},,CNHKG,RECEIVE"
         invalid_line="invalid,batch,event,line"
-        command("docker","exec",container,"sh","-c",
+        filesystem_producer_uid=int(command("docker","exec","--user","0:0",container,"id","-u"))
+        command("docker","exec","--user","0:0",container,"sh","-c",
             "printf '%s\\n' '"+invalid_line+"' > /opt/jboss/wildfly/standalone/data/cargo-import/incoming/bg02-invalid.csv")
-        command("docker","exec",container,"sh","-c",
+        command("docker","exec","--user","0:0",container,"sh","-c",
             "printf '%s\\n' '"+valid_line+"' > /opt/jboss/wildfly/standalone/data/cargo-import/incoming/bg01-valid.csv")
         valid_status,valid_body,_=submit_import()
         valid_accepted=re.search(r"Import accepted as run ([0-9a-f-]{36})",valid_body)
@@ -1316,6 +1317,7 @@ def main(after_checks=None):
         private_directories=(len(directory_state)==4 and directory_state[0]==directory_state[1]
             ==directory_state[2] and directory_state[0].startswith("700:")
             and directory_state[3]==directory_state[0].split(":",1)[1])
+        filesystem_worker_uid=int(directory_state[3]) if len(directory_state)==4 else -1
         check("Incoming archive and failed directories are private to the server OS identity",
             private_directories)
         invalid_file_removed=subprocess.run(["docker","exec",container,"test","!","-e",
@@ -1328,6 +1330,39 @@ def main(after_checks=None):
             "cat "+import_root+"/archive/archive_*.csv") if archive_names else ""
         failed_text=command("docker","exec",container,"sh","-c",
             "cat "+import_root+"/failed/failed_*.csv") if failed_names else ""
+        untrusted_uid=int(command("docker","exec","--user","65534:65534",container,"id","-u"))
+        incoming_read_marker=import_root+"/incoming/bg02-untrusted-read-probe.tmp"
+        command("docker","exec","--user","0:0",container,"sh","-c",
+            "umask 022; : > "+incoming_read_marker+"; chmod 644 "+incoming_read_marker)
+        protected_files={"incoming":incoming_read_marker,
+            "archive":import_root+"/archive/"+(archive_names[0] if archive_names else "missing.csv"),
+            "failed":import_root+"/failed/"+(failed_names[0] if failed_names else "missing.csv")}
+        untrusted_os_access={}
+        for directory in ["incoming","archive","failed"]:
+            target=import_root+"/"+directory
+            write_marker=target+"/bg02-untrusted-write-probe.tmp"
+            listing=subprocess.run(["docker","exec","--user","65534:65534",container,"ls","-A",target],
+                capture_output=True,text=True,timeout=10)
+            read_attempt=subprocess.run(["docker","exec","--user","65534:65534",container,"cat",protected_files[directory]],
+                capture_output=True,text=True,timeout=10)
+            write_attempt=subprocess.run(["docker","exec","--user","65534:65534",container,"touch",write_marker],
+                capture_output=True,text=True,timeout=10)
+            marker_absent=subprocess.run(["docker","exec",container,"test","!","-e",write_marker]).returncode==0
+            list_denied=(listing.returncode!=0 and "permission denied" in listing.stderr.lower())
+            read_denied=(read_attempt.returncode!=0 and "permission denied" in read_attempt.stderr.lower())
+            write_denied=(write_attempt.returncode!=0 and "permission denied" in write_attempt.stderr.lower())
+            untrusted_os_access[directory]={"list_denied":list_denied,"read_denied":read_denied,
+                "write_denied":write_denied,"marker_absent":marker_absent}
+            check("Untrusted OS identity cannot list, read, or write "+directory,
+                untrusted_uid==65534 and list_denied and read_denied and write_denied and marker_absent)
+        command("docker","exec","--user","0:0",container,"rm","-f",incoming_read_marker)
+        incoming_read_marker_absent=subprocess.run(["docker","exec",container,"test","!","-e",
+            incoming_read_marker]).returncode==0
+        untrusted_os_identity_denied=(untrusted_uid==65534 and incoming_read_marker_absent and all(
+            proof["list_denied"] and proof["read_denied"] and proof["write_denied"] and proof["marker_absent"]
+            for proof in untrusted_os_access.values()))
+        check("Trusted admin tooling and batch worker use distinct filesystem identities",
+            filesystem_producer_uid==0 and filesystem_worker_uid>0 and filesystem_worker_uid!=filesystem_producer_uid)
         archive_output_verified=(len(archive_names)==1
             and re.fullmatch(r"archive_EventFilesProcessorJob_[0-9]+\.csv",archive_names[0]) is not None
             and len(archive_text.splitlines())==1 and fixture_id in archive_text
@@ -1343,7 +1378,15 @@ def main(after_checks=None):
         batch_processing_observation={"driver":"native-batch-processing-v1","supported":True,
             "actor":"Administrator","administrator_identity":report["identities"]["admin"],
             "authorized_job_completed":valid_worker,"batch_worker_identity_verified":worker_verified,
-            "directory_policy_verified":private_directories,"valid_input_consumed":valid_file_removed,
+            "directory_policy_verified":private_directories,
+            "filesystem_producer_identity":{"verified":filesystem_producer_uid==0,"uid":filesystem_producer_uid,
+                "scope":"approved fixture administration tooling"},
+            "filesystem_worker_identity":{"verified":private_directories,"uid":filesystem_worker_uid},
+            "filesystem_worker_uid":filesystem_worker_uid,
+            "trusted_filesystem_staging_verified":filesystem_producer_uid==0 and valid_file_removed and invalid_file_removed,
+            "untrusted_os_identity_denied":untrusted_os_identity_denied,
+            "untrusted_os_access":untrusted_os_access,"untrusted_os_uid":untrusted_uid,
+            "valid_input_consumed":valid_file_removed,
             "valid_event_persisted":valid_positive,"valid_archive_verified":archive_output_verified,
             "invalid_input_consumed":invalid_file_removed,"invalid_failed_output_verified":failed_output_verified,
             "business_side_effects_bounded":valid_tables and valid_queues and valid_call_deltas,

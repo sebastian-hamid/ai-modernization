@@ -560,6 +560,50 @@ class CurrentCapabilityTests(unittest.TestCase):
             adapter.legacy.batch_processing_observation={**processing,field:value}
             with self.subTest(field=field),self.assertRaises(UnsupportedCase):adapter.execute(case)
 
+    def test_bg02_machine_requires_approved_filesystem_producer_private_paths_and_batch_worker(self):
+        adapter=c.CurrentAdapter()
+        adapter._run_fingerprint="d"*64
+        adapter.provenance={"kind":"fresh-owned-runtime","inputs_fingerprint":"d"*64,"legacy_fixture_cleanup_verified":True}
+        adapter.legacy=FakeLegacy({})
+        processing={"driver":"native-batch-processing-v1","supported":True,"actor":"Administrator","status":200,
+            "authorized_job_completed":True,"batch_worker_identity_verified":True,"directory_policy_verified":True,
+            "filesystem_producer_identity":{"verified":True,"uid":0,"scope":"approved fixture administration tooling"},
+            "filesystem_worker_identity":{"verified":True,"uid":1000},"filesystem_worker_uid":1000,
+            "trusted_filesystem_staging_verified":True,"untrusted_os_identity_denied":True,
+            "untrusted_os_uid":65534,"untrusted_os_access":{name:{"list_denied":True,"read_denied":True,
+                "write_denied":True,"marker_absent":True} for name in ["incoming","archive","failed"]},
+            "valid_input_consumed":True,"valid_event_persisted":True,"valid_archive_verified":True,
+            "invalid_input_consumed":True,"invalid_failed_output_verified":True,"business_side_effects_bounded":True,
+            "administrator_identity":{"server_verified":True,"principal":"admin","roles":["Administrator"]}}
+        adapter.legacy.batch_processing_observation=processing
+        case=adapter.contracts["CURRENT::BG-02-MACHINE::worker-BG-02::active"]
+        self.assertEqual(case["binding_status"],"native-batch-worker")
+        observation=adapter.execute(case)
+        self.assertEqual(observation["native_identity"],{"server_verified":True,"principal":"batch-worker","roles":["BatchWorker"]})
+        self.assertEqual(evaluate(case,observation)[0],"PASS")
+        for field,value in [("trusted_filesystem_staging_verified",False),("untrusted_os_identity_denied",False),
+                ("directory_policy_verified",False),("valid_archive_verified",False),("batch_worker_identity_verified",False),
+                ("untrusted_os_uid",True)]:
+            adapter.legacy.batch_processing_observation={**processing,field:value}
+            with self.subTest(field=field),self.assertRaises(UnsupportedCase):adapter.execute(case)
+        for field,value in [("filesystem_producer_identity",{"verified":True,"uid":1000,"scope":"approved fixture administration tooling"}),
+                ("filesystem_worker_identity",{"verified":False,"uid":0}),
+                ("filesystem_producer_identity",{"verified":True,"uid":False,"scope":"approved fixture administration tooling"})]:
+            adapter.legacy.batch_processing_observation={**processing,field:value}
+            with self.subTest(identity_field=field),self.assertRaises(UnsupportedCase):adapter.execute(case)
+        adapter.legacy.batch_processing_observation={**processing,"filesystem_worker_identity":{"verified":True,"uid":1},"filesystem_worker_uid":True}
+        with self.assertRaises(UnsupportedCase):adapter.execute(case)
+        for directory,field in [("incoming","list_denied"),("archive","read_denied"),
+                ("failed","write_denied"),("incoming","marker_absent")]:
+            access={name:dict(proof) for name,proof in processing["untrusted_os_access"].items()}
+            access[directory][field]=False
+            adapter.legacy.batch_processing_observation={**processing,"untrusted_os_access":access}
+            with self.subTest(directory=directory,proof_field=field),self.assertRaises(UnsupportedCase):adapter.execute(case)
+        access={name:dict(proof) for name,proof in processing["untrusted_os_access"].items()}
+        access.pop("failed")
+        adapter.legacy.batch_processing_observation={**processing,"untrusted_os_access":access}
+        with self.assertRaises(UnsupportedCase):adapter.execute(case)
+
     def test_bg01_current_gate_requires_actor_specific_denial_or_admin_worker_evidence(self):
         adapter=c.CurrentAdapter()
         adapter._run_fingerprint="a"*64

@@ -1,0 +1,91 @@
+{
+  "task": "KAN-15 BG-02 trusted filesystem staging boundary",
+  "date": "2026-11-09",
+  "fixture": {
+    "status": "PASS",
+    "native_checks": 728,
+    "browser_checks": 841,
+    "all_browser_checks_passed": true,
+    "owned_container_removed": true,
+    "private_files_removed": true,
+    "cleanup_errors": [],
+    "browser_cleanup": {
+      "container_removed": true,
+      "network_removed": true,
+      "errors": []
+    }
+  },
+  "filesystem_boundary": {
+    "current_case": {
+      "case": "CURRENT::BG-02-MACHINE::worker-BG-02::active",
+      "outcome": "PASS",
+      "reason": "Allowed workflow and identity evidence observed"
+    },
+    "approved_staging_producer": {
+      "verified": true,
+      "uid": 0,
+      "scope": "approved fixture administration tooling"
+    },
+    "worker_os_identity": {
+      "verified": true,
+      "uid": 1000
+    },
+    "directory_policy_verified": true,
+    "untrusted_os_uid": 65534,
+    "untrusted_access": {
+      "incoming": {
+        "list_denied": true,
+        "read_denied": true,
+        "write_denied": true,
+        "marker_absent": true
+      },
+      "archive": {
+        "list_denied": true,
+        "read_denied": true,
+        "write_denied": true,
+        "marker_absent": true
+      },
+      "failed": {
+        "list_denied": true,
+        "read_denied": true,
+        "write_denied": true,
+        "marker_absent": true
+      }
+    },
+    "valid_input_consumed": true,
+    "valid_event_persisted": true,
+    "valid_archive_verified": true,
+    "invalid_input_consumed": true,
+    "invalid_failed_output_verified": true,
+    "business_side_effects_bounded": true
+  },
+  "current_capability_gate": {
+    "counts": {
+      "PASS": 449,
+      "BLOCKED": 21
+    },
+    "retirement_counts": {
+      "BLOCKED": 76
+    },
+    "historical_counts": {
+      "PASS": 324,
+      "BLOCKED": 178
+    },
+    "gate_exit": 2,
+    "inputs_fingerprint": "5f855b30bfca64555a04421e9ed7569b6732844db8c54357bb087aa6bb7b3113",
+    "canonical_contracts_sha256": "b700354712d1b44a1330e74395644fe88903bd277d9d1502681e0084381e7396",
+    "cleanup_verified": true,
+    "fingerprint_scope": "On-disk inputs and constructed canonical contracts; already imported Python code identity is not attested."
+  },
+  "validation": {
+    "current_capability_unit_tests": 34,
+    "candidate_runtime_unit_tests": 47,
+    "py_compile": true,
+    "diff_check_clean": true
+  },
+  "artifacts": {
+    "private_runtime_report_sha256": "ddf46dd29bb4f639b5a59cc8fd2d7e980e58e599c0341257e8fc72c630353846",
+    "browser_report_sha256": "e95a9a8fa96d35a9badaeebf65a5289ffac9071d40269026ac2b6a1afeec1d70",
+    "current_capability_gate_sha256": "e8b0119a7e40a2d8af4c854aec084754d2b47aee94d291ab31e7e8f424981622"
+  }
+}

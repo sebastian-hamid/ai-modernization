@@ -15,3 +15,6 @@ The candidate uses private server-owned incoming, archive, and failed directorie
 The 9 November disposable fixture observed the authorized valid-file job start and complete under batch-worker, persisted exactly one handling event, verified the archive and private directory ownership, and isolated a malformed row in failed output. The independent current-capability replay records BG-01-MACHINE as PASS while preserving the original raw gate report and fingerprint: [sanitized replay evidence](../../notes/evidence/kan-15-bg05-producer-boundary/replacement-gate-replay.json).
 
 This is an Administrator-triggered asynchronous batch job. The evidence verifies the server-side batch execution identity and does not claim that an OS scheduler or production deployment has been configured.
+
+
+The 9 November BG-02 fixture additionally verifies the OS filesystem boundary: approved fixture administration tooling stages files, the three mode-700 directories are owned by the WildFly process UID, and an unrelated OS UID cannot list/read/write or leave marker files. The valid and malformed inputs follow their intended archive/failure paths. This is disposable-fixture evidence, not a production host ACL attestation. See [BG-02 validation](../../notes/evidence/kan-15-bg02-filesystem-boundary/README.md).
