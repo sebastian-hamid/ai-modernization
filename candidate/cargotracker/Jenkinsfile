@@ -40,9 +40,9 @@ pipeline {
         stage('Security contract and harness tests') {
             steps {
                 // Checkout-safe security unit suites; test_live_subset requires ignored legacy source.
-                sh """for suite in test_contract_engine.py test_current_capabilities.py test_replacements.py test_staged_returns.py; do
+                sh '''for suite in test_contract_engine.py test_current_capabilities.py test_replacements.py test_staged_returns.py; do
                     python3 -m unittest discover -s tests/security -p "$suite" -v || exit $?
-                done"""
+                done'''
                 sh 'python3 -m unittest discover -s tests/candidate-runtime -p test_harness.py -v'
                 sh 'python3 -m unittest discover -s tests/security-runtime -p test_harness.py -v'
             }
