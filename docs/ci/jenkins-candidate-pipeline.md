@@ -23,12 +23,13 @@ The historical `ai-modernization-baseline` job/node and controller executor sett
 The candidate Jenkinsfile runs:
 1. SCM checkout, revision assertion and toolchain version report.
 2. Setup regression tests.
-3. Python security-contract-engine and isolated runtime-harness regression tests.
+3. Four checkout-safe Python security-contract suites and isolated runtime-harness regression tests. The historical `tests/security/test_live_subset.py` is excluded because its inventory-regeneration case requires the ignored `experiments/legacy-cargotracker` reference tree, which is intentionally absent from the SCM checkout. Run that suite only in the local repository where the protected reference is available.
 4. Candidate security-module build.
 5. Candidate Cargo Tracker Maven verification and domain tests.
-6. JUnit publication and fingerprinted archive of the revision, WAR, security JAR and test reports.
+6. Required WAR, security JAR, revision and non-empty JUnit report presence checks.
+7. JUnit publication and fingerprinted archive of the revision, WAR, security JAR and test reports.
 
-The Python suites in CI test contract and harness logic. They do not substitute for the live 502-case access gate, WildFly runtime/browser workflows, database/queue side-effect observers, or full security acceptance. The agent intentionally has no Docker socket, so runtime fixtures that create containers remain separate local verification jobs. KAN-15 and KAN-18 acceptance stays open until those required live checks pass.
+The Python suites in CI test contract and harness logic. Jenkins publishes JUnit reports and fingerprints available artifacts; successful runs explicitly require the WAR, security JAR, revision file and at least one non-empty JUnit XML report. Empty report/archive globs do not hide an earlier failed stage. They do not substitute for the live 502-case access gate, WildFly runtime/browser workflows, database/queue side-effect observers, or full security acceptance. The agent intentionally has no Docker socket, so runtime fixtures that create containers remain separate local verification jobs. KAN-15 and KAN-18 acceptance stays open until those required live checks pass.
 
 ## Local configuration
 
