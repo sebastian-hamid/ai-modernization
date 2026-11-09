@@ -7,7 +7,7 @@ The local legacy baseline job remains unchanged: `ai-modernization-baseline` con
 - Job: `ai-modernization-candidate`, Pipeline script from SCM.
 - Public remote: `https://github.com/sebastian-hamid/ai-modernization.git`, branch `main`.
 - Pipeline path: `candidate/cargotracker/Jenkinsfile`.
-- Jenkins SCM polling: `H/15 * * * *` (approximately every 15 minutes); no inbound GitHub webhook and no GitHub credential. The controller remains published only on localhost.
+- Jenkins SCM polling is declared in `candidate/cargotracker/Jenkinsfile` as `H/15 * * * *` (approximately every 15 minutes); no inbound GitHub webhook and no GitHub credential. The controller remains published only on localhost. The scoped registration script queues the first manual build; that run installs the Pipeline trigger for later polls.
 - The Pipeline checks out the selected SCM revision on the candidate agent, verifies that the checked-out HEAD matches the Git plugin's revision, prints `BUILD_GIT_REVISION`, sets the Jenkins build description to the short hash and archives the complete revision in `ci-results/candidate/revision.txt`.
 
 This is a single-branch Pipeline job, not a multibranch/PR build. Jenkins official docs describe Pipeline script from SCM, its script path, and SCM polling as the trigger for changes; `checkout scm` checks out the triggering revision.
@@ -32,7 +32,7 @@ The Python suites in CI test contract and harness logic. They do not substitute 
 
 ## Local configuration
 
-Review `infrastructure/jenkins-agent/register-candidate.groovy` before applying it. The one-time controller setup creates only the named candidate job/node and refuses to replace a same-named item with an unexpected type or description. It stores the node secret in the ignored Jenkins-home bootstrap folder; the deployment procedure copies it to ignored `.work/jenkins-ci/candidate-secrets/agent-secret` with mode 600 for the candidate Compose service. Never print, commit, archive, or include it in reviewer evidence.
+Review `infrastructure/jenkins-agent/register-candidate.groovy` before applying it. The one-time controller setup creates only the named candidate job/node and refuses to replace a same-named item with an unexpected type or description. Polling is versioned in the Declarative Jenkinsfile, avoiding controller-side trigger mutation. If the first build fails before Jenkins loads the Jenkinsfile, polling has not been installed yet; after fixing the cause, use Build Now once and verify the job's polling trigger before relying on automatic updates. It stores the node secret in the ignored Jenkins-home bootstrap folder; the deployment procedure copies it to ignored `.work/jenkins-ci/candidate-secrets/agent-secret` with mode 600 for the candidate Compose service. Never print, commit, archive, or include it in reviewer evidence.
 
 Build and start only the candidate agent using the steps recorded in `notes/setup-status.md`; do not restart or clean up the baseline agent or Jenkins volume. After the SCM job passes, record its commit, test counts, JUnit results and artifact fingerprints in `notes/evidence/kan-29-jenkins-candidate/`.
 

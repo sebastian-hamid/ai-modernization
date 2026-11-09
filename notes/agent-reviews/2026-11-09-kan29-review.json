@@ -40,6 +40,14 @@
     "follow_up_checks": [
       "Constructor order/types match the overload reported by the installed Jenkins plugin",
       "Surrounding Pipeline SCM, public branch, no-credential and guarded job logic remain intact"
+    ],
+    "trigger_finding": "Installed WorkflowJob has no removeTrigger(Class) method; no candidate build started and Jenkins stayed healthy.",
+    "trigger_correction": "Move SCM polling into Declarative Jenkinsfile; bootstrap queues the first build; document Build Now recovery if Jenkins cannot load the Jenkinsfile.",
+    "trigger_follow_up_verdict": "approved",
+    "trigger_follow_up_checks": [
+      "Status metadata distinguishes declared schedule from trigger installation",
+      "First-build retry procedure documented",
+      "No controller-side trigger API or baseline mutation"
     ]
   }
 }

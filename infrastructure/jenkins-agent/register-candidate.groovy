@@ -6,7 +6,6 @@ import hudson.slaves.RetentionStrategy
 import hudson.plugins.git.GitSCM
 import hudson.plugins.git.BranchSpec
 import hudson.plugins.git.UserRemoteConfig
-import hudson.triggers.SCMTrigger
 import org.jenkinsci.plugins.workflow.job.WorkflowJob
 import org.jenkinsci.plugins.workflow.cps.CpsScmFlowDefinition
 import groovy.json.JsonOutput
@@ -68,8 +67,6 @@ definition.setLightweight(true)
 def job = item ?: j.createProject(WorkflowJob, jobName)
 job.setDescription('AI Modernization candidate CI from public GitHub SCM; isolated Java 25 agent.')
 job.setDefinition(definition)
-job.removeTrigger(SCMTrigger.class)
-job.addTrigger(new SCMTrigger('H/15 * * * *'))
 job.save()
 
 if (job.getLastBuild() == null) {
@@ -77,7 +74,8 @@ if (job.getLastBuild() == null) {
 }
 new File(seed, 'status.json').text = JsonOutput.toJson([
         job: jobName, node: nodeName, repository: repository, branch: branch,
-        scriptPath: scriptPath, pollSchedule: 'H/15 * * * *',
+        scriptPath: scriptPath, pollScheduleDeclaredInJenkinsfile: true,
+        pollTriggerSpec: 'H/15 * * * *', triggerInstall: 'first successful pipeline initialization',
         credentialConfigured: false, controllerExecutorsUnchanged: j.getNumExecutors(),
         configuredAt: new Date().format("yyyy-MM-dd'T'HH:mm:ssXXX")
 ])
