@@ -81,3 +81,12 @@ Official references:
 
 ## Entrypoint and access review (27 October 2026)
 The pipeline now includes 81 entrypoint contracts and archives ci-results/entrypoints/ observations and security findings. Expected overall count is 134 application cases, plus 10 tooling checks. A baseline pass is not security approval: the standalone --require-access-control gate currently fails on anonymous operational access. See [coverage review](test-coverage-review.md).
+
+
+## Candidate SCM pipeline — KAN-29
+
+The separate job ai-modernization-candidate now loads candidate/cargotracker/Jenkinsfile from public GitHub main. Build 3 passed revision 92ebf5e169d775acd8756fe6854d0eab68972a2f, ran setup/security/harness gates and Maven domain tests, verified required outputs, and archived/fingerprinted the WAR, security JAR, six JUnit XML reports and revision file. SCM polling H/15 * * * * is installed in the job configuration. The historical ai-modernization-baseline job/node/controller executor settings were preserved. The candidate agent image runs Java 25.0.5/Maven 3.10.0/Python 3.14.4/Git 2.53.0 without a Docker socket.
+
+Builds 1 and 2 failed before a successful run: the first attempted a test requiring the ignored legacy source tree; the second exposed Groovy interpolation in the shell loop. Both were corrected and independently reviewed. Build 3 is successful. The Declarative linter endpoint returned HTTP 403 to anonymous access; the successful build is the installed integration validation. Full evidence and artifact hashes are in [KAN-29 evidence](evidence/kan-29-jenkins-candidate/summary.json).
+
+The candidate agent has been stopped while its inbound connection secret is rotated through authenticated Jenkins administration. Do not restart the agent until that is complete.

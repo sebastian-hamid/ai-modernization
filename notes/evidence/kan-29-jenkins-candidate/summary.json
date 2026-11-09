@@ -1,0 +1,132 @@
+{
+  "task": "KAN-29 / CI-01 \u2014 Connect reviewed source to Jenkins SCM execution",
+  "job": "ai-modernization-candidate",
+  "controller": "http://localhost:8080",
+  "scm": {
+    "url": "https://github.com/sebastian-hamid/ai-modernization.git",
+    "branch": "main",
+    "scriptPath": "candidate/cargotracker/Jenkinsfile",
+    "revision": "92ebf5e169d775acd8756fe6854d0eab68972a2f"
+  },
+  "build": {
+    "number": 3,
+    "result": "SUCCESS",
+    "durationSeconds": 48.543,
+    "buildDescription": "92ebf5e169d7",
+    "workspaceRevisionMatchesGitPluginRevision": true
+  },
+  "agent": {
+    "node": "ai-modernization-candidate",
+    "label": "ai-modernization-candidate",
+    "imageToolchain": {
+      "java": "OpenJDK 25.0.5",
+      "maven": "3.10.0",
+      "python": "3.14.4",
+      "git": "2.53.0"
+    },
+    "dockerSocketMounted": false
+  },
+  "trigger": {
+    "kind": "Pipeline SCM poll",
+    "spec": "H/15 * * * *",
+    "installedInJobConfigAfterBuild": true
+  },
+  "checks": {
+    "setupRegressionTests": {
+      "tests": 8,
+      "failures": 0,
+      "errors": 0
+    },
+    "securityContractSuites": {
+      "test_contract_engine.py": {
+        "tests": 16,
+        "failures": 0,
+        "errors": 0
+      },
+      "test_current_capabilities.py": {
+        "tests": 34,
+        "failures": 0,
+        "errors": 0
+      },
+      "test_replacements.py": {
+        "tests": 13,
+        "failures": 0,
+        "errors": 0
+      },
+      "test_staged_returns.py": {
+        "tests": 5,
+        "failures": 0,
+        "errors": 0
+      }
+    },
+    "runtimeHarnesses": {
+      "candidate-runtime": {
+        "tests": 8,
+        "failures": 0,
+        "errors": 0
+      },
+      "security-runtime": {
+        "tests": 3,
+        "failures": 0,
+        "errors": 0
+      }
+    },
+    "mavenDomain": {
+      "reports": 6,
+      "tests": 35,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    "requiredArtifacts": {
+      "war": true,
+      "securityJar": true,
+      "revisionFile": true,
+      "nonemptySurefireReports": true
+    }
+  },
+  "artifacts": [
+    {
+      "path": "candidate/cargotracker/target/cargo-tracker.war",
+      "bytes": 6874765,
+      "sha256": "1d0f78735937e8d7e3393ba05ecb47de8f33ed2f615823b01ea28edd3caed982",
+      "jenkinsMd5Fingerprint": "0134092013381e2869a8131b01f34c1a"
+    },
+    {
+      "path": "candidate/security/target/candidate-security.jar",
+      "bytes": 11005,
+      "sha256": "143fe10e2d185922c20ce4a252b3bb778a99df7e02cca3362b43e2427c068951",
+      "jenkinsMd5Fingerprint": "183798ce13602d2586dd05b3133ac028"
+    },
+    {
+      "path": "ci-results/candidate/revision.txt",
+      "bytes": 41,
+      "sha256": "c0967981be504f25806a453b0baf05eb4db8ab33c223002b0e335642dd8bf130",
+      "jenkinsMd5Fingerprint": "5bad78ba9d618717f6a7f4fb95dfcdcc"
+    }
+  ],
+  "limitations": [
+    "The Jenkins Declarative linter endpoint returned HTTP 403 for anonymous access (Hudson Read/Admin required); no successful linter result is claimed. Jenkins loaded and executed this exact Pipeline revision successfully."
+  ],
+  "failedAttemptsAndCorrections": [
+    {
+      "build": 1,
+      "cause": "A security inventory-regeneration test expected ignored experiments/legacy-cargotracker, absent from the public SCM checkout.",
+      "resolution": "CI now runs the four checkout-safe security suites and documents test_live_subset as local-only. Post actions tolerate missing artifacts after earlier failures, with explicit required-artifact assertions on successful builds."
+    },
+    {
+      "build": 2,
+      "cause": "Groovy interpolated \\$suite in a triple-double-quoted shell script before agent execution.",
+      "resolution": "The loop now uses a triple-single-quoted Groovy string; the exact Jenkins WAR Groovy 2.4.21 compiler passed and an independent reviewer inspected all interpolation sites."
+    }
+  ],
+  "independentReview": {
+    "pipelineCorrection": "Approved by separate agent /root/review_bg04_probe",
+    "finalBuildEvidence": "Approved by separate agent /root/review_bg04_probe"
+  },
+  "agentCredentialRemediation": {
+    "status": "candidate agent stopped after its inbound connection secret was included in diagnostic process-list output; rotation/revocation still requires authenticated Jenkins administration",
+    "secretValueRecorded": false
+  },
+  "baselinePreservation": "Historical ai-modernization-baseline job/node/controller executor settings were not modified."
+}

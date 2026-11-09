@@ -7,8 +7,8 @@ Verified 23 October 2026 (Europe/Bratislava). Checks ran on the actual WSL host,
 | WSL | Ubuntu-24.04 running as WSL version 2; Ubuntu 24.04.5 LTS; user yasinrdp. |
 | Java | OpenJDK and javac 21.0.12.1. JAVA_HOME=/usr/lib/jvm/java-21-openjdk-amd64. |
 | Maven | Ubuntu Maven 3.8.7 at /usr/bin/mvn, home /usr/share/maven, uses Java 21. Verified fresh login and interactive shells. |
-| Git | 2.43.0; main at 88e6479ea845745c362d567d55d1666acea05b49 before this work. |
-| GitHub | gh authenticated as sebastian-hamid; origin https://github.com/sebastian-hamid/ai-modernization.git. Remote main matches local HEAD; repository is already PUBLIC. Visibility was not changed. Read access verified; no push performed. |
+| Git | WSL host Git 2.43.0; isolated Jenkins candidate agent Git 2.53.0; repository main at 92ebf5e169d775acd8756fe6854d0eab68972a2f after KAN-29. |
+| GitHub | origin is https://github.com/sebastian-hamid/ai-modernization.git; public main contains reviewed commit 92ebf5e169d775acd8756fe6854d0eab68972a2f. |
 | Docker | Client/Engine 29.9.1, Docker Desktop 4.96.0; Compose v5.6.0. hello-world completed successfully. |
 | Jenkins | Existing ai-modernization-jenkins container up, image jenkins/jenkins:lts-jdk21, version marker 2.580.1. Login endpoint returned HTTP 200 from Windows and Ubuntu. |
 | Jenkins security | useSecurity=true; local user database; authenticated full-control authorization. Existing account record named jenkinsadmin. Configured URL http://localhost:8080/. |
@@ -20,12 +20,12 @@ Verified 23 October 2026 (Europe/Bratislava). Checks ran on the actual WSL host,
 - Backed up shell files as ~/.profile.before-ai-modernization-20261023 and ~/.bashrc.before-ai-modernization-20261023.
 - Added project .gitignore for experiments/, .work/, target directories and common secrets. Existing upstream checkout was neither deleted nor imported.
 - Preserved docs/ and specifications/ instead of renaming them to match a proposed layout.
-- Added baseline notes, logs and reproduction script. Initial setup made no commits or pushes. The reviewed setup is now versioned locally as baseline-v0.1.0; synced references remain untouched.
+- Added baseline notes, logs and reproduction script. Reviewed setup and CI changes are versioned and published on GitHub; synced references remain untouched.
 
 ## Checks still requiring attention
 1. Sign in to http://localhost:8080/ with your existing Jenkins account. No password was read or requested, and authenticated login was not tested.
-2. Jenkins restart persistence is configured but was not exercised, to avoid interrupting the running controller. Plugin inventory and CI build-agent tools are unverified.
-3. The reviewed setup is versioned locally as baseline-v0.1.0. Publishing it to GitHub and configuring SCM-triggered Jenkins execution remain separate steps.
+2. Jenkins controller restart persistence and candidate-agent reconnection were exercised. The candidate agent is currently stopped pending authenticated rotation of its inbound secret.
+3. Authenticated Jenkins UI/API access remains unverified. The candidate Declarative linter endpoint returned HTTP 403 for anonymous access; build #3 loaded the Pipeline from SCM and passed. Do not restart the agent until its secret is rotated.
 4. Legacy packaging and domain tests now PASS after historical dependency recovery; see [legacy-baseline.md](legacy-baseline.md).
 5. Runtime and booking integration now PASS: GlassFish 4.1 with the documented HK2-277 metadata correction, embedded Derby/JMS, four Arquillian booking tests, and HTTP tracking/routing/handling checks. See legacy-runtime.md. The isolated Jenkins baseline pipeline now passes; see jenkins-baseline.md.
 
@@ -46,13 +46,13 @@ Do not use docker compose down -v: that would delete Jenkins data.
 ## Baseline recovery completed
 A fresh source export built cargo-tracker.war successfully in the pinned Java 8/Maven container. Five domain test classes passed: 24 reported tests, zero failures/errors/skips; ItineraryTest.testNextExpectedEvent is an empty TODO.
 Eclipse artifacts were recovered from their original publisher's HTTPS repository. The missing PrimeFaces theme and its build plugin were rebuilt from exact official release tags; published-binary equality is unverified. Application source, dependency versions and the upstream checkout are unchanged. A separate test POM changes only skipTests to false.
-The recovery script, settings, provenance hashes and reports are in infrastructure/ and notes/evidence/. Runtime milestone is now complete on host port 8081; see legacy-runtime.md. The isolated Jenkins baseline pipeline now passes; see jenkins-baseline.md. Next: broader behavior characterization; local setup versioning is complete.
+The recovery script, settings, provenance hashes and reports are in infrastructure/ and notes/evidence/. Runtime milestone is now complete on host port 8081; see legacy-runtime.md. The isolated Jenkins baseline pipeline and candidate SCM pipeline pass; see jenkins-baseline.md and notes/evidence/kan-29-jenkins-candidate/summary.json. Broader behavior characterization remains next.
 
 ## Runtime milestone completed
 The application is healthy at http://localhost:8081/cargo-tracker/. Four booking integration tests and tracking/routing/asynchronous-handling HTTP checks passed against the Compose-managed runtime. Original GlassFish deployment failure, the module-metadata correction and remaining coverage gaps are documented in [legacy-runtime.md](legacy-runtime.md).
 
 ## Jenkins milestone completed
-Build 1 of ai-modernization-baseline finished SUCCESS in 99.495 seconds. It published 28 reported tests (24 domain + four booking; one empty TODO), passed HTTP workflow checks and archived the WAR/provenance. A separate non-root Java 21/Java 8 agent runs all builds; controller executors are zero. Source mode remains a local snapshot. The reviewed setup is versioned locally as baseline-v0.1.0; publication and SCM integration remain pending. See [jenkins-baseline.md](jenkins-baseline.md).
+Build 1 of ai-modernization-baseline finished SUCCESS in 99.495 seconds. It published 28 reported tests (24 domain + four booking; one empty TODO), passed HTTP workflow checks and archived the WAR/provenance. A separate non-root Java 21/Java 8 agent runs all builds; controller executors are zero. Source mode remains a local snapshot. The candidate SCM pipeline now passes build 3 on reviewed commit 92ebf5e; see [jenkins-baseline.md](jenkins-baseline.md) and the KAN-29 evidence. The historical baseline job was preserved.
 
 ## Expanded handling coverage (26 October 2026)
 See [handling-characterization.md](handling-characterization.md) for added factory and live workflow coverage, observed legacy defects, test counts and fixture limits. Jenkins restart and agent reconnection have now been exercised; interactive administrator login remains unverified.
@@ -183,3 +183,8 @@ A disposable PostgreSQL 18.6 / Flyway 13.12.1 rehearsal passed. The V1 custom ar
 The tested restore repair is checked in at `infrastructure/database/restore/restore-permissions.sql`; exact procedure and evidence are in [the recovery guide](../docs/database/postgresql-backup-restore-rollback.md) and [rehearsal evidence](evidence/kan-28-recovery/rehearsal.json).
 
 The disposable `kan28recovery` containers, named volume, private network, temporary credentials, and archive files were removed. Only the retained Jenkins container remains. This was single-host/single-version synthetic-data testing. It did not cover off-host or encrypted backups, scheduled automation, point-in-time recovery, cross-version restore, production-sized data, or compatibility with an actual older WildFly binary. Independent review approved the restore procedure, ownership/ACL repair, migration continuation and app-access evidence.
+
+
+## Candidate Jenkins SCM checkpoint — 9 November 2026 (KAN-29)
+
+Jenkins candidate build 3 passed from SCM at revision 92ebf5e169d775acd8756fe6854d0eab68972a2f. Toolchain: Java 25.0.5, Maven 3.10.0, Python 3.14.4 and Git 2.53.0. Eight setup tests, 68 checkout-safe security-contract tests, 11 runtime-harness tests and 35 Maven domain tests passed with zero failures/errors; six Surefire reports and the WAR/JAR/revision file were archived and fingerprinted. Polling H/15 * * * * is present in the candidate job config. The historical baseline was unchanged. The installed Declarative linter endpoint returned 403 to anonymous access, so its separate preflight remains unverified. Candidate agent is stopped pending authenticated rotation of its inbound connection secret after that value appeared in diagnostic output. Evidence: [KAN-29 summary](evidence/kan-29-jenkins-candidate/summary.json).
