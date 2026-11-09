@@ -367,6 +367,13 @@ class CurrentCapabilityTests(unittest.TestCase):
                  "native_identity":{"server_verified":True,"principal":"handling-worker","roles":["HandlingWorker"]}}
         adapter.legacy.handling_worker_denials=denials
         adapter.legacy.handling_worker_observation=machine
+        producer_raw={"anonymousDenied":True,"humanAuthenticated":[True,True,True],
+            "humanSendDenied":[True,True,True],
+            "machinePrincipals":["batch-worker","handling-worker","inspection-worker","notification-worker"],
+            "machineAuthenticated":[True,True,True,True],"machineSendDenied":[True,True,True,True],
+            "trustedAllowed":True,"rejectedQueueDenied":True,"deliveredQueueDenied":True}
+        adapter.legacy.remote_producer_raw_observation=producer_raw
+        adapter.legacy.remote_producer_unauthorized_effects_unchanged=True
         case=adapter.contracts["CURRENT::BG-03-MACHINE::worker-BG-03::active"]
         self.assertEqual(case["binding_status"],"native-handling-worker")
         self.assertEqual(evaluate(case,adapter.execute(case))[0],"PASS")
@@ -377,6 +384,11 @@ class CurrentCapabilityTests(unittest.TestCase):
                             ("human_direct_denials_effects_unchanged",False)]:
             adapter.legacy.handling_worker_observation={**machine,field:value}
             with self.subTest(field=field),self.assertRaises(UnsupportedCase):adapter.execute(case)
+        for field,value in [("machineSendDenied",[True,True,False,True]),
+                            ("machinePrincipals",["batch-worker","inspection-worker","handling-worker","notification-worker"])]:
+            adapter.legacy.remote_producer_raw_observation={**producer_raw,field:value}
+            with self.subTest(remote_proof_field=field),self.assertRaises(UnsupportedCase):adapter.execute(case)
+        adapter.legacy.remote_producer_raw_observation=producer_raw
         adapter.legacy.handling_worker_observation={**machine,
             "native_identity":{"server_verified":True,"principal":"operator","roles":["Operator"]}}
         with self.assertRaises(UnsupportedCase):adapter.execute(case)

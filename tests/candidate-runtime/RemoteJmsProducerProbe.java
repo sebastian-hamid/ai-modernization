@@ -34,24 +34,93 @@ public final class RemoteJmsProducerProbe {
         return new InitialContext(env);
     }
 
-    private static boolean deniedSend(String user, String password, String address) {
-        InitialContext naming = null;
-        JMSContext context = null;
+    private static boolean isSendAuthorizationDenial(Throwable failure) {
+        for (Throwable current = failure; current != null; current = current.getCause()) {
+            String type = current.getClass().getName();
+            String message = current.getMessage();
+            String normalized = message == null ? "" : message.toLowerCase(java.util.Locale.ROOT);
+            boolean securityType = type.endsWith("JMSSecurityException")
+                    || type.endsWith("JMSSecurityRuntimeException")
+                    || type.endsWith("ActiveMQSecurityException")
+                    || type.endsWith("ActiveMQNotAuthorizedException")
+                    || current instanceof SecurityException;
+            boolean sendPermission = normalized.contains("send")
+                    && (normalized.contains("permission") || normalized.contains("not authorized"))
+                    || message != null && message.contains("AMQ229032");
+            if (securityType && sendPermission || message != null && message.contains("AMQ229032")) return true;
+            if (current instanceof jakarta.jms.JMSException jms && jms.getLinkedException() != null
+                    && jms.getLinkedException() != current.getCause()) {
+                Throwable linked=jms.getLinkedException();
+                String linkedType=linked.getClass().getName();
+                String linkedMessage=linked.getMessage();
+                String linkedNormalized=linkedMessage == null ? "" : linkedMessage.toLowerCase(java.util.Locale.ROOT);
+                boolean linkedSecurity=linkedType.endsWith("JMSSecurityException")
+                        || linkedType.endsWith("JMSSecurityRuntimeException")
+                        || linkedType.endsWith("ActiveMQSecurityException")
+                        || linkedType.endsWith("ActiveMQNotAuthorizedException")
+                        || linked instanceof SecurityException;
+                boolean linkedSend=linkedNormalized.contains("send")
+                        && (linkedNormalized.contains("permission") || linkedNormalized.contains("not authorized"))
+                        || linkedMessage != null && linkedMessage.contains("AMQ229032");
+                if (linkedSecurity && linkedSend
+                        || linkedMessage != null && linkedMessage.contains("AMQ229032")) return true;
+            }
+        }
+        return false;
+    }
+
+    private static boolean isAuthenticationDenial(Throwable failure) {
+        for (Throwable current = failure; current != null; current = current.getCause()) {
+            String type=current.getClass().getName();
+            String message=current.getMessage();
+            if (type.endsWith("AuthenticationException")
+                    || message != null && (message.contains("AMQ229031")
+                        || message.toLowerCase(java.util.Locale.ROOT).contains("unable to validate user"))) return true;
+            if (current instanceof jakarta.jms.JMSException jms && jms.getLinkedException() != null) {
+                Throwable linked=jms.getLinkedException();
+                String linkedType=linked.getClass().getName();
+                String linkedMessage=linked.getMessage();
+                if (linkedType.endsWith("AuthenticationException")
+                        || linkedMessage != null && (linkedMessage.contains("AMQ229031")
+                            || linkedMessage.toLowerCase(java.util.Locale.ROOT).contains("unable to validate user"))) return true;
+            }
+        }
+        return false;
+    }
+
+    private static JMSContext authenticatedContext(ConnectionFactory factory, String user, String password) {
+        JMSContext context = user == null
+                ? factory.createContext(JMSContext.AUTO_ACKNOWLEDGE)
+                : factory.createContext(user, password, JMSContext.AUTO_ACKNOWLEDGE);
         try {
-            naming = lookupContext(user, password);
-            ConnectionFactory factory = (ConnectionFactory) naming.lookup(FACTORY);
-            context = user == null ? factory.createContext(JMSContext.AUTO_ACKNOWLEDGE)
-                    : factory.createContext(user, password, JMSContext.AUTO_ACKNOWLEDGE);
-            Queue queue = context.createQueue(address);
+            context.start(); // Force broker authentication before testing destination authorization.
+            return context;
+        } catch (JMSRuntimeException failure) {
+            context.close();
+            throw new IllegalStateException("JMS broker connection/authentication failed",failure);
+        }
+    }
+
+    private static boolean sendDenied(JMSContext context, String address) {
+        Queue queue = context.createQueue(address);
+        try {
             context.createProducer().send(queue, context.createTextMessage("unauthorized boundary probe"));
             return false;
-        } catch (NamingException | JMSRuntimeException | SecurityException denied) {
-            return true;
+        } catch (JMSRuntimeException failure) {
+            if (isSendAuthorizationDenial(failure)) return true;
+            throw new IllegalStateException("Unexpected JMS send failure; not an authorization denial",failure);
+        } catch (SecurityException failure) {
+            if (isSendAuthorizationDenial(failure)) return true;
+            throw failure;
+        }
+    }
+
+    private static boolean deniedSend(ConnectionFactory factory, String user, String password, String address) {
+        JMSContext context = authenticatedContext(factory,user,password);
+        try {
+            return sendDenied(context,address);
         } finally {
-            if (context != null) context.close();
-            if (naming != null) {
-                try { naming.close(); } catch (NamingException ignored) { }
-            }
+            context.close();
         }
     }
 
@@ -73,19 +142,32 @@ public final class RemoteJmsProducerProbe {
             String user = humanUsers[i];
             String password = credentials.getProperty(user + ".password");
             InitialContext humanLookup = lookupContext(user, password);
-            humanLookup.lookup(FACTORY);
+            ConnectionFactory humanFactory = (ConnectionFactory) humanLookup.lookup(FACTORY);
             humanLookup.close();
+            humanSendDenied[i] = deniedSend(humanFactory,user,password,ATTEMPT);
             humanAuthenticated[i] = true;
-            humanSendDenied[i] = deniedSend(user, password, ATTEMPT);
         }
+        // Authenticated worker and batch principals must not bypass the EJB producer.
+        String[] machineUsers = {"batch-worker", "handling-worker", "inspection-worker", "notification-worker"};
+        boolean[] machineAuthenticated = new boolean[machineUsers.length];
+        boolean[] machineSendDenied = new boolean[machineUsers.length];
+        for (int i = 0; i < machineUsers.length; i++) {
+            String user = machineUsers[i];
+            String password = credentials.getProperty(user + ".password");
+            if (password == null) throw new IllegalArgumentException("missing private machine credential: " + user);
+            InitialContext machineLookup = lookupContext(user, password);
+            ConnectionFactory machineFactory = (ConnectionFactory) machineLookup.lookup(FACTORY);
+            machineLookup.close();
+            machineSendDenied[i] = deniedSend(machineFactory,user,password,ATTEMPT);
+            machineAuthenticated[i] = true;
+        }
+
         boolean anonymousDenied;
         try {
-            InitialContext anonymousLookup = lookupContext(null, null);
-            anonymousLookup.lookup(FACTORY);
-            anonymousLookup.close();
-            anonymousDenied = deniedSend(null, null, ATTEMPT);
-        } catch (NamingException | JMSRuntimeException denied) {
-            anonymousDenied = true;
+            anonymousDenied = deniedSend(factory,null,null,ATTEMPT);
+        } catch (IllegalStateException | JMSRuntimeException failure) {
+            if (isAuthenticationDenial(failure)) anonymousDenied = true;
+            else throw failure;
         }
 
         boolean trustedAllowed;
@@ -101,17 +183,23 @@ public final class RemoteJmsProducerProbe {
             context.createProducer().send(queue, context.createObjectMessage(attempt));
             trustedAllowed = true;
         }
-        boolean rejectedQueueDenied = deniedSend(producer, producerPassword, REJECTED);
-        boolean deliveredQueueDenied = deniedSend(producer, producerPassword, DELIVERED);
+        boolean rejectedQueueDenied = deniedSend(factory,producer,producerPassword,REJECTED);
+        boolean deliveredQueueDenied = deniedSend(factory,producer,producerPassword,DELIVERED);
         System.out.println("{\"anonymousDenied\":" + anonymousDenied
                 + ",\"humanAuthenticated\":[" + humanAuthenticated[0] + "," + humanAuthenticated[1] + "," + humanAuthenticated[2] + "]"
                 + ",\"humanSendDenied\":[" + humanSendDenied[0] + "," + humanSendDenied[1] + "," + humanSendDenied[2] + "]"
+                + ",\"machinePrincipals\":[\"batch-worker\",\"handling-worker\",\"inspection-worker\",\"notification-worker\"]"
+                + ",\"machineAuthenticated\":[" + machineAuthenticated[0] + "," + machineAuthenticated[1] + "," + machineAuthenticated[2] + "," + machineAuthenticated[3] + "]"
+                + ",\"machineSendDenied\":[" + machineSendDenied[0] + "," + machineSendDenied[1] + "," + machineSendDenied[2] + "," + machineSendDenied[3] + "]"
                 + ",\"trustedAllowed\":" + trustedAllowed
                 + ",\"rejectedQueueDenied\":" + rejectedQueueDenied
                 + ",\"deliveredQueueDenied\":" + deliveredQueueDenied + "}");
         if (!anonymousDenied || !trustedAllowed || !rejectedQueueDenied || !deliveredQueueDenied) System.exit(2);
         for (int i = 0; i < humanUsers.length; i++) {
             if (!humanAuthenticated[i] || !humanSendDenied[i]) System.exit(3);
+        }
+        for (int i = 0; i < machineUsers.length; i++) {
+            if (!machineAuthenticated[i] || !machineSendDenied[i]) System.exit(4);
         }
     }
 }

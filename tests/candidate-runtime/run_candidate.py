@@ -74,6 +74,20 @@ def compare_rejection_effect_deltas(before, after, input_name, rejected_name):
             and observed_queue_deltas==expected_queue_deltas
             and observed_invocation_deltas==expected_invocation_deltas)}
 
+def remote_producer_boundary_verified(observation, unauthorized_effects_unchanged):
+    """Require the intended producer to work and every tested non-producer to be denied."""
+    return (isinstance(observation,dict)
+        and observation.get("anonymousDenied") is True
+        and observation.get("humanAuthenticated")==[True,True,True]
+        and observation.get("humanSendDenied")==[True,True,True]
+        and observation.get("machinePrincipals")==["batch-worker","handling-worker","inspection-worker","notification-worker"]
+        and observation.get("machineAuthenticated")==[True,True,True,True]
+        and observation.get("machineSendDenied")==[True,True,True,True]
+        and observation.get("trustedAllowed") is True
+        and observation.get("rejectedQueueDenied") is True
+        and observation.get("deliveredQueueDenied") is True
+        and unauthorized_effects_unchanged is True)
+
 def expected_batch_control_deltas():
     """Document EJB entries for two unsafe callbacks and one concurrent one-use form."""
     methods={
@@ -419,6 +433,7 @@ def main(after_checks=None):
     if any(path.exists() for path in (users,roles,routing,producer_client)):raise RuntimeError("Private files exist; inspect before reuse")
     if subprocess.run(["docker","inspect",NAME],stdout=subprocess.DEVNULL,stderr=subprocess.DEVNULL).returncode==0:raise RuntimeError("Task container already exists")
     credentials={who:secrets.token_urlsafe(28) for who in ["reader","operator","admin"]}
+    machine_credentials={who:secrets.token_urlsafe(28) for who in ["batch-worker","handling-worker","inspection-worker","notification-worker"]}
     attempt_producer_password=secrets.token_urlsafe(28)
     routing_password=secrets.token_urlsafe(28)
     container=None;checks=[]
@@ -454,10 +469,10 @@ def main(after_checks=None):
         report["identities"][who]={"server_verified":True,"principal":identity["principal"],"roles":identity["roles"]}
         return jar,opener,identity["csrf"]
     try:
-        users.write_text("#$REALM_NAME=ApplicationRealm$\n"+"".join(who+"="+hashlib.md5((who+":ApplicationRealm:"+pw).encode()).hexdigest()+"\n" for who,pw in {**credentials,"routing":routing_password,"handling-attempt-producer":attempt_producer_password}.items()))
-        roles.write_text("reader=Reader\noperator=Operator\nadmin=Administrator\nrouting=RoutingService\nhandling-worker=HandlingWorker\ninspection-worker=InspectionWorker\nnotification-worker=NotificationWorker\nhandling-attempt-producer=HandlingAttemptProducer\n")
+        users.write_text("#$REALM_NAME=ApplicationRealm$\n"+"".join(who+"="+hashlib.md5((who+":ApplicationRealm:"+pw).encode()).hexdigest()+"\n" for who,pw in {**credentials,**machine_credentials,"routing":routing_password,"handling-attempt-producer":attempt_producer_password}.items()))
+        roles.write_text("reader=Reader\noperator=Operator\nadmin=Administrator\nrouting=RoutingService\nbatch-worker=BatchWorker\nhandling-worker=HandlingWorker\ninspection-worker=InspectionWorker\nnotification-worker=NotificationWorker\nhandling-attempt-producer=HandlingAttemptProducer\n")
         routing.write_text("username=routing\npassword="+routing_password+"\n")
-        producer_client.write_text("producer.user=handling-attempt-producer\nproducer.password="+attempt_producer_password+"\n"+"".join(who+".user="+who+"\n"+who+".password="+credentials[who]+"\n" for who in credentials))
+        producer_client.write_text("producer.user=handling-attempt-producer\nproducer.password="+attempt_producer_password+"\n"+"".join(who+".user="+who+"\n"+who+".password="+pw+"\n" for who,pw in {**credentials,**machine_credentials}.items()))
         users.chmod(0o600);roles.chmod(0o600);routing.chmod(0o600);producer_client.chmod(0o600)
         context=Path(tempfile.mkdtemp(prefix="context-",dir=WORK))
         for relative in ["candidate/security","candidate/cargotracker","tests/candidate-runtime"]:
@@ -804,21 +819,20 @@ def main(after_checks=None):
         unauthorized_unchanged=(producer_after["tables"]==producer_attempt["tables"]
             and producer_observation.get("anonymousDenied") is True
             and producer_observation.get("humanSendDenied")==[True,True,True]
+            and producer_observation.get("machineAuthenticated")==[True,True,True,True]
+            and producer_observation.get("machineSendDenied")==[True,True,True,True]
             and producer_observation.get("rejectedQueueDenied") is True
             and producer_observation.get("deliveredQueueDenied") is True)
         report["remote_producer_raw_observation"]=producer_observation
         report["remote_producer_unauthorized_effects_unchanged"]=unauthorized_unchanged
-        producer_boundary_verified=(producer_observation.get("anonymousDenied") is True
-            and producer_observation.get("humanAuthenticated")==[True,True,True]
-            and producer_observation.get("humanSendDenied")==[True,True,True]
-            and producer_observation.get("trustedAllowed") is True
-            and producer_observation.get("rejectedQueueDenied") is True
-            and producer_observation.get("deliveredQueueDenied") is True
-            and unauthorized_unchanged)
+        producer_boundary_verified=remote_producer_boundary_verified(
+            producer_observation,unauthorized_unchanged)
         check("Remote JMS authenticated users cannot send to handling-attempt queue",
             producer_observation.get("anonymousDenied") is True
             and producer_observation.get("humanAuthenticated")==[True,True,True]
             and producer_observation.get("humanSendDenied")==[True,True,True]
+            and producer_observation.get("machineAuthenticated")==[True,True,True,True]
+            and producer_observation.get("machineSendDenied")==[True,True,True,True]
             and unauthorized_unchanged)
         check("Trusted remote producer can send only to handling-attempt queue",
             producer_observation.get("trustedAllowed") is True
@@ -1515,8 +1529,8 @@ def main(after_checks=None):
             "machine_scope":"Dedicated server worker authority; human identity does not automatically propagate through ObjectMessage",
             "authorized_adapter_events_verified":operator_worker_audit_delta==admin_worker_audit_delta==1
                 and operator_consumer_delta==admin_consumer_delta==1,
-            "producer_boundary_verified":False,
-            "producer_boundary_note":"Arbitrary producer/JNDI access restriction is outside this fixture",
+            "producer_boundary_verified":producer_boundary_verified,
+            "producer_boundary_evidence":"separate-JVM remote JMS probe authenticated BatchWorker, HandlingWorker, InspectionWorker and NotificationWorker principals and denied each send to the handling-attempt queue; same-fixture application adapter publications and effects were verified",
             "human_direct_denials_effects_unchanged":all(x.get("independent_effects_unchanged") is True
                 for x in handling_worker_denials.values()),
             "status":200,"semantic_success":operator_worker_audit_delta==admin_worker_audit_delta==1,

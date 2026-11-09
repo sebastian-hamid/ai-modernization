@@ -13,6 +13,22 @@ class RejectionDispositionTests(unittest.TestCase):
         after={"queues":receipt["after"]["queue"],
                "business_invocations":receipt["after"]["business_audit"]}
         return before,after
+    def test_remote_producer_boundary_requires_all_machine_principal_denials(self):
+        observation={"anonymousDenied":True,"humanAuthenticated":[True,True,True],
+            "humanSendDenied":[True,True,True],"machinePrincipals":["batch-worker","handling-worker","inspection-worker","notification-worker"],
+            "machineAuthenticated":[True,True,True,True],
+            "machineSendDenied":[True,True,True,True],"trustedAllowed":True,
+            "rejectedQueueDenied":True,"deliveredQueueDenied":True}
+        self.assertTrue(h.remote_producer_boundary_verified(observation,True))
+        for field,value in [("machinePrincipals",["batch-worker","handling-worker","notification-worker","inspection-worker"]),
+                            ("machineAuthenticated",[True,True,False,True]),
+                            ("machineSendDenied",[True,False,True,True]),
+                            ("humanSendDenied",[True,True,False]),
+                            ("anonymousDenied",False),("trustedAllowed",False)]:
+            with self.subTest(field=field):
+                self.assertFalse(h.remote_producer_boundary_verified(
+                    {**observation,field:value},True))
+        self.assertFalse(h.remote_producer_boundary_verified(observation,False))
     def test_saved_live_receipt_matches_exact_queue_and_invocation_deltas(self):
         before,after=self.snapshots()
         result=h.compare_rejection_effect_deltas(before,after,

@@ -83,6 +83,20 @@ def batch_worker_observation(case,processing):
         initiator_identity=deepcopy(initiator),semantic_success=True,authorized_effect_verified=True)
     return observation
 
+def handling_producer_boundary_verified(raw,unauthorized_effects_unchanged):
+    """Require an authenticated exact principal set, denied direct sends, and one trusted producer."""
+    return (isinstance(raw,dict)
+        and raw.get("anonymousDenied") is True
+        and raw.get("humanAuthenticated")==[True,True,True]
+        and raw.get("humanSendDenied")==[True,True,True]
+        and raw.get("machinePrincipals")==["batch-worker","handling-worker","inspection-worker","notification-worker"]
+        and raw.get("machineAuthenticated")==[True,True,True,True]
+        and raw.get("machineSendDenied")==[True,True,True,True]
+        and raw.get("trustedAllowed") is True
+        and raw.get("rejectedQueueDenied") is True
+        and raw.get("deliveredQueueDenied") is True
+        and unauthorized_effects_unchanged is True)
+
 def load_model():
     raw=INVENTORY.read_bytes();inventory=json.loads(raw);model=json.loads(MANIFEST.read_text())
     validate_model(model,inventory,hashlib.sha256(raw).hexdigest())
@@ -251,6 +265,8 @@ class CurrentAdapter:
             if case["actor"]=="worker-BG-03":
                 observation=deepcopy(getattr(self.legacy,"handling_worker_observation",{}))
                 identity=observation.get("native_identity",{})
+                raw_producer=getattr(self.legacy,"remote_producer_raw_observation",{})
+                producer_effects=getattr(self.legacy,"remote_producer_unauthorized_effects_unchanged",False)
                 if (observation.get("driver")!="native-handling-worker-v1"
                         or observation.get("supported") is not True
                         or observation.get("status")!=200
@@ -258,6 +274,7 @@ class CurrentAdapter:
                         or observation.get("machine_scope")!=case.get("required_machine_scope")
                         or observation.get("authorized_adapter_events_verified") is not True
                         or observation.get("producer_boundary_verified") is not True
+                        or not handling_producer_boundary_verified(raw_producer,producer_effects)
                         or observation.get("human_direct_denials_effects_unchanged") is not True
                         or identity.get("server_verified") is not True
                         or identity.get("principal")!="handling-worker"
