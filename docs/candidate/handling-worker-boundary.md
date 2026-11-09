@@ -14,4 +14,11 @@ A separate-JVM remote+http JMS probe now verifies the broker side of the BG-03 b
 
 The fresh current-capability gate binds the raw principal and send-denial results to the same-fixture worker identity and authorized adapter events. CURRENT::BG-03-MACHINE::worker-BG-03::active passes. See the sanitized run in notes/evidence/kan-15-bg03-producer-boundary/validation.json and its current-capability-gate.json.
 
-This verifies the disposable candidate WildFly configuration and the named principals exercised by the fixture. It is not a production deployment or a claim that every external principal, JNDI binding, host policy, or broker configuration has been audited. BG-04 protects a different queue and remains separately blocked until its producer boundary is tested.
+This verifies the disposable candidate WildFly configuration and the named principals exercised by the fixture. It is not a production deployment or a claim that every external principal, JNDI binding, host policy, or broker configuration has been audited.
+
+
+## BG-04 cargo inspection producer boundary
+
+The [BG-04 producer probe](../../notes/evidence/kan-15-bg04-producer-boundary/README.md) separately verifies CargoHandledQueue authorization. The credential-derived `handling-worker` principal is allowed to send; the probe uses a transacted session and rolls back its message. Anonymous, Reader, Operator, Administrator, BatchWorker, InspectionWorker, and NotificationWorker are denied. Database state, queue counters, CargoHandledConsumer invocation count, and inspection audit count remain unchanged around the probe.
+
+Normal handling events are separately observed in CargoHandledQueue, where CargoHandledConsumer runs under InspectionWorker and verifies server-principal identity, origin metadata, and unique correlation IDs. The JMS metadata itself is not cryptographic producer identity. The fixture does not prove production credential distribution or audit arbitrary external JNDI/broker clients.

@@ -806,6 +806,11 @@ def main(after_checks=None):
             notification_worker_denials[actor]=proof
         report["notification_worker_denials"]=notification_worker_denials
         producer_attempt=settled()
+        cargo_handled_queue_before=producer_attempt["queues"]["jms.queue.CargoHandledQueue"]
+        inspection_invocations_before=producer_attempt["business_invocations"].get(
+            "net.java.cargotracker.infrastructure.messaging.jms.CargoHandledConsumer#onMessage",0)
+        inspection_audit_logs_before=command("docker","logs",container).count(
+            "INSPECTION_WORKER_AUDIT event=consumed principal=inspection-worker role=InspectionWorker")
         producer_process=subprocess.run(["docker","exec",container,"java","-cp",
             "/opt/jboss/remote-producer-classes:/opt/jboss/remote-producer-classes/WEB-INF/classes:/opt/jboss/remote-producer-classes/WEB-INF/lib/*:/opt/jboss/wildfly/bin/client/jboss-client.jar",
             "lab.fixture.RemoteJmsProducerProbe","/run/kan18/producer-client.properties"],
@@ -816,6 +821,18 @@ def main(after_checks=None):
         producer_output=producer_process.stdout
         producer_observation=json.loads(producer_output.strip().splitlines()[-1])
         producer_after=settled()
+        cargo_handled_queue_after=producer_after["queues"]["jms.queue.CargoHandledQueue"]
+        inspection_invocations_after=producer_after["business_invocations"].get(
+            "net.java.cargotracker.infrastructure.messaging.jms.CargoHandledConsumer#onMessage",0)
+        inspection_audit_logs_after=command("docker","logs",container).count(
+            "INSPECTION_WORKER_AUDIT event=consumed principal=inspection-worker role=InspectionWorker")
+        cargo_handled_effects_unchanged=(producer_after["tables"]==producer_attempt["tables"]
+            and cargo_handled_queue_after==cargo_handled_queue_before
+            and inspection_invocations_after==inspection_invocations_before
+            and inspection_audit_logs_after==inspection_audit_logs_before)
+        report["cargo_handled_producer_raw_observation"]={key:value for key,value in producer_observation.items()
+            if key.startswith("cargoHandled")}
+        report["cargo_handled_producer_effects_unchanged"]=cargo_handled_effects_unchanged
         unauthorized_unchanged=(producer_after["tables"]==producer_attempt["tables"]
             and producer_observation.get("anonymousDenied") is True
             and producer_observation.get("humanSendDenied")==[True,True,True]
@@ -838,6 +855,20 @@ def main(after_checks=None):
             producer_observation.get("trustedAllowed") is True
             and producer_observation.get("rejectedQueueDenied") is True
             and producer_observation.get("deliveredQueueDenied") is True)
+        cargo_handled_producer_boundary_verified=(
+            producer_observation.get("cargoHandledAnonymousDenied") is True
+            and producer_observation.get("cargoHandledHumanAuthenticated")==[True,True,True]
+            and producer_observation.get("cargoHandledHumanSendDenied")==[True,True,True]
+            and producer_observation.get("cargoHandledMachinePrincipals")==["batch-worker","inspection-worker","notification-worker"]
+            and producer_observation.get("cargoHandledMachineAuthenticated")==[True,True,True]
+            and producer_observation.get("cargoHandledMachineSendDenied")==[True,True,True]
+            and producer_observation.get("cargoHandledTrustedPrincipal")=="handling-worker"
+            and producer_observation.get("cargoHandledTrustedAllowed") is True
+            and cargo_handled_effects_unchanged)
+        check("CargoHandledQueue permits only authenticated HandlingWorker among tested remote principals",
+            cargo_handled_producer_boundary_verified)
+        check("CargoHandledQueue authorization probe leaves application effects unchanged",
+            cargo_handled_effects_unchanged)
         rejection_before=producer_attempt
         poison_status=202
         report["handling_attempt_producer_observation"]={
@@ -1561,8 +1592,9 @@ def main(after_checks=None):
             "correlation_count":len(inspection_correlations),
             "unique_correlation_count":len(set(inspection_correlations)),
             "authorized_adapter_events_verified":inspection_audit_verified,
-            "producer_boundary_verified":False,
-            "producer_boundary_note":"Arbitrary CargoHandledQueue producer/JNDI restriction is outside this fixture",
+            "producer_boundary_verified":cargo_handled_producer_boundary_verified,
+            "producer_boundary_note":"Separate-JVM remote+http JMS probe verified HandlingWorker send authorization and denied anonymous, human, batch, inspection and notification principals; authorized test send rolled back",
+            "producer_boundary_effects_unchanged":cargo_handled_effects_unchanged,
             "human_direct_denials_effects_unchanged":all(
                 x.get("independent_effects_unchanged") is True
                 for x in inspection_worker_denials.values()),

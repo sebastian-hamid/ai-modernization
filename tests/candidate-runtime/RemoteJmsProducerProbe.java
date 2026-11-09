@@ -20,6 +20,7 @@ import net.java.cargotracker.interfaces.handling.HandlingEventRegistrationAttemp
 public final class RemoteJmsProducerProbe {
     private static final String FACTORY = "jms/RemoteConnectionFactory";
     private static final String ATTEMPT = "HandlingEventRegistrationAttemptQueue";
+    private static final String CARGO_HANDLED = "CargoHandledQueue";
     private static final String REJECTED = "RejectedRegistrationAttemptsQueue";
     private static final String DELIVERED = "DeliveredCargoQueue";
 
@@ -162,12 +163,63 @@ public final class RemoteJmsProducerProbe {
             machineAuthenticated[i] = true;
         }
 
+        // Verify CargoHandledQueue's trusted registration-service producer boundary.
+        String[] cargoHandledMachineUsers = {"batch-worker", "inspection-worker", "notification-worker"};
+        boolean[] cargoHandledMachineAuthenticated = new boolean[cargoHandledMachineUsers.length];
+        boolean[] cargoHandledMachineSendDenied = new boolean[cargoHandledMachineUsers.length];
+        for (int i = 0; i < cargoHandledMachineUsers.length; i++) {
+            String user = cargoHandledMachineUsers[i];
+            String password = credentials.getProperty(user + ".password");
+            InitialContext machineLookup = lookupContext(user, password);
+            ConnectionFactory machineFactory = (ConnectionFactory) machineLookup.lookup(FACTORY);
+            machineLookup.close();
+            cargoHandledMachineSendDenied[i] = deniedSend(machineFactory,user,password,CARGO_HANDLED);
+            cargoHandledMachineAuthenticated[i] = true;
+        }
+        boolean[] cargoHandledHumanAuthenticated = new boolean[humanUsers.length];
+        boolean[] cargoHandledHumanSendDenied = new boolean[humanUsers.length];
+        for (int i = 0; i < humanUsers.length; i++) {
+            String user = humanUsers[i];
+            String password = credentials.getProperty(user + ".password");
+            InitialContext humanLookup = lookupContext(user, password);
+            ConnectionFactory humanFactory = (ConnectionFactory) humanLookup.lookup(FACTORY);
+            humanLookup.close();
+            cargoHandledHumanSendDenied[i] = deniedSend(humanFactory,user,password,CARGO_HANDLED);
+            cargoHandledHumanAuthenticated[i] = true;
+        }
+
         boolean anonymousDenied;
         try {
             anonymousDenied = deniedSend(factory,null,null,ATTEMPT);
         } catch (IllegalStateException | JMSRuntimeException failure) {
             if (isAuthenticationDenial(failure)) anonymousDenied = true;
             else throw failure;
+        }
+
+        boolean cargoHandledAnonymousDenied;
+        try {
+            cargoHandledAnonymousDenied = deniedSend(factory,null,null,CARGO_HANDLED);
+        } catch (IllegalStateException | JMSRuntimeException failure) {
+            if (isAuthenticationDenial(failure)) cargoHandledAnonymousDenied = true;
+            else throw failure;
+        }
+
+        // Roll back after send authorization so no business message is delivered.
+        String cargoHandledTrustedPrincipal = credentials.getProperty("handling-worker.user");
+        if (!"handling-worker".equals(cargoHandledTrustedPrincipal)) {
+            throw new IllegalArgumentException("unexpected CargoHandledQueue producer identity");
+        }
+        boolean cargoHandledTrustedAllowed;
+        try (JMSContext context = factory.createContext(
+                cargoHandledTrustedPrincipal,
+                credentials.getProperty("handling-worker.password"), JMSContext.SESSION_TRANSACTED)) {
+            Queue queue = context.createQueue(CARGO_HANDLED);
+            jakarta.jms.TextMessage message = context.createTextMessage("KAN-15-BG04-ACL-PROBE");
+            message.setJMSCorrelationID(java.util.UUID.randomUUID().toString());
+            message.setStringProperty("producerOrigin", "handling-event-service");
+            context.createProducer().send(queue, message);
+            cargoHandledTrustedAllowed = true;
+            context.rollback();
         }
 
         boolean trustedAllowed;
@@ -192,6 +244,14 @@ public final class RemoteJmsProducerProbe {
                 + ",\"machineAuthenticated\":[" + machineAuthenticated[0] + "," + machineAuthenticated[1] + "," + machineAuthenticated[2] + "," + machineAuthenticated[3] + "]"
                 + ",\"machineSendDenied\":[" + machineSendDenied[0] + "," + machineSendDenied[1] + "," + machineSendDenied[2] + "," + machineSendDenied[3] + "]"
                 + ",\"trustedAllowed\":" + trustedAllowed
+                + ",\"cargoHandledAnonymousDenied\":" + cargoHandledAnonymousDenied
+                + ",\"cargoHandledHumanAuthenticated\":" + array(cargoHandledHumanAuthenticated)
+                + ",\"cargoHandledHumanSendDenied\":" + array(cargoHandledHumanSendDenied)
+                + ",\"cargoHandledMachinePrincipals\":[\"batch-worker\",\"inspection-worker\",\"notification-worker\"]"
+                + ",\"cargoHandledMachineAuthenticated\":" + array(cargoHandledMachineAuthenticated)
+                + ",\"cargoHandledMachineSendDenied\":" + array(cargoHandledMachineSendDenied)
+                + ",\"cargoHandledTrustedPrincipal\":\"" + cargoHandledTrustedPrincipal + "\""
+                + ",\"cargoHandledTrustedAllowed\":" + cargoHandledTrustedAllowed
                 + ",\"rejectedQueueDenied\":" + rejectedQueueDenied
                 + ",\"deliveredQueueDenied\":" + deliveredQueueDenied + "}");
         if (!anonymousDenied || !trustedAllowed || !rejectedQueueDenied || !deliveredQueueDenied) System.exit(2);
@@ -201,5 +261,21 @@ public final class RemoteJmsProducerProbe {
         for (int i = 0; i < machineUsers.length; i++) {
             if (!machineAuthenticated[i] || !machineSendDenied[i]) System.exit(4);
         }
+        if (!cargoHandledAnonymousDenied || !cargoHandledTrustedAllowed) System.exit(5);
+        for (int i = 0; i < humanUsers.length; i++) {
+            if (!cargoHandledHumanAuthenticated[i] || !cargoHandledHumanSendDenied[i]) System.exit(6);
+        }
+        for (int i = 0; i < cargoHandledMachineUsers.length; i++) {
+            if (!cargoHandledMachineAuthenticated[i] || !cargoHandledMachineSendDenied[i]) System.exit(7);
+        }
+    }
+
+    private static String array(boolean[] values) {
+        StringBuilder result = new StringBuilder("[");
+        for (int i = 0; i < values.length; i++) {
+            if (i > 0) result.append(',');
+            result.append(values[i]);
+        }
+        return result.append(']').toString();
     }
 }

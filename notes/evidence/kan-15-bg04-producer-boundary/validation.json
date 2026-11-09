@@ -1,0 +1,132 @@
+{
+  "task": "KAN-15 BG-04 CargoHandledQueue producer boundary",
+  "date": "2026-11-09",
+  "fixture": {
+    "status": "PASS",
+    "native_checks": 724,
+    "browser_checks": 841,
+    "all_browser_checks_passed": true,
+    "owned_container_removed": true,
+    "private_files_removed": true,
+    "cleanup_errors": [],
+    "browser_container_removed": true,
+    "browser_network_removed": true,
+    "browser_cleanup_errors": []
+  },
+  "producer_boundary": {
+    "transport": "remote+http WildFly JMS from a separate JVM",
+    "trusted_principal": "handling-worker",
+    "trusted_role": "HandlingWorker",
+    "trusted_identity_derived_from_used_credential": true,
+    "trusted_send_allowed_and_rolled_back": true,
+    "anonymous_denied": true,
+    "human_principals": [
+      "reader",
+      "operator",
+      "admin"
+    ],
+    "human_authenticated": [
+      true,
+      true,
+      true
+    ],
+    "human_send_denied": [
+      true,
+      true,
+      true
+    ],
+    "nonproducer_machine_principals": [
+      "batch-worker",
+      "inspection-worker",
+      "notification-worker"
+    ],
+    "machine_authenticated": [
+      true,
+      true,
+      true
+    ],
+    "machine_send_denied": [
+      true,
+      true,
+      true
+    ],
+    "cargo_handled_queue_database_invocation_and_audit_effects_unchanged": true
+  },
+  "inspection_worker": {
+    "principal": "inspection-worker",
+    "role": "InspectionWorker",
+    "machine_identity_verified": true,
+    "producer_origin_verified": true,
+    "correlation_verified": true,
+    "unique_correlation_count": 3,
+    "producer_boundary_verified": true,
+    "current_case": {
+      "case": "CURRENT::BG-04-MACHINE::worker-BG-04::active",
+      "outcome": "PASS",
+      "reason": "Allowed workflow and identity evidence observed"
+    }
+  },
+  "current_capability_gate": {
+    "counts": {
+      "PASS": 448,
+      "BLOCKED": 22
+    },
+    "retirement_counts": {
+      "BLOCKED": 76
+    },
+    "legacy_audit_counts": {
+      "PASS": 324,
+      "BLOCKED": 178
+    },
+    "gate_exit": 2,
+    "expected_gate_exit": 2,
+    "remaining_blocked_current_cases": [
+      "CURRENT::BG-06::anonymous::active",
+      "CURRENT::BG-06::Reader::active",
+      "CURRENT::BG-06::Operator::active",
+      "CURRENT::BG-06::Administrator::active",
+      "CURRENT::SERVICE-01::anonymous::active",
+      "CURRENT::SERVICE-01::Reader::active",
+      "CURRENT::SERVICE-01::Operator::active",
+      "CURRENT::SERVICE-01::Administrator::active",
+      "CURRENT::SERVICE-02::anonymous::active",
+      "CURRENT::SERVICE-02::Reader::active",
+      "CURRENT::SERVICE-02::Operator::active",
+      "CURRENT::SERVICE-02::Administrator::active",
+      "CURRENT::SERVICE-03::anonymous::active",
+      "CURRENT::SERVICE-03::Reader::active",
+      "CURRENT::SERVICE-03::Operator::active",
+      "CURRENT::SERVICE-03::Administrator::active",
+      "CURRENT::SERVICE-04::anonymous::active",
+      "CURRENT::SERVICE-04::Reader::active",
+      "CURRENT::SERVICE-04::Operator::active",
+      "CURRENT::SERVICE-04::Administrator::active",
+      "CURRENT::BG-02-MACHINE::worker-BG-02::active",
+      "CURRENT::BG-06-MACHINE::deployment-migration::active"
+    ],
+    "inputs_fingerprint": "a656082f4193d00de715d2a048a72167aceff02a4838802b370d7feebd5360d3",
+    "canonical_contracts_sha256": "18be58f6a5fcf3dc9c6cf3010710e765ee61e5164c3773d7628968df546782ec",
+    "cleanup_verified": true,
+    "fingerprint_scope": "On-disk inputs and constructed canonical contracts; already imported Python code identity is not attested."
+  },
+  "validation": {
+    "security_unit_tests": 90,
+    "candidate_runtime_unit_tests": 47,
+    "current_capability_unit_tests": 33,
+    "py_compile": true,
+    "diff_check_clean": true
+  },
+  "artifacts": {
+    "current_capability_gate_sha256": "5ece144b908144b3562b89d0802f8ec1304ec2cf8ab707cfce7c0a2748bcd7b1",
+    "private_runtime_report_sha256": "3aae616e569b6244899466f85e0ca5aab0932b4aabf569aa31c65a6b6edf8f67",
+    "private_server_log_sha256": "54771dacbdd12e35bf28138139008013e36351d7c9b12a1103d6f2f602ff218c",
+    "browser_report_sha256": "9a51d7d193ef3f6d80372d8af994f719e991211cf6c1bb427a6f6e6bbd4bcc66",
+    "source_sha256": {
+      "tests/candidate-runtime/RemoteJmsProducerProbe.java": "98bbaa4f7d6e8132160fa15e05b043549a85e308bd7cef64cd047e2535df91d2",
+      "tests/candidate-runtime/run_candidate.py": "8f0b4758fa3fe665d6ed4a5f94a8589debc36faf81cd40466fc871496380630f",
+      "tests/security/current_capabilities.py": "ba1eee3c021f499254bd0c343f29a0d60ed26d5b0dec2ad23ab206131328b807",
+      "tests/security/run_candidate_contracts.py": "add5f68df6597e2d66584365660f4603f3680a9ed62110804561b9fd7d0ec8ac",
+      "tests/security/test_current_capabilities.py": "622ed2c24d8d095dd1900c773f8b253274294fd393236abcc932ac2beb960aec"
+    }
+  }
+}

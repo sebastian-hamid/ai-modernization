@@ -430,6 +430,13 @@ class CurrentCapabilityTests(unittest.TestCase):
                  "native_identity":{"server_verified":True,"principal":"inspection-worker","roles":["InspectionWorker"]}}
         adapter.legacy.inspection_worker_denials=denials
         adapter.legacy.inspection_worker_observation=machine
+        producer_raw={"cargoHandledAnonymousDenied":True,
+            "cargoHandledHumanAuthenticated":[True,True,True],"cargoHandledHumanSendDenied":[True,True,True],
+            "cargoHandledMachinePrincipals":["batch-worker","inspection-worker","notification-worker"],
+            "cargoHandledMachineAuthenticated":[True,True,True],"cargoHandledMachineSendDenied":[True,True,True],
+            "cargoHandledTrustedPrincipal":"handling-worker","cargoHandledTrustedAllowed":True}
+        adapter.legacy.cargo_handled_producer_raw_observation=producer_raw
+        adapter.legacy.cargo_handled_producer_effects_unchanged=True
         case=adapter.contracts["CURRENT::BG-04-MACHINE::worker-BG-04::active"]
         self.assertEqual(case["binding_status"],"native-inspection-worker")
         self.assertEqual(evaluate(case,adapter.execute(case))[0],"PASS")
@@ -439,6 +446,19 @@ class CurrentCapabilityTests(unittest.TestCase):
             adapter.legacy.inspection_worker_observation={**machine,field:value}
             with self.subTest(field=field),self.assertRaises(UnsupportedCase):
                 adapter.execute(case)
+        adapter.legacy.inspection_worker_observation=machine
+        for field,value in [("cargoHandledAnonymousDenied",False),
+                ("cargoHandledHumanSendDenied",[True,True,False]),
+                ("cargoHandledMachinePrincipals",["batch-worker","notification-worker","inspection-worker"]),
+                ("cargoHandledMachineSendDenied",[True,False,True]),
+                ("cargoHandledTrustedPrincipal","inspection-worker"),
+                ("cargoHandledTrustedAllowed",False)]:
+            adapter.legacy.cargo_handled_producer_raw_observation={**producer_raw,field:value}
+            with self.subTest(producer_field=field),self.assertRaises(UnsupportedCase):
+                adapter.execute(case)
+        adapter.legacy.cargo_handled_producer_raw_observation=producer_raw
+        adapter.legacy.cargo_handled_producer_effects_unchanged=False
+        with self.assertRaises(UnsupportedCase):adapter.execute(case)
 
     def test_bg05_requires_consumer_view_denials_and_rejection_disposition(self):
         adapter=c.CurrentAdapter()

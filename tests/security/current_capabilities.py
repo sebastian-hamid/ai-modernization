@@ -97,6 +97,19 @@ def handling_producer_boundary_verified(raw,unauthorized_effects_unchanged):
         and raw.get("deliveredQueueDenied") is True
         and unauthorized_effects_unchanged is True)
 
+def cargo_handled_producer_boundary_verified(raw, effects_unchanged):
+    """Require authenticated denials and the designated HandlingWorker send grant."""
+    return (isinstance(raw,dict)
+        and raw.get("cargoHandledAnonymousDenied") is True
+        and raw.get("cargoHandledHumanAuthenticated")==[True,True,True]
+        and raw.get("cargoHandledHumanSendDenied")==[True,True,True]
+        and raw.get("cargoHandledMachinePrincipals")==["batch-worker","inspection-worker","notification-worker"]
+        and raw.get("cargoHandledMachineAuthenticated")==[True,True,True]
+        and raw.get("cargoHandledMachineSendDenied")==[True,True,True]
+        and raw.get("cargoHandledTrustedPrincipal")=="handling-worker"
+        and raw.get("cargoHandledTrustedAllowed") is True
+        and effects_unchanged is True)
+
 def load_model():
     raw=INVENTORY.read_bytes();inventory=json.loads(raw);model=json.loads(MANIFEST.read_text())
     validate_model(model,inventory,hashlib.sha256(raw).hexdigest())
@@ -295,6 +308,8 @@ class CurrentAdapter:
             if case["actor"]=="worker-BG-04":
                 observation=deepcopy(getattr(self.legacy,"inspection_worker_observation",{}))
                 identity=observation.get("native_identity",{})
+                producer_raw=getattr(self.legacy,"cargo_handled_producer_raw_observation",{})
+                producer_effects=getattr(self.legacy,"cargo_handled_producer_effects_unchanged",False)
                 if (observation.get("driver")!="native-inspection-worker-v1"
                         or observation.get("supported") is not True
                         or observation.get("status")!=200
@@ -304,6 +319,7 @@ class CurrentAdapter:
                         or observation.get("correlation_verified") is not True
                         or observation.get("authorized_adapter_events_verified") is not True
                         or observation.get("producer_boundary_verified") is not True
+                        or not cargo_handled_producer_boundary_verified(producer_raw,producer_effects)
                         or observation.get("human_direct_denials_effects_unchanged") is not True
                         or identity.get("server_verified") is not True
                         or identity.get("principal")!="inspection-worker"
