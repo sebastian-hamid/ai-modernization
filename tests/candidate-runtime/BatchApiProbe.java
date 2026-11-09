@@ -16,7 +16,6 @@ import jakarta.jms.MessageListener;
 import jakarta.jms.JMSContext;
 import jakarta.jms.Queue;
 import jakarta.annotation.Resource;
-import jakarta.jms.ObjectMessage;
 import java.util.Properties;
 import java.util.UUID;
 import net.java.cargotracker.interfaces.handling.file.BatchImportRequestService;
@@ -39,8 +38,6 @@ public final class BatchApiProbe extends HttpServlet {
     private CargoInspectionService cargoInspectionService;
     @jakarta.inject.Inject
     private JMSContext jmsContext;
-    @Resource(lookup = "java:app/jms/HandlingEventRegistrationAttemptQueue")
-    private Queue handlingEventQueue;
 
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException {
@@ -107,24 +104,6 @@ public final class BatchApiProbe extends HttpServlet {
                 }
             } catch (RuntimeException unexpected) {
                 response.setHeader("X-Fixture-Probe-Failure", unexpected.getClass().getSimpleName());
-                response.sendError(500);
-            }
-            return;
-        }
-        if ("poison-handling-attempt".equals(operation)) {
-            if (request.getUserPrincipal() == null || !request.isUserInRole("Administrator")) {
-                response.sendError(403);
-                return;
-            }
-            try {
-                Date now = new Date();
-                HandlingEventRegistrationAttempt attempt = new HandlingEventRegistrationAttempt(
-                        now, now, new TrackingId("NOCARGO1"), null, HandlingEvent.Type.RECEIVE,
-                        new UnLocode("USCHI"));
-                ObjectMessage message = jmsContext.createObjectMessage(attempt);
-                jmsContext.createProducer().send(handlingEventQueue, message);
-                response.setStatus(202);
-            } catch (RuntimeException rejected) {
                 response.sendError(500);
             }
             return;

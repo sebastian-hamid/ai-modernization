@@ -24,5 +24,10 @@ COPY --chown=jboss:root tests/candidate-runtime/start.sh /opt/jboss/start-kan18.
 COPY --chown=jboss:root tests/candidate-runtime/configure-batch-security.cli /opt/jboss/configure-batch-security.cli
 COPY --chown=jboss:root candidate/cargotracker/deployment/wildfly/notification-disposition.cli /opt/jboss/notification-disposition.cli
 COPY --from=build /tmp/observer-client /opt/jboss/observer-client
+COPY tests/candidate-runtime/RemoteJmsProducerProbe.java /opt/jboss/RemoteJmsProducerProbe.java
+USER root
+RUN mkdir -p /opt/jboss/remote-producer-classes && cd /opt/jboss/remote-producer-classes && jar xf /opt/jboss/wildfly/standalone/deployments/cargo-tracker.war WEB-INF/classes WEB-INF/lib && javac -cp /opt/jboss/wildfly/bin/client/jboss-client.jar:/opt/jboss/remote-producer-classes/WEB-INF/classes:/opt/jboss/remote-producer-classes/WEB-INF/lib/* -d /opt/jboss/remote-producer-classes /opt/jboss/RemoteJmsProducerProbe.java
+RUN chown -R jboss:root /opt/jboss/remote-producer-classes
+USER jboss
 RUN java -version && chmod 750 /opt/jboss/start-kan18.sh
 CMD ["/opt/jboss/start-kan18.sh"]

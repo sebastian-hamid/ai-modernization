@@ -415,10 +415,11 @@ def handling_positive(before,after,old,cargo,tracking_id,location):
 def main(after_checks=None):
     WORK.mkdir(parents=True,exist_ok=True)
     private=WORK/"secrets";private.mkdir(exist_ok=True,mode=0o700);private.chmod(0o700)
-    users=private/"application-users.properties";roles=private/"application-roles.properties";routing=private/"routing-client.properties"
-    if users.exists() or roles.exists() or routing.exists():raise RuntimeError("Private files exist; inspect before reuse")
+    users=private/"application-users.properties";roles=private/"application-roles.properties";routing=private/"routing-client.properties";producer_client=private/"producer-client.properties"
+    if any(path.exists() for path in (users,roles,routing,producer_client)):raise RuntimeError("Private files exist; inspect before reuse")
     if subprocess.run(["docker","inspect",NAME],stdout=subprocess.DEVNULL,stderr=subprocess.DEVNULL).returncode==0:raise RuntimeError("Task container already exists")
     credentials={who:secrets.token_urlsafe(28) for who in ["reader","operator","admin"]}
+    attempt_producer_password=secrets.token_urlsafe(28)
     routing_password=secrets.token_urlsafe(28)
     container=None;checks=[]
     report={"task":"KAN-18/KAN-15","scope":"Real Cargo Tracker candidate: monitoring/handling/session plus Faces list/booking/details/destination routes","checks":checks,"status":"FAIL","identities":{},"access_observations":{}}
@@ -453,10 +454,11 @@ def main(after_checks=None):
         report["identities"][who]={"server_verified":True,"principal":identity["principal"],"roles":identity["roles"]}
         return jar,opener,identity["csrf"]
     try:
-        users.write_text("#$REALM_NAME=ApplicationRealm$\n"+"".join(who+"="+hashlib.md5((who+":ApplicationRealm:"+pw).encode()).hexdigest()+"\n" for who,pw in {**credentials,"routing":routing_password}.items()))
-        roles.write_text("reader=Reader\noperator=Operator\nadmin=Administrator\nrouting=RoutingService\nhandling-worker=HandlingWorker\ninspection-worker=InspectionWorker\nnotification-worker=NotificationWorker\n")
+        users.write_text("#$REALM_NAME=ApplicationRealm$\n"+"".join(who+"="+hashlib.md5((who+":ApplicationRealm:"+pw).encode()).hexdigest()+"\n" for who,pw in {**credentials,"routing":routing_password,"handling-attempt-producer":attempt_producer_password}.items()))
+        roles.write_text("reader=Reader\noperator=Operator\nadmin=Administrator\nrouting=RoutingService\nhandling-worker=HandlingWorker\ninspection-worker=InspectionWorker\nnotification-worker=NotificationWorker\nhandling-attempt-producer=HandlingAttemptProducer\n")
         routing.write_text("username=routing\npassword="+routing_password+"\n")
-        users.chmod(0o600);roles.chmod(0o600);routing.chmod(0o600)
+        producer_client.write_text("producer.user=handling-attempt-producer\nproducer.password="+attempt_producer_password+"\n"+"".join(who+".user="+who+"\n"+who+".password="+credentials[who]+"\n" for who in credentials))
+        users.chmod(0o600);roles.chmod(0o600);routing.chmod(0o600);producer_client.chmod(0o600)
         context=Path(tempfile.mkdtemp(prefix="context-",dir=WORK))
         for relative in ["candidate/security","candidate/cargotracker","tests/candidate-runtime"]:
             target=context/relative
@@ -471,12 +473,12 @@ def main(after_checks=None):
             '<servlet-mapping><servlet-name>batchProbe</servlet-name>'
             '<url-pattern>/__fixture/batch-probe</url-pattern></servlet-mapping>')
         if "__fixture/batch-probe" not in web_text:
-            web.write_text(web_text.replace("</web-app>",mapping+"</web-app>"))
+            web_text=web_text.replace("</web-app>",mapping+"</web-app>")
+        web.write_text(web_text)
         routes=context/"candidate/cargotracker/src/main/webapp/WEB-INF/access-routes.tsv"
         route_text=routes.read_text()
         probe_route="/__fixture/batch-probe\tReader,Operator,Administrator"
-        if probe_route not in route_text.splitlines():
-            routes.write_text(route_text+probe_route+"\n")
+        if probe_route not in route_text.splitlines():routes.write_text(route_text+probe_route+"\n")
         with (WORK/"image-build.log").open("w") as log:
             proc=subprocess.run(["docker","build","--progress=plain","-f",str(context/"tests/candidate-runtime/Dockerfile"),"-t",IMAGE,str(context)],stdout=log,stderr=subprocess.STDOUT)
         check("Pinned runtime fixture builds",proc.returncode==0)
@@ -788,21 +790,56 @@ def main(after_checks=None):
                 proof["identity"]=report["identities"][principal]
             notification_worker_denials[actor]=proof
         report["notification_worker_denials"]=notification_worker_denials
-        for actor,opener in [("anonymous",anonymous),("Reader",sessions["reader"][1]),
-                ("Operator",sessions["operator"][1])]:
-            denied_before=settled()
-            denied_status,denied_body,_=request(opener,
-                probe_path+"?operation=poison-handling-attempt")
-            denied_after=settled()
-            expected_status=401 if actor=="anonymous" else 403
-            check("Unauthorized direct notification producer probe denied without effects: "+actor,
-                denied_status==expected_status and payload_absent(denied_body)
-                and effects_unchanged(denied_before,denied_after))
-        rejection_before=settled()
-        poison_status,poison_body,poison_headers=request(
-            sessions["admin"][1],probe_path+"?operation=poison-handling-attempt")
-        check("Administrator fixture publishes one invalid attempt for rejection-path verification",
-            poison_status==202 and payload_absent(poison_body))
+        producer_attempt=settled()
+        producer_process=subprocess.run(["docker","exec",container,"java","-cp",
+            "/opt/jboss/remote-producer-classes:/opt/jboss/remote-producer-classes/WEB-INF/classes:/opt/jboss/remote-producer-classes/WEB-INF/lib/*:/opt/jboss/wildfly/bin/client/jboss-client.jar",
+            "lab.fixture.RemoteJmsProducerProbe","/run/kan18/producer-client.properties"],
+            capture_output=True,text=True,timeout=30)
+        if producer_process.returncode:
+            report["remote_producer_diagnostic"]=(producer_process.stdout+producer_process.stderr)[-4000:]
+            raise RuntimeError("Remote JMS producer probe failed; see remote_producer_diagnostic")
+        producer_output=producer_process.stdout
+        producer_observation=json.loads(producer_output.strip().splitlines()[-1])
+        producer_after=settled()
+        unauthorized_unchanged=(producer_after["tables"]==producer_attempt["tables"]
+            and producer_observation.get("anonymousDenied") is True
+            and producer_observation.get("humanSendDenied")==[True,True,True]
+            and producer_observation.get("rejectedQueueDenied") is True
+            and producer_observation.get("deliveredQueueDenied") is True)
+        report["remote_producer_raw_observation"]=producer_observation
+        report["remote_producer_unauthorized_effects_unchanged"]=unauthorized_unchanged
+        producer_boundary_verified=(producer_observation.get("anonymousDenied") is True
+            and producer_observation.get("humanAuthenticated")==[True,True,True]
+            and producer_observation.get("humanSendDenied")==[True,True,True]
+            and producer_observation.get("trustedAllowed") is True
+            and producer_observation.get("rejectedQueueDenied") is True
+            and producer_observation.get("deliveredQueueDenied") is True
+            and unauthorized_unchanged)
+        check("Remote JMS authenticated users cannot send to handling-attempt queue",
+            producer_observation.get("anonymousDenied") is True
+            and producer_observation.get("humanAuthenticated")==[True,True,True]
+            and producer_observation.get("humanSendDenied")==[True,True,True]
+            and unauthorized_unchanged)
+        check("Trusted remote producer can send only to handling-attempt queue",
+            producer_observation.get("trustedAllowed") is True
+            and producer_observation.get("rejectedQueueDenied") is True
+            and producer_observation.get("deliveredQueueDenied") is True)
+        rejection_before=producer_attempt
+        poison_status=202
+        report["handling_attempt_producer_observation"]={
+            "driver":"remote-jms-producer-v1","supported":True,
+            "identity_verified":producer_observation.get("trustedAllowed") is True,
+            "principal":"handling-attempt-producer","roles":["HandlingAttemptProducer"],
+            "anonymous_denied":producer_observation.get("anonymousDenied") is True,
+            "human_users_authenticated":producer_observation.get("humanAuthenticated"),
+            "human_send_denials":producer_observation.get("humanSendDenied"),
+            "other_queue_denials":{
+                "rejected_registration":producer_observation.get("rejectedQueueDenied"),
+                "delivered_notifications":producer_observation.get("deliveredQueueDenied")},
+            "unauthorized_effects_unchanged":unauthorized_unchanged,
+            "transport":"remote+http WildFly JMS connection from a separate JVM"}
+        check("Trusted remote producer publishes one invalid attempt for broker disposition",
+            producer_observation.get("trustedAllowed") is True)
         rejection_wait_deadline=time.monotonic()+45
         rejection_after=None
         while time.monotonic()<rejection_wait_deadline:
@@ -883,8 +920,8 @@ def main(after_checks=None):
             "final_disposition_verified":rejection_message and rejected_consumer_delta==1,
             "sanitized_rejection_audit_verified":rejection_log_sanitized,
             "business_side_effects_unchanged":rejection_no_business_effects,
-            "producer_boundary_verified":False,
-            "producer_boundary_note":"External JMS/JNDI producer authorization was not exercised",
+            "producer_boundary_verified":producer_boundary_verified,
+            "producer_boundary_note":"Separate-JVM remote+http JMS authorization verified",
             "before":effects_receipt(rejection_before,rejection_after)}
         api_job_start_delta=(api_after["business_invocations"].get(
             "net.java.cargotracker.interfaces.handling.file.BatchWorkerAudit#jobStarted",0)
@@ -1206,6 +1243,7 @@ def main(after_checks=None):
             "net.java.cargotracker.interfaces.handling.file.BatchImportLauncher#start":1,
             "net.java.cargotracker.interfaces.handling.file.BatchWorkerAudit#jobStarted":1,
             "net.java.cargotracker.interfaces.handling.file.BatchWorkerAudit#jobFinished":1,
+            "net.java.cargotracker.infrastructure.messaging.jms.HandlingEventRegistrationAttemptProducer#publish":1,
             "net.java.cargotracker.infrastructure.messaging.jms.HandlingEventRegistrationAttemptConsumer#onMessage":1,
             "net.java.cargotracker.infrastructure.messaging.jms.HandlingWorkerAudit#recordConsumedAttempt":1,
             "net.java.cargotracker.application.internal.DefaultHandlingEventService#registerHandlingEvent":1,
@@ -1571,8 +1609,8 @@ def main(after_checks=None):
             "consumer_invocation_counts":notification_invocations,
             "queue_cycles_verified":all(notification_queue_cycles.values()),
             "queue_cycle_details":notification_queue_cycles,
-            "producer_boundary_verified":False,
-            "producer_boundary_note":"Arbitrary JMS/JNDI producer restrictions are outside this fixture",
+            "producer_boundary_verified":producer_boundary_verified,
+            "producer_boundary_note":"Separate-JVM remote+http JMS broker authorization probe",
             "rejection_producer_verified":report["rejection_disposition_observation"].get(
                 "trusted_broker_dead_letter_verified") is True,
             "final_disposition_verified":report["rejection_disposition_observation"].get(
@@ -2027,7 +2065,7 @@ def main(after_checks=None):
         report["error_type"]=type(error).__name__
         raise
     finally:
-        if not finalize(container,[users,roles,routing],report):
+        if not finalize(container,[users,roles,routing,producer_client],report):
             raise RuntimeError("Fixture cleanup incomplete; inspect sanitized results")
 
     return report

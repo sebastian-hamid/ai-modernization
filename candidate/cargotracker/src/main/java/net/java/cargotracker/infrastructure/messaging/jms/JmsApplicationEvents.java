@@ -9,6 +9,7 @@ import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.jms.Destination;
 import jakarta.jms.JMSContext;
+import jakarta.ejb.EJB;
 import net.java.cargotracker.application.ApplicationEvents;
 import net.java.cargotracker.domain.model.cargo.Cargo;
 import net.java.cargotracker.domain.model.handling.HandlingEvent;
@@ -26,8 +27,8 @@ public class JmsApplicationEvents implements ApplicationEvents, Serializable {
     private Destination misdirectedCargoQueue;
     @Resource(lookup = "java:app/jms/DeliveredCargoQueue")
     private Destination deliveredCargoQueue;
-    @Resource(lookup = "java:app/jms/HandlingEventRegistrationAttemptQueue")
-    private Destination handlingEventQueue;
+    @EJB
+    private HandlingEventRegistrationAttemptProducer handlingAttemptProducer;
     private static final Logger logger = Logger.getLogger(
             JmsApplicationEvents.class.getName());
 
@@ -77,11 +78,6 @@ public class JmsApplicationEvents implements ApplicationEvents, Serializable {
     public void receivedHandlingEventRegistrationAttempt(
             HandlingEventRegistrationAttempt attempt) {
         logger.log(Level.INFO, "Handling event registration attempt received.");
-        jmsContext.createProducer()
-                .setPriority(LOW_PRIORITY)
-                .setDisableMessageID(true)
-                .setDisableMessageTimestamp(true)
-                .setTimeToLive(30000)
-                .send(handlingEventQueue, attempt);
+        handlingAttemptProducer.publish(attempt);
     }
 }

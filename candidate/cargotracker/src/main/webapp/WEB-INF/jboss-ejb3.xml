@@ -17,6 +17,11 @@
       <s:run-as-principal>batch-worker</s:run-as-principal>
     </s:security>
     <s:security>
+      <ejb-name>HandlingEventRegistrationAttemptProducer</ejb-name>
+      <s:security-domain>other</s:security-domain>
+      <s:run-as-principal>handling-attempt-producer</s:run-as-principal>
+    </s:security>
+    <s:security>
       <ejb-name>HandlingEventRegistrationAttemptConsumer</ejb-name>
       <s:security-domain>other</s:security-domain>
       <s:run-as-principal>handling-worker</s:run-as-principal>

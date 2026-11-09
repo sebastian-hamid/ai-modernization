@@ -1,17 +1,27 @@
-# Notification worker boundary
+# Notification worker and producer boundary
 
 ## Functional behavior
 
-WildFly message-driven consumers handle `DeliveredCargoQueue`, `MisdirectedCargoQueue`, and `RejectedRegistrationAttemptsQueue`. They execute under the dedicated `notification-worker` principal mapped to `NotificationWorker`. The consumers do not expose a caller-facing EJB view. Their audit event contains only a fixed event name, consumer kind, and verified worker identity; it excludes cargo identifiers and message bodies.
+WildFly message-driven consumers handle DeliveredCargoQueue, MisdirectedCargoQueue, and RejectedRegistrationAttemptsQueue. They execute under the dedicated notification-worker principal mapped to NotificationWorker. Their EJBs do not expose caller-facing views. Audit events contain fixed event names, consumer kinds, and verified worker identity; they omit cargo identifiers and message bodies.
 
-Invalid `HandlingEventRegistrationAttemptQueue` messages receive three total deliveries (the initial delivery plus two retries) with a 250 ms redelivery delay. The candidate sets a 30-second message TTL so the broker retry window can complete before the message expires; the historical candidate value was 1 second, which was too short for the configured retry schedule. Artemis dead-letters the exhausted message to `RejectedRegistrationAttemptsQueue`. The dedicated consumer records one generic audit event and acknowledges the rejected message. A second failure at the rejection queue follows the broker address setting to the generic `DLQ`, rather than looping.
+Application code publishes handling attempts through the HandlingEventRegistrationAttemptProducer EJB. The EJB requires Operator, Administrator, or BatchWorker, then runs as handling-attempt-producer with the single HandlingAttemptProducer broker role. That broker role can send only to HandlingEventRegistrationAttemptQueue. It cannot send to the rejection or delivered notification queues. Human users can authenticate to the remote WildFly naming/JMS endpoint but cannot send to the handling-attempt queue; anonymous connections cannot send either.
+
+Invalid HandlingEventRegistrationAttemptQueue messages receive three total deliveries (the initial delivery plus two retries) with a 250 ms redelivery delay. The candidate sets a 30-second message TTL so the retry window can complete before expiry. Artemis dead-letters exhausted messages to RejectedRegistrationAttemptsQueue; the notification worker records one generic audit event and acknowledges the rejection. A second failure at that queue follows its address setting to the generic DLQ, avoiding a loop.
 
 ## Verified in the disposable WildFly fixture
 
-The 8 November 2026 live fixture passed 723 checks. It verified all three MDBs start, human direct-client access to their views is denied for anonymous, Reader, Operator, and Administrator, and unauthorized direct poison-message publishing is denied without effects. For the rejection flow it observed three input-consumer invocations, three handling-worker audit calls, one broker dead-letter delivery, one rejection-consumer invocation, one notification audit, one acknowledged rejection message, empty queues afterward, unchanged application tables, and no tracking ID in server logs. The source message increments Artemis `MessagesKilled` on dead-lettering; the rejection message increments `MessagesAcknowledged` on successful consumption. Sanitized fixture output is recorded in `notes/evidence/kan-15-bg05-gate/candidate-runtime.json`.
+The fresh fixture run on 9 November 2026 passed all 722 checks. A separate JVM connected through WildFly remote+http JMS and verified:
+
+- anonymous send denied;
+- Reader, Operator, and Administrator each authenticated successfully and were denied send permission;
+- handling-attempt-producer sent one invalid attempt to the handling queue;
+- the trusted producer was denied send access to RejectedRegistrationAttemptsQueue and DeliveredCargoQueue;
+- denied attempts left business tables unchanged, while the one authorized attempt followed the expected flow.
+
+The broker redelivered that attempt exactly three times, then dead-lettered it once. The rejection consumer acknowledged it, emitted one sanitized audit entry, and left business tables unchanged. The capability gate recorded producer_boundary_verified, trusted_broker_dead_letter_verified, and final_disposition_verified as true. The security unit suite also passed: 88 tests.
+
+Run evidence is in .work/kan18/results.json (local generated fixture output; not committed). This is candidate-runtime evidence only. It does not establish production credentials, TLS policy, firewall rules, secret rotation, or deployment-specific broker configuration.
 
 ## Limits and remaining blocks
 
-The test publishes the invalid message through a fixture-only Administrator endpoint and verifies broker-managed dead-letter routing. It does not prove authorization for arbitrary external JMS/JNDI producers or production broker credentials and network boundaries. BG-05's machine capability therefore remains BLOCKED until those producer boundaries are defined and tested against the intended deployment configuration. The native BG-05 observer's queue-cycle counters cover the rejected-registration message. In the same fresh full gate, the browser workflow also produced one delivered and three misdirected worker audit records. The audit logs establish that those callbacks executed; this checkpoint does not retain separate before/after queue-counter receipts for those browser-generated messages.
-
-This is candidate runtime evidence, not a production deployment or a claim that the legacy application has been migrated.
+The fixture configures queue-level least privilege for the candidate runtime. Production deployment must create and rotate a dedicated producer credential, map it to only the handling-attempt send role, protect the remote connector with the intended TLS/network controls, and verify the same policy in its deployment environment. This result does not represent a production deployment or a completed migration of the legacy application.
