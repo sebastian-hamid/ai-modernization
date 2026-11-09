@@ -1,0 +1,63 @@
+{
+  "task": "KAN-15 same-run replacement proof re-evaluation",
+  "basis": "Offline re-evaluation of retained same-fixture browser proofs; no runtime or browser fixture launched.",
+  "source_gate_sha256": "1a2a92096b0738ad058874a74a05f00ddc27580e152c562b267d77918a656f5b",
+  "source_proofs_sha256": "3a9ec1d8763ef19b4b3fa1b7792e39eaff225510fe0b34c4d3386d11d1e7bc50",
+  "source_inputs_fingerprint": "5b9b6c91234032087685f6c2c7e0471da06a27621826b01561620e23ba8366ad",
+  "replay_scope": "handling-event, handling-voyage, and handling-completion replacement proofs for Operator and Administrator",
+  "oracle_correction": {
+    "handling_attempt_producer": "When its invocation metric is present, require exactly one publish per accepted handling event; older receipts without this metric remain explicitly unobserved.",
+    "misdirected_notification": "Require MisdirectedCargoQueue, MisdirectedCargoConsumer, and NotificationWorkerAudit deltas to match exactly (zero or one)."
+  },
+  "changes": [
+    {
+      "case": "REPLACEMENT::handling-event::Operator",
+      "previous": "BLOCKED",
+      "replayed": "PASS",
+      "reason": "Allowed workflow and identity evidence observed"
+    },
+    {
+      "case": "REPLACEMENT::handling-event::Administrator",
+      "previous": "BLOCKED",
+      "replayed": "PASS",
+      "reason": "Allowed workflow and identity evidence observed"
+    },
+    {
+      "case": "REPLACEMENT::handling-voyage::Operator",
+      "previous": "BLOCKED",
+      "replayed": "PASS",
+      "reason": "Allowed workflow and identity evidence observed"
+    },
+    {
+      "case": "REPLACEMENT::handling-voyage::Administrator",
+      "previous": "BLOCKED",
+      "replayed": "PASS",
+      "reason": "Allowed workflow and identity evidence observed"
+    },
+    {
+      "case": "REPLACEMENT::handling-completion::Operator",
+      "previous": "BLOCKED",
+      "replayed": "PASS",
+      "reason": "Allowed workflow and identity evidence observed"
+    },
+    {
+      "case": "REPLACEMENT::handling-completion::Administrator",
+      "previous": "BLOCKED",
+      "replayed": "PASS",
+      "reason": "Allowed workflow and identity evidence observed"
+    }
+  ],
+  "previous_current_counts": {
+    "PASS": 439,
+    "BLOCKED": 31
+  },
+  "replayed_current_counts": {
+    "PASS": 445,
+    "BLOCKED": 25
+  },
+  "retirement_counts": {
+    "BLOCKED": 76
+  },
+  "gate_exit": 2,
+  "note": "Preserves the fresh gate's original outcomes and fingerprint. This supplemental offline evaluation corrects harness interpretation of six same-run proofs; it does not claim the fresh gate itself produced these revised outcomes."
+}

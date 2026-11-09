@@ -83,7 +83,9 @@ HANDLING_EVENT_WRITE_CALLS = {
 }
 HANDLING_EVENT_QUEUES = {"jms.queue.HandlingEventRegistrationAttemptQueue", "jms.queue.CargoHandledQueue"}
 MISDIRECTED_QUEUE = "jms.queue.MisdirectedCargoQueue"
+HANDLING_ATTEMPT_PRODUCER = "net.java.cargotracker.infrastructure.messaging.jms.HandlingEventRegistrationAttemptProducer#publish"
 MISDIRECTED_CONSUMER = "net.java.cargotracker.infrastructure.messaging.jms.MisdirectedCargoConsumer#onMessage"
+NOTIFICATION_WORKER_AUDIT = "net.java.cargotracker.infrastructure.messaging.jms.NotificationWorkerAudit#recordConsumed"
 HANDLING_QUEUE_COUNTERS = {"MessageCount","DeliveringCount","ScheduledCount","MessagesAdded","MessagesAcknowledged","MessagesExpired","MessagesKilled","AcknowledgeAttempts"}
 
 def positive_handling_samples(before, after, actor, expected_fixture):
@@ -122,10 +124,13 @@ def positive_handling_samples(before, after, actor, expected_fixture):
     if not isinstance(a,dict) or not isinstance(b,dict): raise UnsupportedCase()
     for method in HANDLING_EVENT_WRITE_CALLS:
         if b.get(method,0)-a.get(method,0)!=1: raise UnsupportedCase()
+    if HANDLING_ATTEMPT_PRODUCER in set(a)|set(b) and b.get(HANDLING_ATTEMPT_PRODUCER,0)-a.get(HANDLING_ATTEMPT_PRODUCER,0)!=1: raise UnsupportedCase()
     if b.get(MISDIRECTED_CONSUMER,0)-a.get(MISDIRECTED_CONSUMER,0)!=misdirected_delta: raise UnsupportedCase()
+    if b.get(NOTIFICATION_WORKER_AUDIT,0)-a.get(NOTIFICATION_WORKER_AUDIT,0)!=misdirected_delta: raise UnsupportedCase()
     if b.get(CANCELLATION_READ,0)-a.get(CANCELLATION_READ,0) not in (0,1): raise UnsupportedCase()
+    allowed_calls=HANDLING_EVENT_WRITE_CALLS|{CANCELLATION_READ,HANDLING_ATTEMPT_PRODUCER,MISDIRECTED_CONSUMER,NOTIFICATION_WORKER_AUDIT}
     for method in set(a)|set(b):
-        if method not in HANDLING_EVENT_WRITE_CALLS|{CANCELLATION_READ,MISDIRECTED_CONSUMER} and a.get(method,0)!=b.get(method,0): raise UnsupportedCase()
+        if method not in allowed_calls and a.get(method,0)!=b.get(method,0): raise UnsupportedCase()
 
 def replacement_observation(case, proof):
     group = case["capability_id"]

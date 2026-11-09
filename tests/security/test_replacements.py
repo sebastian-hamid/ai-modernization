@@ -249,6 +249,7 @@ class ReplacementTests(unittest.TestCase):
         for counter in ["MessagesAdded","MessagesAcknowledged","AcknowledgeAttempts"]:
             queue[counter]+=1
         proof["positive_after"]["business_invocations"][MISDIRECTED_CONSUMER]+=1
+        proof["positive_after"]["business_invocations"]["net.java.cargotracker.infrastructure.messaging.jms.NotificationWorkerAudit#recordConsumed"]=1
         result=replacement_observation(self.case("handling-event","Operator"),proof)
         self.assertTrue(result["semantic_success"])
         for mutate in [
@@ -260,6 +261,31 @@ class ReplacementTests(unittest.TestCase):
             changed=self.handling_event("Operator")
             mutate(changed)
             with self.assertRaises(UnsupportedCase):
+                replacement_observation(self.case("handling-event","Operator"),changed)
+
+    def test_handling_event_notification_audit_matches_misdirected_delivery(self):
+        proof=self.handling_event("Operator")
+        self.assertTrue(replacement_observation(self.case("handling-event","Operator"),proof)["semantic_success"])
+        queue=proof["positive_after"]["queues"][MISDIRECTED_QUEUE]
+        for counter in ["MessagesAdded","MessagesAcknowledged","AcknowledgeAttempts"]:queue[counter]+=1
+        proof["positive_after"]["business_invocations"][MISDIRECTED_CONSUMER]+=1
+        audit="net.java.cargotracker.infrastructure.messaging.jms.NotificationWorkerAudit#recordConsumed"
+        proof["positive_after"]["business_invocations"][audit]=1
+        self.assertTrue(replacement_observation(self.case("handling-event","Operator"),proof)["semantic_success"])
+        for delta in [0,2]:
+            changed=copy.deepcopy(proof)
+            changed["positive_after"]["business_invocations"][audit]=delta
+            with self.subTest(audit_delta=delta),self.assertRaises(UnsupportedCase):
+                replacement_observation(self.case("handling-event","Operator"),changed)
+
+        producer="net.java.cargotracker.infrastructure.messaging.jms.HandlingEventRegistrationAttemptProducer#publish"
+        proof["positive_before"]["business_invocations"][producer]=4
+        proof["positive_after"]["business_invocations"][producer]=5
+        self.assertTrue(replacement_observation(self.case("handling-event","Operator"),proof)["semantic_success"])
+        for delta in [4,6]:
+            changed=copy.deepcopy(proof)
+            changed["positive_after"]["business_invocations"][producer]=delta
+            with self.subTest(producer_count=delta),self.assertRaises(UnsupportedCase):
                 replacement_observation(self.case("handling-event","Operator"),changed)
 
     def test_handling_event_requires_validation_clearing_effects_and_denials(self):
@@ -337,6 +363,7 @@ class ReplacementTests(unittest.TestCase):
         queue=misdirected["positive_after"]["queues"][MISDIRECTED_QUEUE]
         for counter in ["MessagesAdded","MessagesAcknowledged","AcknowledgeAttempts"]:queue[counter]+=1
         misdirected["positive_after"]["business_invocations"][MISDIRECTED_CONSUMER]+=1
+        misdirected["positive_after"]["business_invocations"]["net.java.cargotracker.infrastructure.messaging.jms.NotificationWorkerAudit#recordConsumed"]=1
         self.assertTrue(replacement_observation(self.case("handling-completion","Operator"),misdirected)["semantic_success"])
         for mutate in [
             lambda p:p.update(valid_completion_accepted=False),
