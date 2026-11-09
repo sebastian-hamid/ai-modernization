@@ -14,9 +14,9 @@ This is a single-branch Pipeline job, not a multibranch/PR build. Jenkins offici
 
 ## Candidate agent boundary
 
-The new `ai-modernization-candidate` node is exclusive, with one executor and a separate named workspace volume. Its image is built from the repository's existing pinned Maven/JDK 25.0.5 image digest plus the pinned Java 21 remoting jar, Git and Python 3. The agent connects to Jenkins over WebSocket on the existing private Compose network. It has no Docker socket, privileged mode, published ports, application credentials, database credentials, or GitHub credential. The public GitHub checkout and Maven repository downloads require outbound network access.
+The `ai-modernization-candidate-secure` node (label `ai-modernization-candidate`) is exclusive, with one executor and a separate named workspace volume. Its image is built from the repository's existing pinned Maven/JDK 25.0.5 image digest plus the pinned Java 21 remoting jar, Git and Python 3. The agent connects to Jenkins over WebSocket on the existing private Compose network. It has no Docker socket, privileged mode, published ports, application credentials, database credentials, or GitHub credential. The public GitHub checkout and Maven repository downloads require outbound network access.
 
-The historical `ai-modernization-baseline` job/node and controller executor setting are not altered.
+The historical `ai-modernization-baseline` job/node and controller executor setting are not altered. The original candidate node identity has been rotated; the current inbound secret stays in the ignored, mode-600 local secret file.
 
 ## Build and gates
 

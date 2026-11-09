@@ -23,9 +23,9 @@ Verified 23 October 2026 (Europe/Bratislava). Checks ran on the actual WSL host,
 - Added baseline notes, logs and reproduction script. Reviewed setup and CI changes are versioned and published on GitHub; synced references remain untouched.
 
 ## Checks still requiring attention
-1. Sign in to http://localhost:8080/ with your existing Jenkins account. No password was read or requested, and authenticated login was not tested.
-2. Jenkins controller restart persistence and candidate-agent reconnection were exercised. The candidate agent is currently stopped pending authenticated rotation of its inbound secret.
-3. Authenticated Jenkins UI/API access remains unverified. The candidate Declarative linter endpoint returned HTTP 403 for anonymous access; build #3 loaded the Pipeline from SCM and passed. Do not restart the agent until its secret is rotated.
+1. Authenticated Jenkins administrator sign-in was confirmed through the local browser; no password was read or requested.
+2. Jenkins controller restart persistence and reconnection of the original candidate identity were exercised. The node is now renamed to ai-modernization-candidate-secure (label unchanged), with its replacement secret stored at mode 600 in the ignored .work path. The new identity remains stopped pending reconnection verification.
+3. The Jenkins Declarative linter endpoint returned HTTP 403 for anonymous access. Build #3 loaded the Pipeline from SCM and passed; authenticated UI access is confirmed, while API token access was not configured.
 4. Legacy packaging and domain tests now PASS after historical dependency recovery; see [legacy-baseline.md](legacy-baseline.md).
 5. Runtime and booking integration now PASS: GlassFish 4.1 with the documented HK2-277 metadata correction, embedded Derby/JMS, four Arquillian booking tests, and HTTP tracking/routing/handling checks. See legacy-runtime.md. The isolated Jenkins baseline pipeline now passes; see jenkins-baseline.md.
 
@@ -187,4 +187,4 @@ The disposable `kan28recovery` containers, named volume, private network, tempor
 
 ## Candidate Jenkins SCM checkpoint — 9 November 2026 (KAN-29)
 
-Jenkins candidate build 3 passed from SCM at revision 92ebf5e169d775acd8756fe6854d0eab68972a2f. Toolchain: Java 25.0.5, Maven 3.10.0, Python 3.14.4 and Git 2.53.0. Eight setup tests, 68 checkout-safe security-contract tests, 11 runtime-harness tests and 35 Maven domain tests passed with zero failures/errors; six Surefire reports and the WAR/JAR/revision file were archived and fingerprinted. Polling H/15 * * * * is present in the candidate job config. The historical baseline was unchanged. The installed Declarative linter endpoint returned 403 to anonymous access, so its separate preflight remains unverified. Candidate agent is stopped pending authenticated rotation of its inbound connection secret after that value appeared in diagnostic output. Evidence: [KAN-29 summary](evidence/kan-29-jenkins-candidate/summary.json).
+Jenkins candidate build 3 passed from SCM at revision 92ebf5e169d775acd8756fe6854d0eab68972a2f. Toolchain: Java 25.0.5, Maven 3.10.0, Python 3.14.4 and Git 2.53.0. Eight setup tests, 68 checkout-safe security-contract tests, 11 runtime-harness tests and 35 Maven domain tests passed with zero failures/errors; six Surefire reports and the WAR/JAR/revision file were archived and fingerprinted. Polling H/15 * * * * is present in the candidate job config. The historical baseline was unchanged. The installed Declarative linter endpoint returned 403 to anonymous access, so its separate preflight remains unverified. The candidate identity has been rotated; its agent remains stopped until the reviewed launcher update reconnects it. Evidence: [KAN-29 summary](evidence/kan-29-jenkins-candidate/summary.json).

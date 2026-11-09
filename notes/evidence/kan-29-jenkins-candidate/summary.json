@@ -13,10 +13,11 @@
     "result": "SUCCESS",
     "durationSeconds": 48.543,
     "buildDescription": "92ebf5e169d7",
-    "workspaceRevisionMatchesGitPluginRevision": true
+    "workspaceRevisionMatchesGitPluginRevision": true,
+    "agentNodeAtExecution": "ai-modernization-candidate"
   },
   "agent": {
-    "node": "ai-modernization-candidate",
+    "node": "ai-modernization-candidate-secure",
     "label": "ai-modernization-candidate",
     "imageToolchain": {
       "java": "OpenJDK 25.0.5",
@@ -24,7 +25,8 @@
       "python": "3.14.4",
       "git": "2.53.0"
     },
-    "dockerSocketMounted": false
+    "dockerSocketMounted": false,
+    "status": "renamed; replacement credential staged with mode 600; offline pending reconnection verification"
   },
   "trigger": {
     "kind": "Pipeline SCM poll",
@@ -125,7 +127,7 @@
     "finalBuildEvidence": "Approved by separate agent /root/review_bg04_probe"
   },
   "agentCredentialRemediation": {
-    "status": "candidate agent stopped after its inbound connection secret was included in diagnostic process-list output; rotation/revocation still requires authenticated Jenkins administration",
+    "status": "Build 3 used the prior node identity ai-modernization-candidate. Afterward, that node was renamed to ai-modernization-candidate-secure (label preserved); the old identity is absent. Replacement secret copied to ignored .work/jenkins-ci/candidate-secrets/agent-secret with mode 600. New node remains stopped pending independent review of launcher-name update and reconnection.",
     "secretValueRecorded": false
   },
   "baselinePreservation": "Historical ai-modernization-baseline job/node/controller executor settings were not modified."

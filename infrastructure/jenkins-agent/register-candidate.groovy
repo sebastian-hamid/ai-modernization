@@ -15,8 +15,9 @@ import java.nio.file.attribute.PosixFilePermissions
 
 def j = Jenkins.get()
 def root = j.rootDir
-def seed = new File(root, 'ai-modernization-candidate-bootstrap')
-def nodeName = 'ai-modernization-candidate'
+def seed = new File(root, 'ai-modernization-candidate-secure-bootstrap')
+def nodeName = 'ai-modernization-candidate-secure'
+def nodeLabel = 'ai-modernization-candidate'
 def jobName = 'ai-modernization-candidate'
 def repository = 'https://github.com/sebastian-hamid/ai-modernization.git'
 def branch = '*/main'
@@ -31,7 +32,7 @@ if (item != null && (!(item instanceof WorkflowJob) ||
 if (node != null && (!(node instanceof DumbSlave) ||
         node.getRemoteFS() != '/home/jenkins/agent' ||
         node.getNumExecutors() != 1 || node.getMode() != Node.Mode.EXCLUSIVE ||
-        node.getLabelString() != nodeName ||
+        node.getLabelString() != nodeLabel ||
         !node.getNodeDescription()?.startsWith('Isolated Java 25 candidate CI builds'))) {
     throw new IllegalStateException('Refusing to reuse an unrelated existing candidate node')
 }
@@ -43,7 +44,7 @@ if (node == null) {
     node.setNodeDescription('Isolated Java 25 candidate CI builds; no Docker socket or build secrets')
     node.setNumExecutors(1)
     node.setMode(Node.Mode.EXCLUSIVE)
-    node.setLabelString(nodeName)
+    node.setLabelString(nodeLabel)
     node.setRetentionStrategy(new RetentionStrategy.Always())
     j.addNode(node)
 }
@@ -73,7 +74,7 @@ if (job.getLastBuild() == null) {
     job.scheduleBuild2(0)
 }
 new File(seed, 'status.json').text = JsonOutput.toJson([
-        job: jobName, node: nodeName, repository: repository, branch: branch,
+        job: jobName, node: nodeName, label: nodeLabel, repository: repository, branch: branch,
         scriptPath: scriptPath, pollScheduleDeclaredInJenkinsfile: true,
         pollTriggerSpec: 'H/15 * * * *', triggerInstall: 'first successful pipeline initialization',
         credentialConfigured: false, controllerExecutorsUnchanged: j.getNumExecutors(),

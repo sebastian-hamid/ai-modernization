@@ -89,4 +89,4 @@ The separate job ai-modernization-candidate now loads candidate/cargotracker/Jen
 
 Builds 1 and 2 failed before a successful run: the first attempted a test requiring the ignored legacy source tree; the second exposed Groovy interpolation in the shell loop. Both were corrected and independently reviewed. Build 3 is successful. The Declarative linter endpoint returned HTTP 403 to anonymous access; the successful build is the installed integration validation. Full evidence and artifact hashes are in [KAN-29 evidence](evidence/kan-29-jenkins-candidate/summary.json).
 
-The candidate agent has been stopped while its inbound connection secret is rotated through authenticated Jenkins administration. Do not restart the agent until that is complete.
+Build 3 ran on the prior node identity ai-modernization-candidate. Afterward it was renamed to ai-modernization-candidate-secure while preserving label ai-modernization-candidate; the replacement secret is stored with mode 600 under ignored .work. The new identity remains stopped until the launcher update is independently reviewed and reconnection verified.
