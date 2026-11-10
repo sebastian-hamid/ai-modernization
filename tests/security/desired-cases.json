@@ -6037,7 +6037,7 @@
       "actor": "anonymous",
       "expected": "deny",
       "write": true,
-      "source": "SampleDataGenerator.loadSampleData and ORM startup schema creation",
+      "source": "No human-triggerable reseed or schema-DDL entry point; startup-only sample generator and ORM schema action must remain disabled",
       "path": null,
       "method": "GET",
       "requires_trusted_worker_driver": true
@@ -6049,7 +6049,7 @@
       "actor": "Reader",
       "expected": "deny",
       "write": true,
-      "source": "SampleDataGenerator.loadSampleData and ORM startup schema creation",
+      "source": "No human-triggerable reseed or schema-DDL entry point; startup-only sample generator and ORM schema action must remain disabled",
       "path": null,
       "method": "GET",
       "requires_trusted_worker_driver": true
@@ -6061,7 +6061,7 @@
       "actor": "Operator",
       "expected": "deny",
       "write": true,
-      "source": "SampleDataGenerator.loadSampleData and ORM startup schema creation",
+      "source": "No human-triggerable reseed or schema-DDL entry point; startup-only sample generator and ORM schema action must remain disabled",
       "path": null,
       "method": "GET",
       "requires_trusted_worker_driver": true
@@ -6073,7 +6073,7 @@
       "actor": "Administrator",
       "expected": "deny",
       "write": true,
-      "source": "SampleDataGenerator.loadSampleData and ORM startup schema creation",
+      "source": "No human-triggerable reseed or schema-DDL entry point; startup-only sample generator and ORM schema action must remain disabled",
       "path": null,
       "method": "GET",
       "requires_trusted_worker_driver": true
@@ -6601,10 +6601,10 @@
       "actor": "deployment-migration",
       "expected": "allow",
       "write": true,
-      "source": "SampleDataGenerator.loadSampleData and ORM startup schema creation",
+      "source": "Flyway deployment migrations using schema_migrator; startup sample seeding and ORM schema generation remain disabled",
       "path": null,
       "method": "GET",
-      "required_machine_scope": "Deployment/migration identity separate from request users",
+      "required_machine_scope": "Flyway schema migration with server-verified schema_migrator identity",
       "requires_isolated_worker_fixture": true
     },
     {

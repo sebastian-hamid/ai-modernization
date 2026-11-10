@@ -67,6 +67,22 @@ class ContractEngineTests(unittest.TestCase):
         self.assertEqual(evaluate(case,obs)[0],"PASS")
     def test_denied_role_without_verified_identity_is_blocked(self):
         self.assertEqual(evaluate(self.denial(),dict(supported=True,status=403,protected_payload_absent=True))[0],"BLOCKED")
+    def test_bg06_human_denials_and_machine_flyway_allow_are_distinct(self):
+        root=Path(__file__).resolve().parents[2]
+        inventory=json.loads((root/"specifications/access-policy-inventory.json").read_text())
+        cases=build(inventory)
+        bg06=next(row for row in inventory["background"] if row["id"]=="BG-06")
+        human=[c for c in cases if c["surface_id"]=="BG-06"]
+        machine=next(c for c in cases if c["surface_id"]=="BG-06-MACHINE")
+        self.assertEqual({c["actor"] for c in human},{"anonymous","Reader","Operator","Administrator"})
+        self.assertTrue(all(c["expected"]=="deny" for c in human))
+        self.assertTrue(all(c["source"]==bg06["human_case_source"] for c in human))
+        self.assertEqual(machine["expected"],"allow")
+        self.assertEqual(machine["source"],bg06["machine_case_source"])
+        self.assertEqual(machine["required_machine_scope"],bg06["machine_identity"])
+        self.assertIn("Flyway",machine["required_machine_scope"])
+        self.assertNotIn("SampleDataGenerator",machine["required_machine_scope"])
+
     def test_catalogue_covers_surfaces_and_sessions(self):
         root=Path(__file__).resolve().parents[2]
         inventory=json.loads((root/"specifications/access-policy-inventory.json").read_text())

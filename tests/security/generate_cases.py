@@ -30,7 +30,9 @@ def build(inventory):
         for actor in row["allowed_roles"]:
             for state in ["logged_out","expired"]:add(row,"session",actor,False,write=row["id"]=="API-02",session_state=state,original_channel=channel)
     for row in inventory["background"]+inventory["service_boundaries"]:
-        for actor in ACTORS:add(row,"internal",actor,False if actor=="anonymous" else actor in row["allowed_roles"],write=row["id"] not in {"SERVICE-02","SERVICE-03"},requires_trusted_worker_driver=True)
+        human_row=dict(row)
+        if row.get("human_case_source"):human_row["source"]=row["human_case_source"]
+        for actor in ACTORS:add(human_row,"internal",actor,False if actor=="anonymous" else actor in row["allowed_roles"],write=row["id"] not in {"SERVICE-02","SERVICE-03"},requires_trusted_worker_driver=True)
     for n,row in enumerate(inventory["auxiliary_files"],1):
         copy=dict(row,id="PRIVATE-"+str(n).zfill(2))
         for actor in ACTORS:add(copy,"private",actor,False)
@@ -41,7 +43,9 @@ def build(inventory):
     # Machine identities have distinct scopes, never inherited human/admin authority.
     for row in inventory["background"]:
         actor="deployment-migration" if row["id"]=="BG-06" else "worker-"+row["id"]
-        add(dict(row,id=row["id"]+"-MACHINE"),"internal",actor,True,write=True,required_machine_scope=row["identity"],requires_isolated_worker_fixture=True)
+        machine_row=dict(row,id=row["id"]+"-MACHINE")
+        if row.get("machine_case_source"):machine_row["source"]=row["machine_case_source"]
+        add(machine_row,"internal",actor,True,write=True,required_machine_scope=row.get("machine_identity",row["identity"]),requires_isolated_worker_fixture=True)
     route=next(row for row in inventory["interfaces"] if row["id"]=="API-03")
     add(dict(route,id="API-03-SCOPED"),"api","routing-service",True,required_machine_scope=route["internal_caller"])
     return cases

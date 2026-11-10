@@ -1814,6 +1814,9 @@
         "STARTUP-NO-DELETE",
         "LEAST-PRIVILEGE"
       ],
+      "human_case_source": "No human-triggerable reseed or schema-DDL entry point; startup-only sample generator and ORM schema action must remain disabled",
+      "machine_case_source": "Flyway deployment migrations using schema_migrator; startup sample seeding and ORM schema generation remain disabled",
+      "machine_identity": "Flyway schema migration with server-verified schema_migrator identity",
       "allowed_roles": [],
       "human_roles_apply_to": "Controlled import initiation only; worker/deployment invocation has separate machine authority",
       "anonymous": false,

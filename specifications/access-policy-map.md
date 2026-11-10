@@ -159,6 +159,8 @@ Filesystem permission checks use OS/container identities, not application role n
 
 Startup data deletion and schema creation are installation/deployment concerns; neither Administrator nor any other application role gains database/Jenkins/server administration rights. Disable demo reseeding/schema creation in deployed candidate environments and use the separately approved migration identity/Flyway process. Preserve legacy behavior only in the historical disposable baseline.
 
+For BG-06 acceptance, the machine allow case covers Flyway schema migration only, using the server-verified schema_migrator identity. It does not authorize SampleDataGenerator, demo seeding, reseeding, or ORM-driven DDL. The four human BG-06 cases cover denial of any user-triggerable startup/reseed/schema-action surface; an absent surface must be established by a complete exposure inventory and direct probes, not by a guessed 404 alone. Administrator initiation of a future controlled import is a separate control-plane capability and must receive its own authorization/effect tests when implemented; it does not grant database or schema administration.
+
 ## Static, metadata, aliases and default deny
 
 The inventory lists 41 resource/image candidates and all private auxiliary files. Whitelist only reviewed assets needed for public/login rendering; no user/cargo data or credentials in static responses. Keep JSF library resources distinct from dynamic bean requests. Deny WEB-INF/META-INF, flow XML metadata, `booking/todo.txt`, source files, config and unsupported mappings.

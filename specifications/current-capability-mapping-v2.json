@@ -2,7 +2,7 @@
   "schema_version": 2,
   "approval_record": "notes/decisions/2026-11-02-current-ui-acceptance.md",
   "approved_proposal_sha256": "710b00d37001276e8bd60d806f9fe21ea66a39b7b47ae465122ca78da931da5a",
-  "legacy_inventory_sha256": "fdde15304f5629fa356d4ac9f0462ac7d89b21c65b87c1e841680d23746303ea",
+  "legacy_inventory_sha256": "1cc4f3cf1320fe9b6f1cbe14b261fab4c09fd3a025c02057f2e2df047f0fafef",
   "mapped_actions": [
     {
       "legacy_id": "ACTION-01",
