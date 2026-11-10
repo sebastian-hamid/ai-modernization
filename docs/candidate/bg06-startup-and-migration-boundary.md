@@ -19,7 +19,7 @@ BG-06 has two different security boundaries:
 
 ## Evidence boundaries and next verification
 
-The KAN-18 receipt proves fresh V1/V2/V3 migration with a separate schema_migrator, denies DDL and Flyway-history mutation to cargo_app, and shows unchanged seven-table content digests across normal startup, three human read-only sessions, and restart. It is supplemental evidence; it is not a BG-06 gate result.
+The KAN-18 receipt now covers a populated synthetic V1 schema upgraded through V2/V3 under a server-observed schema_migrator identity. It verifies the exact five V2 indexes, preserves all seven table digests, exercises the legacy-sequence high-water branch (8000) and next generated ID (8001), checks V3 grants and protected migration-state denials, and confirms successful Reader/Operator/Administrator reads. Catalog, row, history, sequence, and privilege snapshots remain stable across app startup, all three reads, and restart. This remains supplemental machine/runtime evidence only. It does not establish the four human denials for sample seeding/reseed/ORM DDL; all five BG-06 gate cases remain BLOCKED.
 
 Before any BG-06 case can pass:
 

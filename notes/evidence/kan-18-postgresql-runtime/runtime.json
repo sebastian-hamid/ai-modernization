@@ -1,46 +1,592 @@
 {
   "task": "KAN-18/KAN-15 BG-06",
   "status": "PASS",
+  "evidence_scope": "Disposable KAN-18 runtime fixture only; not a BG-06 acceptance result.",
+  "machine_scope": "Flyway schema migration with server-verified schema_migrator identity; separate from request users",
+  "instrumentation_scope": "lab_observer is harness-only instrumentation for server-observed Flyway sessions, not a product schema effect",
+  "fixture_inputs": {
+    "flyway_after_each_migrate_callback_sha256": "20418e7fdd7e718a2b2fe2de2dfa66f2367d7f2b72901cfb20249e7639b45ded"
+  },
+  "versions": {
+    "postgres": "18.6",
+    "flyway": "13.12.1",
+    "wildfly": "42",
+    "jdbc": "42.7.14"
+  },
+  "source_sha256": {
+    ".dockerignore": "0470eb69c6f13a37c5476289eb4b691f36a366278a602e0f8d8a475527a00e5c",
+    "tests/candidate-runtime/postgresql/Dockerfile": "ac4332decc9b203a6530f24202c0b0de24b2671cde0a239eb5729667a07c5b49",
+    "tests/candidate-runtime/postgresql/module.xml": "c6cf60d912ecaa7a4560b1288d478b7cc2bbc10f22316f6edb241093edb0aee1",
+    "tests/candidate-runtime/postgresql/configure-datasource.cli": "c1afb5791cc612e0b449f13fd7b8dfe6f0eb96b1365ce9acd21a2eb853efc5b8",
+    "tests/candidate-runtime/postgresql/start.sh": "09ec1f8e3481d2d9a9cda6556521078769b44b388f2e87da93626e6e52627bb0",
+    "tests/candidate-runtime/postgresql/verify_runtime.py": "5f262fcbfe56151a08f8b059bd4cfb210c5d630c39d6a1cc35e3372c858ac57a",
+    "infrastructure/database/compose.yaml": "75d8326fe745285a85284908987459abe6fee100489f4c3d2fca979ee097cd0a",
+    "infrastructure/database/bootstrap/10-create-roles.sh": "766e33a567e87db3fd08af454e6f5eed5ece7eae300abad52ca0b59b4dca7f08",
+    "infrastructure/database/migrations/V1__initial_schema.sql": "7013c202de93b97d733288d92fc3244d72e25aedd53c6bf672027cedadf52baa",
+    "infrastructure/database/migrations/V2__query_indexes_and_sequence_reconciliation.sql": "8b329db0aa9bd264ff6f2c39697105261cd713a810c53b05adbb1730a6633610",
+    "infrastructure/database/migrations/V3__grant_application_runtime_privileges.sql": "5c3e7021e8fe54dcf6347b90ecaa7160e2666cbea83558d24ae377e120d6745a",
+    "candidate/cargotracker/src/main/resources/META-INF/persistence.xml": "812bd4194df2eb4abcd3dd1971d80e688a2f7f8793e0273c1f1fa7b85aa0cbdf",
+    "candidate/cargotracker/src/main/java/net/java/cargotracker/application/util/SampleDataGenerator.java": "5c2506285330ebaa51fcbe78c2e4da1074c95360dfac1cae054e399987beb271"
+  },
   "checks": {
-    "migration_secret_bootstrap_diagnostics": {
-      "secret_readable": true,
-      "role_state": [
-        "schema_migrator:true:SCRA"
-      ],
-      "initialization_messages": [
-        "postgres-1  | /usr/local/bin/docker-entrypoint.sh: sourcing /docker-entrypoint-initdb.d/10-create-roles.sh",
-        "postgres-1  | CREATE ROLE",
-        "postgres-1  | CREATE ROLE"
-      ]
-    },
     "migration_identity_authentication": {
       "passed": true,
       "authenticated_as": "schema_migrator",
       "failure_code": null
     },
-    "fresh_migrations": {
+    "v1_empty_schema": {
       "passed": true,
-      "versions": [
-        "1:true",
-        "2:true",
-        "3:true"
-      ]
+      "history": [
+        {
+          "version": "1",
+          "description": "initial schema",
+          "type": "SQL",
+          "script": "V1__initial_schema.sql",
+          "checksum": 1598393556,
+          "installed_by": "schema_migrator",
+          "success": true
+        }
+      ],
+      "empty_business_schema": {
+        "location": {
+          "count": 0,
+          "digest": "d41d8cd98f00b204e9800998ecf8427e"
+        },
+        "voyage": {
+          "count": 0,
+          "digest": "d41d8cd98f00b204e9800998ecf8427e"
+        },
+        "cargo": {
+          "count": 0,
+          "digest": "d41d8cd98f00b204e9800998ecf8427e"
+        },
+        "leg": {
+          "count": 0,
+          "digest": "d41d8cd98f00b204e9800998ecf8427e"
+        },
+        "handling_event": {
+          "count": 0,
+          "digest": "d41d8cd98f00b204e9800998ecf8427e"
+        },
+        "carrier_movement": {
+          "count": 0,
+          "digest": "d41d8cd98f00b204e9800998ecf8427e"
+        },
+        "legacy_sequence_state": {
+          "count": 0,
+          "digest": "d41d8cd98f00b204e9800998ecf8427e"
+        }
+      }
+    },
+    "synthetic_import_before_upgrade": {
+      "passed": true,
+      "row_counts": {
+        "location": 2,
+        "voyage": 1,
+        "cargo": 1,
+        "leg": 1,
+        "handling_event": 1,
+        "carrier_movement": 1,
+        "legacy_sequence_state": 1
+      },
+      "row_digests": {
+        "location": "84c464b8cc975d4f47874f7e98279e83",
+        "voyage": "1f49bce39ac217a67aaf7b30c921a944",
+        "cargo": "9b6825d844d9fb650e60a887cd6d07e4",
+        "leg": "8760801ca532e773ac4c056985c57332",
+        "handling_event": "cd0da4d2fb8a16d3454442c884d65c46",
+        "carrier_movement": "01ab19a03a729c32c1e0d0dd8f15988f",
+        "legacy_sequence_state": "39ed8b89a61a3b1c6e04161f55b9d6b0"
+      },
+      "catalog_unchanged_from_v1": true,
+      "sequence_inputs": {
+        "max_entity_id": 7007,
+        "legacy_sequence_state": 8000,
+        "expected_high_water": 8000,
+        "branch_exercised": "legacy_sequence_state"
+      }
+    },
+    "v2_populated_upgrade": {
+      "passed": true,
+      "data_preserved": true,
+      "new_index_names": [
+        "idx_cargo_origin_id",
+        "idx_cargo_spec_destination_id",
+        "idx_carrier_movement_voyage_id",
+        "idx_handling_event_cargo_dates",
+        "idx_leg_cargo_id"
+      ],
+      "exact_expected_index_definitions": {
+        "idx_cargo_origin_id": "CREATE INDEX idx_cargo_origin_id ON cargo.cargo USING btree (origin_id)",
+        "idx_cargo_spec_destination_id": "CREATE INDEX idx_cargo_spec_destination_id ON cargo.cargo USING btree (spec_destination_id)",
+        "idx_leg_cargo_id": "CREATE INDEX idx_leg_cargo_id ON cargo.leg USING btree (cargo_id)",
+        "idx_handling_event_cargo_dates": "CREATE INDEX idx_handling_event_cargo_dates ON cargo.handling_event USING btree (cargo_id, completion_date, registration_date)",
+        "idx_carrier_movement_voyage_id": "CREATE INDEX idx_carrier_movement_voyage_id ON cargo.carrier_movement USING btree (voyage_id)"
+      },
+      "index_definitions_valid": true,
+      "owners_delta_valid": true,
+      "catalog_other_than_indexes_history_sequence_unchanged": true,
+      "sequence_before": {
+        "last_value": 1,
+        "is_called": false
+      },
+      "sequence_after": {
+        "last_value": 8000,
+        "is_called": true
+      },
+      "expected_high_water": 8000,
+      "high_water_branch": "legacy_sequence_state (entity-id maximum branch separately covered by KAN-22)"
+    },
+    "v3_runtime_grants": {
+      "passed": true,
+      "data_preserved": true,
+      "history": [
+        {
+          "version": "1",
+          "script": "V1__initial_schema.sql",
+          "checksum": 1598393556,
+          "installed_by": "schema_migrator",
+          "success": true
+        },
+        {
+          "version": "2",
+          "script": "V2__query_indexes_and_sequence_reconciliation.sql",
+          "checksum": -1677323564,
+          "installed_by": "schema_migrator",
+          "success": true
+        },
+        {
+          "version": "3",
+          "script": "V3__grant_application_runtime_privileges.sql",
+          "checksum": -817031279,
+          "installed_by": "schema_migrator",
+          "success": true
+        }
+      ],
+      "catalog_other_than_history_and_app_grants_unchanged": true,
+      "owner_preservation": true,
+      "changed_acl_objects": [
+        "cargo",
+        "cargotracker_id_seq",
+        "carrier_movement",
+        "handling_event",
+        "leg",
+        "location",
+        "voyage"
+      ],
+      "application_table_grants_exact": true,
+      "application_table_grants": [
+        {
+          "table": "cargo",
+          "privilege": "DELETE",
+          "grantable": "NO",
+          "grantor": "schema_migrator"
+        },
+        {
+          "table": "cargo",
+          "privilege": "INSERT",
+          "grantable": "NO",
+          "grantor": "schema_migrator"
+        },
+        {
+          "table": "cargo",
+          "privilege": "SELECT",
+          "grantable": "NO",
+          "grantor": "schema_migrator"
+        },
+        {
+          "table": "cargo",
+          "privilege": "UPDATE",
+          "grantable": "NO",
+          "grantor": "schema_migrator"
+        },
+        {
+          "table": "carrier_movement",
+          "privilege": "DELETE",
+          "grantable": "NO",
+          "grantor": "schema_migrator"
+        },
+        {
+          "table": "carrier_movement",
+          "privilege": "INSERT",
+          "grantable": "NO",
+          "grantor": "schema_migrator"
+        },
+        {
+          "table": "carrier_movement",
+          "privilege": "SELECT",
+          "grantable": "NO",
+          "grantor": "schema_migrator"
+        },
+        {
+          "table": "carrier_movement",
+          "privilege": "UPDATE",
+          "grantable": "NO",
+          "grantor": "schema_migrator"
+        },
+        {
+          "table": "handling_event",
+          "privilege": "DELETE",
+          "grantable": "NO",
+          "grantor": "schema_migrator"
+        },
+        {
+          "table": "handling_event",
+          "privilege": "INSERT",
+          "grantable": "NO",
+          "grantor": "schema_migrator"
+        },
+        {
+          "table": "handling_event",
+          "privilege": "SELECT",
+          "grantable": "NO",
+          "grantor": "schema_migrator"
+        },
+        {
+          "table": "handling_event",
+          "privilege": "UPDATE",
+          "grantable": "NO",
+          "grantor": "schema_migrator"
+        },
+        {
+          "table": "leg",
+          "privilege": "DELETE",
+          "grantable": "NO",
+          "grantor": "schema_migrator"
+        },
+        {
+          "table": "leg",
+          "privilege": "INSERT",
+          "grantable": "NO",
+          "grantor": "schema_migrator"
+        },
+        {
+          "table": "leg",
+          "privilege": "SELECT",
+          "grantable": "NO",
+          "grantor": "schema_migrator"
+        },
+        {
+          "table": "leg",
+          "privilege": "UPDATE",
+          "grantable": "NO",
+          "grantor": "schema_migrator"
+        },
+        {
+          "table": "location",
+          "privilege": "DELETE",
+          "grantable": "NO",
+          "grantor": "schema_migrator"
+        },
+        {
+          "table": "location",
+          "privilege": "INSERT",
+          "grantable": "NO",
+          "grantor": "schema_migrator"
+        },
+        {
+          "table": "location",
+          "privilege": "SELECT",
+          "grantable": "NO",
+          "grantor": "schema_migrator"
+        },
+        {
+          "table": "location",
+          "privilege": "UPDATE",
+          "grantable": "NO",
+          "grantor": "schema_migrator"
+        },
+        {
+          "table": "voyage",
+          "privilege": "DELETE",
+          "grantable": "NO",
+          "grantor": "schema_migrator"
+        },
+        {
+          "table": "voyage",
+          "privilege": "INSERT",
+          "grantable": "NO",
+          "grantor": "schema_migrator"
+        },
+        {
+          "table": "voyage",
+          "privilege": "SELECT",
+          "grantable": "NO",
+          "grantor": "schema_migrator"
+        },
+        {
+          "table": "voyage",
+          "privilege": "UPDATE",
+          "grantable": "NO",
+          "grantor": "schema_migrator"
+        }
+      ],
+      "application_sequence_privileges": {
+        "app_usage": true,
+        "app_select": true,
+        "app_update": true,
+        "migrator_usage": true,
+        "migrator_select": true,
+        "migrator_update": true
+      },
+      "history_and_legacy_state_privileges_absent": true
+    },
+    "migration_machine_identity": {
+      "passed": true,
+      "native_identity": {
+        "server_verified": true,
+        "principal": "schema_migrator",
+        "session_user": "schema_migrator",
+        "current_user": "schema_migrator",
+        "current_role": "schema_migrator"
+      },
+      "flyway_installed_by": [
+        "schema_migrator",
+        "schema_migrator",
+        "schema_migrator"
+      ],
+      "session_observations": [
+        {
+          "session_user": "schema_migrator",
+          "current_user": "schema_migrator",
+          "current_role": "schema_migrator"
+        },
+        {
+          "session_user": "schema_migrator",
+          "current_user": "schema_migrator",
+          "current_role": "schema_migrator"
+        },
+        {
+          "session_user": "schema_migrator",
+          "current_user": "schema_migrator",
+          "current_role": "schema_migrator"
+        }
+      ],
+      "migrations_only": true,
+      "sample_data_generator_invoked": false,
+      "controlled_import_invoked": false
+    },
+    "populated_upgrade_preserves_imported_rows": {
+      "passed": true,
+      "before": {
+        "location": "84c464b8cc975d4f47874f7e98279e83",
+        "voyage": "1f49bce39ac217a67aaf7b30c921a944",
+        "cargo": "9b6825d844d9fb650e60a887cd6d07e4",
+        "leg": "8760801ca532e773ac4c056985c57332",
+        "handling_event": "cd0da4d2fb8a16d3454442c884d65c46",
+        "carrier_movement": "01ab19a03a729c32c1e0d0dd8f15988f",
+        "legacy_sequence_state": "39ed8b89a61a3b1c6e04161f55b9d6b0"
+      },
+      "after": {
+        "location": "84c464b8cc975d4f47874f7e98279e83",
+        "voyage": "1f49bce39ac217a67aaf7b30c921a944",
+        "cargo": "9b6825d844d9fb650e60a887cd6d07e4",
+        "leg": "8760801ca532e773ac4c056985c57332",
+        "handling_event": "cd0da4d2fb8a16d3454442c884d65c46",
+        "carrier_movement": "01ab19a03a729c32c1e0d0dd8f15988f",
+        "legacy_sequence_state": "39ed8b89a61a3b1c6e04161f55b9d6b0"
+      }
     },
     "role_separation": {
       "passed": true,
       "database_roles": [
-        "cargo_app:false:false:false",
-        "schema_migrator:false:false:false"
+        {
+          "name": "cargo_app",
+          "superuser": false,
+          "createdb": false,
+          "createrole": false,
+          "replication": false,
+          "login": true
+        },
+        {
+          "name": "schema_migrator",
+          "superuser": false,
+          "createdb": false,
+          "createrole": false,
+          "replication": false,
+          "login": true
+        }
       ]
     },
     "least_privilege_acl": {
       "passed": true,
-      "observed": [
-        "true:false:false:false"
-      ]
+      "schema": {
+        "owner": "schema_migrator",
+        "acl": "{schema_migrator=UC/schema_migrator,cargo_app=U/schema_migrator}",
+        "app_usage": true,
+        "app_create": false,
+        "migrator_usage": true,
+        "migrator_create": true
+      },
+      "protected_table_privileges": {
+        "history_select": false,
+        "history_insert": false,
+        "history_update": false,
+        "history_delete": false,
+        "state_select": false,
+        "state_insert": false,
+        "state_update": false,
+        "state_delete": false
+      },
+      "application_table_grants": [
+        {
+          "table": "cargo",
+          "privilege": "DELETE",
+          "grantable": "NO",
+          "grantor": "schema_migrator"
+        },
+        {
+          "table": "cargo",
+          "privilege": "INSERT",
+          "grantable": "NO",
+          "grantor": "schema_migrator"
+        },
+        {
+          "table": "cargo",
+          "privilege": "SELECT",
+          "grantable": "NO",
+          "grantor": "schema_migrator"
+        },
+        {
+          "table": "cargo",
+          "privilege": "UPDATE",
+          "grantable": "NO",
+          "grantor": "schema_migrator"
+        },
+        {
+          "table": "carrier_movement",
+          "privilege": "DELETE",
+          "grantable": "NO",
+          "grantor": "schema_migrator"
+        },
+        {
+          "table": "carrier_movement",
+          "privilege": "INSERT",
+          "grantable": "NO",
+          "grantor": "schema_migrator"
+        },
+        {
+          "table": "carrier_movement",
+          "privilege": "SELECT",
+          "grantable": "NO",
+          "grantor": "schema_migrator"
+        },
+        {
+          "table": "carrier_movement",
+          "privilege": "UPDATE",
+          "grantable": "NO",
+          "grantor": "schema_migrator"
+        },
+        {
+          "table": "handling_event",
+          "privilege": "DELETE",
+          "grantable": "NO",
+          "grantor": "schema_migrator"
+        },
+        {
+          "table": "handling_event",
+          "privilege": "INSERT",
+          "grantable": "NO",
+          "grantor": "schema_migrator"
+        },
+        {
+          "table": "handling_event",
+          "privilege": "SELECT",
+          "grantable": "NO",
+          "grantor": "schema_migrator"
+        },
+        {
+          "table": "handling_event",
+          "privilege": "UPDATE",
+          "grantable": "NO",
+          "grantor": "schema_migrator"
+        },
+        {
+          "table": "leg",
+          "privilege": "DELETE",
+          "grantable": "NO",
+          "grantor": "schema_migrator"
+        },
+        {
+          "table": "leg",
+          "privilege": "INSERT",
+          "grantable": "NO",
+          "grantor": "schema_migrator"
+        },
+        {
+          "table": "leg",
+          "privilege": "SELECT",
+          "grantable": "NO",
+          "grantor": "schema_migrator"
+        },
+        {
+          "table": "leg",
+          "privilege": "UPDATE",
+          "grantable": "NO",
+          "grantor": "schema_migrator"
+        },
+        {
+          "table": "location",
+          "privilege": "DELETE",
+          "grantable": "NO",
+          "grantor": "schema_migrator"
+        },
+        {
+          "table": "location",
+          "privilege": "INSERT",
+          "grantable": "NO",
+          "grantor": "schema_migrator"
+        },
+        {
+          "table": "location",
+          "privilege": "SELECT",
+          "grantable": "NO",
+          "grantor": "schema_migrator"
+        },
+        {
+          "table": "location",
+          "privilege": "UPDATE",
+          "grantable": "NO",
+          "grantor": "schema_migrator"
+        },
+        {
+          "table": "voyage",
+          "privilege": "DELETE",
+          "grantable": "NO",
+          "grantor": "schema_migrator"
+        },
+        {
+          "table": "voyage",
+          "privilege": "INSERT",
+          "grantable": "NO",
+          "grantor": "schema_migrator"
+        },
+        {
+          "table": "voyage",
+          "privilege": "SELECT",
+          "grantable": "NO",
+          "grantor": "schema_migrator"
+        },
+        {
+          "table": "voyage",
+          "privilege": "UPDATE",
+          "grantable": "NO",
+          "grantor": "schema_migrator"
+        }
+      ],
+      "application_sequence_privileges": {
+        "app_usage": true,
+        "app_select": true,
+        "app_update": true,
+        "migrator_usage": true,
+        "migrator_select": true,
+        "migrator_update": true
+      }
     },
     "runtime_dml": {
-      "passed": true
+      "passed": true,
+      "generated_id": 8001,
+      "expected_generated_id": 8001
     },
     "application_ddl_denied": {
       "persistent_schema_ddl": true,
@@ -54,148 +600,68 @@
     },
     "startup_no_orm_ddl_or_seed": {
       "passed": true,
-      "before": {
-        "location": {
-          "count": 1,
-          "digest": "d0b28cae7ef9001607d91f09444237d9"
-        },
-        "voyage": {
-          "count": 0,
-          "digest": "d41d8cd98f00b204e9800998ecf8427e"
-        },
-        "cargo": {
-          "count": 0,
-          "digest": "d41d8cd98f00b204e9800998ecf8427e"
-        },
-        "leg": {
-          "count": 0,
-          "digest": "d41d8cd98f00b204e9800998ecf8427e"
-        },
-        "handling_event": {
-          "count": 0,
-          "digest": "d41d8cd98f00b204e9800998ecf8427e"
-        },
-        "carrier_movement": {
-          "count": 0,
-          "digest": "d41d8cd98f00b204e9800998ecf8427e"
-        },
-        "legacy_sequence_state": {
-          "count": 0,
-          "digest": "d41d8cd98f00b204e9800998ecf8427e"
-        }
-      },
-      "after": {
-        "location": {
-          "count": 1,
-          "digest": "d0b28cae7ef9001607d91f09444237d9"
-        },
-        "voyage": {
-          "count": 0,
-          "digest": "d41d8cd98f00b204e9800998ecf8427e"
-        },
-        "cargo": {
-          "count": 0,
-          "digest": "d41d8cd98f00b204e9800998ecf8427e"
-        },
-        "leg": {
-          "count": 0,
-          "digest": "d41d8cd98f00b204e9800998ecf8427e"
-        },
-        "handling_event": {
-          "count": 0,
-          "digest": "d41d8cd98f00b204e9800998ecf8427e"
-        },
-        "carrier_movement": {
-          "count": 0,
-          "digest": "d41d8cd98f00b204e9800998ecf8427e"
-        },
-        "legacy_sequence_state": {
-          "count": 0,
-          "digest": "d41d8cd98f00b204e9800998ecf8427e"
-        }
-      },
-      "marker_preserved": true
+      "marker_preserved": true,
+      "durable_snapshot_sha256": "446260730df1e68def76beae2cb805f33459d172efc2003030aac920151b2369",
+      "after_startup_equals_snapshot": true
     },
     "human_roles": {
       "Reader": {
         "passed": true,
         "identity_verified": true,
-        "db_unchanged": true
+        "durable_state_unchanged": true,
+        "login_page_status": 200,
+        "csrf_present": true,
+        "login_status": 303,
+        "session_status": 200,
+        "observed_principal": "reader",
+        "observed_roles": [
+          "Reader"
+        ],
+        "cargo_api_status": 200
       },
       "Operator": {
         "passed": true,
         "identity_verified": true,
-        "db_unchanged": true
+        "durable_state_unchanged": true,
+        "login_page_status": 200,
+        "csrf_present": true,
+        "login_status": 303,
+        "session_status": 200,
+        "observed_principal": "operator",
+        "observed_roles": [
+          "Operator"
+        ],
+        "cargo_api_status": 200
       },
       "Administrator": {
         "passed": true,
         "identity_verified": true,
-        "db_unchanged": true
+        "durable_state_unchanged": true,
+        "login_page_status": 200,
+        "csrf_present": true,
+        "login_status": 303,
+        "session_status": 200,
+        "observed_principal": "admin",
+        "observed_roles": [
+          "Administrator"
+        ],
+        "cargo_api_status": 200
       }
     },
     "restart_preserves_data": {
       "passed": true,
-      "after_restart": {
-        "location": {
-          "count": 1,
-          "digest": "d0b28cae7ef9001607d91f09444237d9"
-        },
-        "voyage": {
-          "count": 0,
-          "digest": "d41d8cd98f00b204e9800998ecf8427e"
-        },
-        "cargo": {
-          "count": 0,
-          "digest": "d41d8cd98f00b204e9800998ecf8427e"
-        },
-        "leg": {
-          "count": 0,
-          "digest": "d41d8cd98f00b204e9800998ecf8427e"
-        },
-        "handling_event": {
-          "count": 0,
-          "digest": "d41d8cd98f00b204e9800998ecf8427e"
-        },
-        "carrier_movement": {
-          "count": 0,
-          "digest": "d41d8cd98f00b204e9800998ecf8427e"
-        },
-        "legacy_sequence_state": {
-          "count": 0,
-          "digest": "d41d8cd98f00b204e9800998ecf8427e"
-        }
-      }
+      "durable_snapshot_sha256": "446260730df1e68def76beae2cb805f33459d172efc2003030aac920151b2369",
+      "after_restart_equals_snapshot": true
+    },
+    "cleanup": {
+      "compose_down": true,
+      "resource_check_passed": true,
+      "residual_containers": [],
+      "residual_networks": [],
+      "residual_volumes": [],
+      "work_removed": true,
+      "image_removed": true,
+      "secrets_preserved": false
     }
-  },
-  "cleanup": {
-    "compose_down": true,
-    "resource_check_passed": true,
-    "residual_containers": [],
-    "residual_networks": [],
-    "residual_volumes": [],
-    "work_removed": true,
-    "image_removed": true,
-    "secrets_preserved": false
-  },
-  "schema_hashes": {
-    ".dockerignore": "0470eb69c6f13a37c5476289eb4b691f36a366278a602e0f8d8a475527a00e5c",
-    "tests/candidate-runtime/postgresql/Dockerfile": "ac4332decc9b203a6530f24202c0b0de24b2671cde0a239eb5729667a07c5b49",
-    "tests/candidate-runtime/postgresql/module.xml": "c6cf60d912ecaa7a4560b1288d478b7cc2bbc10f22316f6edb241093edb0aee1",
-    "tests/candidate-runtime/postgresql/configure-datasource.cli": "c1afb5791cc612e0b449f13fd7b8dfe6f0eb96b1365ce9acd21a2eb853efc5b8",
-    "tests/candidate-runtime/postgresql/start.sh": "09ec1f8e3481d2d9a9cda6556521078769b44b388f2e87da93626e6e52627bb0",
-    "tests/candidate-runtime/postgresql/verify_runtime.py": "6a110176335ff858d7888ff9dee44a514e06f3b951eb764a97e27daefd31ebd6",
-    "infrastructure/database/compose.yaml": "75d8326fe745285a85284908987459abe6fee100489f4c3d2fca979ee097cd0a",
-    "infrastructure/database/bootstrap/10-create-roles.sh": "766e33a567e87db3fd08af454e6f5eed5ece7eae300abad52ca0b59b4dca7f08",
-    "infrastructure/database/migrations/V1__initial_schema.sql": "7013c202de93b97d733288d92fc3244d72e25aedd53c6bf672027cedadf52baa",
-    "infrastructure/database/migrations/V2__query_indexes_and_sequence_reconciliation.sql": "8b329db0aa9bd264ff6f2c39697105261cd713a810c53b05adbb1730a6633610",
-    "infrastructure/database/migrations/V3__grant_application_runtime_privileges.sql": "5c3e7021e8fe54dcf6347b90ecaa7160e2666cbea83558d24ae377e120d6745a",
-    "candidate/cargotracker/src/main/resources/META-INF/persistence.xml": "812bd4194df2eb4abcd3dd1971d80e688a2f7f8793e0273c1f1fa7b85aa0cbdf",
-    "candidate/cargotracker/src/main/java/net/java/cargotracker/application/util/SampleDataGenerator.java": "5c2506285330ebaa51fcbe78c2e4da1074c95360dfac1cae054e399987beb271"
-  },
-  "versions": {
-    "postgres": "18.6",
-    "flyway": "13.12.1",
-    "wildfly": "42",
-    "jdbc": "42.7.14"
   }
 }

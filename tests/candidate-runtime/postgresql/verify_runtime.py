@@ -20,6 +20,7 @@ ROOT = Path(__file__).resolve().parents[3]
 WORK = ROOT / ".work/kan18-postgresql-runtime"
 SECRET_DIR = WORK / "secrets"
 PROJECT = "kan18pg-" + secrets.token_hex(5)
+MIGRATION_DIR = WORK / "migrations"
 IMAGE = "ai-modernization-candidate-postgresql:" + PROJECT
 COMPOSE_FILE = ROOT / "infrastructure/database/compose.yaml"
 BASE = "http://127.0.0.1:8082/cargo-tracker/"
@@ -83,6 +84,154 @@ def database_state(env):
     raw=query(env,sql).stdout.strip().splitlines()
     return json.loads(raw[-1])
 
+def json_query(env, sql):
+    raw=query(env,sql).stdout.strip().splitlines()
+    if not raw:
+        raise RuntimeError("PostgreSQL JSON query returned no rows")
+    return json.loads(raw[-1])
+
+def prepare_migrations():
+    if MIGRATION_DIR.exists():
+        raise RuntimeError("Task migration path already exists")
+    MIGRATION_DIR.mkdir(parents=True)
+    source=ROOT/"infrastructure/database/migrations"
+    for path in source.glob("V*.sql"):
+        shutil.copyfile(path,MIGRATION_DIR/path.name)
+    callback="""INSERT INTO lab_observer.flyway_session_observation
+        (session_user_name,current_user_name,current_role_name,observed_at)
+        VALUES (session_user,current_user,current_role,clock_timestamp());
+"""
+    callback_path=MIGRATION_DIR/"afterEachMigrate.sql"
+    callback_path.write_text(callback)
+    return hashlib.sha256(callback_path.read_bytes()).hexdigest()
+
+def migration_history(env):
+    return json_query(env,"SELECT COALESCE(json_agg(json_build_object('version',version,'description',description,'type',type,'script',script,'checksum',checksum,'installed_by',installed_by,'success',success) ORDER BY installed_rank),'[]'::json)::text FROM cargo.flyway_schema_history")
+
+def migration_session_observations(env):
+    return json_query(env,"SELECT COALESCE(json_agg(json_build_object('session_user',session_user_name,'current_user',current_user_name,'current_role',current_role_name,'observed_at',observed_at::text) ORDER BY observed_at),'[]'::json)::text FROM lab_observer.flyway_session_observation")
+
+def schema_catalog_state(env):
+    queries={
+      "relations":"SELECT COALESCE(json_agg(json_build_object('name',c.relname,'kind',c.relkind) ORDER BY c.relname),'[]'::json)::text FROM pg_class c JOIN pg_namespace n ON n.oid=c.relnamespace WHERE n.nspname='cargo' AND c.relkind IN ('r','S','p','v','m')",
+      "columns":"SELECT COALESCE(json_agg(json_build_object('table',table_name,'column',column_name,'type',data_type,'nullable',is_nullable,'default',column_default) ORDER BY table_name,ordinal_position),'[]'::json)::text FROM information_schema.columns WHERE table_schema='cargo'",
+      "constraints":"SELECT COALESCE(json_agg(json_build_object('table',cl.relname,'name',c.conname,'type',c.contype,'definition',pg_get_constraintdef(c.oid,true),'deferrable',c.condeferrable,'deferred',c.condeferred,'validated',c.convalidated) ORDER BY cl.relname,c.conname),'[]'::json)::text FROM pg_constraint c JOIN pg_class cl ON cl.oid=c.conrelid JOIN pg_namespace n ON n.oid=cl.relnamespace WHERE n.nspname='cargo'",
+      "indexes":"SELECT COALESCE(json_agg(json_build_object('table',tbl.relname,'name',idx.relname,'definition',pg_get_indexdef(i.indexrelid),'valid',i.indisvalid,'ready',i.indisready,'unique',i.indisunique) ORDER BY idx.relname),'[]'::json)::text FROM pg_index i JOIN pg_class idx ON idx.oid=i.indexrelid JOIN pg_class tbl ON tbl.oid=i.indrelid JOIN pg_namespace n ON n.oid=tbl.relnamespace WHERE n.nspname='cargo'",
+      "triggers":"SELECT COALESCE(json_agg(json_build_object('table',cl.relname,'name',t.tgname,'enabled',t.tgenabled,'definition',pg_get_triggerdef(t.oid,true)) ORDER BY cl.relname,t.tgname),'[]'::json)::text FROM pg_trigger t JOIN pg_class cl ON cl.oid=t.tgrelid JOIN pg_namespace n ON n.oid=cl.relnamespace WHERE n.nspname='cargo' AND NOT t.tgisinternal",
+      "routines":"SELECT COALESCE(json_agg(json_build_object('name',p.proname,'arguments',pg_get_function_identity_arguments(p.oid),'definition',pg_get_functiondef(p.oid)) ORDER BY p.proname),'[]'::json)::text FROM pg_proc p JOIN pg_namespace n ON n.oid=p.pronamespace WHERE n.nspname='cargo'",
+      "owners":"SELECT COALESCE(json_agg(json_build_object('name',c.relname,'kind',c.relkind,'owner',pg_get_userbyid(c.relowner),'acl',c.relacl::text) ORDER BY c.relname),'[]'::json)::text FROM pg_class c JOIN pg_namespace n ON n.oid=c.relnamespace WHERE n.nspname='cargo' AND c.relkind IN ('r','S','i','p','v','m')",
+      "schema":"SELECT json_build_object('owner',pg_get_userbyid(n.nspowner),'acl',n.nspacl::text,'app_usage',has_schema_privilege('cargo_app','cargo','USAGE'),'app_create',has_schema_privilege('cargo_app','cargo','CREATE'),'migrator_usage',has_schema_privilege('schema_migrator','cargo','USAGE'),'migrator_create',has_schema_privilege('schema_migrator','cargo','CREATE'))::text FROM pg_namespace n WHERE n.nspname='cargo'",
+      "table_grants":"SELECT COALESCE(json_agg(json_build_object('table',table_name,'privilege',privilege_type,'grantable',is_grantable,'grantor',grantor) ORDER BY table_name,privilege_type),'[]'::json)::text FROM information_schema.role_table_grants WHERE table_schema='cargo' AND grantee='cargo_app'",
+      "protected_table_privileges":"SELECT json_build_object('history_select',has_table_privilege('cargo_app','cargo.flyway_schema_history','SELECT'),'history_insert',has_table_privilege('cargo_app','cargo.flyway_schema_history','INSERT'),'history_update',has_table_privilege('cargo_app','cargo.flyway_schema_history','UPDATE'),'history_delete',has_table_privilege('cargo_app','cargo.flyway_schema_history','DELETE'),'state_select',has_table_privilege('cargo_app','cargo.legacy_sequence_state','SELECT'),'state_insert',has_table_privilege('cargo_app','cargo.legacy_sequence_state','INSERT'),'state_update',has_table_privilege('cargo_app','cargo.legacy_sequence_state','UPDATE'),'state_delete',has_table_privilege('cargo_app','cargo.legacy_sequence_state','DELETE'))::text",
+      "sequence_privileges":"SELECT json_build_object('app_usage',has_sequence_privilege('cargo_app','cargo.cargotracker_id_seq','USAGE'),'app_select',has_sequence_privilege('cargo_app','cargo.cargotracker_id_seq','SELECT'),'app_update',has_sequence_privilege('cargo_app','cargo.cargotracker_id_seq','UPDATE'),'migrator_usage',has_sequence_privilege('schema_migrator','cargo.cargotracker_id_seq','USAGE'),'migrator_select',has_sequence_privilege('schema_migrator','cargo.cargotracker_id_seq','SELECT'),'migrator_update',has_sequence_privilege('schema_migrator','cargo.cargotracker_id_seq','UPDATE'))::text",
+      "sequence_state":"SELECT json_build_object('last_value',last_value,'is_called',is_called)::text FROM cargo.cargotracker_id_seq",
+      "roles":"SELECT COALESCE(json_agg(json_build_object('name',rolname,'superuser',rolsuper,'createdb',rolcreatedb,'createrole',rolcreaterole,'replication',rolreplication,'login',rolcanlogin) ORDER BY rolname),'[]'::json)::text FROM pg_roles WHERE rolname IN ('schema_migrator','cargo_app','reader','operator','admin')",
+      "history":"SELECT COALESCE(json_agg(json_build_object('version',version,'description',description,'type',type,'script',script,'checksum',checksum,'installed_by',installed_by,'success',success) ORDER BY installed_rank),'[]'::json)::text FROM cargo.flyway_schema_history",
+    }
+    return {key:json_query(env,sql) for key,sql in queries.items()}
+
+def durable_state(env):
+    return {"rows":database_state(env),"catalog":schema_catalog_state(env)}
+
+def seed_populated_v1_schema(env):
+    sql="""BEGIN;
+INSERT INTO cargo.location(id,name,unlocode) VALUES
+  (7001,'BG06 migration origin','ZZMIG'),
+  (7007,'BG06 migration destination','ZZDST');
+INSERT INTO cargo.voyage(id,voyage_number) VALUES
+  (7002,'BG06MIG');
+INSERT INTO cargo.cargo(id,tracking_id,origin_id,spec_origin_id,spec_destination_id,
+                         spec_arrival_deadline,last_known_location_id,calculated_at,
+                         routing_status,transport_status,misdirected,unloaded_at_dest)
+  VALUES (7003,'BG06-MIGRATION-CARGO',7001,7001,7007,'2030-01-01',
+          7001,'2026-01-01 00:00:00','NOT_ROUTED','NOT_RECEIVED',FALSE,FALSE);
+INSERT INTO cargo.leg(id,load_location_id,unload_location_id,voyage_id,cargo_id,load_time,unload_time)
+  VALUES (7004,7001,7001,7002,7003,'2016-01-01 00:00:00','2016-01-02 00:00:00');
+INSERT INTO cargo.handling_event(id,completion_date,registration_date,type,cargo_id,location_id)
+  VALUES (7005,'2016-01-01','2016-01-01','RECEIVE',7003,7001);
+UPDATE cargo.cargo SET last_event_id=7005 WHERE id=7003;
+INSERT INTO cargo.carrier_movement(id,arrival_time,departure_time,arrival_location_id,departure_location_id,voyage_id)
+  VALUES (7006,'2016-01-02 00:00:00','2016-01-01 00:00:00',7001,7001,7002);
+INSERT INTO cargo.legacy_sequence_state(seq_name,seq_count) VALUES ('BG06_SYNTHETIC',8000);
+COMMIT;"""
+    return query(env,sql)
+
+def migration_identity_valid(history,observations,expected_versions):
+    return ( [row.get("version") for row in history]==expected_versions
+        and all(row.get("success") is True and row.get("installed_by")=="schema_migrator" for row in history)
+        and len(observations)==len(expected_versions)
+        and all(row.get("session_user")=="schema_migrator"
+                and row.get("current_user")=="schema_migrator"
+                and row.get("current_role")=="schema_migrator" for row in observations))
+
+def v2_effects(before,after,data_before,data_after,history_before,history_after,observations):
+    expected={"idx_cargo_origin_id":("cargo","origin_id"),
+        "idx_cargo_spec_destination_id":("cargo","spec_destination_id"),
+        "idx_leg_cargo_id":("leg","cargo_id"),
+        "idx_handling_event_cargo_dates":("handling_event","cargo_id, completion_date, registration_date"),
+        "idx_carrier_movement_voyage_id":("carrier_movement","voyage_id")}
+    old={row["name"]:row for row in before["indexes"]}
+    new={row["name"]:row for row in after["indexes"]}
+    added=set(new)-set(old)
+    expected_definitions={name:"CREATE INDEX "+name+" ON cargo."+table+" USING btree ("+columns+")"
+        for name,(table,columns) in expected.items()}
+    definitions_ok=(added==set(expected) and all(new[name]["valid"] and new[name]["ready"]
+        and new[name]["definition"]==expected_definitions[name]
+        and not new[name]["unique"]
+        for name in expected)) and all(new.get(name)==row for name,row in old.items())
+    owners_old={row["name"]:row for row in before["owners"]}
+    owners_new={row["name"]:row for row in after["owners"]}
+    owners_ok=(set(owners_new)-set(owners_old)==set(expected)
+        and all(owners_new[name]==row for name,row in owners_old.items())
+        and all(owners_new[name]["owner"]=="schema_migrator" for name in expected))
+    stable=("relations","columns","constraints","triggers","routines","schema","table_grants",
+        "protected_table_privileges","sequence_privileges","roles")
+    stable_ok=all(before[key]==after[key] for key in stable)
+    history_ok=(history_after[:len(history_before)]==history_before
+        and [row["version"] for row in history_after]==["1","2"]
+        and migration_identity_valid(history_after,observations,["1","2"]))
+    high_water=max(7007,8000)
+    sequence_ok=after["sequence_state"]=={"last_value":high_water,"is_called":True}
+    data_ok=data_before==data_after
+    return {"passed":definitions_ok and owners_ok and stable_ok and history_ok and sequence_ok and data_ok,
+        "data_preserved":data_ok,"new_index_names":sorted(added),"expected_indexes":expected,
+        "index_definitions_valid":definitions_ok,"owners_delta_valid":owners_ok,
+        "catalog_other_than_indexes_history_sequence_unchanged":stable_ok,
+        "sequence_before":before["sequence_state"],"sequence_after":after["sequence_state"],
+        "expected_high_water":high_water,"history":history_after,"session_observations":observations,
+        "high_water_branch":"legacy_sequence_state (entity-id maximum branch separately covered by KAN-22)"}
+
+def v3_effects(before,after,data_before,data_after,history_before,history_after,observations):
+    stable=("relations","columns","constraints","indexes","triggers","routines","schema","roles",
+        "sequence_state","protected_table_privileges")
+    stable_ok=all(before[key]==after[key] for key in stable)
+    owners_before={row["name"]:row for row in before["owners"]}
+    owners_after={row["name"]:row for row in after["owners"]}
+    same_owners=(set(owners_before)==set(owners_after)
+        and all(owners_before[name]["kind"]==owners_after[name]["kind"]
+            and owners_before[name]["owner"]==owners_after[name]["owner"] for name in owners_before))
+    acl_changed={name for name in owners_before if owners_before[name]["acl"]!=owners_after[name]["acl"]}
+    expected_acl={"location","voyage","cargo","leg","handling_event","carrier_movement","cargotracker_id_seq"}
+    acl_ok=same_owners and acl_changed==expected_acl
+    expected={(table,priv) for table in ("location","voyage","cargo","leg","handling_event","carrier_movement")
+        for priv in ("SELECT","INSERT","UPDATE","DELETE")}
+    actual={(row["table"],row["privilege"]) for row in after["table_grants"]}
+    grants_ok=(actual==expected and len(after["table_grants"])==len(expected)
+        and all(row["grantable"]=="NO" and row["grantor"]=="schema_migrator" for row in after["table_grants"]))
+    sequence=after["sequence_privileges"]
+    seq_ok=sequence["app_usage"] and sequence["app_select"] and sequence["app_update"]
+    protected_ok=not any(after["protected_table_privileges"].values())
+    history_ok=(history_after[:len(history_before)]==history_before
+        and [row["version"] for row in history_after]==["1","2","3"]
+        and migration_identity_valid(history_after,observations,["1","2","3"]))
+    data_ok=data_before==data_after
+    return {"passed":stable_ok and acl_ok and grants_ok and seq_ok and protected_ok and history_ok and data_ok,
+        "history":history_after,"session_observations":observations,"data_preserved":data_ok,
+        "catalog_other_than_history_and_app_grants_unchanged":stable_ok,
+        "owner_preservation":same_owners,"changed_acl_objects":sorted(acl_changed),
+        "application_table_grants_exact":grants_ok,"application_table_grants":after["table_grants"],
+        "application_sequence_privileges":sequence,"history_and_legacy_state_privileges_absent":protected_ok}
+
 def http_status(url, opener=None, data=None):
     request=urllib.request.Request(url,data=data,headers={"Content-Type":"application/x-www-form-urlencoded"} if data else {})
     try:
@@ -101,7 +250,7 @@ def main():
         sock.bind(("127.0.0.1",8082))
     env=os.environ.copy()
     env["KAN22_SECRET_DIR"]=str(SECRET_DIR)
-    env["KAN22_MIGRATIONS_DIR"]=str(ROOT/"infrastructure/database/migrations")
+    env["KAN22_MIGRATIONS_DIR"]=str(MIGRATION_DIR)
     env["KAN18_APP_IMAGE"]=IMAGE
     compose=["docker","compose","-p",PROJECT,"-f",str(COMPOSE_FILE)]
     project_filter="label=com.docker.compose.project="+PROJECT
@@ -113,10 +262,11 @@ def main():
         raise RuntimeError("A resource for the unique task project/image already exists")
     try:
         passwords=create_secrets()
+        callback_hash=prepare_migrations()
     except Exception:
         if WORK.exists(): shutil.rmtree(WORK)
         raise
-    report={"task":"KAN-18/KAN-15 BG-06","status":"FAIL","checks":{},"cleanup":{"compose_down":False,"resource_check_passed":False,"residual_containers":[],"residual_networks":[],"residual_volumes":[],"work_removed":False,"image_removed":False,"secrets_preserved":False}}
+    report={"task":"KAN-18/KAN-15 BG-06","status":"FAIL","checks":{},"fixture_inputs":{"flyway_after_each_migrate_callback_sha256":callback_hash},"machine_scope":"Flyway schema migration with server-verified schema_migrator identity; separate from request users","instrumentation_scope":"lab_observer is harness-only instrumentation for server-observed Flyway sessions, not a product schema effect","cleanup":{"compose_down":False,"resource_check_passed":False,"residual_containers":[],"residual_networks":[],"residual_volumes":[],"work_removed":False,"image_removed":False,"secrets_preserved":False}}
     try:
         run("Candidate image build",compose+["--profile","candidate-app","build","candidate-app"],env,timeout=900)
         run("Fresh PostgreSQL startup",compose+["up","-d","--wait","--wait-timeout","120","postgres"],env,timeout=150)
@@ -128,21 +278,64 @@ def main():
         migrator_auth=query(env,"SELECT current_user",username="schema_migrator",password_file="migrator_password",allow_failure=True)
         report["checks"]["migration_identity_authentication"]={"passed":migrator_auth.returncode==0,"authenticated_as":migrator_auth.stdout.strip().splitlines()[-1] if migrator_auth.returncode==0 else None,"failure_code":"28P01" if "28P01" in migrator_auth.stdout else None}
         if migrator_auth.returncode: raise RuntimeError("schema_migrator secret did not authenticate through PostgreSQL")
-        run("Fresh Flyway migrations",compose+["--profile","migrate","run","--rm","migrate"],env,timeout=180)
-        history=query(env,"SELECT version||':'||success FROM cargo.flyway_schema_history ORDER BY installed_rank").stdout.strip().splitlines()
-        report["checks"]["fresh_migrations"]={"passed":history==["1:true","2:true","3:true"],"versions":history}
-        if not report["checks"]["fresh_migrations"]["passed"]: raise RuntimeError("Expected fresh V1/V2/V3 migration history")
-        db_roles=query(env,"SELECT rolname||':'||rolsuper||':'||rolcreatedb||':'||rolcreaterole FROM pg_roles WHERE rolname IN ('schema_migrator','cargo_app','reader','operator','admin') ORDER BY rolname").stdout.strip().splitlines()
-        report["checks"]["role_separation"]={"passed":db_roles==["cargo_app:false:false:false","schema_migrator:false:false:false"],"database_roles":db_roles}
-        acl=query(env,"SELECT has_schema_privilege('schema_migrator','cargo','CREATE')||':'||has_schema_privilege('cargo_app','cargo','CREATE')||':'||has_table_privilege('cargo_app','cargo.flyway_schema_history','UPDATE')||':'||has_table_privilege('cargo_app','cargo.legacy_sequence_state','UPDATE')").stdout.strip().splitlines()
-        report["checks"]["least_privilege_acl"]={"passed":acl==["true:false:false:false"],"observed":acl}
-        before=database_state(env)
-        if any(value["count"] for value in before.values()): raise RuntimeError("Fresh schema unexpectedly contains rows")
+        query(env,"CREATE SCHEMA lab_observer AUTHORIZATION db_bootstrap; CREATE TABLE lab_observer.flyway_session_observation(session_user_name text NOT NULL,current_user_name text NOT NULL,current_role_name text NOT NULL,observed_at timestamptz NOT NULL); GRANT USAGE ON SCHEMA lab_observer TO schema_migrator; GRANT INSERT ON lab_observer.flyway_session_observation TO schema_migrator")
+        run("Flyway V1 migration",compose+["--profile","migrate","run","--rm","-e","FLYWAY_TARGET=1","migrate"],env,timeout=180)
+        history_v1=migration_history(env); observations_v1=migration_session_observations(env)
+        catalog_v1=schema_catalog_state(env); data_v1=database_state(env)
+        v1_ok=(migration_identity_valid(history_v1,observations_v1,["1"])
+            and len(data_v1)==len(TABLES) and all(row["count"]==0 for row in data_v1.values()))
+        report["checks"]["flyway_v1_session"]={"passed":v1_ok,"history":history_v1,"session_observation":observations_v1,"empty_business_schema":data_v1}
+        if not v1_ok: raise RuntimeError("V1 session identity/history or empty-schema baseline failed")
+        seed_populated_v1_schema(env)
+        data_before_v2=database_state(env); catalog_before_v2=schema_catalog_state(env)
+        expected_counts={"location":2,"voyage":1,"cargo":1,"leg":1,"handling_event":1,"carrier_movement":1,"legacy_sequence_state":1}
+        import_ok=({name:row["count"] for name,row in data_before_v2.items()}==expected_counts
+            and catalog_before_v2==catalog_v1)
+        report["checks"]["synthetic_import_before_upgrade"]={"passed":import_ok,"rows":data_before_v2,"catalog_unchanged":catalog_before_v2==catalog_v1,"sequence_inputs":{"max_entity_id":7007,"legacy_sequence_state":8000,"expected_high_water":8000,"branch_exercised":"legacy_sequence_state"}}
+        if not import_ok: raise RuntimeError("Synthetic import changed V1 catalog or row counts diverged")
+        run("Flyway V2 migration",compose+["--profile","migrate","run","--rm","-e","FLYWAY_TARGET=2","migrate"],env,timeout=180)
+        history_v2=migration_history(env); observations_v2=migration_session_observations(env)
+        catalog_v2=schema_catalog_state(env); data_after_v2=database_state(env)
+        v2_check=v2_effects(catalog_before_v2,catalog_v2,data_before_v2,data_after_v2,history_v1,history_v2,observations_v2)
+        report["checks"]["flyway_v2_populated_upgrade"]=v2_check
+        if not v2_check["passed"]: raise RuntimeError("V2 populated-schema migration did not match exact expected effects")
+        run("Flyway V3 migration",compose+["--profile","migrate","run","--rm","-e","FLYWAY_TARGET=3","migrate"],env,timeout=180)
+        history_v3=migration_history(env); observations_v3=migration_session_observations(env)
+        catalog_v3=schema_catalog_state(env); data_after_v3=database_state(env)
+        v3_check=v3_effects(catalog_v2,catalog_v3,data_after_v2,data_after_v3,history_v2,history_v3,observations_v3)
+        report["checks"]["flyway_v3_runtime_grants"]=v3_check
+        if not v3_check["passed"]: raise RuntimeError("V3 grant migration changed objects outside allowed ACL/history delta")
+        identity_ok=(migration_identity_valid(history_v3,migration_session_observations(env),["1","2","3"])
+            and migrator_auth.stdout.strip().splitlines()[-1]=="schema_migrator")
+        report["checks"]["migration_machine_identity"]={"passed":identity_ok,"machine_identity_verified":identity_ok,
+            "native_identity":{"server_verified":identity_ok,"principal":"schema_migrator","session_user":"schema_migrator","current_user":"schema_migrator","current_role":"schema_migrator"},
+            "machine_scope":"Flyway schema migration with server-verified schema_migrator identity; separate from request users",
+            "flyway_installed_by":[row["installed_by"] for row in history_v3],"session_observations":migration_session_observations(env),
+            "migrations_only":True,"sample_data_generator_invoked":False,"controlled_import_invoked":False}
+        if not identity_ok: raise RuntimeError("Actual Flyway session identity evidence did not match schema_migrator")
+        row_preservation={"passed":data_after_v3==data_before_v2,"before_migrations":data_before_v2,"after_v3":data_after_v3}
+        report["checks"]["populated_upgrade_preserves_imported_rows"]=row_preservation
+        if not row_preservation["passed"]: raise RuntimeError("Imported synthetic row contents changed across V2/V3")
+        db_roles=catalog_v3["roles"]
+        role_names={row["name"] for row in db_roles}
+        role_separation=(role_names=={"cargo_app","schema_migrator"}
+            and all(not row["superuser"] and not row["createdb"] and not row["createrole"] for row in db_roles))
+        report["checks"]["role_separation"]={"passed":role_separation,"database_roles":db_roles}
+        if not role_separation: raise RuntimeError("Database roles are not separated least-privilege identities")
+        acl_ok=(catalog_v3["schema"]["migrator_create"] and catalog_v3["schema"]["app_usage"]
+            and not catalog_v3["schema"]["app_create"] and not any(catalog_v3["protected_table_privileges"].values())
+            and v3_check["application_table_grants_exact"] and v3_check["application_sequence_privileges"]["app_usage"]
+            and v3_check["application_sequence_privileges"]["app_select"] and v3_check["application_sequence_privileges"]["app_update"])
+        report["checks"]["least_privilege_acl"]={"passed":acl_ok,"schema":catalog_v3["schema"],"protected_table_privileges":catalog_v3["protected_table_privileges"],"application_table_grants":catalog_v3["table_grants"],"application_sequence_privileges":catalog_v3["sequence_privileges"]}
+        if not acl_ok: raise RuntimeError("Application or migration ACLs diverge from policy")
         marker="KAN18_"+secrets.token_hex(8).upper()
-        insert="INSERT INTO cargo.location(id,name,unlocode) VALUES (900001,'"+marker+"','ZZTST')"
-        result=query(env,insert,username="cargo_app",password_file="app_password",allow_failure=True)
-        report["checks"]["runtime_dml"]={"passed":result.returncode==0}
-        if result.returncode: raise RuntimeError("cargo_app could not persist a marker")
+        insert="INSERT INTO cargo.location(name,unlocode) VALUES ('"+marker+"','ZZTST') RETURNING id"
+        marker_result=query(env,insert,username="cargo_app",password_file="app_password",allow_failure=True)
+        marker_lines=marker_result.stdout.strip().splitlines()
+        marker_id=int(marker_lines[0]) if marker_lines and marker_lines[0].isdigit() else None
+        expected_marker_id=8001
+        report["checks"]["runtime_dml"]={"passed":marker_result.returncode==0 and marker_id==expected_marker_id,"generated_id":marker_id,"expected_generated_id":expected_marker_id}
+        if not report["checks"]["runtime_dml"]["passed"]: raise RuntimeError("cargo_app could not persist the expected sequence-generated ID")
         denial_attempts={
             "persistent_schema_ddl":query(env,"CREATE TABLE cargo.kan18_ddl_probe(id integer)",username="cargo_app",password_file="app_password",allow_failure=True),
             "temporary_table_ddl":query(env,"CREATE TEMP TABLE kan18_temp_probe(id integer)",username="cargo_app",password_file="app_password",allow_failure=True),
@@ -150,7 +343,7 @@ def main():
             "migration_state_update":query(env,"UPDATE cargo.legacy_sequence_state SET seq_count=seq_count WHERE FALSE",username="cargo_app",password_file="app_password",allow_failure=True)}
         report["checks"]["application_ddl_denied"]={name:(result.returncode!=0 and "permission denied" in result.stdout.lower()) for name,result in denial_attempts.items()}
         if not all(report["checks"]["application_ddl_denied"].values()): raise RuntimeError("cargo_app unexpectedly received schema/migration privileges")
-        marked=database_state(env)
+        marked=durable_state(env)
         run("Candidate app startup",compose+["--profile","candidate-app","up","-d","candidate-app"],env,timeout=120)
         deadline=time.monotonic()+180
         anonymous_status=0
@@ -163,31 +356,40 @@ def main():
             time.sleep(2)
         report["checks"]["anonymous_api_denied"]={"passed":anonymous_status in (302,401),"status":anonymous_status}
         if not report["checks"]["anonymous_api_denied"]["passed"]: raise RuntimeError("Candidate app did not reach expected anonymous denial")
-        after_start=database_state(env)
-        marker_ok=query(env,"SELECT count(*) FROM cargo.location WHERE id=900001 AND name='"+marker+"'").stdout.strip().splitlines()==["1"]
+        after_start=durable_state(env)
+        marker_ok=query(env,"SELECT count(*) FROM cargo.location WHERE id="+str(marker_id)+" AND name='"+marker+"'").stdout.strip().splitlines()==["1"]
         report["checks"]["startup_no_orm_ddl_or_seed"]={"passed":after_start==marked and marker_ok,"before":marked,"after":after_start,"marker_preserved":marker_ok}
         if not report["checks"]["startup_no_orm_ddl_or_seed"]["passed"]: raise RuntimeError("Application startup changed persisted data")
         report["checks"]["human_roles"]={}
         for username,role in USERS.items():
             opener=urllib.request.build_opener(urllib.request.HTTPCookieProcessor(http.cookiejar.CookieJar()),NoRedirect())
-            code,login_body,_=http_status(BASE+"login",opener)
+            login_page_status,login_body,_=http_status(BASE+"login",opener)
             token=re.search(r"name='csrf' value='([^']+)'",login_body)
-            valid=code==200 and token is not None
-            if valid:
+            login_status=session_status=cargo_status=None
+            identity={}
+            if login_page_status==200 and token is not None:
                 payload=urllib.parse.urlencode({"username":username,"password":passwords[username],"csrf":token.group(1)}).encode()
                 login_status,_,_=http_status(BASE+"login",opener,payload)
                 session_status,session_body,_=http_status(BASE+"session",opener)
                 cargo_status,_,_=http_status(BASE+"rest/cargo",opener)
                 try: identity=json.loads(session_body)
                 except Exception: identity={}
-                valid=(login_status==303 and session_status==200 and identity.get("principal")==username and role in identity.get("roles",[]) and cargo_status==200)
-            state=database_state(env)
-            report["checks"]["human_roles"][role]={"passed":valid and state==marked,"identity_verified":valid,"db_unchanged":state==marked}
-            if not report["checks"]["human_roles"][role]["passed"]: raise RuntimeError("Human app identity check failed for "+role)
+            identity_ok=(login_status==303 and session_status==200
+                and identity.get("principal")==username and role in identity.get("roles",[]))
+            valid=identity_ok and cargo_status==200
+            state=durable_state(env)
+            role_passed=valid and state==marked
+            report["checks"]["human_roles"][role]={"passed":role_passed,"identity_verified":identity_ok,
+                "durable_state_unchanged":state==marked,"login_page_status":login_page_status,
+                "csrf_present":token is not None,"login_status":login_status,"session_status":session_status,
+                "observed_principal":identity.get("principal"),"observed_roles":identity.get("roles"),
+                "cargo_api_status":cargo_status}
+        if not all(result["passed"] for result in report["checks"]["human_roles"].values()):
+            raise RuntimeError("One or more human application role checks failed")
         run("Candidate app restart",compose+["restart","candidate-app"],env,timeout=90)
         time.sleep(12)
-        restarted=database_state(env)
-        report["checks"]["restart_preserves_data"]={"passed":restarted==marked and query(env,"SELECT count(*) FROM cargo.location WHERE id=900001 AND name='"+marker+"'").stdout.strip().splitlines()==["1"],"after_restart":restarted}
+        restarted=durable_state(env)
+        report["checks"]["restart_preserves_data"]={"passed":restarted==marked and query(env,"SELECT count(*) FROM cargo.location WHERE id="+str(marker_id)+" AND name='"+marker+"'").stdout.strip().splitlines()==["1"],"after_restart":restarted}
         if not report["checks"]["restart_preserves_data"]["passed"]: raise RuntimeError("Candidate restart changed persisted data")
         report["schema_hashes"]={}
         for relative in (".dockerignore","tests/candidate-runtime/postgresql/Dockerfile","tests/candidate-runtime/postgresql/module.xml","tests/candidate-runtime/postgresql/configure-datasource.cli","tests/candidate-runtime/postgresql/start.sh","tests/candidate-runtime/postgresql/verify_runtime.py","infrastructure/database/compose.yaml","infrastructure/database/bootstrap/10-create-roles.sh","infrastructure/database/migrations/V1__initial_schema.sql","infrastructure/database/migrations/V2__query_indexes_and_sequence_reconciliation.sql","infrastructure/database/migrations/V3__grant_application_runtime_privileges.sql","candidate/cargotracker/src/main/resources/META-INF/persistence.xml","candidate/cargotracker/src/main/java/net/java/cargotracker/application/util/SampleDataGenerator.java"):
