@@ -14,7 +14,8 @@ BG-06 has two different security boundaries:
 - The candidate persistence descriptor sets jakarta.persistence.schema-generation.database.action to none.
 - No direct REST/JAX-RS or servlet mapping or other Java source caller invokes SampleDataGenerator in the candidate application; the only source references found are its own class and the provenance manifest.
 - The candidate has an Administrator-facing /admin/import.xhtml handling-event batch trigger, disabled unless lab.import.enabled=true and delegated through BatchTrigger/BatchWorker identities. It is separate from startup sample seeding and database schema migration. This is the candidate implementation/crosswalk for the legacy BG-01/BG-02 import entries; the historical entry fields remain unchanged.
-- Candidate application API/servlet mappings still need a complete reviewed inventory, including EJB views, CDI references, timers/schedulers, JNDI, and management reachability.
+- A source/config regression test inventories the candidate network and worker surface: JAX-RS base path rest with five path annotations mapped across three resources, SessionServlet (/session) and LegacyNavigationServlet (its nine legacy aliases) plus web.xml mappings for LocalLoginServlet (/login), LocalLogoutServlet (/logout), and FacesServlet (*.xhtml), WebSocket /tracking (no @OnMessage), five MDB consumers, startup beans SampleDataGenerator and BatchImportRequestService, no @Remote EJB view or timer annotations, and only the host-local app mapping 127.0.0.1:8082:8080. PostgreSQL has no published host port.
+- Runtime JNDI, management-interface, broker reachability, role/session, and data/catalog effects still require separate checks; static inventory is not a security gate result.
 
 ## Evidence boundaries and next verification
 
@@ -22,9 +23,9 @@ The KAN-18 receipt proves fresh V1/V2/V3 migration with a separate schema_migrat
 
 Before any BG-06 case can pass:
 
-1. Inventory all candidate JAX-RS resources/methods, servlet mappings, WebSocket endpoints, JMS destinations/producers/consumers and broker-facing trigger paths, EJB business/remote views, CDI/EJB references, startup hooks, timers/schedulers, JNDI and management interfaces. Confirm the fixture publishes no WildFly administration, EJB, or broker management port. Trace every reference/caller of SampleDataGenerator.
+1. Complete the static source inventory for JMS destinations/producers/consumers, CDI/EJB references, JNDI and management interfaces, and trace every reference/caller of SampleDataGenerator. Runtime-confirm that WildFly administration, EJB, and broker management interfaces are not reachable through the fixture networks.
 2. Probe every actual control surface as anonymous, Reader, Operator, and Administrator. For the BG-06 seed/reseed/DDL behavior, distinguish the existing BG-01/BG-02 handling-event import route from any seed/schema operation; probe applicable routes and inspect/instrument the actual call graph. A guessed-path 404 alone is insufficient. Do not substitute the ordinary allowed GET /rest/cargo read for a denied mutation attempt.
 3. Compare full application table content, schema/catalog, Flyway history, sequences, grants and ownership before/after startup, restart and denied probes. Use stable sanitized digests and explicit expected differences.
 4. For the machine allow case, migrate a schema containing synthetic pre-existing rows through the supported Flyway upgrade path. Verify the server identity and exact scope, preserve full row digests, permit only the expected schema/history changes, and confirm the application role cannot perform DDL or edit migration state.
 
-Until these checks and the trusted gate adapter exist, all four human BG-06 cases and BG-06-MACHINE remain BLOCKED. Existing green KAN-18 checks must not be promoted into BG-06 PASS results.
+Five new static source/config regression checks and the existing 92 security unit tests pass (97 total). These checks document the inventory but do not prove runtime access denial or database effects. Until the remaining runtime checks and trusted gate adapter exist, all four human BG-06 cases and BG-06-MACHINE remain BLOCKED. Existing green KAN-18 checks must not be promoted into BG-06 PASS results.
