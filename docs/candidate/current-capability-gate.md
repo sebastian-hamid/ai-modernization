@@ -1,5 +1,9 @@
 # Current-capability gate — first live checkpoint
 
+## Latest scoped boundary update — 11 November 2026
+
+A separate fresh BG-06 gate passed all five seed/reseed/schema-boundary cases: the four human denials and the deployment `schema_migrator` Flyway case. Its persisted evidence is [notes/evidence/kan-15-bg06-scope/validation.json](../../notes/evidence/kan-15-bg06-scope/validation.json). This did not rerun or rewrite the aggregate current-capability gate below; the historical totals and blocker lists in this document remain snapshots from their stated run dates. KAN-15 remains In Progress, and the BG-06 remote JMS probe did not test destination-level send/consume authorization.
+
 KAN-15, 2 November 2026. Approved acceptance direction: [decision](../../notes/decisions/2026-11-02-current-ui-acceptance.md). Runtime/test inputs were frozen at commit 7186ab9 throughout this first v2 integration run.
 
 The versioned gate reports **308 PASS / 162 BLOCKED across 470 current cases**. All **76 retirement checks remain BLOCKED**. The same fresh fixture reports the preserved historical catalogue as **324 PASS / 178 BLOCKED across 502 cases**. Gate exit is 2: incomplete coverage. No legacy definition has been deleted or relabeled PASS/RETIRED.
