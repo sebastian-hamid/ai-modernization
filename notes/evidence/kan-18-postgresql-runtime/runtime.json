@@ -19,7 +19,8 @@
     "tests/candidate-runtime/postgresql/module.xml": "c6cf60d912ecaa7a4560b1288d478b7cc2bbc10f22316f6edb241093edb0aee1",
     "tests/candidate-runtime/postgresql/configure-datasource.cli": "02151083ddabbb082306ea34251707a8cc27d76ad3d6c99083b644226f4cae54",
     "tests/candidate-runtime/postgresql/start.sh": "09ec1f8e3481d2d9a9cda6556521078769b44b388f2e87da93626e6e52627bb0",
-    "tests/candidate-runtime/postgresql/verify_runtime.py": "0377f054b6833f4a89475507836ac2df794b75c7766cda549b503f729309aee9",
+    "tests/candidate-runtime/postgresql/verify_runtime.py": "55a38d862c64686997f0d9bd9a1088e57270c061d1e7b6b0d1ba4b9941ddbcdd",
+    "tests/candidate-runtime/postgresql/RemoteJndiReachabilityProbe.java": "5e0434b22f83343a96967d782c25e238d2b4375756b505670bc67fbe6768e6f5",
     "infrastructure/database/compose.yaml": "75d8326fe745285a85284908987459abe6fee100489f4c3d2fca979ee097cd0a",
     "infrastructure/database/bootstrap/10-create-roles.sh": "766e33a567e87db3fd08af454e6f5eed5ece7eae300abad52ca0b59b4dca7f08",
     "infrastructure/database/migrations/V1__initial_schema.sql": "7013c202de93b97d733288d92fc3244d72e25aedd53c6bf672027cedadf52baa",
@@ -690,6 +691,68 @@
       "management_and_private_listener_ports_closed": true,
       "http_and_remoting_port_reachable": true,
       "passed": true
+    },
+    "remote_jndi_jms_protocol_authentication": {
+      "driver": "remote-http-remoting-jndi-jms-connect-v1",
+      "provider": "remote+http://candidate-app:8080",
+      "operations": [
+        "lookup jms/RemoteConnectionFactory",
+        "create JMS context",
+        "start connection",
+        "close context"
+      ],
+      "sends_performed": 0,
+      "consumers_created": 0,
+      "observations": {
+        "reader": {
+          "factory_lookup_succeeded": true,
+          "jms_connection_started": true,
+          "authentication_denial": false,
+          "jms_closed": true,
+          "naming_closed": true,
+          "failure_class": null
+        },
+        "operator": {
+          "factory_lookup_succeeded": true,
+          "jms_connection_started": true,
+          "authentication_denial": false,
+          "jms_closed": true,
+          "naming_closed": true,
+          "failure_class": null
+        },
+        "admin": {
+          "factory_lookup_succeeded": true,
+          "jms_connection_started": true,
+          "authentication_denial": false,
+          "jms_closed": true,
+          "naming_closed": true,
+          "failure_class": null
+        },
+        "anonymous": {
+          "factory_lookup_succeeded": false,
+          "jms_connection_started": false,
+          "authentication_denial": true,
+          "jms_closed": true,
+          "naming_closed": true,
+          "failure_class": "org.wildfly.security.auth.AuthenticationException"
+        },
+        "invalid": {
+          "factory_lookup_succeeded": false,
+          "jms_connection_started": false,
+          "authentication_denial": true,
+          "jms_closed": true,
+          "naming_closed": true,
+          "failure_class": "org.wildfly.security.auth.AuthenticationException"
+        }
+      },
+      "valid_app_roles_connect": true,
+      "anonymous_connection_denied": true,
+      "invalid_credential_connection_denied": true,
+      "client_resources_closed": true,
+      "all_probes_reported": true,
+      "well_formed_unique_results": true,
+      "database_state_unchanged": true,
+      "passed": true
     }
   },
   "cleanup": {
@@ -699,6 +762,7 @@
     "residual_networks": [],
     "residual_volumes": [],
     "peer_probe_removed": true,
+    "jndi_probe_removed": true,
     "work_removed": true,
     "image_removed": true,
     "secrets_preserved": false

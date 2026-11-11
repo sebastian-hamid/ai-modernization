@@ -24,6 +24,8 @@ MIGRATION_DIR = WORK / "migrations"
 IMAGE = "ai-modernization-candidate-postgresql:" + PROJECT
 PROBE_IMAGE = "postgres:18.6@sha256:e3d24f6906d0760bf4da0dae872415391ededefad23fd471c47dc53b0ddf3c42"
 PROBE_CONTAINER = PROJECT + "-network-probe"
+NAMING_PROBE_CONTAINER = PROJECT + "-jndi-probe"
+NAMING_PROBE_SOURCE = ROOT / "tests/candidate-runtime/postgresql/RemoteJndiReachabilityProbe.java"
 COMPOSE_FILE = ROOT / "infrastructure/database/compose.yaml"
 BASE = "http://127.0.0.1:8082/cargo-tracker/"
 TABLES = ("location", "voyage", "cargo", "leg", "handling_event", "carrier_movement", "legacy_sequence_state")
@@ -42,9 +44,14 @@ def run(label, args, env, timeout=90, check=True):
             for path in Path(secret_dir).glob("*"):
                 if path.is_file():
                     try:
-                        secret = path.read_text().strip()
-                        if secret:
-                            tail = tail.replace(secret, "[REDACTED]")
+                        content=path.read_text()
+                        candidates=[content.strip()]
+                        for line in content.splitlines():
+                            if "=" in line:
+                                candidates.append(line.split("=",1)[1].strip())
+                        for secret in candidates:
+                            if secret:
+                                tail=tail.replace(secret,"[REDACTED]")
                     except OSError:
                         pass
         raise RuntimeError(label + " failed (exit " + str(result.returncode) + ")\n" + tail)
@@ -64,6 +71,9 @@ def create_secrets():
         path.write_text(value+"\n")
         path.chmod(0o444)
     passwords={name:secrets.token_urlsafe(32) for name in USERS}
+    probe_credentials=SECRET_DIR/"remote-jndi.properties"
+    probe_credentials.write_text("".join(name+".password="+pw+"\n" for name,pw in passwords.items()))
+    probe_credentials.chmod(0o444)
     users="#$REALM_NAME=ApplicationRealm$\n"+"".join(name+"="+password_hash(name,pw)+"\n" for name,pw in passwords.items())
     roles="reader=Reader\noperator=Operator\nadmin=Administrator\n"
     for name,content in (("application-users.properties",users),("application-roles.properties",roles)):
@@ -78,7 +88,7 @@ def query(env, sql, username="db_bootstrap", password_file=None, allow_failure=F
         args=["docker","compose","-p",PROJECT,"-f",str(COMPOSE_FILE),"exec","-T","postgres","psql","-U",username,"-d","cargotracker","-v","ON_ERROR_STOP=1","-At","-c",sql]
     return run("PostgreSQL query",args,env,timeout=30,check=not allow_failure)
 
-def peer_tcp_probe(env):
+def candidate_access_network(env):
     ids=run("Candidate access network lookup",["docker","network","ls","-q",
         "--filter","label=com.docker.compose.project="+PROJECT],env,timeout=30).stdout.strip().splitlines()
     matches=[]
@@ -88,10 +98,14 @@ def peer_tcp_probe(env):
             matches.append(network_id)
     if len(matches)!=1:
         raise RuntimeError("Expected exactly one candidate-host-access network for peer probe")
+    return matches[0]
+
+def peer_tcp_probe(env):
+    network_id=candidate_access_network(env)
     ports=(8080,8009,8443,9990,9993,3528,3529,4712,4713,5445,5455,5672,61616)
     script='set -eu; for port in 8080 8009 8443 9990 9993 3528 3529 4712 4713 5445 5455 5672 61616; do if timeout 3 bash -c "exec 3<>/dev/tcp/candidate-app/$port" >/dev/null 2>&1; then printf "%s=open\n" "$port"; else printf "%s=closed\n" "$port"; fi; done'
     result=run("Candidate peer TCP reachability probe",["docker","run","--rm","--name",PROBE_CONTAINER,
-        "--label","com.docker.compose.project="+PROJECT,"--network",matches[0],"--entrypoint","bash",
+        "--label","com.docker.compose.project="+PROJECT,"--network",network_id,"--entrypoint","bash",
         PROBE_IMAGE,"-lc",script],env,timeout=60)
     observed={}
     for line in result.stdout.splitlines():
@@ -108,6 +122,69 @@ def peer_tcp_probe(env):
             "8009":"AJP","8443":"HTTPS","9990":"WildFly management HTTP","9993":"WildFly management HTTPS",
             "3528":"IIOP","3529":"IIOP TLS","4712":"transaction recovery","4713":"transaction status",
             "5445":"native messaging","5455":"messaging throughput","5672":"AMQP","61616":"Artemis TCP"}}
+
+def remote_jndi_jms_probe(env):
+    network_id=candidate_access_network(env)
+    credential_path=SECRET_DIR/"remote-jndi.properties"
+    command='set -eu; mkdir -p /tmp/kan18-jndi-probe; javac -cp /opt/jboss/wildfly/bin/client/jboss-client.jar -d /tmp/kan18-jndi-probe /tmp/RemoteJndiReachabilityProbe.java; exec java -cp /tmp/kan18-jndi-probe:/opt/jboss/wildfly/bin/client/jboss-client.jar lab.fixture.RemoteJndiReachabilityProbe remote+http://candidate-app:8080 /run/remote-jndi.properties'
+    result=run("Remote JNDI/JMS read-only protocol probe",["docker","run","--rm","--name",NAMING_PROBE_CONTAINER,
+        "--label","com.docker.compose.project="+PROJECT,"--network",network_id,
+        "--mount","type=bind,src="+str(NAMING_PROBE_SOURCE.resolve())+",dst=/tmp/RemoteJndiReachabilityProbe.java,readonly",
+        "--mount","type=bind,src="+str(credential_path.resolve())+",dst=/run/remote-jndi.properties,readonly",
+        "--entrypoint","bash",IMAGE,"-lc",command],env,timeout=90)
+    observations={}
+    seen=set()
+    well_formed=True
+    expected_fields={"lookup","connection_started","authentication_denial","jms_closed","naming_closed","failure"}
+    for line in result.stdout.splitlines():
+        if not line.startswith("PROBE_RESULT "):
+            continue
+        fields=line.split()
+        if len(fields)!=8 or fields[1] in seen:
+            well_formed=False
+            continue
+        seen.add(fields[1])
+        pairs=[field.split("=",1) for field in fields[2:] if "=" in field]
+        values=dict(pairs)
+        bool_fields=("lookup","connection_started","authentication_denial","jms_closed","naming_closed")
+        if (len(pairs)!=6 or set(values)!=expected_fields
+                or any(values.get(key) not in ("true","false") for key in bool_fields)
+                or not values.get("failure")):
+            well_formed=False
+            continue
+        observations[fields[1]]={"factory_lookup_succeeded":values["lookup"]=="true",
+            "jms_connection_started":values["connection_started"]=="true",
+            "authentication_denial":values["authentication_denial"]=="true",
+            "jms_closed":values["jms_closed"]=="true","naming_closed":values["naming_closed"]=="true",
+            "failure_class":None if values["failure"]=="none" else values["failure"]}
+    expected={"reader","operator","admin","anonymous","invalid"}
+    valid_roles_allowed=all(observations.get(user,{}).get("factory_lookup_succeeded") is True
+        and observations.get(user,{}).get("jms_connection_started") is True
+        for user in ("reader","operator","admin"))
+    anonymous_denied=(not observations.get("anonymous",{}).get("jms_connection_started",False)
+        and observations.get("anonymous",{}).get("authentication_denial",False))
+    invalid_denied=(not observations.get("invalid",{}).get("jms_connection_started",False)
+        and observations.get("invalid",{}).get("authentication_denial",False))
+    resources_closed=(set(observations)==expected and all(row["jms_closed"] and row["naming_closed"] for row in observations.values()))
+    return {"driver":"remote-http-remoting-jndi-jms-connect-v1","provider":"remote+http://candidate-app:8080",
+        "operations":["lookup jms/RemoteConnectionFactory","create JMS context","start connection","close context"],
+        "sends_performed":0,"consumers_created":0,"observations":observations,
+        "valid_app_roles_connect":valid_roles_allowed,"anonymous_connection_denied":anonymous_denied,
+        "invalid_credential_connection_denied":invalid_denied,"client_resources_closed":resources_closed,
+        "all_probes_reported":set(observations)==expected,"well_formed_unique_results":well_formed,
+        "database_state_unchanged":None,
+        "passed":set(observations)==expected and well_formed and valid_roles_allowed and anonymous_denied and invalid_denied and resources_closed}
+
+def cleanup_owned_probe_container(env,name):
+    ids=run("Owned probe cleanup lookup",["docker","ps","-aq","--filter","name=^/"+name+"$"],env,timeout=30).stdout.strip().splitlines()
+    for container_id in ids:
+        details=json.loads(run("Owned probe ownership verification",["docker","container","inspect",container_id],env,timeout=30).stdout)
+        labels=(details[0].get("Config") or {}).get("Labels") or {}
+        if labels.get("com.docker.compose.project")!=PROJECT:
+            return False,"Probe name resolved to a resource outside this unique project"
+        run("Owned probe container cleanup",["docker","rm","-f",container_id],env,timeout=30,check=False)
+    remaining=run("Owned probe residual check",["docker","ps","-aq","--filter","name=^/"+name+"$"],env,timeout=30).stdout.strip()
+    return not remaining,None if not remaining else "Owned probe container remains"
 
 def database_state(env):
     parts=[]
@@ -292,7 +369,8 @@ def main():
     existing_volumes=run("Compose volume ownership check",["docker","volume","ls","-q","--filter",project_filter],env,timeout=30).stdout.strip()
     existing_image=run("Candidate image ownership check",["docker","image","inspect",IMAGE],env,timeout=30,check=False)
     existing_probe=run("Peer probe name collision check",["docker","ps","-aq","--filter","name=^/"+PROBE_CONTAINER+"$"],env,timeout=30).stdout.strip()
-    if existing_containers or existing_networks or existing_volumes or existing_image.returncode==0 or existing_probe:
+    existing_naming_probe=run("JNDI probe name collision check",["docker","ps","-aq","--filter","name=^/"+NAMING_PROBE_CONTAINER+"$"],env,timeout=30).stdout.strip()
+    if existing_containers or existing_networks or existing_volumes or existing_image.returncode==0 or existing_probe or existing_naming_probe:
         raise RuntimeError("A resource for the unique task project/image already exists")
     try:
         passwords=create_secrets()
@@ -300,7 +378,7 @@ def main():
     except Exception:
         if WORK.exists(): shutil.rmtree(WORK)
         raise
-    report={"task":"KAN-18/KAN-15 BG-06","status":"FAIL","checks":{},"fixture_inputs":{"flyway_after_each_migrate_callback_sha256":callback_hash},"machine_scope":"Flyway schema migration with server-verified schema_migrator identity; separate from request users","instrumentation_scope":"lab_observer is harness-only instrumentation for server-observed Flyway sessions, not a product schema effect","cleanup":{"compose_down":False,"resource_check_passed":False,"residual_containers":[],"residual_networks":[],"residual_volumes":[],"peer_probe_removed":False,"work_removed":False,"image_removed":False,"secrets_preserved":False}}
+    report={"task":"KAN-18/KAN-15 BG-06","status":"FAIL","checks":{},"fixture_inputs":{"flyway_after_each_migrate_callback_sha256":callback_hash},"machine_scope":"Flyway schema migration with server-verified schema_migrator identity; separate from request users","instrumentation_scope":"lab_observer is harness-only instrumentation for server-observed Flyway sessions, not a product schema effect","cleanup":{"compose_down":False,"resource_check_passed":False,"residual_containers":[],"residual_networks":[],"residual_volumes":[],"peer_probe_removed":False,"jndi_probe_removed":False,"work_removed":False,"image_removed":False,"secrets_preserved":False}}
     try:
         run("Candidate image build",compose+["--profile","candidate-app","build","candidate-app"],env,timeout=900)
         run("Fresh PostgreSQL startup",compose+["up","-d","--wait","--wait-timeout","120","postgres"],env,timeout=150)
@@ -397,6 +475,12 @@ def main():
         peer_probe["http_and_remoting_port_reachable"]=peer_probe["reachable"]["8080"]
         peer_probe["passed"]=peer_probe["http_and_remoting_port_reachable"] and private_listeners_closed
         report["checks"]["peer_network_listener_reachability"]=peer_probe
+        protocol_before=durable_state(env)
+        protocol_probe=remote_jndi_jms_probe(env)
+        protocol_after=durable_state(env)
+        protocol_probe["database_state_unchanged"]=protocol_before==protocol_after
+        protocol_probe["passed"]=protocol_probe["passed"] and protocol_probe["database_state_unchanged"]
+        report["checks"]["remote_jndi_jms_protocol_authentication"]=protocol_probe
         after_start=durable_state(env)
         marker_ok=query(env,"SELECT count(*) FROM cargo.location WHERE id="+str(marker_id)+" AND name='"+marker+"'").stdout.strip().splitlines()==["1"]
         report["checks"]["startup_no_orm_ddl_or_seed"]={"passed":after_start==marked and marker_ok,"before":marked,"after":after_start,"marker_preserved":marker_ok}
@@ -433,7 +517,7 @@ def main():
         report["checks"]["restart_preserves_data"]={"passed":restarted==marked and query(env,"SELECT count(*) FROM cargo.location WHERE id="+str(marker_id)+" AND name='"+marker+"'").stdout.strip().splitlines()==["1"],"after_restart":restarted}
         if not report["checks"]["restart_preserves_data"]["passed"]: raise RuntimeError("Candidate restart changed persisted data")
         report["schema_hashes"]={}
-        for relative in (".dockerignore","tests/candidate-runtime/postgresql/Dockerfile","tests/candidate-runtime/postgresql/module.xml","tests/candidate-runtime/postgresql/configure-datasource.cli","tests/candidate-runtime/postgresql/start.sh","tests/candidate-runtime/postgresql/verify_runtime.py","infrastructure/database/compose.yaml","infrastructure/database/bootstrap/10-create-roles.sh","infrastructure/database/migrations/V1__initial_schema.sql","infrastructure/database/migrations/V2__query_indexes_and_sequence_reconciliation.sql","infrastructure/database/migrations/V3__grant_application_runtime_privileges.sql","candidate/cargotracker/src/main/resources/META-INF/persistence.xml","candidate/cargotracker/src/main/java/net/java/cargotracker/application/util/SampleDataGenerator.java"):
+        for relative in (".dockerignore","tests/candidate-runtime/postgresql/Dockerfile","tests/candidate-runtime/postgresql/module.xml","tests/candidate-runtime/postgresql/configure-datasource.cli","tests/candidate-runtime/postgresql/start.sh","tests/candidate-runtime/postgresql/verify_runtime.py","tests/candidate-runtime/postgresql/RemoteJndiReachabilityProbe.java","infrastructure/database/compose.yaml","infrastructure/database/bootstrap/10-create-roles.sh","infrastructure/database/migrations/V1__initial_schema.sql","infrastructure/database/migrations/V2__query_indexes_and_sequence_reconciliation.sql","infrastructure/database/migrations/V3__grant_application_runtime_privileges.sql","candidate/cargotracker/src/main/resources/META-INF/persistence.xml","candidate/cargotracker/src/main/java/net/java/cargotracker/application/util/SampleDataGenerator.java"):
             report["schema_hashes"][relative]=hashlib.sha256((ROOT/relative).read_bytes()).hexdigest()
         report["versions"]={"postgres":"18.6","flyway":"13.12.1","wildfly":"42","jdbc":"42.7.14"}
         report["status"]="PASS" if all(x.get("passed") for x in report["checks"].values() if isinstance(x,dict) and "passed" in x) else "FAIL"
@@ -441,22 +525,15 @@ def main():
         report["status"] = "FAIL"
         report["failure"] = str(error)
     finally:
-        try:
-            probe_ids=run("Peer probe cleanup lookup",["docker","ps","-aq","--filter","name=^/"+PROBE_CONTAINER+"$"],env,timeout=30).stdout.strip().splitlines()
-            report["cleanup"]["peer_probe_removed"]=not probe_ids
-            for probe_id in probe_ids:
-                details=json.loads(run("Peer probe ownership verification",["docker","container","inspect",probe_id],env,timeout=30).stdout)
-                labels=(details[0].get("Config") or {}).get("Labels") or {}
-                if labels.get("com.docker.compose.project")!=PROJECT:
-                    report["cleanup"]["peer_probe_removed"]=False
-                    report["cleanup"]["peer_probe_remove_error"]="Probe container name resolved to a resource outside this unique project"
-                    continue
-                run("Owned peer probe container cleanup",["docker","rm","-f",probe_id],env,timeout=30,check=False)
-            remaining=run("Peer probe residual check",["docker","ps","-aq","--filter","name=^/"+PROBE_CONTAINER+"$"],env,timeout=30).stdout.strip()
-            report["cleanup"]["peer_probe_removed"]=report["cleanup"]["peer_probe_removed"] or (not remaining and not report["cleanup"].get("peer_probe_remove_error"))
-        except Exception as error:
-            report["cleanup"]["peer_probe_removed"]=False
-            report["cleanup"]["peer_probe_remove_error"]=str(error)
+        for cleanup_key,container_name in (("jndi_probe_removed",NAMING_PROBE_CONTAINER),("peer_probe_removed",PROBE_CONTAINER)):
+            try:
+                removed,cleanup_error=cleanup_owned_probe_container(env,container_name)
+                report["cleanup"][cleanup_key]=removed
+                if cleanup_error:
+                    report["cleanup"][cleanup_key.replace("_removed","_remove_error")]=cleanup_error
+            except Exception as error:
+                report["cleanup"][cleanup_key]=False
+                report["cleanup"][cleanup_key.replace("_removed","_remove_error")]=str(error)
         down_ok=False
         try:
             down=run("Owned Compose cleanup",compose+["--profile","candidate-app","--profile","migrate","down","--volumes","--remove-orphans"],env,timeout=120,check=False)
@@ -494,7 +571,7 @@ def main():
             report["cleanup"]["work_removed"]=False
             report["cleanup"]["secrets_preserved"]=SECRET_DIR.exists()
             report["cleanup"]["retained_work_path"]=str(WORK)
-        cleanup_ok=(report["cleanup"]["peer_probe_removed"] and report["cleanup"]["compose_down"] and report["cleanup"]["resource_check_passed"]
+        cleanup_ok=(report["cleanup"]["jndi_probe_removed"] and report["cleanup"]["peer_probe_removed"] and report["cleanup"]["compose_down"] and report["cleanup"]["resource_check_passed"]
             and not report["cleanup"]["residual_containers"] and not report["cleanup"]["residual_networks"]
             and not report["cleanup"]["residual_volumes"] and report["cleanup"]["work_removed"]
             and report["cleanup"]["image_removed"])
