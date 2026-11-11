@@ -1,6 +1,12 @@
 # KAN-15 action coverage handoff
 
-## Current verified checkpoint
+## Latest scoped checkpoint — 11 November 2026
+
+KAN-15 remains In Progress. The fresh BG-06 scoped gate passed all five seed/reseed/schema-boundary cases (anonymous, Reader, Operator, Administrator, and deployment `schema_migrator`); evidence is `notes/evidence/kan-15-bg06-scope/validation.json`. Implementation and evidence were independently reviewed and pushed in `92aebd3`; reviewed status documentation followed in `6997a80`. Review record: `notes/agent-reviews/2026-11-11-kan15-bg06-scope-review.md`.
+
+This scoped result does not rerun the aggregate current-capability gate or close KAN-15. JMS destination-level authorization remains unverified because the probe did not send/consume messages. The BG-06 Administrator import route remains governed by BG-01/BG-02. Next: refresh the aggregate current-capability snapshot from the latest scoped evidence, then continue with the remaining blocked current human/service/worker and retirement cases without altering the historical catalogue.
+
+## Historical checkpoint — 8 November 2026
 
 KAN-15 remains In Progress. The latest fresh current gate is 424 PASS / 46 BLOCKED; the preserved historical audit is 324 PASS / 178 BLOCKED, and 76 retirement cases remain BLOCKED. ACTION-42 handling-completion verification passed all four actor cases and 661 native checks; the existing handling-event and handling-voyage role cases also remain PASS. Attempt 5 owned cleanup passed. Sanitized evidence is notes/evidence/kan-15-handling-completion/validation.json. Independent runtime/publication review is pending. Full security acceptance is incomplete.
 
