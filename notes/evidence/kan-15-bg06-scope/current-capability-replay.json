@@ -1,0 +1,64 @@
+{
+  "schema_version": 1,
+  "task": "KAN-15 BG-06 supplemental aggregate replay",
+  "basis": "Offline replay of the independently reviewed fresh BG-06 scoped receipt; no new runtime or browser fixture was launched.",
+  "source_gate_sha256": "e8b0119a7e40a2d8af4c854aec084754d2b47aee94d291ab31e7e8f424981622",
+  "source_scoped_receipt_sha256": "1563504790c838d8c43fed9128dbc5356b8a9fcb8bbc3714e11525c016a0df13",
+  "source_gate_fingerprint": "5f855b30bfca64555a04421e9ed7569b6732844db8c54357bb087aa6bb7b3113",
+  "source_scope_run_id": "kan18pg-4295cb899c",
+  "source_runtime_receipt_sha256": "e310e0fab53caad06d8072934865746dd12b15360700d3565f7164cd4da54f9b",
+  "source_gate_adapter_sha256": "ea70c54464939615712bd256fe820741b7f724d865be15d13db16e98f547048c",
+  "scope": "Exactly four human BG-06 seed/reseed/schema-DDL denials and BG-06-MACHINE Flyway migration identity.",
+  "promoted_cases": [
+    {
+      "case": "CURRENT::BG-06::anonymous::active",
+      "previous": "BLOCKED",
+      "replayed": "PASS"
+    },
+    {
+      "case": "CURRENT::BG-06::Reader::active",
+      "previous": "BLOCKED",
+      "replayed": "PASS"
+    },
+    {
+      "case": "CURRENT::BG-06::Operator::active",
+      "previous": "BLOCKED",
+      "replayed": "PASS"
+    },
+    {
+      "case": "CURRENT::BG-06::Administrator::active",
+      "previous": "BLOCKED",
+      "replayed": "PASS"
+    },
+    {
+      "case": "CURRENT::BG-06-MACHINE::deployment-migration::active",
+      "previous": "BLOCKED",
+      "replayed": "PASS"
+    }
+  ],
+  "previous_current_counts": {
+    "PASS": 449,
+    "BLOCKED": 21
+  },
+  "replayed_current_counts": {
+    "PASS": 454,
+    "BLOCKED": 16
+  },
+  "untouched_current_results_sha256": "a6435eb1bc2084f56e8b1908fe3dba94e184b0191ac62d0353bccdf1819862e4",
+  "legacy_counts_preserved": {
+    "PASS": 324,
+    "BLOCKED": 178
+  },
+  "legacy_results_sha256": "f06f0e9496163429d0362eb6e0ed1e1da0e60797f62ebc39d1bcaaed02f85f3f",
+  "retirement_counts_preserved": {
+    "BLOCKED": 76
+  },
+  "retirement_results_sha256": "177241e2b58b26367f6acbaf181f8cdbe2dab062a464ddf006ee476395e36f8a",
+  "gate_exit": 2,
+  "limitations": [
+    "This supplemental replay does not alter the source gate or claim a new aggregate runtime run.",
+    "All non-BG-06 current results, the historical audit, and all retirement results are preserved unchanged.",
+    "The JMS evidence is connect/list-only and does not establish destination-level send/consume authorization.",
+    "This evidence does not close full KAN-15."
+  ]
+}

@@ -2,9 +2,9 @@
 
 ## Latest scoped checkpoint — 11 November 2026
 
-KAN-15 remains In Progress. The fresh BG-06 scoped gate passed all five seed/reseed/schema-boundary cases (anonymous, Reader, Operator, Administrator, and deployment `schema_migrator`); evidence is `notes/evidence/kan-15-bg06-scope/validation.json`. Implementation and evidence were independently reviewed and pushed in `92aebd3`; reviewed status documentation followed in `6997a80`. Review record: `notes/agent-reviews/2026-11-11-kan15-bg06-scope-review.md`.
+KAN-15 remains In Progress. The fresh BG-06 scoped gate passed all five seed/reseed/schema-boundary cases (anonymous, Reader, Operator, Administrator, and deployment `schema_migrator`); evidence is `notes/evidence/kan-15-bg06-scope/validation.json`. An independently reviewed offline supplemental replay promotes only those rows, yielding 454 PASS / 16 BLOCKED while preserving the original 449/21 aggregate gate file, all other current outcomes, historical audit and retirement rows. It is not a new aggregate runtime run. Implementation/evidence are in `92aebd3`, status documentation in `6997a80`, and the supplemental replay in the current work. Review records: `notes/agent-reviews/2026-11-11-kan15-bg06-scope-review.md` and `notes/agent-reviews/2026-11-11-kan15-bg06-replay-review.md`.
 
-This scoped result does not rerun the aggregate current-capability gate or close KAN-15. JMS destination-level authorization remains unverified because the probe did not send/consume messages. The BG-06 Administrator import route remains governed by BG-01/BG-02. Next: refresh the aggregate current-capability snapshot from the latest scoped evidence, then continue with the remaining blocked current human/service/worker and retirement cases without altering the historical catalogue.
+This scoped result and replay do not rerun the full aggregate current-capability gate or close KAN-15. JMS destination-level authorization remains unverified because the probe did not send/consume messages. The BG-06 Administrator import route remains governed by BG-01/BG-02. Next: address the 16 remaining SERVICE-01 through SERVICE-04 actor cases, then run a fresh aggregate gate when the next bounded capability increment is ready, preserving the historical catalogue and separate RETIRED state.
 
 ## Historical checkpoint — 8 November 2026
 
