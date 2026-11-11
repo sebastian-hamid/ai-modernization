@@ -10,6 +10,8 @@ BG-06 has two different security boundaries:
 
 ## Current source facts
 
+The complete mapped application, EJB/CDI/JNDI, JMS, and WildFly listener inventory is in [the interface inventory](wildfly-interface-inventory.md). It supplements the direct KAN-18 listener and protocol receipts but does not itself pass a BG-06 case.
+
 - SampleDataGenerator is a @Singleton @Startup EJB with a @PostConstruct method. The method returns unless lab.candidate.disposable=true; the destructive sample-data behavior is therefore opt-in for the disposable historical baseline.
 - The candidate persistence descriptor sets jakarta.persistence.schema-generation.database.action to none.
 - No direct REST/JAX-RS or servlet mapping or other Java source caller invokes SampleDataGenerator in the candidate application; the only source references found are its own class and the provenance manifest.
