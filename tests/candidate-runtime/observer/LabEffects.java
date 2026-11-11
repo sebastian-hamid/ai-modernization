@@ -19,15 +19,15 @@ public class LabEffects implements LabEffectsMBean {
   if(trackingId==null||!trackingId.matches("[A-Z0-9]{8}")||!"2032-02-04".equals(completionDate)||!Set.of("USCHI","DEHAM").contains(locationCode))
    throw new IllegalArgumentException("Invalid bounded event observation selector");
   JsonArrayBuilder matches=Json.createArrayBuilder();int count=0;
-  String sql="SELECT c.tracking_id AS TRACKING_ID,h.type AS EVENT_TYPE,h.completionTime AS COMPLETION_TIME,l.unlocode AS LOCATION_CODE,v.voyage_number AS VOYAGE_NUMBER "+
-   "FROM HANDLINGEVENT h JOIN CARGO c ON c.id=h.cargo_id JOIN LOCATION l ON l.id=h.location_id LEFT JOIN VOYAGE v ON v.id=h.voyage_id "+
-   "WHERE c.tracking_id=? AND h.completionTime=? AND l.unlocode=? AND h.type='CUSTOMS'";
+  String sql="SELECT c.tracking_id AS TRACKING_ID,h.type AS EVENT_TYPE,h.completion_date AS COMPLETION_DATE,l.unlocode AS LOCATION_CODE,v.voyage_number AS VOYAGE_NUMBER "+
+   "FROM HANDLING_EVENT h JOIN CARGO c ON c.id=h.cargo_id JOIN LOCATION l ON l.id=h.location_id LEFT JOIN VOYAGE v ON v.id=h.voyage_id "+
+   "WHERE c.tracking_id=? AND h.completion_date=? AND l.unlocode=? AND h.type='CUSTOMS'";
   try(Connection c=dataSource.getConnection();PreparedStatement q=c.prepareStatement(sql)){
    c.setReadOnly(true);q.setString(1,trackingId);q.setDate(2,java.sql.Date.valueOf(completionDate));q.setString(3,locationCode);
    try(ResultSet rows=q.executeQuery()){
     while(rows.next()){
      count++;JsonObjectBuilder row=Json.createObjectBuilder().add("tracking_id",rows.getString("TRACKING_ID"))
-      .add("event_type",rows.getString("EVENT_TYPE")).add("completion_time",rows.getDate("COMPLETION_TIME").toLocalDate().atStartOfDay().format(java.time.format.DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss")))
+      .add("event_type",rows.getString("EVENT_TYPE")).add("completion_time",rows.getDate("COMPLETION_DATE").toLocalDate().atStartOfDay().format(java.time.format.DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss")))
       .add("location_code",rows.getString("LOCATION_CODE"));
      String voyage=rows.getString("VOYAGE_NUMBER");if(voyage==null)row.addNull("voyage_number");else row.add("voyage_number",voyage);
      matches.add(row);

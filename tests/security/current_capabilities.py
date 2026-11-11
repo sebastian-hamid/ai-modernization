@@ -134,6 +134,57 @@ def cargo_handled_producer_boundary_verified(raw, effects_unchanged):
         and raw.get("cargoHandledTrustedAllowed") is True
         and effects_unchanged is True)
 
+def service_boundary_observation(case, handling_denials, inspection_denials):
+    """Bind both direct worker-only service calls to the same human actor and settled effects."""
+    actor=case.get("actor")
+    expected_status=401 if actor=="anonymous" else 403
+    handling=deepcopy(handling_denials.get(actor,{}))
+    inspection=deepcopy(inspection_denials.get(actor,{}))
+    if (case.get("surface_id")!="SERVICE-04" or case.get("expected")!="deny"
+            or actor not in ACTORS):
+        raise UnsupportedCase()
+    proofs=((handling,"native-handling-worker-v1"),(inspection,"native-inspection-worker-v1"))
+    fixture_id=None
+    for proof,driver in proofs:
+        effect=proof.get("effects",{})
+        if (proof.get("driver")!=driver or proof.get("actor")!=actor
+                or proof.get("supported") is not True or proof.get("status")!=expected_status
+                or proof.get("invocation_denied") is not True
+                or proof.get("direct_service_denied") is not True
+                or proof.get("protected_payload_absent") is not True
+                or proof.get("independent_effects_unchanged") is not True
+                or effect.get("settled") is not True or not effect.get("fixture_id")
+                or effect.get("before_fixture")!=effect.get("fixture_id")
+                or effect.get("after_fixture")!=effect.get("fixture_id")):
+            raise UnsupportedCase()
+        before=effect.get("before",{});after=effect.get("after",{})
+        if set(before)!={"database","queue","business_audit"} or before!=after:
+            raise UnsupportedCase()
+        if any(not isinstance(before.get(name),dict) or not before[name]
+                for name in ("database","queue","business_audit")):
+            raise UnsupportedCase()
+        if fixture_id is None:fixture_id=effect["fixture_id"]
+        elif fixture_id!=effect["fixture_id"]:raise UnsupportedCase()
+        if actor=="anonymous":
+            if proof.get("identity") is not None:raise UnsupportedCase()
+        else:
+            identity=proof.get("identity",{})
+            if (identity.get("server_verified") is not True
+                    or identity.get("principal")!=USERS[actor]
+                    or identity.get("roles")!=[actor]):
+                raise UnsupportedCase()
+    first=handling["effects"];second=inspection["effects"]
+    if first["after"]!=second["before"]:
+        raise UnsupportedCase()
+    return {"driver":"native-service-boundary-v1","actor":actor,"supported":True,
+        "status":expected_status,"invocation_denied":True,"direct_service_denied":True,
+        "protected_payload_absent":True,
+        "identity":None if actor=="anonymous" else deepcopy(handling["identity"]),
+        "operations":["HandlingEventService.registerHandlingEvent","CargoInspectionService.inspectCargo"],
+        "independent_effects_unchanged":True,
+        "effects":{"settled":True,"fixture_id":fixture_id,"before_fixture":fixture_id,
+            "after_fixture":fixture_id,"before":first["before"],"after":second["after"]}}
+
 def load_model():
     raw=INVENTORY.read_bytes();inventory=json.loads(raw);model=json.loads(MANIFEST.read_text())
     validate_model(model,inventory,hashlib.sha256(raw).hexdigest())
@@ -196,7 +247,7 @@ def build_current(model,inventory):
         if old["surface_id"] in retired:continue
         row=mapped.get(old["surface_id"]) or pending.get(old["surface_id"])
         case=deepcopy(old)
-        case.update(id="CURRENT::"+old["id"],contract_version=2,kind="current",legacy_case_id=old["id"],legacy_contract=deepcopy(old),capability_id=row["capability_id"] if row else old["surface_id"].lower(),binding_status="pending" if old["surface_id"] in pending else "native-batch-worker" if old["surface_id"] in {"BG-01-MACHINE","BG-02-MACHINE"} else "native-batch-import" if old["surface_id"]=="BG-01" else "native-batch-processing" if old["surface_id"]=="BG-02" else "native-handling-worker" if old["surface_id"] in {"BG-03","BG-03-MACHINE"} else "native-inspection-worker" if old["surface_id"] in {"BG-04","BG-04-MACHINE"} else "native-notification-worker" if old["surface_id"] in {"BG-05","BG-05-MACHINE"} else "native-staged-return" if old["surface_id"]=="ACTION-13" else "native-current-load" if old["surface_id"] in NATIVE_CURRENT_LOADS else "browser-current-navigation" if old["surface_id"] in {"ACTION-10","ACTION-11","ACTION-12","ACTION-21","ACTION-22","ACTION-24","ACTION-25","ACTION-45"} else "existing-runtime-driver")
+        case.update(id="CURRENT::"+old["id"],contract_version=2,kind="current",legacy_case_id=old["id"],legacy_contract=deepcopy(old),capability_id=row["capability_id"] if row else old["surface_id"].lower(),binding_status="pending" if old["surface_id"] in pending else "native-batch-worker" if old["surface_id"] in {"BG-01-MACHINE","BG-02-MACHINE"} else "native-batch-import" if old["surface_id"]=="BG-01" else "native-batch-processing" if old["surface_id"]=="BG-02" else "native-handling-worker" if old["surface_id"] in {"BG-03","BG-03-MACHINE"} else "native-inspection-worker" if old["surface_id"] in {"BG-04","BG-04-MACHINE"} else "native-notification-worker" if old["surface_id"] in {"BG-05","BG-05-MACHINE"} else "native-service-boundary" if old["surface_id"]=="SERVICE-04" else "native-staged-return" if old["surface_id"]=="ACTION-13" else "native-current-load" if old["surface_id"] in NATIVE_CURRENT_LOADS else "browser-current-navigation" if old["surface_id"] in {"ACTION-10","ACTION-11","ACTION-12","ACTION-21","ACTION-22","ACTION-24","ACTION-25","ACTION-45"} else "existing-runtime-driver")
         if row:
             source="index.xhtml" if old["surface_id"]!="ACTION-13" and old["actor"]=="anonymous" and old["expected"]=="deny" and row["modern_method"]=="GET" else row["modern_source"]
             case.update(path=row["modern_target"],method=row["modern_method"],current_source=source)
@@ -238,7 +289,7 @@ class CurrentAdapter:
         if canonical is None or canonical!=case:raise UnsupportedCase()
         if case["kind"] not in {"current","replacement"} or self.legacy is None or self.provenance is None:
             raise UnsupportedCase()
-        if case["kind"]=="current" and case.get("binding_status") not in {"existing-runtime-driver","native-current-load","browser-current-navigation","native-staged-return","native-batch-import","native-batch-processing","native-batch-worker","native-handling-worker","native-inspection-worker","native-notification-worker"}:
+        if case["kind"]=="current" and case.get("binding_status") not in {"existing-runtime-driver","native-current-load","browser-current-navigation","native-staged-return","native-batch-import","native-batch-processing","native-batch-worker","native-handling-worker","native-inspection-worker","native-notification-worker","native-service-boundary"}:
             raise UnsupportedCase()
         if not isinstance(self.provenance,dict) or self.provenance.get("kind")!="fresh-owned-runtime" or self.provenance.get("legacy_fixture_cleanup_verified") is not True or self.provenance.get("inputs_fingerprint")!=self._run_fingerprint or re.fullmatch("[0-9a-f]{64}",str(self._run_fingerprint)) is None:raise UnsupportedCase()
         if case["kind"]=="replacement":
@@ -394,6 +445,10 @@ class CurrentAdapter:
                         or observation.get("direct_service_denied") is not True
                         or observation.get("independent_effects_unchanged") is not True):
                     raise UnsupportedCase()
+        elif case["binding_status"]=="native-service-boundary":
+            observation=service_boundary_observation(case,
+                getattr(self.legacy,"handling_worker_denials",{}),
+                getattr(self.legacy,"inspection_worker_denials",{}))
         elif case["binding_status"]=="native-staged-return":
             observation=return_observation(case,getattr(self.legacy,"current_observations",{}).get(case["id"],{}))
         elif case["binding_status"]=="native-current-load":

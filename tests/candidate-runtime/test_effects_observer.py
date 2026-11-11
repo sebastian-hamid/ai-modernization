@@ -9,6 +9,11 @@ class Clock:
     def clock(self):return self.now
     def pause(self,seconds):self.now+=seconds
 class EffectsObserverTests(unittest.TestCase):
+    def test_table_key_resolves_modern_schema_and_rejects_ambiguity(self):
+        self.assertEqual(h.table_key({"HANDLING_EVENT":{}},"handling_event"),"HANDLING_EVENT")
+        self.assertEqual(h.table_key({"handling_event":{}},"HANDLING_EVENT"),"handling_event")
+        for tables in ({"OTHER":{}},{"HANDLING_EVENT":{},"HANDLINGEVENT":{}}):
+            with self.subTest(tables=tables),self.assertRaises(RuntimeError):h.table_key(tables,"handling_event")
     def test_missing_terminal_queue_fails_instead_of_empty_pass(self):
         value=sample();del value["queues"]["jms.queue.DLQ"]
         with self.assertRaises(RuntimeError):h.validate_effects(value)

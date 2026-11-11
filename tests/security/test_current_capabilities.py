@@ -392,6 +392,58 @@ class CurrentCapabilityTests(unittest.TestCase):
         adapter.legacy.handling_worker_observation={**machine,
             "native_identity":{"server_verified":True,"principal":"operator","roles":["Operator"]}}
         with self.assertRaises(UnsupportedCase):adapter.execute(case)
+    def test_service04_requires_both_direct_worker_only_denials_and_contiguous_effects(self):
+        adapter=c.CurrentAdapter()
+        adapter._run_fingerprint="a"*64
+        adapter.provenance={"kind":"fresh-owned-runtime","inputs_fingerprint":"a"*64,"legacy_fixture_cleanup_verified":True}
+        adapter.legacy=FakeLegacy({})
+        actors={"Reader":{"server_verified":True,"principal":"reader","roles":["Reader"]},
+                "Operator":{"server_verified":True,"principal":"operator","roles":["Operator"]},
+                "Administrator":{"server_verified":True,"principal":"admin","roles":["Administrator"]}}
+        snapshot={"database":{"CARGO":{"rows":1,"sha256":"a"}},
+                  "queue":{"events":{"MessageCount":0}},
+                  "business_audit":{"register":0,"inspect":0}}
+        denials={}
+        for actor in c.ACTORS:
+            identity=None if actor=="anonymous" else actors[actor]
+            effect={"settled":True,"fixture_id":"owned","before_fixture":"owned","after_fixture":"owned",
+                    "before":snapshot,"after":snapshot}
+            def proof(driver):
+                item={"driver":driver,"actor":actor,"supported":True,
+                      "status":401 if actor=="anonymous" else 403,"invocation_denied":True,
+                      "direct_service_denied":True,"protected_payload_absent":True,
+                      "independent_effects_unchanged":True,"effects":copy.deepcopy(effect)}
+                if identity is not None:item["identity"]=identity
+                return item
+            denials[actor]=(proof("native-handling-worker-v1"),proof("native-inspection-worker-v1"))
+            case=adapter.contracts[f"CURRENT::SERVICE-04::{actor}::active"]
+            adapter.legacy.handling_worker_denials={actor:denials[actor][0]}
+            adapter.legacy.inspection_worker_denials={actor:denials[actor][1]}
+            self.assertEqual(evaluate(case,adapter.execute(case))[0],"PASS")
+        actor="Operator";case=adapter.contracts[f"CURRENT::SERVICE-04::{actor}::active"]
+        handling,inspection=denials[actor]
+        for field,value in [("direct_service_denied",False),("protected_payload_absent",False),
+                            ("independent_effects_unchanged",False),("status",200)]:
+            adapter.legacy.handling_worker_denials={actor:{**handling,field:value}}
+            with self.subTest(field=field),self.assertRaises(UnsupportedCase):adapter.execute(case)
+        adapter.legacy.handling_worker_denials={actor:handling}
+        for field,value in [("actor","Reader"),("driver","generic-success"),
+                            ("identity",{"server_verified":True,"principal":"admin","roles":["Operator"]})]:
+            adapter.legacy.inspection_worker_denials={actor:{**inspection,field:value}}
+            with self.subTest(inspection_field=field),self.assertRaises(UnsupportedCase):adapter.execute(case)
+        adapter.legacy.inspection_worker_denials={actor:inspection}
+        changed=copy.deepcopy(inspection);changed["effects"]["after"]["queue"]["events"]["MessageCount"]=1
+        adapter.legacy.inspection_worker_denials={actor:changed}
+        with self.assertRaises(UnsupportedCase):adapter.execute(case)
+        adapter.legacy.inspection_worker_denials={actor:inspection}
+        gap=copy.deepcopy(inspection);gap["effects"]["before"]["database"]["CARGO"]["rows"]=2
+        adapter.legacy.inspection_worker_denials={actor:gap}
+        with self.assertRaises(UnsupportedCase):adapter.execute(case)
+        adapter.legacy.inspection_worker_denials={actor:inspection}
+        missing=copy.deepcopy(inspection);missing["effects"]["after"].pop("business_audit")
+        adapter.legacy.inspection_worker_denials={actor:missing}
+        with self.assertRaises(UnsupportedCase):adapter.execute(case)
+
     def test_bg04_requires_human_denials_origin_correlation_and_producer_boundary(self):
         adapter=c.CurrentAdapter()
         adapter._run_fingerprint="b"*64

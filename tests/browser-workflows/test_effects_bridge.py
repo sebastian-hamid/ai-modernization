@@ -3,12 +3,19 @@ from pathlib import Path
 import subprocess
 import sys
 import unittest
+LAB_EFFECTS_SOURCE = (Path(__file__).parents[1] / "candidate-runtime/observer/LabEffects.java").read_text()
 
 spec = importlib.util.spec_from_file_location("fixture_bridge", Path(__file__).with_name("effects_bridge.py"))
 bridge = importlib.util.module_from_spec(spec)
 spec.loader.exec_module(bridge)
 
 class EffectsBridgeTests(unittest.TestCase):
+    def test_bounded_handling_query_matches_candidate_schema(self):
+        self.assertIn("FROM HANDLING_EVENT h", LAB_EFFECTS_SOURCE)
+        self.assertIn("h.completion_date AS COMPLETION_DATE", LAB_EFFECTS_SOURCE)
+        self.assertIn("h.completion_date=?", LAB_EFFECTS_SOURCE)
+        self.assertIn('rows.getDate("COMPLETION_DATE")', LAB_EFFECTS_SOURCE)
+        self.assertNotIn("FROM HANDLINGEVENT h", LAB_EFFECTS_SOURCE)
     def test_known_stage_receives_fresh_snapshot_over_stdin(self):
         script = (
             'import json,sys; '

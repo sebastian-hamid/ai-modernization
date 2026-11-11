@@ -29,6 +29,14 @@ def capture_effects(container,timeout=30):
                    "/opt/jboss/observer-client", "ReadEffects", candidates[0], timeout=budget())
     return json.loads(text)
 
+def table_key(tables, logical_name):
+    """Resolve a fixture table by case and underscore-insensitive metadata spelling."""
+    normalize=lambda value:re.sub("_", "", str(value)).upper()
+    matches=[name for name in tables if normalize(name)==normalize(logical_name)]
+    if len(matches)!=1:
+        raise RuntimeError("Expected exactly one observed table for "+logical_name)
+    return matches[0]
+
 def batch_finished_line(log_text,run_id):
     marker="IMPORT_AUDIT event=finished:"
     run_marker="runId="+run_id
@@ -1276,12 +1284,15 @@ def main(after_checks=None):
                 for q in target_queues))
         check("Valid file event produces exactly two settled queue cycles",valid_queues)
         table_before=before_valid["tables"];table_after=valid_after["tables"]
+        handling_table=table_key(table_before,"handling_event")
+        cargo_table=table_key(table_before,"cargo")
         valid_tables=(set(table_before)==set(table_after)
-            and table_after["HANDLINGEVENT"]["rows"]-table_before["HANDLINGEVENT"]["rows"]==1
-            and table_after["CARGO"]["rows"]==table_before["CARGO"]["rows"]
-            and table_after["CARGO"]["sha256"]!=table_before["CARGO"]["sha256"]
+            and handling_table in table_after and cargo_table in table_after
+            and table_after[handling_table]["rows"]-table_before[handling_table]["rows"]==1
+            and table_after[cargo_table]["rows"]==table_before[cargo_table]["rows"]
+            and table_after[cargo_table]["sha256"]!=table_before[cargo_table]["sha256"]
             and all(table_after[name]==table_before[name]
-                for name in table_before if name not in {"HANDLINGEVENT","CARGO"}))
+                for name in table_before if name not in {handling_table,cargo_table}))
         check("Valid file event changes only cargo and handling tables",valid_tables)
         valid_deltas={
             "net.java.cargotracker.interfaces.handling.file.BatchImportRequestService#issueNonce":1,

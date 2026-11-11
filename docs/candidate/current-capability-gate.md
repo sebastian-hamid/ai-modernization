@@ -1,12 +1,22 @@
-# Current-capability gate — first live checkpoint
+# Current-capability gate — latest run and history
 
 ## Latest scoped boundary update — 11 November 2026
 
 A separate fresh BG-06 gate passed all five seed/reseed/schema-boundary cases: the four human denials and the deployment `schema_migrator` Flyway case. Its persisted evidence is [notes/evidence/kan-15-bg06-scope/validation.json](../../notes/evidence/kan-15-bg06-scope/validation.json). An [offline supplemental replay](../../notes/evidence/kan-15-bg06-scope/current-capability-replay.json) combines only those five results with the 9 November aggregate snapshot: 449 PASS / 21 BLOCKED becomes 454 PASS / 16 BLOCKED. It records hashes for the untouched current rows, historical audit and retirement rows; it does not rewrite the source gate or claim a new full runtime run. KAN-15 remains In Progress, and the BG-06 remote JMS probe did not test destination-level send/consume authorization.
 
+## Fresh SERVICE-04 aggregate checkpoint — 11 November 2026
+
+The fresh live-subset fixture passed **728/728 runtime checks** and removed its owned container and private files with no cleanup errors. All four SERVICE-04 cases passed: anonymous, Reader, Operator and Administrator were denied direct calls to both `HandlingEventService.registerHandlingEvent` and `CargoInspectionService.inspectCargo`; the fixture receipts bind each actor to server-verified identity where authenticated and show unchanged settled database, queue and business-audit snapshots. Independent review approved the adapter, fixture correction, result artifact and limits. See [validation evidence](../../notes/evidence/kan-15-service04/validation.json), [full gate output](../../notes/evidence/kan-15-service04/current-capability-gate.json), and [review record](../../notes/agent-reviews/2026-11-11-kan15-service04-review.md).
+
+This fresh aggregate gate reports **447 PASS / 23 BLOCKED across 470 current cases**. The preserved historical audit remains **324 PASS / 178 BLOCKED across 502 cases**; all **76 retirement checks remain BLOCKED**. Exit 2 reflects incomplete gate coverage. The 23 current blockers are four BG-06 human cases, BG-06-MACHINE, four cases each for SERVICE-01 through SERVICE-03, and six Operator/Administrator replacement cases across handling-event, handling-voyage and handling-completion.
+
+The separately fresh BG-06 scoped verification remains valid evidence for its five checks. Its **454/16** result was an offline supplemental replay over an older 9 November aggregate snapshot. This fresh run does not yet bind that scoped evidence into the aggregate adapter, so its BG-06 cases remain BLOCKED here. Keep these results separate; do not combine the supplemental replay count with this fresh gate count. Full KAN-15 remains open.
+
+## Initial current-capability checkpoint — 2 November 2026
+
 KAN-15, 2 November 2026. Approved acceptance direction: [decision](../../notes/decisions/2026-11-02-current-ui-acceptance.md). Runtime/test inputs were frozen at commit 7186ab9 throughout this first v2 integration run.
 
-The versioned gate reports **308 PASS / 162 BLOCKED across 470 current cases**. All **76 retirement checks remain BLOCKED**. The same fresh fixture reports the preserved historical catalogue as **324 PASS / 178 BLOCKED across 502 cases**. Gate exit is 2: incomplete coverage. No legacy definition has been deleted or relabeled PASS/RETIRED.
+At the first v2 integration run, the versioned gate reported **308 PASS / 162 BLOCKED across 470 current cases**. All **76 retirement checks were BLOCKED**. The same fresh fixture reported the preserved historical catalogue as **324 PASS / 178 BLOCKED across 502 cases**. Gate exit was 2 for incomplete coverage. No legacy definition was deleted or relabeled PASS/RETIRED.
 
 ## Evidence and verification
 
