@@ -149,6 +149,92 @@ class Bg06StartupBoundaryTests(unittest.TestCase):
             self.assertNotIn("SampleDataGenerator", source)
             self.assertNotIn("schema-generation", source)
 
+    def test_jms_jndi_producer_consumer_and_disposition_inventory_is_exact(self):
+        web = ET.parse(WEBAPP / "WEB-INF/web.xml").getroot()
+        ns = {"j": "https://jakarta.ee/xml/ns/jakartaee"}
+        destinations = {
+            item.findtext("j:name", namespaces=ns): item.findtext("j:destination-name", namespaces=ns)
+            for item in web.findall("j:jms-destination", ns)
+        }
+        expected = {
+            "java:app/jms/CargoHandledQueue": ("CargoHandledQueue", "CargoHandledConsumer", "InspectionWorker"),
+            "java:app/jms/MisdirectedCargoQueue": ("MisdirectedCargoQueue", "MisdirectedCargoConsumer", "NotificationWorker"),
+            "java:app/jms/DeliveredCargoQueue": ("DeliveredCargoQueue", "DeliveredCargoConsumer", "NotificationWorker"),
+            "java:app/jms/RejectedRegistrationAttemptsQueue": ("RejectedRegistrationAttemptsQueue", "RejectedRegistrationAttemptsConsumer", "NotificationWorker"),
+            "java:app/jms/HandlingEventRegistrationAttemptQueue": ("HandlingEventRegistrationAttemptQueue", "HandlingEventRegistrationAttemptConsumer", "HandlingWorker"),
+        }
+        self.assertEqual(destinations, {jndi: values[0] for jndi, values in expected.items()})
+        consumers = {}
+        for source_path in java_sources():
+            source = source_path.read_text()
+            if "@MessageDriven" not in source:
+                continue
+            class_match = re.search(r"public class (\w+)", source)
+            queue_match = re.search(r'propertyValue\s*=\s*"java:app/jms/([^"]+)"', source)
+            run_as = re.search(r'@(?:jakarta\.annotation\.security\.)?RunAs\("([^"]+)"\)', source)
+            self.assertIsNotNone(class_match, source_path)
+            self.assertIsNotNone(queue_match, source_path)
+            self.assertIsNotNone(run_as, source_path)
+            jndi = "java:app/jms/" + queue_match.group(1)
+            self.assertNotIn(jndi, consumers)
+            consumers[jndi] = (class_match.group(1), run_as.group(1))
+        self.assertEqual(consumers, {
+            jndi: (values[1], values[2]) for jndi, values in expected.items()
+        })
+        producer_references = {}
+        for source_path in java_sources():
+            references = re.findall(r'@Resource\s*\(\s*lookup\s*=\s*"java:app/jms/([^"]+)"', source_path.read_text())
+            if references:
+                producer_references[source_path.name] = sorted(references)
+        self.assertEqual(producer_references, {
+            "HandlingEventRegistrationAttemptProducer.java": ["HandlingEventRegistrationAttemptQueue"],
+            "JmsApplicationEvents.java": ["CargoHandledQueue", "DeliveredCargoQueue", "MisdirectedCargoQueue"],
+        })
+        producer = (JAVA / "net/java/cargotracker/infrastructure/messaging/jms/HandlingEventRegistrationAttemptProducer.java").read_text()
+        self.assertIn('RunAs("HandlingAttemptProducer")', producer)
+        descriptor = ET.parse(WEBAPP / "WEB-INF/jboss-ejb3.xml").getroot()
+        run_as_principals = {}
+        for security in descriptor.iter():
+            children = {child.tag.rsplit("}", 1)[-1]: child.text for child in security}
+            if "ejb-name" in children and "run-as-principal" in children:
+                run_as_principals[children["ejb-name"]] = children["run-as-principal"]
+        self.assertEqual(run_as_principals, {
+            "BatchImportRequestService": "batch-trigger",
+            "BatchImportLauncher": "batch-worker",
+            "HandlingEventRegistrationAttemptProducer": "handling-attempt-producer",
+            "HandlingEventRegistrationAttemptConsumer": "handling-worker",
+            "CargoHandledConsumer": "inspection-worker",
+            "DeliveredCargoConsumer": "notification-worker",
+            "MisdirectedCargoConsumer": "notification-worker",
+            "RejectedRegistrationAttemptsConsumer": "notification-worker",
+        })
+        disposition = (ROOT / "candidate/cargotracker/deployment/wildfly/notification-disposition.cli").read_text()
+        self.assertIn('dead-letter-address,value="jms.queue.RejectedRegistrationAttemptsQueue"', disposition)
+        self.assertIn('address-setting=jms.queue.RejectedRegistrationAttemptsQueue:add(dead-letter-address="jms.queue.DLQ",max-delivery-attempts=3)', disposition)
+        all_candidate_text = "\n".join(path.read_text(errors="ignore") for path in ROOT.joinpath("candidate/cargotracker").rglob("*") if path.is_file())
+        self.assertNotRegex(all_candidate_text, r"@Remote\b|<remote>")
+        self.assertNotRegex(all_candidate_text, r"@WebService(?:Provider)?\b|webservices\.xml")
+
+    def test_facelet_and_jsp_views_expose_no_seed_or_schema_action(self):
+        view_files = [path for path in WEBAPP.rglob("*") if path.is_file()
+                      and path.suffix.lower() in {".xhtml", ".jsp", ".jspf", ".tag", ".tagx", ".xml"}]
+        view_text = "\n".join(path.read_text(errors="ignore") for path in view_files)
+        self.assertNotRegex(view_text, r"(?i)SampleDataGenerator|sampleDataGenerator|loadSampleData")
+        self.assertNotRegex(view_text, r"(?i)flyway|schema-generation|reseed|seedSampleData")
+        expressions = re.findall(r"#\{([^}]+)\}", view_text)
+        self.assertTrue(expressions, "Facelets EL expressions must be inspected")
+        self.assertIn("batchImportView.start", expressions)
+        for expression in expressions:
+            self.assertNotRegex(expression, r"(?i)sample.?data|reseed|\bseed\b|schema|migrat|flyway")
+        generator = (JAVA / "net/java/cargotracker/application/util/SampleDataGenerator.java").read_text()
+        self.assertNotIn("@Named", generator)
+        self.assertNotIn("@ManagedBean", generator)
+
+    def test_persistence_schema_generation_is_disabled(self):
+        persistence = ET.parse(ROOT / "candidate/cargotracker/src/main/resources/META-INF/persistence.xml").getroot()
+        properties = {item.attrib.get("name"): item.attrib.get("value") for item in persistence.iter() if item.tag.rsplit("}", 1)[-1] == "property"}
+        self.assertEqual(properties.get("jakarta.persistence.schema-generation.database.action"), "none")
+
     def test_candidate_database_fixture_exposes_only_local_app_http_port(self):
         compose = (ROOT / "infrastructure/database/compose.yaml").read_text()
         self.assertEqual(compose_ports_blocks(compose), [

@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 """Disposable WildFly/PostgreSQL integration for the safe production descriptor."""
 from __future__ import annotations
+import base64
 import hashlib
 import http.cookiejar
 import json
@@ -10,6 +11,7 @@ import re
 import secrets
 import shutil
 import socket
+import sys
 import subprocess
 import time
 import urllib.error
@@ -135,31 +137,52 @@ def remote_jndi_jms_probe(env):
     observations={}
     seen=set()
     well_formed=True
-    expected_fields={"lookup","connection_started","authentication_denial","jms_closed","naming_closed","failure"}
+    expected_fields={"lookup","connection_started","authentication_denial","jms_closed","naming_closed",
+        "exported_list_succeeded","seed_generator_binding","exported_bindings_b64","failure"}
     for line in result.stdout.splitlines():
         if not line.startswith("PROBE_RESULT "):
             continue
         fields=line.split()
-        if len(fields)!=8 or fields[1] in seen:
+        if len(fields)!=11 or fields[1] in seen:
             well_formed=False
             continue
         seen.add(fields[1])
         pairs=[field.split("=",1) for field in fields[2:] if "=" in field]
         values=dict(pairs)
-        bool_fields=("lookup","connection_started","authentication_denial","jms_closed","naming_closed")
-        if (len(pairs)!=6 or set(values)!=expected_fields
+        bool_fields=("lookup","connection_started","authentication_denial","jms_closed","naming_closed",
+            "exported_list_succeeded","seed_generator_binding")
+        if (len(pairs)!=9 or set(values)!=expected_fields
                 or any(values.get(key) not in ("true","false") for key in bool_fields)
                 or not values.get("failure")):
             well_formed=False
             continue
+        try:
+            encoded=values["exported_bindings_b64"]
+            bindings=(base64.b64decode(encoded+"="*((4-len(encoded)%4)%4),altchars=b"-_",validate=True).decode().splitlines()
+                if encoded else [])
+        except (ValueError,UnicodeDecodeError):
+            well_formed=False
+            continue
+        names=[item.split("=",1)[0] for item in bindings if "=" in item]
+        leaf_names=sorted(name for name in set(names)
+            if not any(other.startswith(name+"/") for other in names))
+        exact_namespace=(len(names)==len(bindings) and len(names)==len(set(names))
+            and leaf_names==["jms/RemoteConnectionFactory"])
         observations[fields[1]]={"factory_lookup_succeeded":values["lookup"]=="true",
             "jms_connection_started":values["connection_started"]=="true",
             "authentication_denial":values["authentication_denial"]=="true",
             "jms_closed":values["jms_closed"]=="true","naming_closed":values["naming_closed"]=="true",
+            "exported_listing_succeeded":values["exported_list_succeeded"]=="true",
+            "seed_generator_binding_found":values["seed_generator_binding"]=="true",
+            "exported_bindings":bindings,"exported_binding_names":sorted(names),
+            "exported_leaf_names":leaf_names,"exact_remote_namespace_inventory":exact_namespace,
             "failure_class":None if values["failure"]=="none" else values["failure"]}
     expected={"reader","operator","admin","anonymous","invalid"}
     valid_roles_allowed=all(observations.get(user,{}).get("factory_lookup_succeeded") is True
         and observations.get(user,{}).get("jms_connection_started") is True
+        and observations.get(user,{}).get("exported_listing_succeeded") is True
+        and observations.get(user,{}).get("seed_generator_binding_found") is False
+        and observations.get(user,{}).get("exact_remote_namespace_inventory") is True
         for user in ("reader","operator","admin"))
     anonymous_denied=(not observations.get("anonymous",{}).get("jms_connection_started",False)
         and observations.get("anonymous",{}).get("authentication_denial",False))
@@ -167,7 +190,7 @@ def remote_jndi_jms_probe(env):
         and observations.get("invalid",{}).get("authentication_denial",False))
     resources_closed=(set(observations)==expected and all(row["jms_closed"] and row["naming_closed"] for row in observations.values()))
     return {"driver":"remote-http-remoting-jndi-jms-connect-v1","provider":"remote+http://candidate-app:8080",
-        "operations":["lookup jms/RemoteConnectionFactory","create JMS context","start connection","close context"],
+        "operations":["lookup jms/RemoteConnectionFactory","enumerate java:jboss/exported","create JMS context","start connection","close context"],
         "sends_performed":0,"consumers_created":0,"observations":observations,
         "valid_app_roles_connect":valid_roles_allowed,"anonymous_connection_denied":anonymous_denied,
         "invalid_credential_connection_denied":invalid_denied,"client_resources_closed":resources_closed,
@@ -380,6 +403,13 @@ def main():
         raise
     report={"task":"KAN-18/KAN-15 BG-06","status":"FAIL","checks":{},"fixture_inputs":{"flyway_after_each_migrate_callback_sha256":callback_hash},"machine_scope":"Flyway schema migration with server-verified schema_migrator identity; separate from request users","instrumentation_scope":"lab_observer is harness-only instrumentation for server-observed Flyway sessions, not a product schema effect","cleanup":{"compose_down":False,"resource_check_passed":False,"residual_containers":[],"residual_networks":[],"residual_volumes":[],"peer_probe_removed":False,"jndi_probe_removed":False,"work_removed":False,"image_removed":False,"secrets_preserved":False}}
     try:
+        static_inventory=run("BG-06 source inventory regression",
+            [sys.executable,str(ROOT/"tests/security/test_bg06_startup_boundary.py")],env,timeout=60,check=False)
+        static_passed=static_inventory.returncode==0
+        report["checks"]["bg06_static_source_inventory"]={"passed":static_passed,
+            "driver":"tests/security/test_bg06_startup_boundary.py","exit_code":static_inventory.returncode,
+            "summary":"\n".join(static_inventory.stdout.splitlines()[-12:])}
+        if not static_passed: raise RuntimeError("BG-06 static source inventory regression failed")
         run("Candidate image build",compose+["--profile","candidate-app","build","candidate-app"],env,timeout=900)
         run("Fresh PostgreSQL startup",compose+["up","-d","--wait","--wait-timeout","120","postgres"],env,timeout=150)
         secret_read=run("PostgreSQL migrator secret readability",compose+["exec","-T","--user","postgres","postgres","sh","-ec","test -r /run/secrets/migrator_password && echo readable"],env,timeout=30,check=False)
@@ -448,13 +478,28 @@ def main():
         expected_marker_id=8001
         report["checks"]["runtime_dml"]={"passed":marker_result.returncode==0 and marker_id==expected_marker_id,"generated_id":marker_id,"expected_generated_id":expected_marker_id}
         if not report["checks"]["runtime_dml"]["passed"]: raise RuntimeError("cargo_app could not persist the expected sequence-generated ID")
+        application_identity_lines=query(env,"SELECT json_build_object('session_user',session_user,'current_user',current_user,'current_role',current_role)::text",
+            username="cargo_app",password_file="app_password").stdout.strip().splitlines()
+        application_identity=json.loads(application_identity_lines[-1]) if application_identity_lines else {}
+        application_identity_ok=(application_identity.get("session_user")=="cargo_app"
+            and application_identity.get("current_user")=="cargo_app"
+            and application_identity.get("current_role")=="cargo_app")
+        ddl_before=durable_state(env)
         denial_attempts={
             "persistent_schema_ddl":query(env,"CREATE TABLE cargo.kan18_ddl_probe(id integer)",username="cargo_app",password_file="app_password",allow_failure=True),
             "temporary_table_ddl":query(env,"CREATE TEMP TABLE kan18_temp_probe(id integer)",username="cargo_app",password_file="app_password",allow_failure=True),
             "flyway_history_update":query(env,"UPDATE cargo.flyway_schema_history SET success=success WHERE FALSE",username="cargo_app",password_file="app_password",allow_failure=True),
             "migration_state_update":query(env,"UPDATE cargo.legacy_sequence_state SET seq_count=seq_count WHERE FALSE",username="cargo_app",password_file="app_password",allow_failure=True)}
-        report["checks"]["application_ddl_denied"]={name:(result.returncode!=0 and "permission denied" in result.stdout.lower()) for name,result in denial_attempts.items()}
-        if not all(report["checks"]["application_ddl_denied"].values()): raise RuntimeError("cargo_app unexpectedly received schema/migration privileges")
+        ddl_after=durable_state(env)
+        ddl_attempts={name:{"denied":result.returncode!=0 and "permission denied" in result.stdout.lower(),
+            "permission_denial_observed":"permission denied" in result.stdout.lower()} for name,result in denial_attempts.items()}
+        ddl_effects_unchanged=ddl_before==ddl_after
+        ddl_passed=application_identity_ok and all(row["denied"] for row in ddl_attempts.values()) and ddl_effects_unchanged
+        report["checks"]["application_ddl_denied"]={"passed":ddl_passed,"driver":"direct-postgresql-session-v1",
+            "native_identity":{"server_verified":application_identity_ok,"principal":"cargo_app",**application_identity},
+            "attempts":ddl_attempts,"database_effects_unchanged":ddl_effects_unchanged,
+            "before":ddl_before,"after":ddl_after}
+        if not ddl_passed: raise RuntimeError("Application database identity or DDL denial/effect checks failed")
         marked=durable_state(env)
         run("Candidate app startup",compose+["--profile","candidate-app","up","-d","candidate-app"],env,timeout=120)
         deadline=time.monotonic()+180
@@ -516,10 +561,94 @@ def main():
         restarted=durable_state(env)
         report["checks"]["restart_preserves_data"]={"passed":restarted==marked and query(env,"SELECT count(*) FROM cargo.location WHERE id="+str(marker_id)+" AND name='"+marker+"'").stdout.strip().splitlines()==["1"],"after_restart":restarted}
         if not report["checks"]["restart_preserves_data"]["passed"]: raise RuntimeError("Candidate restart changed persisted data")
+        static_inventory_passed=report["checks"].get("bg06_static_source_inventory",{}).get("passed") is True
+        protocols=report["checks"].get("remote_jndi_jms_protocol_authentication",{})
+        app_ddl=report["checks"].get("application_ddl_denied",{})
+        startup=report["checks"].get("startup_no_orm_ddl_or_seed",{})
+        restart=report["checks"].get("restart_preserves_data",{})
+        roles=report["checks"].get("human_roles",{})
+        actor_results={}
+        for actor in ("anonymous","Reader","Operator","Administrator"):
+            if actor=="anonymous":
+                identity=None
+                anonymous_api=report["checks"].get("anonymous_api_denied",{})
+                anonymous_remote=protocols.get("observations",{}).get("anonymous",{})
+                access_denied=(anonymous_api.get("passed") is True
+                    and anonymous_remote.get("authentication_denial") is True
+                    and anonymous_remote.get("jms_connection_started") is False)
+                role_state_unchanged=protocols.get("database_state_unchanged") is True and startup.get("passed") is True
+                entry_evidence={"application_api_status":anonymous_api.get("status"),
+                    "remote_jndi_authentication_denied":anonymous_remote.get("authentication_denial") is True,
+                    "remote_exported_namespace_access_denied":anonymous_remote.get("exported_listing_succeeded") is False}
+            else:
+                identity_check=roles.get(actor,{})
+                identity={"server_verified":identity_check.get("identity_verified") is True,
+                    "principal":identity_check.get("observed_principal"),
+                    "roles":identity_check.get("observed_roles",[])}
+                protocol_user={"Reader":"reader","Operator":"operator","Administrator":"admin"}[actor]
+                protocol_observation=protocols.get("observations",{}).get(protocol_user,{})
+                access_denied=(identity_check.get("identity_verified") is True
+                    and protocol_observation.get("exported_listing_succeeded") is True
+                    and protocol_observation.get("exact_remote_namespace_inventory") is True
+                    and protocol_observation.get("seed_generator_binding_found") is False)
+                role_state_unchanged=identity_check.get("durable_state_unchanged") is True
+                entry_evidence={"remote_exported_binding_names":protocol_observation.get("exported_binding_names",[]),
+                    "remote_exported_leaf_names":protocol_observation.get("exported_leaf_names",[]),
+                    "remote_seed_generator_binding_absent":protocol_observation.get("seed_generator_binding_found") is False,
+                    "remote_connection_started":protocol_observation.get("jms_connection_started") is True}
+            no_entrypoint=static_inventory_passed and access_denied
+            effects_unchanged=(role_state_unchanged and protocols.get("database_state_unchanged") is True
+                and startup.get("passed") is True and restart.get("passed") is True)
+            actor_passed=(no_entrypoint and effects_unchanged and app_ddl.get("passed") is True)
+            actor_results[actor]={"passed":actor_passed,"expected":"deny",
+                "identity":identity,"entrypoint_evidence":entry_evidence,
+                "no_callable_seed_or_schema_entrypoint":no_entrypoint,
+                "database_effects_unchanged":effects_unchanged,
+                "application_database_ddl_denied":app_ddl.get("passed") is True}
+        human_boundary_passed=(set(actor_results)=={"anonymous","Reader","Operator","Administrator"}
+            and all(item["passed"] for item in actor_results.values()))
+        report["checks"]["bg06_human_boundary"]={"passed":human_boundary_passed,
+            "driver":"bg06-fresh-role-aware-no-callable-surface-v1",
+            "evidence_basis":"Complete fresh source/JMS/JNDI inventory; per-role identity or anonymous denial; no exported seed EJB binding; unchanged database snapshots; cargo_app DDL denial.",
+            "actors":actor_results,"all_actor_denials_and_effects_verified":human_boundary_passed}
+        machine_boundary_passed=(report["checks"].get("migration_machine_identity",{}).get("passed") is True
+            and report["checks"].get("flyway_v2_populated_upgrade",{}).get("passed") is True
+            and report["checks"].get("flyway_v3_runtime_grants",{}).get("passed") is True
+            and report["checks"].get("populated_upgrade_preserves_imported_rows",{}).get("passed") is True
+            and app_ddl.get("passed") is True and startup.get("passed") is True and restart.get("passed") is True)
+        report["checks"]["bg06_machine_boundary"]={"passed":machine_boundary_passed,
+            "driver":"bg06-fresh-schema-migration-scope-v1",
+            "machine_identity":report["checks"].get("migration_machine_identity",{}),
+            "populated_row_preservation":report["checks"].get("populated_upgrade_preserves_imported_rows",{}).get("passed") is True,
+            "application_identity_ddl_denied":app_ddl.get("passed") is True,
+            "startup_and_restart_unchanged":startup.get("passed") is True and restart.get("passed") is True}
         report["schema_hashes"]={}
         for relative in (".dockerignore","tests/candidate-runtime/postgresql/Dockerfile","tests/candidate-runtime/postgresql/module.xml","tests/candidate-runtime/postgresql/configure-datasource.cli","tests/candidate-runtime/postgresql/start.sh","tests/candidate-runtime/postgresql/verify_runtime.py","tests/candidate-runtime/postgresql/RemoteJndiReachabilityProbe.java","infrastructure/database/compose.yaml","infrastructure/database/bootstrap/10-create-roles.sh","infrastructure/database/migrations/V1__initial_schema.sql","infrastructure/database/migrations/V2__query_indexes_and_sequence_reconciliation.sql","infrastructure/database/migrations/V3__grant_application_runtime_privileges.sql","candidate/cargotracker/src/main/resources/META-INF/persistence.xml","candidate/cargotracker/src/main/java/net/java/cargotracker/application/util/SampleDataGenerator.java"):
             report["schema_hashes"][relative]=hashlib.sha256((ROOT/relative).read_bytes()).hexdigest()
+        bg06_source_roots=[
+            ROOT/"candidate/cargotracker/src/main/java",
+            ROOT/"candidate/cargotracker/src/main/webapp",
+            ROOT/"candidate/cargotracker/deployment/wildfly",
+        ]
+        bg06_source_files={ROOT/"candidate/cargotracker/src/main/resources/META-INF/persistence.xml",
+            ROOT/"infrastructure/database/compose.yaml",
+            ROOT/"tests/candidate-runtime/postgresql/configure-datasource.cli",
+            ROOT/"tests/candidate-runtime/postgresql/verify_runtime.py",
+            ROOT/"tests/candidate-runtime/postgresql/RemoteJndiReachabilityProbe.java",
+            ROOT/"tests/security/test_bg06_startup_boundary.py",
+            ROOT/"tests/security/run_bg06_scoped_gate.py",
+            ROOT/"tests/security/desired-cases.json",
+            ROOT/"specifications/access-policy-inventory.json"}
+        webapp_root=ROOT/"candidate/cargotracker/src/main/webapp"
+        for source_root in bg06_source_roots:
+            if source_root.is_dir():
+                bg06_source_files.update(path for path in source_root.rglob("*") if path.is_file()
+                    and (source_root==webapp_root or path.suffix in {".java",".xml",".cli"}))
+        bg06_source_hashes={path.relative_to(ROOT).as_posix():hashlib.sha256(path.read_bytes()).hexdigest()
+            for path in sorted(bg06_source_files) if path.is_file()}
+        report["bg06_source_sha256"]=bg06_source_hashes
         report["versions"]={"postgres":"18.6","flyway":"13.12.1","wildfly":"42","jdbc":"42.7.14"}
+        report["run_id"]=PROJECT
         report["status"]="PASS" if all(x.get("passed") for x in report["checks"].values() if isinstance(x,dict) and "passed" in x) else "FAIL"
     except Exception as error:
         report["status"] = "FAIL"
