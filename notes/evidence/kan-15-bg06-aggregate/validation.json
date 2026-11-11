@@ -1,0 +1,157 @@
+{
+  "task": "KAN-15 BG-06 reviewed scope integration",
+  "run_date": "2026-11-11",
+  "scope": "Fresh live-subset aggregate evaluation consumes exactly five independently reviewed BG-06 cases from a separate fresh scoped fixture; all other current, historical, and retirement results remain from this fresh aggregate fixture.",
+  "aggregate_fixture": {
+    "task": "KAN-18/KAN-15",
+    "status": "PASS",
+    "checks": {
+      "total": 728,
+      "passed": 728,
+      "failed": []
+    },
+    "owned_container_removed": true,
+    "private_files_removed": true,
+    "cleanup_errors": []
+  },
+  "aggregate": {
+    "execution": "fresh-owned-runtime",
+    "current_counts": {
+      "PASS": 452,
+      "BLOCKED": 18
+    },
+    "legacy_audit": {
+      "total": 502,
+      "counts": {
+        "PASS": 324,
+        "BLOCKED": 178
+      }
+    },
+    "retirement_counts": {
+      "BLOCKED": 76
+    },
+    "gate_exit": 2,
+    "inputs_fingerprint": "81ba5f205aa17e13f24a3b448e133baaa645b91030be860b43b49b924d9d6f77",
+    "legacy_fixture_cleanup_verified": true,
+    "imported_code_attested": false
+  },
+  "bg06_separate_fixture_scope": {
+    "kind": "reviewed-fresh-scoped-runtime",
+    "driver": "fresh-disposable-bg06-scoped-gate-v1",
+    "scope_receipt_sha256": "1563504790c838d8c43fed9128dbc5356b8a9fcb8bbc3714e11525c016a0df13",
+    "runtime_receipt_sha256": "e310e0fab53caad06d8072934865746dd12b15360700d3565f7164cd4da54f9b",
+    "gate_adapter_sha256": "ea70c54464939615712bd256fe820741b7f724d865be15d13db16e98f547048c",
+    "run_id": "kan18pg-4295cb899c",
+    "started_at_utc": "2026-11-11T08:02:43.106269+00:00",
+    "completed_at_utc": "2026-11-11T08:04:35.270022+00:00",
+    "source_validation": "Validated by tests/security/replay_bg06_scoped_gate.py against the exact receipt, independent review, runtime receipt, five canonical case IDs, source hashes, and schema-file inventory before live fixture launch.",
+    "cases": [
+      {
+        "case": "CURRENT::BG-06::anonymous::active",
+        "outcome": "PASS",
+        "reason": "Passed by independently reviewed fresh BG-06 scoped verification; separate fixture",
+        "evidence_provenance": {
+          "kind": "reviewed-fresh-scoped-runtime",
+          "driver": "fresh-disposable-bg06-scoped-gate-v1",
+          "scope_receipt_sha256": "1563504790c838d8c43fed9128dbc5356b8a9fcb8bbc3714e11525c016a0df13",
+          "runtime_receipt_sha256": "e310e0fab53caad06d8072934865746dd12b15360700d3565f7164cd4da54f9b",
+          "gate_adapter_sha256": "ea70c54464939615712bd256fe820741b7f724d865be15d13db16e98f547048c",
+          "run_id": "kan18pg-4295cb899c",
+          "started_at_utc": "2026-11-11T08:02:43.106269+00:00",
+          "completed_at_utc": "2026-11-11T08:04:35.270022+00:00"
+        }
+      },
+      {
+        "case": "CURRENT::BG-06::Reader::active",
+        "outcome": "PASS",
+        "reason": "Passed by independently reviewed fresh BG-06 scoped verification; separate fixture",
+        "evidence_provenance": {
+          "kind": "reviewed-fresh-scoped-runtime",
+          "driver": "fresh-disposable-bg06-scoped-gate-v1",
+          "scope_receipt_sha256": "1563504790c838d8c43fed9128dbc5356b8a9fcb8bbc3714e11525c016a0df13",
+          "runtime_receipt_sha256": "e310e0fab53caad06d8072934865746dd12b15360700d3565f7164cd4da54f9b",
+          "gate_adapter_sha256": "ea70c54464939615712bd256fe820741b7f724d865be15d13db16e98f547048c",
+          "run_id": "kan18pg-4295cb899c",
+          "started_at_utc": "2026-11-11T08:02:43.106269+00:00",
+          "completed_at_utc": "2026-11-11T08:04:35.270022+00:00"
+        }
+      },
+      {
+        "case": "CURRENT::BG-06::Operator::active",
+        "outcome": "PASS",
+        "reason": "Passed by independently reviewed fresh BG-06 scoped verification; separate fixture",
+        "evidence_provenance": {
+          "kind": "reviewed-fresh-scoped-runtime",
+          "driver": "fresh-disposable-bg06-scoped-gate-v1",
+          "scope_receipt_sha256": "1563504790c838d8c43fed9128dbc5356b8a9fcb8bbc3714e11525c016a0df13",
+          "runtime_receipt_sha256": "e310e0fab53caad06d8072934865746dd12b15360700d3565f7164cd4da54f9b",
+          "gate_adapter_sha256": "ea70c54464939615712bd256fe820741b7f724d865be15d13db16e98f547048c",
+          "run_id": "kan18pg-4295cb899c",
+          "started_at_utc": "2026-11-11T08:02:43.106269+00:00",
+          "completed_at_utc": "2026-11-11T08:04:35.270022+00:00"
+        }
+      },
+      {
+        "case": "CURRENT::BG-06::Administrator::active",
+        "outcome": "PASS",
+        "reason": "Passed by independently reviewed fresh BG-06 scoped verification; separate fixture",
+        "evidence_provenance": {
+          "kind": "reviewed-fresh-scoped-runtime",
+          "driver": "fresh-disposable-bg06-scoped-gate-v1",
+          "scope_receipt_sha256": "1563504790c838d8c43fed9128dbc5356b8a9fcb8bbc3714e11525c016a0df13",
+          "runtime_receipt_sha256": "e310e0fab53caad06d8072934865746dd12b15360700d3565f7164cd4da54f9b",
+          "gate_adapter_sha256": "ea70c54464939615712bd256fe820741b7f724d865be15d13db16e98f547048c",
+          "run_id": "kan18pg-4295cb899c",
+          "started_at_utc": "2026-11-11T08:02:43.106269+00:00",
+          "completed_at_utc": "2026-11-11T08:04:35.270022+00:00"
+        }
+      },
+      {
+        "case": "CURRENT::BG-06-MACHINE::deployment-migration::active",
+        "outcome": "PASS",
+        "reason": "Passed by independently reviewed fresh BG-06 scoped verification; separate fixture",
+        "evidence_provenance": {
+          "kind": "reviewed-fresh-scoped-runtime",
+          "driver": "fresh-disposable-bg06-scoped-gate-v1",
+          "scope_receipt_sha256": "1563504790c838d8c43fed9128dbc5356b8a9fcb8bbc3714e11525c016a0df13",
+          "runtime_receipt_sha256": "e310e0fab53caad06d8072934865746dd12b15360700d3565f7164cd4da54f9b",
+          "gate_adapter_sha256": "ea70c54464939615712bd256fe820741b7f724d865be15d13db16e98f547048c",
+          "run_id": "kan18pg-4295cb899c",
+          "started_at_utc": "2026-11-11T08:02:43.106269+00:00",
+          "completed_at_utc": "2026-11-11T08:04:35.270022+00:00"
+        }
+      }
+    ],
+    "limitations": [
+      "The scoped result came from a distinct fresh fixture, not the aggregate runtime fixture.",
+      "BG-06 remote JMS probe did not verify destination-level send/consume authorization.",
+      "Imported Python fixture code is not attested by the imported_code_attested gate field."
+    ]
+  },
+  "remaining_current_blockers": [
+    "CURRENT::SERVICE-01::anonymous::active",
+    "CURRENT::SERVICE-01::Reader::active",
+    "CURRENT::SERVICE-01::Operator::active",
+    "CURRENT::SERVICE-01::Administrator::active",
+    "CURRENT::SERVICE-02::anonymous::active",
+    "CURRENT::SERVICE-02::Reader::active",
+    "CURRENT::SERVICE-02::Operator::active",
+    "CURRENT::SERVICE-02::Administrator::active",
+    "CURRENT::SERVICE-03::anonymous::active",
+    "CURRENT::SERVICE-03::Reader::active",
+    "CURRENT::SERVICE-03::Operator::active",
+    "CURRENT::SERVICE-03::Administrator::active",
+    "REPLACEMENT::handling-event::Operator",
+    "REPLACEMENT::handling-event::Administrator",
+    "REPLACEMENT::handling-voyage::Operator",
+    "REPLACEMENT::handling-voyage::Administrator",
+    "REPLACEMENT::handling-completion::Operator",
+    "REPLACEMENT::handling-completion::Administrator"
+  ],
+  "review": {
+    "verdict": "Approved for publication",
+    "reviewer": "Separate independent Codex review agent (/root/review_service04_adapter)",
+    "findings": "Exactly five BG-06 rows carry separate-fixture provenance; other rows remain unchanged. Counts, blockers, fingerprints, scoped receipt/run IDs and cleanup evidence are consistent. No runtime rerun required.",
+    "review_record": "notes/agent-reviews/2026-11-11-kan15-bg06-aggregate-review.md"
+  }
+}

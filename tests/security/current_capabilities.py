@@ -9,6 +9,7 @@ from contracts import UnsupportedCase,run_cases,exit_code
 import run_candidate_contracts as legacy
 from staged_returns import return_observation
 from replacements import SUPPORTED_REPLACEMENTS, replacement_observation
+from replay_bg06_scoped_gate import validate_scope as validate_bg06_scope
 MANIFEST=ROOT/"specifications/current-capability-mapping-v2.json"
 INVENTORY=ROOT/"specifications/access-policy-inventory.json"
 NATIVE_CURRENT_LOADS=frozenset({"ACTION-07","ACTION-15","ACTION-16","ACTION-18","ACTION-20"})
@@ -260,12 +261,51 @@ def build_current(model,inventory):
     return cases
 
 def source_fingerprint():
-    paths=subprocess.check_output(["git","ls-files","-co","--exclude-standard","--","candidate","tests/candidate-runtime","tests/browser-workflows","tests/security","specifications/access-policy-inventory.json","specifications/current-capability-mapping-v2.json","notes/decisions/2026-11-02-current-ui-acceptance.md"],cwd=ROOT,text=True).splitlines()
+    paths=subprocess.check_output(["git","ls-files","-co","--exclude-standard","--",".dockerignore","candidate","infrastructure/database","tests/candidate-runtime","tests/browser-workflows","tests/security","specifications/access-policy-inventory.json","specifications/current-capability-mapping-v2.json","notes/decisions/2026-11-02-current-ui-acceptance.md","notes/evidence/kan-15-bg06-scope/validation.json","notes/agent-reviews/2026-11-11-kan15-bg06-scope-review.md"],cwd=ROOT,text=True).splitlines()
     digest=hashlib.sha256()
     for name in sorted(set(paths)):
         path=ROOT/name
         if path.is_file():digest.update(name.encode()+b"\0"+hashlib.sha256(path.read_bytes()).digest())
     return digest.hexdigest()
+
+def reviewed_bg06_scope():
+    receipt_path=ROOT/"notes/evidence/kan-15-bg06-scope/validation.json"
+    receipt_bytes=receipt_path.read_bytes()
+    receipt=json.loads(receipt_bytes)
+    desired=json.loads((ROOT/"tests/security/desired-cases.json").read_text())
+    promotions=validate_bg06_scope(receipt,desired,receipt_bytes)
+    evidence=receipt["evidence"]
+    provenance={"kind":"reviewed-fresh-scoped-runtime","driver":receipt["driver"],
+        "scope_receipt_sha256":hashlib.sha256(receipt_bytes).hexdigest(),
+        "runtime_receipt_sha256":receipt["runtime_receipt_sha256"],
+        "gate_adapter_sha256":receipt["gate_adapter_sha256"],
+        "run_id":evidence["run_id"],"started_at_utc":receipt["started_at_utc"],
+        "completed_at_utc":receipt["completed_at_utc"]}
+    return promotions,provenance
+
+def apply_bg06_scoped_results(current_results,promotions,provenance):
+    expected={"CURRENT::BG-06::"+actor+"::active" for actor in ACTORS}
+    expected.add("CURRENT::BG-06-MACHINE::deployment-migration::active")
+    if (not isinstance(promotions,dict) or set(promotions)!=expected
+            or any(value!="PASS" for value in promotions.values())
+            or not isinstance(provenance,dict)
+            or provenance.get("kind")!="reviewed-fresh-scoped-runtime"
+            or re.fullmatch("[0-9a-f]{64}",str(provenance.get("scope_receipt_sha256"))) is None):
+        raise ValueError("Reviewed BG-06 scope promotion set or provenance is invalid")
+    ids=[row.get("case") for row in current_results]
+    if None in ids or len(ids)!=len(set(ids)) or not expected.issubset(ids):
+        raise ValueError("Aggregate current results do not contain each exact BG-06 case once")
+    output=[]
+    for original in current_results:
+        row=deepcopy(original)
+        if row["case"] in expected:
+            if row.get("outcome")!="BLOCKED":
+                raise ValueError("BG-06 scoped receipt can promote only blocked canonical rows")
+            row["outcome"]="PASS"
+            row["reason"]="Passed by independently reviewed fresh BG-06 scoped verification; separate fixture"
+            row["evidence_provenance"]=deepcopy(provenance)
+        output.append(row)
+    return output
 
 class CurrentAdapter:
     def __init__(self,live=False):
@@ -278,12 +318,14 @@ class CurrentAdapter:
         definitions={"current":list(self.contracts.values()),"legacy":self.legacy_contracts,"retirements":self._retirement_model["retirement_candidates"]}
         self._contracts_fingerprint=hashlib.sha256(json.dumps(definitions,sort_keys=True,separators=(",",":")).encode()).hexdigest()
         self.provenance=None;self.legacy=None;self._run_fingerprint=None
+        self.bg06_promotions=None;self.bg06_scope_provenance=None
         if live:
+            self.bg06_promotions,self.bg06_scope_provenance=reviewed_bg06_scope()
             if source_fingerprint()!=before:raise RuntimeError("Inputs changed while loading canonical contracts")
             self.legacy=legacy.LiveSubsetCandidate()
             if source_fingerprint()!=before:raise RuntimeError("Runtime or contract inputs changed during fixture")
             self._run_fingerprint=before
-            self.provenance={"kind":"fresh-owned-runtime","inputs_fingerprint":before,"canonical_contracts_sha256":self._contracts_fingerprint,"legacy_fixture_cleanup_verified":True,"imported_code_attested":False,"fingerprint_scope":"On-disk inputs and constructed canonical contracts; already imported Python code identity is not attested."}
+            self.provenance={"kind":"fresh-owned-runtime","inputs_fingerprint":before,"canonical_contracts_sha256":self._contracts_fingerprint,"legacy_fixture_cleanup_verified":True,"imported_code_attested":False,"fingerprint_scope":"On-disk inputs and constructed canonical contracts; already imported Python code identity is not attested.","reviewed_bg06_scope":deepcopy(self.bg06_scope_provenance)}
     def execute(self,case):
         canonical=self.contracts.get(case.get("id"))
         if canonical is None or canonical!=case:raise UnsupportedCase()
@@ -581,7 +623,10 @@ def retirement_results(model,adapter,current_results):
 def report(live=False):
     adapter=CurrentAdapter(live=live)
     cases=deepcopy(list(adapter.contracts.values()))
-    current=run_cases(cases,adapter);retirements=retirement_results(adapter._retirement_model,adapter,current)
+    current=run_cases(cases,adapter)
+    if live:
+        current=apply_bg06_scoped_results(current,adapter.bg06_promotions,adapter.bg06_scope_provenance)
+    retirements=retirement_results(adapter._retirement_model,adapter,current)
     audit=run_cases(deepcopy(adapter.legacy_contracts),adapter.legacy if live else legacy.PendingCandidate())
     status=exit_code(current)
     if status==0 and any(r["outcome"]!="RETIRED" for r in retirements):status=2

@@ -1,5 +1,13 @@
 # Current-capability gate — latest run and history
 
+## Fresh BG-06 integrated aggregate — 11 November 2026
+
+The fresh live-subset aggregate passed **728/728 runtime checks** and removed its owned container and private files without cleanup errors. The current aggregate reports **452 PASS / 18 BLOCKED across 470 cases**; historical audit remains **324 PASS / 178 BLOCKED across 502 cases**, and all **76 retirement checks remain BLOCKED**. Exit 2 reflects remaining unsupported cases, not a fixture failure.
+
+The aggregate adapter validated the independently reviewed BG-06 scoped receipt before fixture launch and promoted exactly its five canonical cases (four human access denials plus the deployment schema_migrator Flyway case). Those five results come from a distinct fresh fixture and carry per-row provenance; they are not observations from the aggregate runtime fixture. The current gate still records the aggregate runtime as fresh and preserves every other row. The full output and validation summary are in [BG-06 aggregate evidence](../../notes/evidence/kan-15-bg06-aggregate/validation.json) and [gate output](../../notes/evidence/kan-15-bg06-aggregate/current-capability-gate.json). The prior independent scoped receipt and review are linked from [BG-06 scoped evidence](../../notes/evidence/kan-15-bg06-scope/validation.json). The independent integration review is recorded in [BG-06 aggregate review](../../notes/agent-reviews/2026-11-11-kan15-bg06-aggregate-review.md).
+
+The 18 current blockers are all four actor cases for each of SERVICE-01, SERVICE-02 and SERVICE-03, plus the six Operator/Administrator handling-event, handling-voyage and handling-completion replacement cases. The BG-06 remote JMS probe did not verify destination-level send/consume authorization; imported Python fixture code is not attested by the aggregate imported_code_attested field. Full KAN-15 remains In Progress.
+
 ## Latest scoped boundary update — 11 November 2026
 
 A separate fresh BG-06 gate passed all five seed/reseed/schema-boundary cases: the four human denials and the deployment `schema_migrator` Flyway case. Its persisted evidence is [notes/evidence/kan-15-bg06-scope/validation.json](../../notes/evidence/kan-15-bg06-scope/validation.json). An [offline supplemental replay](../../notes/evidence/kan-15-bg06-scope/current-capability-replay.json) combines only those five results with the 9 November aggregate snapshot: 449 PASS / 21 BLOCKED becomes 454 PASS / 16 BLOCKED. It records hashes for the untouched current rows, historical audit and retirement rows; it does not rewrite the source gate or claim a new full runtime run. KAN-15 remains In Progress, and the BG-06 remote JMS probe did not test destination-level send/consume authorization.
@@ -10,7 +18,7 @@ The fresh live-subset fixture passed **728/728 runtime checks** and removed its 
 
 This fresh aggregate gate reports **447 PASS / 23 BLOCKED across 470 current cases**. The preserved historical audit remains **324 PASS / 178 BLOCKED across 502 cases**; all **76 retirement checks remain BLOCKED**. Exit 2 reflects incomplete gate coverage. The 23 current blockers are four BG-06 human cases, BG-06-MACHINE, four cases each for SERVICE-01 through SERVICE-03, and six Operator/Administrator replacement cases across handling-event, handling-voyage and handling-completion.
 
-The separately fresh BG-06 scoped verification remains valid evidence for its five checks. Its **454/16** result was an offline supplemental replay over an older 9 November aggregate snapshot. This fresh run does not yet bind that scoped evidence into the aggregate adapter, so its BG-06 cases remain BLOCKED here. Keep these results separate; do not combine the supplemental replay count with this fresh gate count. Full KAN-15 remains open.
+At that earlier checkpoint the fresh aggregate did not yet bind the BG-06 scope receipt. The older **454/16** number remains only an offline supplemental replay over a 9 November aggregate snapshot and must not be represented as a runtime aggregate result. The latest fresh aggregate result is documented above. Full KAN-15 remains open.
 
 ## Initial current-capability checkpoint — 2 November 2026
 

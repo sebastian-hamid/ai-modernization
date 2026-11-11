@@ -27,6 +27,51 @@ class CurrentCapabilityTests(unittest.TestCase):
         self.assertEqual({x["legacy_case_id"] for x in current}|{x["legacy_case_id"] for x in retire},old)
         self.assertEqual(len(old),502)
         self.assertTrue(all(x["outcome"]=="BLOCKED" for x in retire))
+    def test_reviewed_bg06_scope_receipt_is_source_bound_and_exact(self):
+        promotions,provenance=c.reviewed_bg06_scope()
+        expected={"CURRENT::BG-06::"+actor+"::active" for actor in c.ACTORS}
+        expected.add("CURRENT::BG-06-MACHINE::deployment-migration::active")
+        self.assertEqual(promotions,{case:"PASS" for case in expected})
+        self.assertEqual(provenance["kind"],"reviewed-fresh-scoped-runtime")
+        self.assertRegex(provenance["scope_receipt_sha256"],r"^[0-9a-f]{64}$")
+        self.assertTrue(provenance["run_id"].startswith("kan18pg-"))
+    def test_live_fingerprint_covers_reviewed_bg06_fixture_inputs(self):
+        with patch.object(c.subprocess,"check_output",return_value="") as command:
+            c.source_fingerprint()
+        paths=command.call_args.args[0]
+        for expected in (".dockerignore","infrastructure/database",
+                "notes/evidence/kan-15-bg06-scope/validation.json",
+                "notes/agent-reviews/2026-11-11-kan15-bg06-scope-review.md"):
+            self.assertIn(expected,paths)
+    def test_bg06_scope_promotes_only_five_blocked_rows_with_separate_provenance(self):
+        adapter=c.CurrentAdapter()
+        baseline=[{"case":case["id"],"outcome":"BLOCKED","reason":"unsupported"}
+                  for case in adapter.contracts.values()]
+        promotions,provenance=c.reviewed_bg06_scope()
+        replayed=c.apply_bg06_scoped_results(baseline,promotions,provenance)
+        promoted=[row for row in replayed if row["outcome"]=="PASS"]
+        self.assertEqual({row["case"] for row in promoted},set(promotions))
+        self.assertTrue(all(row["evidence_provenance"]==provenance for row in promoted))
+        unchanged_before=[row for row in baseline if row["case"] not in promotions]
+        unchanged_after=[row for row in replayed if row["case"] not in promotions]
+        self.assertEqual(unchanged_before,unchanged_after)
+        self.assertIn("separate fixture",promoted[0]["reason"])
+    def test_bg06_scope_promotion_rejects_missing_rows_tampered_provenance_and_pass_rows(self):
+        adapter=c.CurrentAdapter()
+        baseline=[{"case":case["id"],"outcome":"BLOCKED"} for case in adapter.contracts.values()]
+        promotions,provenance=c.reviewed_bg06_scope()
+        invalid=[dict(promotions),dict(promotions),dict(promotions)]
+        invalid[0].pop(next(iter(promotions)))
+        invalid[1][next(iter(promotions))]="BLOCKED"
+        bad_provenance={**provenance,"scope_receipt_sha256":"bad"}
+        with self.assertRaises(ValueError):c.apply_bg06_scoped_results(baseline,invalid[0],provenance)
+        with self.assertRaises(ValueError):c.apply_bg06_scoped_results(baseline,invalid[1],provenance)
+        with self.assertRaises(ValueError):c.apply_bg06_scoped_results(baseline,promotions,bad_provenance)
+        already_pass=copy.deepcopy(baseline)
+        next(row for row in already_pass if row["case"]==next(iter(promotions)))["outcome"]="PASS"
+        with self.assertRaises(ValueError):c.apply_bg06_scoped_results(already_pass,promotions,provenance)
+        missing_row=[row for row in baseline if row["case"]!=next(iter(promotions))]
+        with self.assertRaises(ValueError):c.apply_bg06_scoped_results(missing_row,promotions,provenance)
     def test_model_rejects_drift_missing_duplicate_unknown_and_weakened_policy(self):
         model,inventory=c.load_model();fingerprint=model["legacy_inventory_sha256"]
         for mode in ["version","drift","missing","duplicate","unknown","field","target","role","retire","driver","evidence"]:
