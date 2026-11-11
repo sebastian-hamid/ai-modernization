@@ -2,4 +2,8 @@ embed-server --server-config=standalone-full.xml --std-out=discard
 /subsystem=datasources/jdbc-driver=postgresql:add(driver-name=postgresql,driver-module-name=org.postgresql,driver-class-name=org.postgresql.Driver)
 /subsystem=datasources/data-source=CargoTrackerDS:add(jndi-name=java:jboss/datasources/CargoTrackerDS,driver-name=postgresql,connection-url=jdbc:postgresql://postgres:5432/cargotracker,user-name=cargo_app,password=${env.CARGO_APP_PASSWORD},min-pool-size=1,max-pool-size=12,jta=true,enabled=true,validate-on-match=true)
 /subsystem=datasources/data-source=CargoTrackerDS:test-connection-in-pool
+# Keep standalone transaction coordination listeners private; the local single-node fixture does not need remote transaction-manager access.
+/socket-binding-group=standard-sockets/socket-binding=txn-recovery-environment:write-attribute(name=interface,value=unsecure)
+/socket-binding-group=standard-sockets/socket-binding=txn-status-manager:write-attribute(name=interface,value=unsecure)
+/socket-binding-group=standard-sockets/socket-binding=https:write-attribute(name=interface,value=unsecure)
 stop-embedded-server

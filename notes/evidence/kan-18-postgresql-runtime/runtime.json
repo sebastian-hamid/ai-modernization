@@ -17,9 +17,9 @@
     ".dockerignore": "0470eb69c6f13a37c5476289eb4b691f36a366278a602e0f8d8a475527a00e5c",
     "tests/candidate-runtime/postgresql/Dockerfile": "ac4332decc9b203a6530f24202c0b0de24b2671cde0a239eb5729667a07c5b49",
     "tests/candidate-runtime/postgresql/module.xml": "c6cf60d912ecaa7a4560b1288d478b7cc2bbc10f22316f6edb241093edb0aee1",
-    "tests/candidate-runtime/postgresql/configure-datasource.cli": "c1afb5791cc612e0b449f13fd7b8dfe6f0eb96b1365ce9acd21a2eb853efc5b8",
+    "tests/candidate-runtime/postgresql/configure-datasource.cli": "02151083ddabbb082306ea34251707a8cc27d76ad3d6c99083b644226f4cae54",
     "tests/candidate-runtime/postgresql/start.sh": "09ec1f8e3481d2d9a9cda6556521078769b44b388f2e87da93626e6e52627bb0",
-    "tests/candidate-runtime/postgresql/verify_runtime.py": "5f262fcbfe56151a08f8b059bd4cfb210c5d630c39d6a1cc35e3372c858ac57a",
+    "tests/candidate-runtime/postgresql/verify_runtime.py": "0377f054b6833f4a89475507836ac2df794b75c7766cda549b503f729309aee9",
     "infrastructure/database/compose.yaml": "75d8326fe745285a85284908987459abe6fee100489f4c3d2fca979ee097cd0a",
     "infrastructure/database/bootstrap/10-create-roles.sh": "766e33a567e87db3fd08af454e6f5eed5ece7eae300abad52ca0b59b4dca7f08",
     "infrastructure/database/migrations/V1__initial_schema.sql": "7013c202de93b97d733288d92fc3244d72e25aedd53c6bf672027cedadf52baa",
@@ -653,15 +653,54 @@
       "durable_snapshot_sha256": "446260730df1e68def76beae2cb805f33459d172efc2003030aac920151b2369",
       "after_restart_equals_snapshot": true
     },
-    "cleanup": {
-      "compose_down": true,
-      "resource_check_passed": true,
-      "residual_containers": [],
-      "residual_networks": [],
-      "residual_volumes": [],
-      "work_removed": true,
-      "image_removed": true,
-      "secrets_preserved": false
+    "peer_network_listener_reachability": {
+      "driver": "tcp-connect-from-disposable-peer-v1",
+      "peer_image": "postgres:18.6@sha256:e3d24f6906d0760bf4da0dae872415391ededefad23fd471c47dc53b0ddf3c42",
+      "target": "candidate-app on candidate-host-access network",
+      "reachable": {
+        "8080": true,
+        "8009": false,
+        "8443": false,
+        "9990": false,
+        "9993": false,
+        "3528": false,
+        "3529": false,
+        "4712": false,
+        "4713": false,
+        "5445": false,
+        "5455": false,
+        "5672": false,
+        "61616": false
+      },
+      "interpretation": {
+        "8080": "HTTP application listener; WildFly HTTP remoting, remote JNDI and JMS HTTP connector share this listener",
+        "8009": "AJP",
+        "8443": "HTTPS",
+        "9990": "WildFly management HTTP",
+        "9993": "WildFly management HTTPS",
+        "3528": "IIOP",
+        "3529": "IIOP TLS",
+        "4712": "transaction recovery",
+        "4713": "transaction status",
+        "5445": "native messaging",
+        "5455": "messaging throughput",
+        "5672": "AMQP",
+        "61616": "Artemis TCP"
+      },
+      "management_and_private_listener_ports_closed": true,
+      "http_and_remoting_port_reachable": true,
+      "passed": true
     }
+  },
+  "cleanup": {
+    "compose_down": true,
+    "resource_check_passed": true,
+    "residual_containers": [],
+    "residual_networks": [],
+    "residual_volumes": [],
+    "peer_probe_removed": true,
+    "work_removed": true,
+    "image_removed": true,
+    "secrets_preserved": false
   }
 }

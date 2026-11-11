@@ -22,6 +22,8 @@ SECRET_DIR = WORK / "secrets"
 PROJECT = "kan18pg-" + secrets.token_hex(5)
 MIGRATION_DIR = WORK / "migrations"
 IMAGE = "ai-modernization-candidate-postgresql:" + PROJECT
+PROBE_IMAGE = "postgres:18.6@sha256:e3d24f6906d0760bf4da0dae872415391ededefad23fd471c47dc53b0ddf3c42"
+PROBE_CONTAINER = PROJECT + "-network-probe"
 COMPOSE_FILE = ROOT / "infrastructure/database/compose.yaml"
 BASE = "http://127.0.0.1:8082/cargo-tracker/"
 TABLES = ("location", "voyage", "cargo", "leg", "handling_event", "carrier_movement", "legacy_sequence_state")
@@ -75,6 +77,37 @@ def query(env, sql, username="db_bootstrap", password_file=None, allow_failure=F
     else:
         args=["docker","compose","-p",PROJECT,"-f",str(COMPOSE_FILE),"exec","-T","postgres","psql","-U",username,"-d","cargotracker","-v","ON_ERROR_STOP=1","-At","-c",sql]
     return run("PostgreSQL query",args,env,timeout=30,check=not allow_failure)
+
+def peer_tcp_probe(env):
+    ids=run("Candidate access network lookup",["docker","network","ls","-q",
+        "--filter","label=com.docker.compose.project="+PROJECT],env,timeout=30).stdout.strip().splitlines()
+    matches=[]
+    for network_id in ids:
+        details=json.loads(run("Candidate network labels",["docker","network","inspect",network_id],env,timeout=30).stdout)
+        if details and (details[0].get("Labels") or {}).get("com.docker.compose.network")=="candidate-host-access":
+            matches.append(network_id)
+    if len(matches)!=1:
+        raise RuntimeError("Expected exactly one candidate-host-access network for peer probe")
+    ports=(8080,8009,8443,9990,9993,3528,3529,4712,4713,5445,5455,5672,61616)
+    script='set -eu; for port in 8080 8009 8443 9990 9993 3528 3529 4712 4713 5445 5455 5672 61616; do if timeout 3 bash -c "exec 3<>/dev/tcp/candidate-app/$port" >/dev/null 2>&1; then printf "%s=open\n" "$port"; else printf "%s=closed\n" "$port"; fi; done'
+    result=run("Candidate peer TCP reachability probe",["docker","run","--rm","--name",PROBE_CONTAINER,
+        "--label","com.docker.compose.project="+PROJECT,"--network",matches[0],"--entrypoint","bash",
+        PROBE_IMAGE,"-lc",script],env,timeout=60)
+    observed={}
+    for line in result.stdout.splitlines():
+        if "=" in line:
+            port,state=line.strip().split("=",1)
+            if port.isdigit() and state in ("open","closed"):
+                observed[port]=state=="open"
+    if set(observed)!={str(port) for port in ports}:
+        raise RuntimeError("Peer TCP probe did not report every expected port")
+    return {"driver":"tcp-connect-from-disposable-peer-v1","peer_image":PROBE_IMAGE,
+        "target":"candidate-app on candidate-host-access network",
+        "reachable":observed,
+        "interpretation":{"8080":"HTTP application listener; WildFly HTTP remoting, remote JNDI and JMS HTTP connector share this listener",
+            "8009":"AJP","8443":"HTTPS","9990":"WildFly management HTTP","9993":"WildFly management HTTPS",
+            "3528":"IIOP","3529":"IIOP TLS","4712":"transaction recovery","4713":"transaction status",
+            "5445":"native messaging","5455":"messaging throughput","5672":"AMQP","61616":"Artemis TCP"}}
 
 def database_state(env):
     parts=[]
@@ -258,7 +291,8 @@ def main():
     existing_networks=run("Compose network ownership check",["docker","network","ls","-q","--filter",project_filter],env,timeout=30).stdout.strip()
     existing_volumes=run("Compose volume ownership check",["docker","volume","ls","-q","--filter",project_filter],env,timeout=30).stdout.strip()
     existing_image=run("Candidate image ownership check",["docker","image","inspect",IMAGE],env,timeout=30,check=False)
-    if existing_containers or existing_networks or existing_volumes or existing_image.returncode==0:
+    existing_probe=run("Peer probe name collision check",["docker","ps","-aq","--filter","name=^/"+PROBE_CONTAINER+"$"],env,timeout=30).stdout.strip()
+    if existing_containers or existing_networks or existing_volumes or existing_image.returncode==0 or existing_probe:
         raise RuntimeError("A resource for the unique task project/image already exists")
     try:
         passwords=create_secrets()
@@ -266,7 +300,7 @@ def main():
     except Exception:
         if WORK.exists(): shutil.rmtree(WORK)
         raise
-    report={"task":"KAN-18/KAN-15 BG-06","status":"FAIL","checks":{},"fixture_inputs":{"flyway_after_each_migrate_callback_sha256":callback_hash},"machine_scope":"Flyway schema migration with server-verified schema_migrator identity; separate from request users","instrumentation_scope":"lab_observer is harness-only instrumentation for server-observed Flyway sessions, not a product schema effect","cleanup":{"compose_down":False,"resource_check_passed":False,"residual_containers":[],"residual_networks":[],"residual_volumes":[],"work_removed":False,"image_removed":False,"secrets_preserved":False}}
+    report={"task":"KAN-18/KAN-15 BG-06","status":"FAIL","checks":{},"fixture_inputs":{"flyway_after_each_migrate_callback_sha256":callback_hash},"machine_scope":"Flyway schema migration with server-verified schema_migrator identity; separate from request users","instrumentation_scope":"lab_observer is harness-only instrumentation for server-observed Flyway sessions, not a product schema effect","cleanup":{"compose_down":False,"resource_check_passed":False,"residual_containers":[],"residual_networks":[],"residual_volumes":[],"peer_probe_removed":False,"work_removed":False,"image_removed":False,"secrets_preserved":False}}
     try:
         run("Candidate image build",compose+["--profile","candidate-app","build","candidate-app"],env,timeout=900)
         run("Fresh PostgreSQL startup",compose+["up","-d","--wait","--wait-timeout","120","postgres"],env,timeout=150)
@@ -356,6 +390,13 @@ def main():
             time.sleep(2)
         report["checks"]["anonymous_api_denied"]={"passed":anonymous_status in (302,401),"status":anonymous_status}
         if not report["checks"]["anonymous_api_denied"]["passed"]: raise RuntimeError("Candidate app did not reach expected anonymous denial")
+        peer_probe=peer_tcp_probe(env)
+        private_listeners_closed=all(not peer_probe["reachable"][str(port)]
+            for port in (8009,8443,9990,9993,3528,3529,4712,4713,5445,5455,5672,61616))
+        peer_probe["management_and_private_listener_ports_closed"]=private_listeners_closed
+        peer_probe["http_and_remoting_port_reachable"]=peer_probe["reachable"]["8080"]
+        peer_probe["passed"]=peer_probe["http_and_remoting_port_reachable"] and private_listeners_closed
+        report["checks"]["peer_network_listener_reachability"]=peer_probe
         after_start=durable_state(env)
         marker_ok=query(env,"SELECT count(*) FROM cargo.location WHERE id="+str(marker_id)+" AND name='"+marker+"'").stdout.strip().splitlines()==["1"]
         report["checks"]["startup_no_orm_ddl_or_seed"]={"passed":after_start==marked and marker_ok,"before":marked,"after":after_start,"marker_preserved":marker_ok}
@@ -400,6 +441,22 @@ def main():
         report["status"] = "FAIL"
         report["failure"] = str(error)
     finally:
+        try:
+            probe_ids=run("Peer probe cleanup lookup",["docker","ps","-aq","--filter","name=^/"+PROBE_CONTAINER+"$"],env,timeout=30).stdout.strip().splitlines()
+            report["cleanup"]["peer_probe_removed"]=not probe_ids
+            for probe_id in probe_ids:
+                details=json.loads(run("Peer probe ownership verification",["docker","container","inspect",probe_id],env,timeout=30).stdout)
+                labels=(details[0].get("Config") or {}).get("Labels") or {}
+                if labels.get("com.docker.compose.project")!=PROJECT:
+                    report["cleanup"]["peer_probe_removed"]=False
+                    report["cleanup"]["peer_probe_remove_error"]="Probe container name resolved to a resource outside this unique project"
+                    continue
+                run("Owned peer probe container cleanup",["docker","rm","-f",probe_id],env,timeout=30,check=False)
+            remaining=run("Peer probe residual check",["docker","ps","-aq","--filter","name=^/"+PROBE_CONTAINER+"$"],env,timeout=30).stdout.strip()
+            report["cleanup"]["peer_probe_removed"]=report["cleanup"]["peer_probe_removed"] or (not remaining and not report["cleanup"].get("peer_probe_remove_error"))
+        except Exception as error:
+            report["cleanup"]["peer_probe_removed"]=False
+            report["cleanup"]["peer_probe_remove_error"]=str(error)
         down_ok=False
         try:
             down=run("Owned Compose cleanup",compose+["--profile","candidate-app","--profile","migrate","down","--volumes","--remove-orphans"],env,timeout=120,check=False)
@@ -437,7 +494,7 @@ def main():
             report["cleanup"]["work_removed"]=False
             report["cleanup"]["secrets_preserved"]=SECRET_DIR.exists()
             report["cleanup"]["retained_work_path"]=str(WORK)
-        cleanup_ok=(report["cleanup"]["compose_down"] and report["cleanup"]["resource_check_passed"]
+        cleanup_ok=(report["cleanup"]["peer_probe_removed"] and report["cleanup"]["compose_down"] and report["cleanup"]["resource_check_passed"]
             and not report["cleanup"]["residual_containers"] and not report["cleanup"]["residual_networks"]
             and not report["cleanup"]["residual_volumes"] and report["cleanup"]["work_removed"]
             and report["cleanup"]["image_removed"])
