@@ -186,6 +186,67 @@ def service_boundary_observation(case, handling_denials, inspection_denials):
         "effects":{"settled":True,"fixture_id":fixture_id,"before_fixture":fixture_id,
             "after_fixture":fixture_id,"before":first["before"],"after":second["after"]}}
 
+def booking_service_observation(case,raw):
+    actor=case.get("actor");allowed=case.get("expected")=="allow"
+    methods={"bookNewCargo","assignCargoToRoute","changeDestination"}
+    if (case.get("surface_id")!="SERVICE-01" or actor not in ACTORS
+            or case.get("expected") not in {"allow","deny"}
+            or not isinstance(raw,dict) or raw.get("driver")!="native-booking-service-v1"
+            or raw.get("actor")!=actor or raw.get("supported") is not True
+            or raw.get("expected")!=case.get("expected") or raw.get("semantic_success") is not True
+            or raw.get("authorized_effect_verified") is not allowed
+            or raw.get("invocation_denied") is allowed
+            or set(raw.get("operations",{}))!=methods):
+        raise UnsupportedCase()
+    expected_top=403 if not allowed else 200
+    if raw.get("status")!=expected_top:raise UnsupportedCase()
+    if actor=="anonymous":
+        if raw.get("identity") is not None:raise UnsupportedCase()
+    else:
+        identity=raw.get("identity",{})
+        if (identity.get("server_verified") is not True
+                or identity.get("principal")!=USERS[actor]
+                or identity.get("roles")!=[actor]):raise UnsupportedCase()
+    expected_statuses={"bookNewCargo":201,"assignCargoToRoute":204,"changeDestination":204}
+    fixture_id=None
+    for method,proof in raw["operations"].items():
+        effect=proof.get("effects",{})
+        if (proof.get("protected_payload_absent") is not True
+                or effect.get("settled") is not True or not effect.get("fixture_id")
+                or effect.get("before_fixture")!=effect.get("fixture_id")
+                or effect.get("after_fixture")!=effect.get("fixture_id")):
+            raise UnsupportedCase()
+        if fixture_id is None:fixture_id=effect["fixture_id"]
+        elif fixture_id!=effect["fixture_id"]:raise UnsupportedCase()
+        before=effect.get("before",{});after=effect.get("after",{})
+        if set(before)!={"database","queue","business_audit"} or set(after)!=set(before):raise UnsupportedCase()
+        if any(not isinstance(before.get(name),dict) or not before[name]
+               or not isinstance(after.get(name),dict) or not after[name]
+               for name in before):raise UnsupportedCase()
+        if allowed:
+            deltas=proof.get("business_invocation_deltas",{})
+            expected_delta={"net.java.cargotracker.application.internal.DefaultBookingService#"+method:1}
+            if (proof.get("status")!=expected_statuses[method]
+                    or proof.get("invocation_denied") is not False
+                    or proof.get("direct_service_denied") is not False
+                    or proof.get("authorized_effect_verified") is not True
+                    or proof.get("independent_effects_unchanged") is not False
+                    or before["database"]==after["database"]
+                    or before["queue"]!=after["queue"] or deltas!=expected_delta):raise UnsupportedCase()
+        else:
+            if (proof.get("status")!=403 or proof.get("invocation_denied") is not True
+                    or proof.get("direct_service_denied") is not True
+                    or proof.get("authorized_effect_verified") is not False
+                    or proof.get("independent_effects_unchanged") is not True
+                    or before!=after):raise UnsupportedCase()
+    return {"driver":"native-booking-service-v1","actor":actor,"supported":True,
+        "status":expected_top,"semantic_success":True,"authorized_effect_verified":allowed,
+        "invocation_denied":not allowed,"direct_service_denied":not allowed,
+        "protected_payload_absent":True,"identity":None if actor=="anonymous" else deepcopy(raw["identity"]),
+        "operations":deepcopy(raw["operations"]),
+        "effects":deepcopy(raw["operations"]["bookNewCargo"]["effects"])}
+
+
 def load_model():
     raw=INVENTORY.read_bytes();inventory=json.loads(raw);model=json.loads(MANIFEST.read_text())
     validate_model(model,inventory,hashlib.sha256(raw).hexdigest())
@@ -248,7 +309,7 @@ def build_current(model,inventory):
         if old["surface_id"] in retired:continue
         row=mapped.get(old["surface_id"]) or pending.get(old["surface_id"])
         case=deepcopy(old)
-        case.update(id="CURRENT::"+old["id"],contract_version=2,kind="current",legacy_case_id=old["id"],legacy_contract=deepcopy(old),capability_id=row["capability_id"] if row else old["surface_id"].lower(),binding_status="pending" if old["surface_id"] in pending else "native-batch-worker" if old["surface_id"] in {"BG-01-MACHINE","BG-02-MACHINE"} else "native-batch-import" if old["surface_id"]=="BG-01" else "native-batch-processing" if old["surface_id"]=="BG-02" else "native-handling-worker" if old["surface_id"] in {"BG-03","BG-03-MACHINE"} else "native-inspection-worker" if old["surface_id"] in {"BG-04","BG-04-MACHINE"} else "native-notification-worker" if old["surface_id"] in {"BG-05","BG-05-MACHINE"} else "native-service-boundary" if old["surface_id"]=="SERVICE-04" else "native-staged-return" if old["surface_id"]=="ACTION-13" else "native-current-load" if old["surface_id"] in NATIVE_CURRENT_LOADS else "browser-current-navigation" if old["surface_id"] in {"ACTION-10","ACTION-11","ACTION-12","ACTION-21","ACTION-22","ACTION-24","ACTION-25","ACTION-45"} else "existing-runtime-driver")
+        case.update(id="CURRENT::"+old["id"],contract_version=2,kind="current",legacy_case_id=old["id"],legacy_contract=deepcopy(old),capability_id=row["capability_id"] if row else old["surface_id"].lower(),binding_status="pending" if old["surface_id"] in pending else "native-batch-worker" if old["surface_id"] in {"BG-01-MACHINE","BG-02-MACHINE"} else "native-batch-import" if old["surface_id"]=="BG-01" else "native-batch-processing" if old["surface_id"]=="BG-02" else "native-handling-worker" if old["surface_id"] in {"BG-03","BG-03-MACHINE"} else "native-inspection-worker" if old["surface_id"] in {"BG-04","BG-04-MACHINE"} else "native-notification-worker" if old["surface_id"] in {"BG-05","BG-05-MACHINE"} else "native-booking-service" if old["surface_id"]=="SERVICE-01" else "native-service-boundary" if old["surface_id"]=="SERVICE-04" else "native-staged-return" if old["surface_id"]=="ACTION-13" else "native-current-load" if old["surface_id"] in NATIVE_CURRENT_LOADS else "browser-current-navigation" if old["surface_id"] in {"ACTION-10","ACTION-11","ACTION-12","ACTION-21","ACTION-22","ACTION-24","ACTION-25","ACTION-45"} else "existing-runtime-driver")
         if row:
             source="index.xhtml" if old["surface_id"]!="ACTION-13" and old["actor"]=="anonymous" and old["expected"]=="deny" and row["modern_method"]=="GET" else row["modern_source"]
             case.update(path=row["modern_target"],method=row["modern_method"],current_source=source)
@@ -331,7 +392,7 @@ class CurrentAdapter:
         if canonical is None or canonical!=case:raise UnsupportedCase()
         if case["kind"] not in {"current","replacement"} or self.legacy is None or self.provenance is None:
             raise UnsupportedCase()
-        if case["kind"]=="current" and case.get("binding_status") not in {"existing-runtime-driver","native-current-load","browser-current-navigation","native-staged-return","native-batch-import","native-batch-processing","native-batch-worker","native-handling-worker","native-inspection-worker","native-notification-worker","native-service-boundary"}:
+        if case["kind"]=="current" and case.get("binding_status") not in {"existing-runtime-driver","native-current-load","browser-current-navigation","native-staged-return","native-batch-import","native-batch-processing","native-batch-worker","native-handling-worker","native-inspection-worker","native-notification-worker","native-service-boundary","native-booking-service"}:
             raise UnsupportedCase()
         if not isinstance(self.provenance,dict) or self.provenance.get("kind")!="fresh-owned-runtime" or self.provenance.get("legacy_fixture_cleanup_verified") is not True or self.provenance.get("inputs_fingerprint")!=self._run_fingerprint or re.fullmatch("[0-9a-f]{64}",str(self._run_fingerprint)) is None:raise UnsupportedCase()
         if case["kind"]=="replacement":
@@ -487,6 +548,9 @@ class CurrentAdapter:
                         or observation.get("direct_service_denied") is not True
                         or observation.get("independent_effects_unchanged") is not True):
                     raise UnsupportedCase()
+        elif case["binding_status"]=="native-booking-service":
+            observation=booking_service_observation(case,
+                getattr(self.legacy,"booking_service_observations",{}).get(case["actor"],{}))
         elif case["binding_status"]=="native-service-boundary":
             observation=service_boundary_observation(case,
                 getattr(self.legacy,"handling_worker_denials",{}),

@@ -1,5 +1,11 @@
 # Current-capability gate — latest run and history
 
+## Fresh SERVICE-01 direct service aggregate — 11 November 2026
+
+The fresh live-subset fixture passed **748 native checks** and **841 browser checks**; both owned containers, the private files and browser network were removed with no cleanup errors. All four SERVICE-01 cases passed. The test-only probe directly invoked the BookingService methods bookNewCargo, assignCargoToRoute and changeDestination: anonymous and Reader calls were denied for every method with unchanged settled database, queue and business-audit snapshots; Operator and Administrator each completed all three operations with one matching invocation, a database change and unchanged JMS queues. The probe servlet and PUBLIC route exist only in the generated disposable image.
+
+The current aggregate reports **456 PASS / 14 BLOCKED across 470 cases**. Historical audit remains **324 PASS / 178 BLOCKED across 502 cases** and all **76 retirement checks remain BLOCKED**; exit 2 reflects incomplete coverage. The 14 blockers are four actors each for SERVICE-02 and SERVICE-03, plus six Operator/Administrator handling-event, handling-voyage and handling-completion replacement cases. See [SERVICE-01 validation evidence](../../notes/evidence/kan-15-service01/validation.json) and [full gate output](../../notes/evidence/kan-15-service01/current-capability-gate.json). The final fresh evidence and diff were approved by independent review; see [SERVICE-01 review](../../notes/agent-reviews/2026-11-11-kan15-service01-review.md). Input fingerprint: 13dddcfd175beba9ca6301e33ab304133904a058c9166223152db649c94ab044. Full KAN-15 remains In Progress.
+
 ## Fresh BG-06 integrated aggregate — 11 November 2026
 
 The fresh live-subset aggregate passed **728/728 runtime checks** and removed its owned container and private files without cleanup errors. The current aggregate reports **452 PASS / 18 BLOCKED across 470 cases**; historical audit remains **324 PASS / 178 BLOCKED across 502 cases**, and all **76 retirement checks remain BLOCKED**. Exit 2 reflects remaining unsupported cases, not a fixture failure.

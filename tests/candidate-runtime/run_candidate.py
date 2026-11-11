@@ -489,6 +489,8 @@ def main(after_checks=None):
         fixture_java=context/"candidate/cargotracker/src/main/java/lab/fixture/BatchApiProbe.java"
         fixture_java.parent.mkdir(parents=True,exist_ok=True)
         shutil.copy2(context/"tests/candidate-runtime/BatchApiProbe.java",fixture_java)
+        booking_java=fixture_java.with_name("BookingApiProbe.java")
+        shutil.copy2(context/"tests/candidate-runtime/BookingApiProbe.java",booking_java)
         web=context/"candidate/cargotracker/src/main/webapp/WEB-INF/web.xml"
         web_text=web.read_text()
         mapping=('<servlet><servlet-name>batchProbe</servlet-name>'
@@ -497,11 +499,20 @@ def main(after_checks=None):
             '<url-pattern>/__fixture/batch-probe</url-pattern></servlet-mapping>')
         if "__fixture/batch-probe" not in web_text:
             web_text=web_text.replace("</web-app>",mapping+"</web-app>")
+        booking_mapping=("<servlet><servlet-name>bookingProbe</servlet-name>"
+            "<servlet-class>lab.fixture.BookingApiProbe</servlet-class></servlet>"
+            "<servlet-mapping><servlet-name>bookingProbe</servlet-name>"
+            "<url-pattern>/__fixture/booking-probe</url-pattern></servlet-mapping>")
+        if "__fixture/booking-probe" not in web_text:
+            web_text=web_text.replace("</web-app>",booking_mapping+"</web-app>")
         web.write_text(web_text)
         routes=context/"candidate/cargotracker/src/main/webapp/WEB-INF/access-routes.tsv"
         route_text=routes.read_text()
         probe_route="/__fixture/batch-probe\tReader,Operator,Administrator"
-        if probe_route not in route_text.splitlines():routes.write_text(route_text+probe_route+"\n")
+        if probe_route not in route_text.splitlines():route_text+=probe_route+"\n"
+        booking_probe_route="/__fixture/booking-probe\tPUBLIC"
+        if booking_probe_route not in route_text.splitlines():route_text+=booking_probe_route+"\n"
+        routes.write_text(route_text)
         with (WORK/"image-build.log").open("w") as log:
             proc=subprocess.run(["docker","build","--progress=plain","-f",str(context/"tests/candidate-runtime/Dockerfile"),"-t",IMAGE,str(context)],stdout=log,stderr=subprocess.STDOUT)
         check("Pinned runtime fixture builds",proc.returncode==0)
@@ -679,6 +690,72 @@ def main(after_checks=None):
         def batch_payload_absent(body):
             return payload_absent(body) and not any(marker in body for marker in
                 ["Import accepted","runId=","batch-worker","IMPORT_AUDIT"])
+        # SERVICE-01 direct business-service calls run only in this disposable image.
+        booking_probe_path="__fixture/booking-probe"
+        def invoke_booking_service(actor,operation,tracking_id=None):
+            opener=anonymous if actor=="anonymous" else sessions[actor.lower() if actor!="Administrator" else "admin"][1]
+            form={"operation":operation}
+            if tracking_id is not None:form["trackingId"]=tracking_id
+            before=settled()
+            status,body,headers=request(opener,booking_probe_path,form)
+            after=settled()
+            return {"status":status,"body":body,"headers":dict(headers),
+                "effects_unchanged":effects_unchanged(before,after),
+                "effects":effects_receipt(before,after),"before":before,"after":after}
+        def booking_method_delta(before,after,method):
+            names=set(before["business_invocations"])|set(after["business_invocations"])
+            deltas={name:after["business_invocations"].get(name,0)-before["business_invocations"].get(name,0)
+                for name in names if after["business_invocations"].get(name,0)!=before["business_invocations"].get(name,0)}
+            matching=[name for name in deltas if name.endswith("#"+method)]
+            return deltas,matching
+        setup_book=invoke_booking_service("Operator","book")
+        setup_id=setup_book["body"].strip()
+        check("SERVICE-01 direct service route fixture cargo created",setup_book["status"]==201 and re.fullmatch("[A-Z0-9]{8}",setup_id) is not None)
+        setup_route=invoke_booking_service("Operator","prepare-route",setup_id)
+        check("SERVICE-01 direct service fixture itinerary prepared",setup_route["status"]==204)
+        booking_service_observations={}
+        for actor in ("anonymous","Reader","Operator","Administrator"):
+            if actor!="anonymous":
+                login_user=actor.lower() if actor!="Administrator" else "admin"
+                sessions[login_user]=login(login_user)
+            allowed=actor in {"Operator","Administrator"}
+            book=invoke_booking_service(actor,"book")
+            tracking_id=book["body"].strip() if allowed else setup_id
+            if allowed:
+                prepared=invoke_booking_service(actor,"prepare-route",tracking_id)
+                check("SERVICE-01 authorized route preparation: "+actor,prepared["status"]==204)
+            assign=invoke_booking_service(actor,"assign",tracking_id)
+            destination=invoke_booking_service(actor,"destination",tracking_id)
+            operations={"bookNewCargo":book,"assignCargoToRoute":assign,"changeDestination":destination}
+            operation_results={};valid=True
+            for method,proof in operations.items():
+                status_expected=(201 if method=="bookNewCargo" else 204) if allowed else 403
+                denied=(proof["headers"].get("X-Fixture-Probe-Result")=="booking-service-role-denied")
+                absent=payload_absent(proof["body"])
+                denial_verified=(proof["status"]==403 and denied and absent and proof["effects_unchanged"])
+                deltas,matching=booking_method_delta(proof["before"],proof["after"],method)
+                expected_delta={"net.java.cargotracker.application.internal.DefaultBookingService#"+method:1}
+                authorized_effect=(proof["status"]==status_expected and not denied
+                    and proof["before"]["tables"]!=proof["after"]["tables"]
+                    and proof["before"]["queues"]==proof["after"]["queues"]
+                    and deltas==expected_delta)
+                method_valid=authorized_effect if allowed else denial_verified
+                valid=valid and method_valid
+                operation_results[method]={"status":proof["status"],"invocation_denied":denial_verified,
+                    "direct_service_denied":denied,"protected_payload_absent":absent,
+                    "independent_effects_unchanged":proof["effects_unchanged"],
+                    "authorized_effect_verified":authorized_effect,"effects":proof["effects"],
+                    "business_invocation_deltas":deltas}
+            expected_status=403 if not allowed else 200
+            identity=None if actor=="anonymous" else report["identities"][actor.lower() if actor!="Administrator" else "admin"]
+            check("SERVICE-01 direct BookingService actor policy and effects: "+actor,valid)
+            booking_service_observations[actor]={"driver":"native-booking-service-v1","actor":actor,
+                "supported":True,"status":expected_status,"expected":"allow" if allowed else "deny",
+                "identity":identity,"operations":operation_results,"semantic_success":valid,
+                "authorized_effect_verified":valid if allowed else False,
+                "invocation_denied":valid if not allowed else False}
+        report["booking_service_observations"]=booking_service_observations
+
         batch_actor_observations={}
         for actor,role in [("reader","Reader"),("operator","Operator")]:
             denied_before=settled()

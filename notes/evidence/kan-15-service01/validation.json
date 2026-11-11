@@ -1,0 +1,327 @@
+{
+  "task": "KAN-15 SERVICE-01 direct BookingService authorization",
+  "run_date": "2026-11-11",
+  "scope": "Fresh current-capability aggregate directly invokes BookingService methods bookNewCargo, assignCargoToRoute, and changeDestination. Probe servlet and PUBLIC route are injected only into the generated disposable fixture image.",
+  "fixture": {
+    "status": "PASS",
+    "native_checks": {
+      "total": 748,
+      "passed": 748,
+      "failed": []
+    },
+    "browser_checks": {
+      "count": 841,
+      "passed": true
+    },
+    "owned_container_removed": true,
+    "private_files_removed": true,
+    "cleanup_errors": [],
+    "browser_cleanup": {
+      "container_removed": true,
+      "network_removed": true,
+      "errors": []
+    }
+  },
+  "service01": {
+    "actor_observations": {
+      "anonymous": {
+        "status": 403,
+        "identity": null,
+        "operations": {
+          "bookNewCargo": {
+            "status": 403,
+            "invocation_denied": true,
+            "direct_service_denied": true,
+            "protected_payload_absent": true,
+            "independent_effects_unchanged": true,
+            "authorized_effect_verified": false,
+            "business_invocation_deltas": {},
+            "effects": {
+              "settled": true,
+              "database_unchanged": true,
+              "queues_unchanged": true,
+              "business_audit_unchanged": true
+            }
+          },
+          "assignCargoToRoute": {
+            "status": 403,
+            "invocation_denied": true,
+            "direct_service_denied": true,
+            "protected_payload_absent": true,
+            "independent_effects_unchanged": true,
+            "authorized_effect_verified": false,
+            "business_invocation_deltas": {},
+            "effects": {
+              "settled": true,
+              "database_unchanged": true,
+              "queues_unchanged": true,
+              "business_audit_unchanged": true
+            }
+          },
+          "changeDestination": {
+            "status": 403,
+            "invocation_denied": true,
+            "direct_service_denied": true,
+            "protected_payload_absent": true,
+            "independent_effects_unchanged": true,
+            "authorized_effect_verified": false,
+            "business_invocation_deltas": {},
+            "effects": {
+              "settled": true,
+              "database_unchanged": true,
+              "queues_unchanged": true,
+              "business_audit_unchanged": true
+            }
+          }
+        }
+      },
+      "Reader": {
+        "status": 403,
+        "identity": {
+          "server_verified": true,
+          "principal": "reader",
+          "roles": [
+            "Reader"
+          ]
+        },
+        "operations": {
+          "bookNewCargo": {
+            "status": 403,
+            "invocation_denied": true,
+            "direct_service_denied": true,
+            "protected_payload_absent": true,
+            "independent_effects_unchanged": true,
+            "authorized_effect_verified": false,
+            "business_invocation_deltas": {},
+            "effects": {
+              "settled": true,
+              "database_unchanged": true,
+              "queues_unchanged": true,
+              "business_audit_unchanged": true
+            }
+          },
+          "assignCargoToRoute": {
+            "status": 403,
+            "invocation_denied": true,
+            "direct_service_denied": true,
+            "protected_payload_absent": true,
+            "independent_effects_unchanged": true,
+            "authorized_effect_verified": false,
+            "business_invocation_deltas": {},
+            "effects": {
+              "settled": true,
+              "database_unchanged": true,
+              "queues_unchanged": true,
+              "business_audit_unchanged": true
+            }
+          },
+          "changeDestination": {
+            "status": 403,
+            "invocation_denied": true,
+            "direct_service_denied": true,
+            "protected_payload_absent": true,
+            "independent_effects_unchanged": true,
+            "authorized_effect_verified": false,
+            "business_invocation_deltas": {},
+            "effects": {
+              "settled": true,
+              "database_unchanged": true,
+              "queues_unchanged": true,
+              "business_audit_unchanged": true
+            }
+          }
+        }
+      },
+      "Operator": {
+        "status": 200,
+        "identity": {
+          "server_verified": true,
+          "principal": "operator",
+          "roles": [
+            "Operator"
+          ]
+        },
+        "operations": {
+          "bookNewCargo": {
+            "status": 201,
+            "invocation_denied": false,
+            "direct_service_denied": false,
+            "protected_payload_absent": true,
+            "independent_effects_unchanged": false,
+            "authorized_effect_verified": true,
+            "business_invocation_deltas": {
+              "net.java.cargotracker.application.internal.DefaultBookingService#bookNewCargo": 1
+            },
+            "effects": {
+              "settled": true,
+              "database_unchanged": false,
+              "queues_unchanged": true,
+              "business_audit_unchanged": false
+            }
+          },
+          "assignCargoToRoute": {
+            "status": 204,
+            "invocation_denied": false,
+            "direct_service_denied": false,
+            "protected_payload_absent": true,
+            "independent_effects_unchanged": false,
+            "authorized_effect_verified": true,
+            "business_invocation_deltas": {
+              "net.java.cargotracker.application.internal.DefaultBookingService#assignCargoToRoute": 1
+            },
+            "effects": {
+              "settled": true,
+              "database_unchanged": false,
+              "queues_unchanged": true,
+              "business_audit_unchanged": false
+            }
+          },
+          "changeDestination": {
+            "status": 204,
+            "invocation_denied": false,
+            "direct_service_denied": false,
+            "protected_payload_absent": true,
+            "independent_effects_unchanged": false,
+            "authorized_effect_verified": true,
+            "business_invocation_deltas": {
+              "net.java.cargotracker.application.internal.DefaultBookingService#changeDestination": 1
+            },
+            "effects": {
+              "settled": true,
+              "database_unchanged": false,
+              "queues_unchanged": true,
+              "business_audit_unchanged": false
+            }
+          }
+        }
+      },
+      "Administrator": {
+        "status": 200,
+        "identity": {
+          "server_verified": true,
+          "principal": "admin",
+          "roles": [
+            "Administrator"
+          ]
+        },
+        "operations": {
+          "bookNewCargo": {
+            "status": 201,
+            "invocation_denied": false,
+            "direct_service_denied": false,
+            "protected_payload_absent": true,
+            "independent_effects_unchanged": false,
+            "authorized_effect_verified": true,
+            "business_invocation_deltas": {
+              "net.java.cargotracker.application.internal.DefaultBookingService#bookNewCargo": 1
+            },
+            "effects": {
+              "settled": true,
+              "database_unchanged": false,
+              "queues_unchanged": true,
+              "business_audit_unchanged": false
+            }
+          },
+          "assignCargoToRoute": {
+            "status": 204,
+            "invocation_denied": false,
+            "direct_service_denied": false,
+            "protected_payload_absent": true,
+            "independent_effects_unchanged": false,
+            "authorized_effect_verified": true,
+            "business_invocation_deltas": {
+              "net.java.cargotracker.application.internal.DefaultBookingService#assignCargoToRoute": 1
+            },
+            "effects": {
+              "settled": true,
+              "database_unchanged": false,
+              "queues_unchanged": true,
+              "business_audit_unchanged": false
+            }
+          },
+          "changeDestination": {
+            "status": 204,
+            "invocation_denied": false,
+            "direct_service_denied": false,
+            "protected_payload_absent": true,
+            "independent_effects_unchanged": false,
+            "authorized_effect_verified": true,
+            "business_invocation_deltas": {
+              "net.java.cargotracker.application.internal.DefaultBookingService#changeDestination": 1
+            },
+            "effects": {
+              "settled": true,
+              "database_unchanged": false,
+              "queues_unchanged": true,
+              "business_audit_unchanged": false
+            }
+          }
+        }
+      }
+    },
+    "gate_cases": [
+      {
+        "case": "CURRENT::SERVICE-01::anonymous::active",
+        "outcome": "PASS",
+        "reason": "Desired denial observed with required evidence"
+      },
+      {
+        "case": "CURRENT::SERVICE-01::Reader::active",
+        "outcome": "PASS",
+        "reason": "Desired denial observed with required evidence"
+      },
+      {
+        "case": "CURRENT::SERVICE-01::Operator::active",
+        "outcome": "PASS",
+        "reason": "Allowed workflow and identity evidence observed"
+      },
+      {
+        "case": "CURRENT::SERVICE-01::Administrator::active",
+        "outcome": "PASS",
+        "reason": "Allowed workflow and identity evidence observed"
+      }
+    ]
+  },
+  "aggregate": {
+    "current_counts": {
+      "PASS": 456,
+      "BLOCKED": 14
+    },
+    "current_case_total": 470,
+    "historical_counts": {
+      "PASS": 324,
+      "BLOCKED": 178
+    },
+    "historical_case_total": 502,
+    "retirement_counts": {
+      "BLOCKED": 76
+    },
+    "gate_exit": 2,
+    "inputs_fingerprint": "13dddcfd175beba9ca6301e33ab304133904a058c9166223152db649c94ab044",
+    "imported_code_attested": false,
+    "fingerprint_scope": "On-disk inputs and constructed canonical contracts; already imported Python code identity is not attested."
+  },
+  "remaining_blockers": [
+    "CURRENT::SERVICE-02::anonymous::active",
+    "CURRENT::SERVICE-02::Reader::active",
+    "CURRENT::SERVICE-02::Operator::active",
+    "CURRENT::SERVICE-02::Administrator::active",
+    "CURRENT::SERVICE-03::anonymous::active",
+    "CURRENT::SERVICE-03::Reader::active",
+    "CURRENT::SERVICE-03::Operator::active",
+    "CURRENT::SERVICE-03::Administrator::active",
+    "REPLACEMENT::handling-event::Operator",
+    "REPLACEMENT::handling-event::Administrator",
+    "REPLACEMENT::handling-voyage::Operator",
+    "REPLACEMENT::handling-voyage::Administrator",
+    "REPLACEMENT::handling-completion::Operator",
+    "REPLACEMENT::handling-completion::Administrator"
+  ],
+  "limitations": [
+    "SERVICE-02 and SERVICE-03 remain unsupported.",
+    "Six handling-event, handling-voyage and handling-completion replacement cases remain BLOCKED.",
+    "The test-only probe exists only in the disposable image and does not add a production application route.",
+    "The aggregate fingerprint does not attest already imported Python fixture code."
+  ],
+  "independent_review": "approved"
+}

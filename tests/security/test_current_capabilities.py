@@ -437,6 +437,55 @@ class CurrentCapabilityTests(unittest.TestCase):
         adapter.legacy.handling_worker_observation={**machine,
             "native_identity":{"server_verified":True,"principal":"operator","roles":["Operator"]}}
         with self.assertRaises(UnsupportedCase):adapter.execute(case)
+    def test_service01_requires_all_three_direct_booking_service_calls(self):
+        adapter=c.CurrentAdapter();adapter._run_fingerprint="a"*64
+        adapter.provenance={"kind":"fresh-owned-runtime","inputs_fingerprint":"a"*64,"legacy_fixture_cleanup_verified":True}
+        adapter.legacy=FakeLegacy({})
+        identities={"Reader":{"server_verified":True,"principal":"reader","roles":["Reader"]},
+                    "Operator":{"server_verified":True,"principal":"operator","roles":["Operator"]},
+                    "Administrator":{"server_verified":True,"principal":"admin","roles":["Administrator"]}}
+        for actor in c.ACTORS:
+            allowed=actor in {"Operator","Administrator"}
+            operations={}
+            for method,status in [("bookNewCargo",201),("assignCargoToRoute",204),("changeDestination",204)]:
+                before={"database":{"CARGO":{"rows":1,"sha256":"a"}},"queue":{"events":{"MessageCount":0}},"business_audit":{"method":0}}
+                after=copy.deepcopy(before)
+                deltas={}
+                if allowed:
+                    after["database"]["CARGO"]={"rows":2,"sha256":"b"}
+                    after["business_audit"]["method"]=1
+                    deltas={"net.java.cargotracker.application.internal.DefaultBookingService#"+method:1}
+                effect={"settled":True,"fixture_id":"owned","before_fixture":"owned","after_fixture":"owned",
+                        "before":before,"after":after}
+                operations[method]={"status":status if allowed else 403,
+                    "invocation_denied":not allowed,"direct_service_denied":not allowed,
+                    "protected_payload_absent":True,"independent_effects_unchanged":not allowed,
+                    "authorized_effect_verified":allowed,"effects":effect,
+                    "business_invocation_deltas":deltas}
+            raw={"driver":"native-booking-service-v1","actor":actor,"supported":True,
+                "status":200 if allowed else 403,
+                "expected":"allow" if allowed else "deny","identity":None if actor=="anonymous" else identities[actor],
+                "operations":operations,"semantic_success":True,
+                "authorized_effect_verified":allowed,"invocation_denied":not allowed}
+            case=adapter.contracts["CURRENT::SERVICE-01::"+actor+"::active"]
+            self.assertEqual(case["binding_status"],"native-booking-service")
+            adapter.legacy.booking_service_observations={actor:raw}
+            self.assertEqual(evaluate(case,adapter.execute(case))[0],"PASS")
+            bad=copy.deepcopy(raw);bad["operations"].pop("changeDestination")
+            adapter.legacy.booking_service_observations={actor:bad}
+            with self.subTest(actor=actor),self.assertRaises(UnsupportedCase):adapter.execute(case)
+            adapter.legacy.booking_service_observations={actor:raw}
+            for method in operations:
+                bad=copy.deepcopy(raw);bad["operations"][method]["protected_payload_absent"]=False
+                adapter.legacy.booking_service_observations={actor:bad}
+                with self.subTest(actor=actor,method=method),self.assertRaises(UnsupportedCase):adapter.execute(case)
+            if allowed:
+                method="bookNewCargo";key="net.java.cargotracker.application.internal.DefaultBookingService#"+method
+                for deltas in ({key:1,"UnexpectedBusinessService#invoke":1},{"WrongClass#"+method:1}):
+                    bad=copy.deepcopy(raw);bad["operations"][method]["business_invocation_deltas"]=deltas
+                    adapter.legacy.booking_service_observations={actor:bad}
+                    with self.subTest(actor=actor,invocation_deltas=deltas),self.assertRaises(UnsupportedCase):adapter.execute(case)
+
     def test_service04_requires_both_direct_worker_only_denials_and_contiguous_effects(self):
         adapter=c.CurrentAdapter()
         adapter._run_fingerprint="a"*64
