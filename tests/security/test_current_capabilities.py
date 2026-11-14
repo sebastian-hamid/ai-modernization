@@ -437,6 +437,54 @@ class CurrentCapabilityTests(unittest.TestCase):
         adapter.legacy.handling_worker_observation={**machine,
             "native_identity":{"server_verified":True,"principal":"operator","roles":["Operator"]}}
         with self.assertRaises(UnsupportedCase):adapter.execute(case)
+    def test_service03_requires_allowed_read_facade_and_denies_missing_cargo_probe(self):
+        adapter=c.CurrentAdapter();adapter._run_fingerprint="a"*64
+        adapter.provenance={"kind":"fresh-owned-runtime","inputs_fingerprint":"a"*64,"legacy_fixture_cleanup_verified":True}
+        adapter.legacy=FakeLegacy({})
+        identities={"Reader":{"server_verified":True,"principal":"reader","roles":["Reader"]},
+                    "Operator":{"server_verified":True,"principal":"operator","roles":["Operator"]},
+                    "Administrator":{"server_verified":True,"principal":"admin","roles":["Administrator"]}}
+        for actor in c.ACTORS:
+            allowed=actor in {"Reader","Operator","Administrator"}
+            state={"database":{"CARGO":{"rows":1,"sha256":"a"}},"queue":{"events":{"MessageCount":0}},"business_audit":{"read":0}}
+            receipt={"settled":True,"fixture_id":"owned","before_fixture":"owned","after_fixture":"owned",
+                "before":copy.deepcopy(state),"after":copy.deepcopy(state)}
+            operations={
+                "read-facade":{"status":200 if allowed else 403,"protected_payload_absent":not allowed,
+                    "effects_unchanged":True,"headers":{"X-Fixture-Probe-Result":None if allowed else "booking-facade-role-denied"},
+                    "effects":copy.deepcopy(receipt)},
+                "read-missing":{"status":404 if allowed else 403,"protected_payload_absent":True,
+                    "effects_unchanged":True,"headers":{"X-Fixture-Probe-Result":None if allowed else "booking-facade-role-denied"},
+                    "effects":copy.deepcopy(receipt)}}
+            raw={"driver":"native-booking-facade-v1","actor":actor,"supported":True,
+                "status":200 if allowed else 403,"missing_status":404 if allowed else 403,
+                "expected":"allow" if allowed else "deny","identity":None if actor=="anonymous" else identities[actor],
+                "invocation_denied":not allowed,"direct_service_denied":not allowed,
+                "protected_payload_absent":True,"authorized_effect_verified":allowed,"semantic_success":True,
+                "list_counts":{"voyages":5,"locations":12,"cargos":7,"handling_events":3} if allowed else
+                    {"voyages":None,"locations":None,"cargos":None,"handling_events":None},
+                "selected_tracking_id":"ABC123" if allowed else None,"read_effects_unchanged":True,
+                "operations":operations}
+            case=adapter.contracts["CURRENT::SERVICE-03::"+actor+"::active"]
+            self.assertEqual(case["binding_status"],"native-booking-facade")
+            adapter.legacy.booking_facade_observations={actor:raw}
+            observed=adapter.execute(case)
+            self.assertEqual(evaluate(case,observed)[0],"PASS")
+            self.assertIs(observed["protected_payload_absent"],not allowed)
+            mutations=[]
+            if allowed:
+                bad=copy.deepcopy(raw);bad["operations"]["read-missing"]["status"]=200;mutations.append(bad)
+                bad=copy.deepcopy(raw);bad["list_counts"]["cargos"]=0;mutations.append(bad)
+                bad=copy.deepcopy(raw);bad["list_counts"]["handling_events"]=0;mutations.append(bad)
+                bad=copy.deepcopy(raw);bad["identity"]["roles"]=["RoutingService"];mutations.append(bad)
+                bad=copy.deepcopy(raw);bad["operations"]["read-facade"]["effects_unchanged"]=False;mutations.append(bad)
+            else:
+                bad=copy.deepcopy(raw);bad["operations"]["read-missing"]["status"]=404;mutations.append(bad)
+                bad=copy.deepcopy(raw);bad["selected_tracking_id"]="ABCDEFGH";mutations.append(bad)
+            for bad in mutations:
+                adapter.legacy.booking_facade_observations={actor:bad}
+                with self.subTest(actor=actor,mutation=bad),self.assertRaises(UnsupportedCase):adapter.execute(case)
+
     def test_service02_requires_direct_read_and_scoped_routing_identity(self):
         adapter=c.CurrentAdapter();adapter._run_fingerprint="a"*64
         adapter.provenance={"kind":"fresh-owned-runtime","inputs_fingerprint":"a"*64,"legacy_fixture_cleanup_verified":True}

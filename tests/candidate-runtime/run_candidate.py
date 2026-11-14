@@ -810,6 +810,67 @@ def main(after_checks=None):
                 "effects":proof["effects"]}
         report["booking_service_route_observations"]=booking_route_observations
 
+        # SERVICE-03: direct read-only facade and handling-history reads for human actors.
+        booking_facade_observations={}
+        missing_tracking_id=setup_id+"-missing"
+        for actor in ("anonymous","Reader","Operator","Administrator"):
+            if actor!="anonymous":
+                login_user=actor.lower() if actor!="Administrator" else "admin"
+                sessions[login_user]=login(login_user)
+            allowed=actor in {"Reader","Operator","Administrator"}
+            opener=anonymous if actor=="anonymous" else sessions[actor.lower() if actor!="Administrator" else "admin"][1]
+            read_operations={}
+            service03_tracking_id="ABC123"
+            for operation in ("read-facade","read-missing"):
+                form={"operation":operation,"trackingId":service03_tracking_id if operation=="read-facade" else missing_tracking_id}
+                before=settled()
+                status,body,headers=request(opener,booking_probe_path,form)
+                after=settled()
+                read_operations[operation]={"status":status,"body":body,"headers":dict(headers),
+                    "protected_payload_absent":payload_absent(body),
+                    "effects_unchanged":effects_unchanged(before,after),
+                    "effects":effects_receipt(before,after),"before":before,"after":after}
+            good_read=read_operations["read-facade"];missing_read=read_operations["read-missing"]
+            read_values=good_read["body"].splitlines()
+            counts_ok=False;tracking_ok=False;history_count=-1
+            try:
+                voyages_count,locations_count,cargos_count=map(int,read_values[:3])
+                history_count=int(read_values[6])
+                counts_ok=voyages_count>0 and locations_count>0 and cargos_count>0 and history_count>=1
+                tracking_ok=(len(read_values)==7 and read_values[3]=="ABC123"
+                    and read_values[4]=="CNHKG" and read_values[5]=="FIHEL")
+            except (ValueError,IndexError):
+                counts_ok=False
+            denied_marker=(good_read["headers"].get("X-Fixture-Probe-Result")=="booking-facade-role-denied"
+                and missing_read["headers"].get("X-Fixture-Probe-Result")=="booking-facade-role-denied")
+            valid=(good_read["status"]==200 and missing_read["status"]==404
+                and good_read["effects_unchanged"] and missing_read["effects_unchanged"]
+                and (counts_ok and tracking_ok if allowed else
+                    good_read["status"]==403 and missing_read["status"]==403 and denied_marker
+                    and good_read["protected_payload_absent"] and missing_read["protected_payload_absent"]))
+            if allowed:
+                valid=(good_read["status"]==200 and missing_read["status"]==404 and counts_ok and tracking_ok
+                    and missing_read["protected_payload_absent"]
+                    and good_read["effects_unchanged"] and missing_read["effects_unchanged"])
+            else:
+                valid=(good_read["status"]==403 and missing_read["status"]==403 and denied_marker
+                    and good_read["protected_payload_absent"] and missing_read["protected_payload_absent"]
+                    and good_read["effects_unchanged"] and missing_read["effects_unchanged"])
+            check("SERVICE-03 read-only facade policy and no-write behavior: "+actor,valid)
+            identity=None if actor=="anonymous" else report["identities"][actor.lower() if actor!="Administrator" else "admin"]
+            booking_facade_observations[actor]={"driver":"native-booking-facade-v1","actor":actor,
+                "supported":True,"status":good_read["status"],"missing_status":missing_read["status"],
+                "expected":"allow" if allowed else "deny","identity":identity,
+                "invocation_denied":not allowed and denied_marker,
+                "direct_service_denied":not allowed and denied_marker,
+                "protected_payload_absent":good_read["protected_payload_absent"] and missing_read["protected_payload_absent"],
+                "authorized_effect_verified":valid if allowed else False,"semantic_success":valid,
+                "list_counts":{"voyages":voyages_count if counts_ok else None,"locations":locations_count if counts_ok else None,
+                    "cargos":cargos_count if counts_ok else None,"handling_events":history_count if history_count>=0 else None},
+                "selected_tracking_id":"ABC123" if tracking_ok else None,"read_effects_unchanged":valid,
+                "operations":read_operations}
+        report["booking_facade_observations"]=booking_facade_observations
+
         batch_actor_observations={}
         for actor,role in [("reader","Reader"),("operator","Operator")]:
             denied_before=settled()

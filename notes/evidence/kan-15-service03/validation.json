@@ -1,0 +1,143 @@
+{
+  "task": "KAN-15 SERVICE-03 direct read-only booking facade authorization",
+  "run_date": "2026-11-14",
+  "scope": "Fresh live-subset current-capability run directly exercises BookingServiceFacade.listVoyageNumbers, listShippingLocations, listAllCargos, loadCargoForRouting, and HandlingEventRepository.lookupHandlingHistoryOfCargo through a fixture-only probe. A seeded cargo (ABC123) with existing handling history is used. Missing-cargo lookups check existence hiding.",
+  "fixture": {
+    "status": "PASS",
+    "native_checks": {
+      "total": 780,
+      "passed": 780,
+      "failed": []
+    },
+    "browser_checks": {
+      "count": 841,
+      "passed": true
+    },
+    "owned_container_removed": true,
+    "private_files_removed": true,
+    "cleanup_errors": [],
+    "browser_cleanup": {
+      "container_removed": true,
+      "network_removed": true,
+      "errors": []
+    }
+  },
+  "service03": {
+    "actor_observations": {
+      "anonymous": {
+        "status": 403,
+        "missing_cargo_status": 403,
+        "identity": null,
+        "list_counts": {
+          "voyages": null,
+          "locations": null,
+          "cargos": null,
+          "handling_events": null
+        },
+        "selected_tracking_id": null,
+        "read_effects_unchanged": true,
+        "protected_payload_absent": true
+      },
+      "Reader": {
+        "status": 200,
+        "missing_cargo_status": 404,
+        "identity": {
+          "server_verified": true,
+          "principal": "reader",
+          "roles": [
+            "Reader"
+          ]
+        },
+        "list_counts": {
+          "voyages": 5,
+          "locations": 13,
+          "cargos": 8,
+          "handling_events": 3
+        },
+        "selected_tracking_id": "ABC123",
+        "read_effects_unchanged": true,
+        "protected_payload_absent": false
+      },
+      "Operator": {
+        "status": 200,
+        "missing_cargo_status": 404,
+        "identity": {
+          "server_verified": true,
+          "principal": "operator",
+          "roles": [
+            "Operator"
+          ]
+        },
+        "list_counts": {
+          "voyages": 5,
+          "locations": 13,
+          "cargos": 8,
+          "handling_events": 3
+        },
+        "selected_tracking_id": "ABC123",
+        "read_effects_unchanged": true,
+        "protected_payload_absent": false
+      },
+      "Administrator": {
+        "status": 200,
+        "missing_cargo_status": 404,
+        "identity": {
+          "server_verified": true,
+          "principal": "admin",
+          "roles": [
+            "Administrator"
+          ]
+        },
+        "list_counts": {
+          "voyages": 5,
+          "locations": 13,
+          "cargos": 8,
+          "handling_events": 3
+        },
+        "selected_tracking_id": "ABC123",
+        "read_effects_unchanged": true,
+        "protected_payload_absent": false
+      }
+    },
+    "requirements": "Anonymous is denied both facade and missing-cargo lookup with 403 and no payload. Reader, Operator, Administrator receive read results and handling history; missing cargo is 404. Database, queues and business-audit effects remain unchanged.",
+    "handling_history_sample": "ABC123 returned 3 handling events.",
+    "authorized_read_payload": "Present only for Reader, Operator and Administrator; denied and missing-cargo responses contain no protected payload."
+  },
+  "aggregate": {
+    "current_counts": {
+      "PASS": 464,
+      "BLOCKED": 6
+    },
+    "legacy_audit_counts": {
+      "PASS": 324,
+      "BLOCKED": 178
+    },
+    "retirement_counts": {
+      "BLOCKED": 76
+    },
+    "gate_exit": 2,
+    "remaining_current_blocks": [
+      "REPLACEMENT::handling-event::Operator",
+      "REPLACEMENT::handling-event::Administrator",
+      "REPLACEMENT::handling-voyage::Operator",
+      "REPLACEMENT::handling-voyage::Administrator",
+      "REPLACEMENT::handling-completion::Operator",
+      "REPLACEMENT::handling-completion::Administrator"
+    ],
+    "inputs_fingerprint": "0382000dc8cdd852118f83cae1a299d305e22d699474cdf898abe4245a9da5f5",
+    "adapter_replay": "The normalized observation summary was corrected after independent review. The unchanged retained raw observations from the fresh fixture were re-evaluated through the corrected adapter; gate counts remain 464 PASS / 6 BLOCKED. No second runtime fixture was needed for this summary-only correction."
+  },
+  "limitations": [
+    "Probe is injected only into the disposable candidate copy; no production endpoint was added.",
+    "Fresh fixture confirms these direct service roles and reads, not the complete legacy framework behavior.",
+    "Historical audit remains a separate 324 PASS / 178 BLOCKED result; all 76 retirement cases remain BLOCKED.",
+    "The fingerprint scope is documented by the gate artifact; imported Python code is not attested."
+  ],
+  "independent_review": {
+    "status": "APPROVED",
+    "reviewer": "/root/review_service04_adapter",
+    "date": "2026-11-14",
+    "finding": "Normalized payload-absence summary for authorized reads corrected; four retained observations replayed and all pass.",
+    "review_record": "notes/agent-reviews/2026-11-14-kan15-service03-review.md"
+  }
+}

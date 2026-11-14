@@ -310,6 +310,66 @@ def booking_routes_observation(case,raw):
         "routing_identity_verified":True,"native_routing_identity":deepcopy(identity_after),
         "independent_effects_unchanged":not allowed,"effects":deepcopy(effects)}
 
+def booking_facade_observation(case,raw):
+    actor=case.get("actor");allowed=case.get("expected")=="allow"
+    if (case.get("surface_id")!="SERVICE-03" or actor not in ACTORS
+            or case.get("expected") not in {"allow","deny"}
+            or not isinstance(raw,dict) or raw.get("driver")!="native-booking-facade-v1"
+            or raw.get("actor")!=actor or raw.get("supported") is not True
+            or raw.get("expected")!=case.get("expected") or raw.get("semantic_success") is not True
+            or raw.get("authorized_effect_verified") is not allowed
+            or raw.get("invocation_denied") is allowed
+            or set(raw.get("operations",{}))!={"read-facade","read-missing"}):
+        raise UnsupportedCase()
+    if actor=="anonymous":
+        if raw.get("identity") is not None:raise UnsupportedCase()
+    else:
+        identity=raw.get("identity",{})
+        if (identity.get("server_verified") is not True
+                or identity.get("principal")!=USERS[actor]
+                or identity.get("roles")!=[actor]):raise UnsupportedCase()
+    for name,proof in raw["operations"].items():
+        effect=proof.get("effects",{})
+        if (not isinstance(effect,dict) or effect.get("settled") is not True
+                or not effect.get("fixture_id")
+                or effect.get("before_fixture")!=effect.get("fixture_id")
+                or effect.get("after_fixture")!=effect.get("fixture_id")
+                or proof.get("protected_payload_absent") is not (not allowed or name=="read-missing")
+                or proof.get("effects_unchanged") is not True):
+            raise UnsupportedCase()
+        before=effect.get("before",{});after=effect.get("after",{})
+        if set(before)!={"database","queue","business_audit"} or set(after)!=set(before):
+            raise UnsupportedCase()
+        if before!=after:raise UnsupportedCase()
+    first=raw["operations"]["read-facade"];missing=raw["operations"]["read-missing"]
+    if allowed:
+        counts=raw.get("list_counts",{})
+        if (raw.get("status")!=200 or first.get("status")!=200
+                or missing.get("status")!=404
+                or raw.get("direct_service_denied") is not False
+                or raw.get("read_effects_unchanged") is not True
+                or raw.get("selected_tracking_id")!="ABC123"
+                or any(type(counts.get(k)) is not int or counts[k]<1 for k in ("voyages","locations","cargos"))
+                or type(counts.get("handling_events")) is not int or counts["handling_events"]<1):
+            raise UnsupportedCase()
+        status=200
+    else:
+        if (raw.get("status")!=403 or first.get("status")!=403 or missing.get("status")!=403
+                or raw.get("direct_service_denied") is not True
+                or raw.get("read_effects_unchanged") is not True
+                or raw.get("selected_tracking_id") is not None
+                or raw.get("list_counts")!={"voyages":None,"locations":None,"cargos":None,"handling_events":None}):
+            raise UnsupportedCase()
+        status=403
+    return {"driver":"native-booking-facade-v1","actor":actor,"supported":True,
+        "status":status,"semantic_success":True,"authorized_effect_verified":allowed,
+        "invocation_denied":not allowed,"direct_service_denied":not allowed,
+        "protected_payload_absent":not allowed,"identity":None if actor=="anonymous" else deepcopy(raw["identity"]),
+        "missing_status":missing["status"],"selected_tracking_id":raw.get("selected_tracking_id"),
+        "list_counts":deepcopy(raw.get("list_counts")),"read_effects_unchanged":True,
+        "operations":deepcopy(raw["operations"])}
+
+
 def load_model():
     raw=INVENTORY.read_bytes();inventory=json.loads(raw);model=json.loads(MANIFEST.read_text())
     validate_model(model,inventory,hashlib.sha256(raw).hexdigest())
@@ -372,7 +432,7 @@ def build_current(model,inventory):
         if old["surface_id"] in retired:continue
         row=mapped.get(old["surface_id"]) or pending.get(old["surface_id"])
         case=deepcopy(old)
-        case.update(id="CURRENT::"+old["id"],contract_version=2,kind="current",legacy_case_id=old["id"],legacy_contract=deepcopy(old),capability_id=row["capability_id"] if row else old["surface_id"].lower(),binding_status="pending" if old["surface_id"] in pending else "native-batch-worker" if old["surface_id"] in {"BG-01-MACHINE","BG-02-MACHINE"} else "native-batch-import" if old["surface_id"]=="BG-01" else "native-batch-processing" if old["surface_id"]=="BG-02" else "native-handling-worker" if old["surface_id"] in {"BG-03","BG-03-MACHINE"} else "native-inspection-worker" if old["surface_id"] in {"BG-04","BG-04-MACHINE"} else "native-notification-worker" if old["surface_id"] in {"BG-05","BG-05-MACHINE"} else "native-booking-service" if old["surface_id"]=="SERVICE-01" else "native-booking-routes" if old["surface_id"]=="SERVICE-02" else "native-service-boundary" if old["surface_id"]=="SERVICE-04" else "native-staged-return" if old["surface_id"]=="ACTION-13" else "native-current-load" if old["surface_id"] in NATIVE_CURRENT_LOADS else "browser-current-navigation" if old["surface_id"] in {"ACTION-10","ACTION-11","ACTION-12","ACTION-21","ACTION-22","ACTION-24","ACTION-25","ACTION-45"} else "existing-runtime-driver")
+        case.update(id="CURRENT::"+old["id"],contract_version=2,kind="current",legacy_case_id=old["id"],legacy_contract=deepcopy(old),capability_id=row["capability_id"] if row else old["surface_id"].lower(),binding_status="pending" if old["surface_id"] in pending else "native-batch-worker" if old["surface_id"] in {"BG-01-MACHINE","BG-02-MACHINE"} else "native-batch-import" if old["surface_id"]=="BG-01" else "native-batch-processing" if old["surface_id"]=="BG-02" else "native-handling-worker" if old["surface_id"] in {"BG-03","BG-03-MACHINE"} else "native-inspection-worker" if old["surface_id"] in {"BG-04","BG-04-MACHINE"} else "native-notification-worker" if old["surface_id"] in {"BG-05","BG-05-MACHINE"} else "native-booking-service" if old["surface_id"]=="SERVICE-01" else "native-booking-routes" if old["surface_id"]=="SERVICE-02" else "native-booking-facade" if old["surface_id"]=="SERVICE-03" else "native-service-boundary" if old["surface_id"]=="SERVICE-04" else "native-staged-return" if old["surface_id"]=="ACTION-13" else "native-current-load" if old["surface_id"] in NATIVE_CURRENT_LOADS else "browser-current-navigation" if old["surface_id"] in {"ACTION-10","ACTION-11","ACTION-12","ACTION-21","ACTION-22","ACTION-24","ACTION-25","ACTION-45"} else "existing-runtime-driver")
         if row:
             source="index.xhtml" if old["surface_id"]!="ACTION-13" and old["actor"]=="anonymous" and old["expected"]=="deny" and row["modern_method"]=="GET" else row["modern_source"]
             case.update(path=row["modern_target"],method=row["modern_method"],current_source=source)
@@ -455,7 +515,7 @@ class CurrentAdapter:
         if canonical is None or canonical!=case:raise UnsupportedCase()
         if case["kind"] not in {"current","replacement"} or self.legacy is None or self.provenance is None:
             raise UnsupportedCase()
-        if case["kind"]=="current" and case.get("binding_status") not in {"existing-runtime-driver","native-current-load","browser-current-navigation","native-staged-return","native-batch-import","native-batch-processing","native-batch-worker","native-handling-worker","native-inspection-worker","native-notification-worker","native-service-boundary","native-booking-service","native-booking-routes"}:
+        if case["kind"]=="current" and case.get("binding_status") not in {"existing-runtime-driver","native-current-load","browser-current-navigation","native-staged-return","native-batch-import","native-batch-processing","native-batch-worker","native-handling-worker","native-inspection-worker","native-notification-worker","native-service-boundary","native-booking-service","native-booking-routes","native-booking-facade"}:
             raise UnsupportedCase()
         if not isinstance(self.provenance,dict) or self.provenance.get("kind")!="fresh-owned-runtime" or self.provenance.get("legacy_fixture_cleanup_verified") is not True or self.provenance.get("inputs_fingerprint")!=self._run_fingerprint or re.fullmatch("[0-9a-f]{64}",str(self._run_fingerprint)) is None:raise UnsupportedCase()
         if case["kind"]=="replacement":
@@ -617,6 +677,9 @@ class CurrentAdapter:
         elif case["binding_status"]=="native-booking-routes":
             observation=booking_routes_observation(case,
                 getattr(self.legacy,"booking_service_route_observations",{}).get(case["actor"],{}))
+        elif case["binding_status"]=="native-booking-facade":
+            observation=booking_facade_observation(case,
+                getattr(self.legacy,"booking_facade_observations",{}).get(case["actor"],{}))
         elif case["binding_status"]=="native-service-boundary":
             observation=service_boundary_observation(case,
                 getattr(self.legacy,"handling_worker_denials",{}),

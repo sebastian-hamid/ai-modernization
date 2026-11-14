@@ -14,10 +14,14 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import net.java.cargotracker.application.BookingService;
+import net.java.cargotracker.domain.model.handling.HandlingEventRepository;
+import net.java.cargotracker.domain.model.cargo.TrackingId;
+import net.java.cargotracker.interfaces.booking.facade.BookingServiceFacade;
+import net.java.cargotracker.interfaces.booking.facade.CargoNotFoundException;
+import net.java.cargotracker.interfaces.booking.facade.dto.CargoRoute;
 import net.java.cargotracker.domain.model.cargo.Cargo;
 import net.java.cargotracker.domain.model.cargo.CargoRepository;
 import net.java.cargotracker.domain.model.cargo.Itinerary;
-import net.java.cargotracker.domain.model.cargo.TrackingId;
 import net.java.cargotracker.domain.model.location.UnLocode;
 import net.java.cargotracker.domain.service.RoutingService;
 
@@ -26,6 +30,8 @@ public final class BookingApiProbe extends HttpServlet {
     @EJB private BookingService bookingService;
     @Inject private CargoRepository cargoRepository;
     @EJB private RoutingService routingService;
+    @Inject private BookingServiceFacade bookingFacade;
+    @Inject private HandlingEventRepository handlingEventRepository;
     private static final Map<String,Itinerary> PREPARED = new ConcurrentHashMap<>();
 
     @Override protected void doPost(HttpServletRequest request,HttpServletResponse response)throws IOException {
@@ -37,6 +43,22 @@ public final class BookingApiProbe extends HttpServlet {
                 TrackingId created=bookingService.bookNewCargo(new UnLocode("FIHEL"),new UnLocode("CNSHA"),deadline);
                 response.setStatus(201);response.setContentType("text/plain;charset=UTF-8");
                 response.getWriter().write(created.getIdString());return;
+            }
+            if("read-facade".equals(operation)) {
+                List<String> voyages=bookingFacade.listVoyageNumbers();
+                List<net.java.cargotracker.interfaces.booking.facade.dto.Location> locations=bookingFacade.listShippingLocations();
+                List<CargoRoute> cargos=bookingFacade.listAllCargos();
+                CargoRoute selected=bookingFacade.loadCargoForRouting(tracking);
+                if(selected==null){response.sendError(404);return;}
+                int historySize=handlingEventRepository.lookupHandlingHistoryOfCargo(new TrackingId(tracking)).getAllHandlingEvents().size();
+                response.setStatus(200);response.setContentType("text/plain;charset=UTF-8");
+                response.getWriter().write(voyages.size()+"\n"+locations.size()+"\n"+cargos.size()+"\n"
+                    +selected.getTrackingId()+"\n"+selected.getOriginCode()+"\n"+selected.getFinalDestinationCode()+"\n"+historySize);return;
+            }
+            if("read-missing".equals(operation)) {
+                try { bookingFacade.loadCargoForRouting(tracking); }
+                catch(CargoNotFoundException missing){response.setStatus(404);response.setContentType("text/plain;charset=UTF-8");response.getWriter().write("not-found");return;}
+                response.sendError(409);return;
             }
             if("routes".equals(operation)) {
                 List<Itinerary> routes=bookingService.requestPossibleRoutesForCargo(new TrackingId(tracking));
@@ -66,12 +88,24 @@ public final class BookingApiProbe extends HttpServlet {
                 response.setHeader("X-Fixture-Probe-Result","booking-service-role-denied");
                 response.setStatus(403);return;
             }
+            if(hasSecurityDenial(failure)) {
+                response.setHeader("X-Fixture-Probe-Result","booking-facade-role-denied");
+                response.setStatus(403);return;
+            }
             response.setHeader("X-Fixture-Probe-Failure",failure.getClass().getSimpleName());
             response.sendError(500);
         } catch(Exception failure) {
             response.setHeader("X-Fixture-Probe-Failure",failure.getClass().getSimpleName());
             response.sendError(500);
         }
+    }
+
+    private static boolean hasSecurityDenial(Throwable failure) {
+        for(Throwable current=failure;current!=null;current=current.getCause()) {
+            if(current instanceof SecurityException)return true;
+            if(current.getCause()==current)return false;
+        }
+        return false;
     }
 
     private static boolean hasAccessDenial(Throwable failure) {

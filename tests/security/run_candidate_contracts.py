@@ -26,6 +26,7 @@ class LiveSubsetCandidate:
         self.inspection_worker_denials=report.get("inspection_worker_denials",{})
         self.booking_service_observations=report.get("booking_service_observations",{})
         self.booking_service_route_observations=report.get("booking_service_route_observations",{})
+        self.booking_facade_observations=report.get("booking_facade_observations",{})
         self.inspection_worker_observation=report.get("inspection_worker_observation",{})
         self.cargo_handled_producer_raw_observation=report.get("cargo_handled_producer_raw_observation",{})
         self.cargo_handled_producer_effects_unchanged=report.get("cargo_handled_producer_effects_unchanged",False)
