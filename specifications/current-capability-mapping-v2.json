@@ -357,7 +357,7 @@
     {
       "legacy_id": "ACTION-08",
       "replacement_id": "cancel-editor",
-      "status": "candidate",
+      "status": "retired",
       "required_evidence": [
         "replacement-per-actor",
         "specific-negative-entry",
@@ -366,7 +366,7 @@
         "required-independent-effects",
         "independent-review"
       ],
-      "negative_driver": "pending"
+      "negative_driver": "browser-retired-action-v1"
     },
     {
       "legacy_id": "ACTION-23",

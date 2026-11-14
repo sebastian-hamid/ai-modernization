@@ -1,0 +1,177 @@
+{
+  "task": "KAN-15 ACTION-08 specific retired-entry evidence",
+  "run_date": "2026-11-14",
+  "candidate": {
+    "legacy_id": "ACTION-08",
+    "replacement_id": "cancel-editor",
+    "classification": "RETIRED; outcome is not PASS"
+  },
+  "basis": {
+    "fixture_status": "PASS",
+    "native_checks": 780,
+    "browser_checks": 841,
+    "cleanup": {
+      "native_container_removed": true,
+      "private_files_removed": true,
+      "browser": {
+        "container_removed": true,
+        "network_removed": true,
+        "errors": []
+      }
+    },
+    "raw_results_sha256": "d089a8b4f1ffbb63bea9870e05e8ba4e20f68b34cdc430a43ea6abe8c9bc7280",
+    "current_gate_replay": "notes/evidence/kan-15-handling-replacement-replay/current-capability-replay.json",
+    "effective_current_counts": {
+      "PASS": 470,
+      "BLOCKED": 0
+    }
+  },
+  "required_evidence": {
+    "replacement_per_actor": "cancel-editor replacement passes for each actor in the effective current gate",
+    "specific_negative_entry": "legacy ACTION-08 JSF POST component submitted to current destination page; obsolete callback implementation absent",
+    "native_role_session": "Operator/Admin authorized current form has server-verified identity and fresh CSRF/ViewState; Reader denied 403; anonymous redirected 303",
+    "no_protected_payload": "denied Reader/anonymous responses do not reveal protected data",
+    "required_independent_effects": "before/after database, queue and business-audit snapshots unchanged for all four actor attempts",
+    "independent_review": "APPROVED by /root/review_service04_adapter; RETIRED only"
+  },
+  "actor_observations": [
+    {
+      "actor": "anonymous",
+      "response_status": 303,
+      "identity": null,
+      "source_path": "/cargo-tracker/admin/changeDestination.xhtml?trackingId=D61AF588",
+      "historical_source_component_id": "j_idt8:j_idt23",
+      "callback_implementation_absent": true,
+      "post_target_verified": true,
+      "callback_response_absent": null,
+      "current_form_verified": null,
+      "csrf_present": null,
+      "viewstate_present": null,
+      "authorization_denied": true,
+      "protected_payload_absent": true,
+      "independent_effects_unchanged": true,
+      "replacement_case_id": "REPLACEMENT::cancel-editor::anonymous",
+      "replacement_outcome": "PASS",
+      "proof_sha256": "fa403104559e7db7e9235d03e08dcf9763e245c348f97fc4bef0b36cdc6c485c",
+      "source_status": 303,
+      "redirect_is_configured_login": true
+    },
+    {
+      "actor": "Reader",
+      "response_status": 403,
+      "identity": {
+        "server_verified": true,
+        "principal": "reader",
+        "roles": [
+          "Reader"
+        ]
+      },
+      "source_path": "/cargo-tracker/admin/changeDestination.xhtml?trackingId=D61AF588",
+      "historical_source_component_id": "j_idt8:j_idt23",
+      "callback_implementation_absent": true,
+      "post_target_verified": true,
+      "callback_response_absent": null,
+      "current_form_verified": null,
+      "csrf_present": null,
+      "viewstate_present": null,
+      "authorization_denied": true,
+      "protected_payload_absent": true,
+      "independent_effects_unchanged": true,
+      "replacement_case_id": "REPLACEMENT::cancel-editor::Reader",
+      "replacement_outcome": "PASS",
+      "proof_sha256": "7fbf2fd784971a123977825a64b822e4714f04b08fa27cb5af8fbc864ab760df",
+      "source_status": 403,
+      "redirect_is_configured_login": false
+    },
+    {
+      "actor": "Operator",
+      "response_status": 200,
+      "identity": {
+        "server_verified": true,
+        "principal": "operator",
+        "roles": [
+          "Operator"
+        ]
+      },
+      "source_path": "/cargo-tracker/admin/changeDestination.xhtml?trackingId=D61AF588",
+      "historical_source_component_id": "j_idt8:j_idt23",
+      "callback_implementation_absent": true,
+      "post_target_verified": true,
+      "callback_response_absent": true,
+      "current_form_verified": true,
+      "csrf_present": true,
+      "viewstate_present": true,
+      "authorization_denied": null,
+      "protected_payload_absent": null,
+      "independent_effects_unchanged": true,
+      "replacement_case_id": "REPLACEMENT::cancel-editor::Operator",
+      "replacement_outcome": "PASS",
+      "proof_sha256": "edfa114363b1c46a7b2f403d129485e8cdb27c4a676dcbd4e96fbbc0035e39ff",
+      "source_status": 200,
+      "redirect_is_configured_login": null
+    },
+    {
+      "actor": "Administrator",
+      "response_status": 200,
+      "identity": {
+        "server_verified": true,
+        "principal": "admin",
+        "roles": [
+          "Administrator"
+        ]
+      },
+      "source_path": "/cargo-tracker/admin/changeDestination.xhtml?trackingId=D61AF588",
+      "historical_source_component_id": "j_idt8:j_idt23",
+      "callback_implementation_absent": true,
+      "post_target_verified": true,
+      "callback_response_absent": true,
+      "current_form_verified": true,
+      "csrf_present": true,
+      "viewstate_present": true,
+      "authorization_denied": null,
+      "protected_payload_absent": null,
+      "independent_effects_unchanged": true,
+      "replacement_case_id": "REPLACEMENT::cancel-editor::Administrator",
+      "replacement_outcome": "PASS",
+      "proof_sha256": "749362921409b4db70c47a263c5a916616a8b933d228b5a6f5433379727e5a09",
+      "source_status": 200,
+      "redirect_is_configured_login": null
+    }
+  ],
+  "review": {
+    "status": "APPROVED",
+    "reviewer": "/root/review_service04_adapter",
+    "date": "2026-11-14",
+    "approved_outcome": "RETIRED",
+    "pass_outcome_allowed": false,
+    "review_record": "notes/agent-reviews/2026-11-14-kan15-action08-retirement-review.md",
+    "review_record_sha256": "673381cf2fc8c4c36a20105be2ddc76decac3d1567ce7e4f5f1596ebc4ed44d6"
+  },
+  "limitations": [
+    "This evidence is from the same fresh fixture as the 470/0 current replacement replay; it is not a new runtime run.",
+    "ACTION-08 is RETIRED after independent approval; its four actor outcomes are never PASS.",
+    "RETIRED must remain distinct from PASS; the historical 502-case audit is unchanged."
+  ],
+  "result": {
+    "retirement_counts": {
+      "BLOCKED": 72,
+      "RETIRED": 4
+    },
+    "retired_case_ids": [
+      "RETIREMENT::ACTION-08::anonymous",
+      "RETIREMENT::ACTION-08::Reader",
+      "RETIREMENT::ACTION-08::Operator",
+      "RETIREMENT::ACTION-08::Administrator"
+    ],
+    "remaining_blocked_retirement_cases": 72,
+    "current_capability_counts": {
+      "PASS": 470
+    },
+    "historical_audit_counts": {
+      "PASS": 324,
+      "BLOCKED": 178
+    },
+    "gate_exit": 2,
+    "gate_artifact": "notes/evidence/kan-15-action08-retirement/current-capability-replay.json"
+  }
+}

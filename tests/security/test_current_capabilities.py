@@ -26,7 +26,10 @@ class CurrentCapabilityTests(unittest.TestCase):
         old={x["id"] for x in c.build(inventory)}
         self.assertEqual({x["legacy_case_id"] for x in current}|{x["legacy_case_id"] for x in retire},old)
         self.assertEqual(len(old),502)
-        self.assertTrue(all(x["outcome"]=="BLOCKED" for x in retire))
+        self.assertEqual({x["outcome"] for x in retire},{"RETIRED","BLOCKED"})
+        self.assertEqual(sum(x["outcome"]=="RETIRED" for x in retire),4)
+        self.assertEqual(sum(x["outcome"]=="BLOCKED" for x in retire),72)
+        self.assertFalse(any(x["outcome"]=="PASS" for x in retire))
     def test_reviewed_bg06_scope_receipt_is_source_bound_and_exact(self):
         promotions,provenance=c.reviewed_bg06_scope()
         expected={"CURRENT::BG-06::"+actor+"::active" for actor in c.ACTORS}
@@ -72,9 +75,19 @@ class CurrentCapabilityTests(unittest.TestCase):
         with self.assertRaises(ValueError):c.apply_bg06_scoped_results(already_pass,promotions,provenance)
         missing_row=[row for row in baseline if row["case"]!=next(iter(promotions))]
         with self.assertRaises(ValueError):c.apply_bg06_scoped_results(missing_row,promotions,provenance)
+    def test_action08_review_receipt_is_hash_pinned_and_fail_closed(self):
+        self.assertTrue(c.reviewed_action08_retirement_receipt())
+        receipt=json.loads(c.ACTION08_RETIREMENT_VALIDATION.read_text())
+        receipt["actor_observations"][0]["proof_sha256"]="0"*64
+        with tempfile.TemporaryDirectory() as temporary:
+            path=Path(temporary)/"validation.json"
+            path.write_text(json.dumps(receipt))
+            with patch.object(c,"ACTION08_RETIREMENT_VALIDATION",path):
+                self.assertFalse(c.reviewed_action08_retirement_receipt())
+
     def test_model_rejects_drift_missing_duplicate_unknown_and_weakened_policy(self):
         model,inventory=c.load_model();fingerprint=model["legacy_inventory_sha256"]
-        for mode in ["version","drift","missing","duplicate","unknown","field","target","role","retire","driver","evidence"]:
+        for mode in ["version","drift","missing","duplicate","unknown","field","target","role","retire","unretire","driver","evidence"]:
             bad=copy.deepcopy(model)
             if mode=="version":bad["schema_version"]=1
             elif mode=="drift":bad["legacy_inventory_sha256"]="0"*64
@@ -84,8 +97,9 @@ class CurrentCapabilityTests(unittest.TestCase):
             elif mode=="field":bad["auto_retire"]=True
             elif mode=="target":bad["mapped_actions"][0]["modern_target"]="https://untrusted.example/cargo-tracker/admin/dashboard.xhtml"
             elif mode=="role":bad["replacement_capabilities"][0]["allowed_roles"]=["Reader"]
-            elif mode=="retire":bad["retirement_candidates"][0]["status"]="retired"
-            elif mode=="driver":bad["retirement_candidates"][0]["negative_driver"]="generic-success"
+            elif mode=="retire":next(row for row in bad["retirement_candidates"] if row["legacy_id"]=="ACTION-23")["status"]="retired"
+            elif mode=="unretire":next(row for row in bad["retirement_candidates"] if row["legacy_id"]=="ACTION-08")["status"]="candidate"
+            elif mode=="driver":next(row for row in bad["retirement_candidates"] if row["legacy_id"]=="ACTION-08")["negative_driver"]="generic-success"
             else:bad["retirement_candidates"][0]["required_evidence"].pop()
             with self.subTest(mode=mode),self.assertRaises(ValueError):c.validate_model(bad,inventory,fingerprint)
     def test_exact_role_principal_canonical_contract_and_returned_copy(self):
@@ -118,7 +132,10 @@ class CurrentCapabilityTests(unittest.TestCase):
                 with self.subTest(case=case["id"]),self.assertRaises(UnsupportedCase):adapter.execute(copy.deepcopy(case))
         fabricated=[{"case":x,"outcome":"PASS"} for x in adapter.contracts]
         result=c.retirement_results(adapter.model,adapter,fabricated)
-        self.assertEqual(len(result),76);self.assertTrue(all(x["outcome"]=="BLOCKED" for x in result))
+        self.assertEqual(len(result),76)
+        self.assertEqual(sum(x["outcome"]=="RETIRED" for x in result),4)
+        self.assertEqual(sum(x["outcome"]=="BLOCKED" for x in result),72)
+        self.assertFalse(any(x["outcome"]=="PASS" for x in result))
     def test_get_proof_binds_complete_query_and_source(self):
         proof={"supported":True,"status":200,"semantic_success":True,"identity":{"server_verified":True,"principal":"reader","roles":["Reader"]},"driver":"click","actual_target_path":"/cargo-tracker/admin/show.xhtml","query_keys":["trackingId","jfwid"],"tracking_id":"ABC123","source_page":"admin/listRouted.xhtml","action_executed":True,"target_origin_verified":True}
         for mode in ["declared-cargo","duplicate-query","wrong-source","unknown-query"]:
@@ -209,7 +226,7 @@ class CurrentCapabilityTests(unittest.TestCase):
         adapter.inventory["view_callbacks"]=[]
         with patch.object(c,"CurrentAdapter",return_value=adapter):result=c.report(live=False)
         self.assertEqual(result["current_counts"],{"BLOCKED":470})
-        self.assertEqual(result["retirement_counts"],{"BLOCKED":76})
+        self.assertEqual(result["retirement_counts"],{"RETIRED":4,"BLOCKED":72})
         self.assertEqual(result["legacy_audit"]["total"],502)
     def test_receipt_names_canonical_cache_and_discloses_code_identity_limit(self):
         with patch.object(c,"source_fingerprint",return_value="a"*64),patch.object(c.legacy,"LiveSubsetCandidate",return_value=FakeLegacy({})) as factory:
@@ -225,7 +242,7 @@ class CurrentCapabilityTests(unittest.TestCase):
             self.assertEqual(run.returncode,2)
             result=json.loads(output.read_text())
             self.assertEqual(result["current_counts"],{"BLOCKED":470})
-            self.assertEqual(result["retirement_counts"],{"BLOCKED":76})
+            self.assertEqual(result["retirement_counts"],{"RETIRED":4,"BLOCKED":72})
             self.assertEqual(result["legacy_audit"]["total"],502)
             self.assertEqual(result["legacy_audit"]["counts"],{"BLOCKED":502})
             self.assertIsNone(result["provenance"])

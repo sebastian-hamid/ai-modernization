@@ -84,4 +84,9 @@ Fixed a test/verifier table-key mismatch for positive handling proofs. Six retai
 
 ## Handling replacement replay — 14 November 2026
 
-Independent review approved the HANDLING_EVENT table-key correction and the scoped replay of six retained same-fixture proofs. Effective current gate is 470 PASS / 0 BLOCKED. Historical audit remains 324 PASS / 178 BLOCKED; retirement remains 76 BLOCKED. Commit and push follow final checks. Next priority is the first specific retired-entry verifier, ACTION-08, under the approved rule that RETIRED is not PASS. See notes/evidence/kan-15-handling-replacement-replay/validation.json.
+Independent review approved the HANDLING_EVENT table-key correction and the scoped replay of six retained same-fixture proofs. Effective current gate is 470 PASS / 0 BLOCKED. Historical audit remains 324 PASS / 178 BLOCKED; retirement was 76 blocked at this checkpoint. See notes/evidence/kan-15-handling-replacement-replay/validation.json.
+
+
+## ACTION-08 retirement — 15 November 2026 (KAN-15)
+
+Independent review approved retiring ACTION-08 after verifying replacement-per-actor, historical negative entry, exact role/session handling, no protected payload, unchanged effects, and source callback absence. The versioned mapping and receipt verifier now report four RETIRED results; none is PASS. Remaining retirement inventory: 72 BLOCKED. Current capabilities: 470 PASS / 0 BLOCKED. Historical audit: 324 PASS / 178 BLOCKED. Gate exit remains 2. This is an offline replay of retained fresh evidence; the source fixture was 780 native / 841 browser checks with cleanup verified. Evidence: notes/evidence/kan-15-action08-retirement/validation.json and current-capability-replay.json. Next priority is ACTION-23 tracking discovery retired-entry evidence.
