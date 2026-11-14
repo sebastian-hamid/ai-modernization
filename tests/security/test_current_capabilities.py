@@ -437,6 +437,54 @@ class CurrentCapabilityTests(unittest.TestCase):
         adapter.legacy.handling_worker_observation={**machine,
             "native_identity":{"server_verified":True,"principal":"operator","roles":["Operator"]}}
         with self.assertRaises(UnsupportedCase):adapter.execute(case)
+    def test_service02_requires_direct_read_and_scoped_routing_identity(self):
+        adapter=c.CurrentAdapter();adapter._run_fingerprint="a"*64
+        adapter.provenance={"kind":"fresh-owned-runtime","inputs_fingerprint":"a"*64,"legacy_fixture_cleanup_verified":True}
+        adapter.legacy=FakeLegacy({})
+        identities={"Reader":{"server_verified":True,"principal":"reader","roles":["Reader"]},
+                    "Operator":{"server_verified":True,"principal":"operator","roles":["Operator"]},
+                    "Administrator":{"server_verified":True,"principal":"admin","roles":["Administrator"]}}
+        for actor in c.ACTORS:
+            allowed=actor in {"Operator","Administrator"}
+            before={"database":{"CARGO":{"rows":1,"sha256":"a"}},"queue":{"events":{"MessageCount":0}},"business_audit":{"booking":0,"routing":0}}
+            after=copy.deepcopy(before)
+            deltas={}
+            if allowed:
+                after["business_audit"]["booking"]=1;after["business_audit"]["routing"]=1
+                deltas={"net.java.cargotracker.application.internal.DefaultBookingService#requestPossibleRoutesForCargo":1,
+                        "net.java.cargotracker.infrastructure.routing.ExternalRoutingService#fetchRoutesForSpecification":1,
+                        "net.java.pathfinder.api.GraphTraversalService#findShortestPath":1}
+            identity_before={"sequence":7,"principal":"routing","roles":["RoutingService"],"path":"/rest/graph-traversal/shortest-path"}
+            identity_after=copy.deepcopy(identity_before)
+            if allowed:identity_after["sequence"]=8
+            effect={"settled":True,"fixture_id":"owned","before_fixture":"owned","after_fixture":"owned",
+                    "before":before,"after":after}
+            raw={"driver":"native-booking-routes-v1","actor":actor,"supported":True,
+                "status":200 if allowed else 403,"expected":"allow" if allowed else "deny",
+                "identity":None if actor=="anonymous" else identities[actor],
+                "invocation_denied":not allowed,"direct_service_denied":not allowed,
+                "protected_payload_absent":True,"independent_effects_unchanged":not allowed,
+                "authorized_effect_verified":allowed,"semantic_success":True,
+                "route_count":1 if allowed else None,"business_invocation_deltas":deltas,
+                "routing_identity_before":identity_before,"routing_identity_after":identity_after,
+                "routing_identity_verified":True,"effects":effect}
+            case=adapter.contracts["CURRENT::SERVICE-02::"+actor+"::active"]
+            self.assertEqual(case["binding_status"],"native-booking-routes")
+            adapter.legacy.booking_service_route_observations={actor:raw}
+            self.assertEqual(evaluate(case,adapter.execute(case))[0],"PASS")
+            mutations=[]
+            if allowed:
+                bad=copy.deepcopy(raw);bad["routing_identity_after"]["roles"]=["Administrator"];mutations.append(bad)
+                bad=copy.deepcopy(raw);bad["routing_identity_after"]["sequence"]=9;mutations.append(bad)
+                bad=copy.deepcopy(raw);bad["business_invocation_deltas"]["Unexpected#write"]=1;mutations.append(bad)
+                bad=copy.deepcopy(raw);bad["route_count"]=0;mutations.append(bad)
+            else:
+                bad=copy.deepcopy(raw);bad["business_invocation_deltas"]={"Booking#requestPossibleRoutesForCargo":1};mutations.append(bad)
+                bad=copy.deepcopy(raw);bad["routing_identity_after"]["sequence"]=8;mutations.append(bad)
+            for bad in mutations:
+                adapter.legacy.booking_service_route_observations={actor:bad}
+                with self.subTest(actor=actor,mutation=bad),self.assertRaises(UnsupportedCase):adapter.execute(case)
+
     def test_service01_requires_all_three_direct_booking_service_calls(self):
         adapter=c.CurrentAdapter();adapter._run_fingerprint="a"*64
         adapter.provenance={"kind":"fresh-owned-runtime","inputs_fingerprint":"a"*64,"legacy_fixture_cleanup_verified":True}

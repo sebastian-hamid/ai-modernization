@@ -38,6 +38,11 @@ public final class BookingApiProbe extends HttpServlet {
                 response.setStatus(201);response.setContentType("text/plain;charset=UTF-8");
                 response.getWriter().write(created.getIdString());return;
             }
+            if("routes".equals(operation)) {
+                List<Itinerary> routes=bookingService.requestPossibleRoutesForCargo(new TrackingId(tracking));
+                response.setStatus(200);response.setContentType("text/plain;charset=UTF-8");
+                response.getWriter().write(Integer.toString(routes.size()));return;
+            }
             if("prepare-route".equals(operation)) {
                 Cargo cargo=cargoRepository.find(new TrackingId(tracking));
                 if(cargo==null){response.sendError(404);return;}

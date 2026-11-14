@@ -1,0 +1,255 @@
+{
+  "task": "KAN-15 SERVICE-02 direct route-read authorization and scoped routing identity",
+  "run_date": "2026-11-14",
+  "scope": "Fresh live-subset current-capability aggregate directly invokes BookingService.requestPossibleRoutesForCargo through the fixture-only booking probe, observes its downstream ExternalRoutingService and graph endpoint invocations, and reads the native RoutingIdentityFilter audit from the disposable server JVM.",
+  "fixture": {
+    "status": "PASS",
+    "native_checks": {
+      "total": 764,
+      "passed": 764,
+      "failed": []
+    },
+    "browser_checks": {
+      "count": 841,
+      "passed": true
+    },
+    "owned_container_removed": true,
+    "private_files_removed": true,
+    "cleanup_errors": [],
+    "browser_cleanup": {
+      "container_removed": true,
+      "network_removed": true,
+      "errors": []
+    }
+  },
+  "service02": {
+    "actor_observations": {
+      "anonymous": {
+        "status": 403,
+        "expected": "deny",
+        "identity": null,
+        "route_count": null,
+        "invocation_denied": true,
+        "direct_service_denied": true,
+        "protected_payload_absent": true,
+        "authorized_effect_verified": false,
+        "routing_identity_verified": true,
+        "routing_identity_before": {
+          "sequence": 7,
+          "principal": "routing",
+          "roles": [
+            "RoutingService"
+          ],
+          "path": "/rest/graph-traversal/shortest-path"
+        },
+        "routing_identity_after": {
+          "sequence": 7,
+          "principal": "routing",
+          "roles": [
+            "RoutingService"
+          ],
+          "path": "/rest/graph-traversal/shortest-path"
+        },
+        "business_invocation_deltas": {},
+        "effects": {
+          "settled": true,
+          "fixture_id": "9282622088f37f7ba2ab315dd4e98e3a7d89d610c18badfedd9a1c02e602f556",
+          "database_unchanged": true,
+          "queues_unchanged": true,
+          "business_audit_unchanged": true
+        }
+      },
+      "Reader": {
+        "status": 403,
+        "expected": "deny",
+        "identity": {
+          "server_verified": true,
+          "principal": "reader",
+          "roles": [
+            "Reader"
+          ]
+        },
+        "route_count": null,
+        "invocation_denied": true,
+        "direct_service_denied": true,
+        "protected_payload_absent": true,
+        "authorized_effect_verified": false,
+        "routing_identity_verified": true,
+        "routing_identity_before": {
+          "sequence": 7,
+          "principal": "routing",
+          "roles": [
+            "RoutingService"
+          ],
+          "path": "/rest/graph-traversal/shortest-path"
+        },
+        "routing_identity_after": {
+          "sequence": 7,
+          "principal": "routing",
+          "roles": [
+            "RoutingService"
+          ],
+          "path": "/rest/graph-traversal/shortest-path"
+        },
+        "business_invocation_deltas": {},
+        "effects": {
+          "settled": true,
+          "fixture_id": "9282622088f37f7ba2ab315dd4e98e3a7d89d610c18badfedd9a1c02e602f556",
+          "database_unchanged": true,
+          "queues_unchanged": true,
+          "business_audit_unchanged": true
+        }
+      },
+      "Operator": {
+        "status": 200,
+        "expected": "allow",
+        "identity": {
+          "server_verified": true,
+          "principal": "operator",
+          "roles": [
+            "Operator"
+          ]
+        },
+        "route_count": 3,
+        "invocation_denied": false,
+        "direct_service_denied": false,
+        "protected_payload_absent": true,
+        "authorized_effect_verified": true,
+        "routing_identity_verified": true,
+        "routing_identity_before": {
+          "sequence": 7,
+          "principal": "routing",
+          "roles": [
+            "RoutingService"
+          ],
+          "path": "/rest/graph-traversal/shortest-path"
+        },
+        "routing_identity_after": {
+          "sequence": 8,
+          "principal": "routing",
+          "roles": [
+            "RoutingService"
+          ],
+          "path": "/rest/graph-traversal/shortest-path"
+        },
+        "business_invocation_deltas": {
+          "net.java.pathfinder.api.GraphTraversalService#findShortestPath": 1,
+          "net.java.cargotracker.infrastructure.routing.ExternalRoutingService#fetchRoutesForSpecification": 1,
+          "net.java.cargotracker.application.internal.DefaultBookingService#requestPossibleRoutesForCargo": 1
+        },
+        "effects": {
+          "settled": true,
+          "fixture_id": "9282622088f37f7ba2ab315dd4e98e3a7d89d610c18badfedd9a1c02e602f556",
+          "database_unchanged": true,
+          "queues_unchanged": true,
+          "business_audit_unchanged": false
+        }
+      },
+      "Administrator": {
+        "status": 200,
+        "expected": "allow",
+        "identity": {
+          "server_verified": true,
+          "principal": "admin",
+          "roles": [
+            "Administrator"
+          ]
+        },
+        "route_count": 5,
+        "invocation_denied": false,
+        "direct_service_denied": false,
+        "protected_payload_absent": true,
+        "authorized_effect_verified": true,
+        "routing_identity_verified": true,
+        "routing_identity_before": {
+          "sequence": 8,
+          "principal": "routing",
+          "roles": [
+            "RoutingService"
+          ],
+          "path": "/rest/graph-traversal/shortest-path"
+        },
+        "routing_identity_after": {
+          "sequence": 9,
+          "principal": "routing",
+          "roles": [
+            "RoutingService"
+          ],
+          "path": "/rest/graph-traversal/shortest-path"
+        },
+        "business_invocation_deltas": {
+          "net.java.pathfinder.api.GraphTraversalService#findShortestPath": 1,
+          "net.java.cargotracker.infrastructure.routing.ExternalRoutingService#fetchRoutesForSpecification": 1,
+          "net.java.cargotracker.application.internal.DefaultBookingService#requestPossibleRoutesForCargo": 1
+        },
+        "effects": {
+          "settled": true,
+          "fixture_id": "9282622088f37f7ba2ab315dd4e98e3a7d89d610c18badfedd9a1c02e602f556",
+          "database_unchanged": true,
+          "queues_unchanged": true,
+          "business_audit_unchanged": false
+        }
+      }
+    },
+    "gate_cases": [
+      {
+        "case": "CURRENT::SERVICE-02::anonymous::active",
+        "outcome": "PASS",
+        "reason": "Desired denial observed with required evidence"
+      },
+      {
+        "case": "CURRENT::SERVICE-02::Reader::active",
+        "outcome": "PASS",
+        "reason": "Desired denial observed with required evidence"
+      },
+      {
+        "case": "CURRENT::SERVICE-02::Operator::active",
+        "outcome": "PASS",
+        "reason": "Allowed workflow and identity evidence observed"
+      },
+      {
+        "case": "CURRENT::SERVICE-02::Administrator::active",
+        "outcome": "PASS",
+        "reason": "Allowed workflow and identity evidence observed"
+      }
+    ]
+  },
+  "aggregate": {
+    "current_counts": {
+      "PASS": 460,
+      "BLOCKED": 10
+    },
+    "current_case_total": 470,
+    "historical_counts": {
+      "PASS": 324,
+      "BLOCKED": 178
+    },
+    "historical_case_total": 502,
+    "retirement_counts": {
+      "BLOCKED": 76
+    },
+    "gate_exit": 2,
+    "inputs_fingerprint": "7dfbff864fa453b910c06b2940299190b09a6963bf0f7cc45f4bbbf0254647b0",
+    "imported_code_attested": false,
+    "fingerprint_scope": "On-disk inputs and constructed canonical contracts; already imported Python code identity is not attested."
+  },
+  "remaining_blockers": [
+    "CURRENT::SERVICE-03::anonymous::active",
+    "CURRENT::SERVICE-03::Reader::active",
+    "CURRENT::SERVICE-03::Operator::active",
+    "CURRENT::SERVICE-03::Administrator::active",
+    "REPLACEMENT::handling-event::Operator",
+    "REPLACEMENT::handling-event::Administrator",
+    "REPLACEMENT::handling-voyage::Operator",
+    "REPLACEMENT::handling-voyage::Administrator",
+    "REPLACEMENT::handling-completion::Operator",
+    "REPLACEMENT::handling-completion::Administrator"
+  ],
+  "limitations": [
+    "The routing identity receipt covers the server-side graph call caused by this direct BookingService request in this disposable fixture; it is not a general network penetration test.",
+    "Six handling-event, handling-voyage and handling-completion replacement cases remain BLOCKED.",
+    "The test-only probe route exists only in the generated disposable image and is not a production route.",
+    "The aggregate fingerprint does not attest already imported Python fixture code."
+  ],
+  "independent_review": "approved"
+}

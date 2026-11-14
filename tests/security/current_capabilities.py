@@ -247,6 +247,69 @@ def booking_service_observation(case,raw):
         "effects":deepcopy(raw["operations"]["bookNewCargo"]["effects"])}
 
 
+def booking_routes_observation(case,raw):
+    actor=case.get("actor");allowed=case.get("expected")=="allow"
+    if (case.get("surface_id")!="SERVICE-02" or actor not in ACTORS
+            or case.get("expected") not in {"allow","deny"}
+            or not isinstance(raw,dict) or raw.get("driver")!="native-booking-routes-v1"
+            or raw.get("actor")!=actor or raw.get("supported") is not True
+            or raw.get("expected")!=case.get("expected") or raw.get("semantic_success") is not True
+            or raw.get("authorized_effect_verified") is not allowed
+            or raw.get("invocation_denied") is allowed):
+        raise UnsupportedCase()
+    if actor=="anonymous":
+        if raw.get("identity") is not None:raise UnsupportedCase()
+    else:
+        identity=raw.get("identity",{})
+        if (identity.get("server_verified") is not True
+                or identity.get("principal")!=USERS[actor]
+                or identity.get("roles")!=[actor]):raise UnsupportedCase()
+    effects=raw.get("effects",{})
+    if (effects.get("settled") is not True or not effects.get("fixture_id")
+            or effects.get("before_fixture")!=effects.get("fixture_id")
+            or effects.get("after_fixture")!=effects.get("fixture_id")):raise UnsupportedCase()
+    before=effects.get("before",{});after=effects.get("after",{})
+    if set(before)!={"database","queue","business_audit"} or set(after)!=set(before):raise UnsupportedCase()
+    if any(not isinstance(before.get(k),dict) or not before[k]
+           or not isinstance(after.get(k),dict) or not after[k] for k in before):raise UnsupportedCase()
+    identity_before=raw.get("routing_identity_before",{})
+    identity_after=raw.get("routing_identity_after",{})
+    expected_deltas={
+        "net.java.cargotracker.application.internal.DefaultBookingService#requestPossibleRoutesForCargo":1,
+        "net.java.cargotracker.infrastructure.routing.ExternalRoutingService#fetchRoutesForSpecification":1,
+        "net.java.pathfinder.api.GraphTraversalService#findShortestPath":1}
+    if allowed:
+        if (raw.get("status")!=200 or type(raw.get("route_count")) is not int or raw["route_count"]<1
+                or raw.get("direct_service_denied") is not False
+                or raw.get("protected_payload_absent") is not True
+                or raw.get("independent_effects_unchanged") is not False
+                or before["database"]!=after["database"] or before["queue"]!=after["queue"]
+                or raw.get("business_invocation_deltas")!=expected_deltas
+                or raw.get("routing_identity_verified") is not True
+                or identity_after.get("principal")!="routing"
+                or identity_after.get("roles")!=["RoutingService"]
+                or identity_after.get("path")!="/rest/graph-traversal/shortest-path"
+                or type(identity_after.get("sequence")) is not int
+                or identity_after.get("sequence")!=identity_before.get("sequence",0)+1):
+            raise UnsupportedCase()
+        status=200
+    else:
+        if (raw.get("status")!=403 or raw.get("direct_service_denied") is not True
+                or raw.get("protected_payload_absent") is not True
+                or raw.get("independent_effects_unchanged") is not True
+                or raw.get("routing_identity_verified") is not True
+                or identity_before!=identity_after or before!=after
+                or raw.get("business_invocation_deltas")!={}):
+            raise UnsupportedCase()
+        status=403
+    return {"driver":"native-booking-routes-v1","actor":actor,"supported":True,
+        "status":status,"semantic_success":True,"authorized_effect_verified":allowed,
+        "invocation_denied":not allowed,"direct_service_denied":not allowed,
+        "protected_payload_absent":True,"identity":None if actor=="anonymous" else deepcopy(raw["identity"]),
+        "route_count":raw.get("route_count"),"business_invocation_deltas":deepcopy(raw["business_invocation_deltas"]),
+        "routing_identity_verified":True,"native_routing_identity":deepcopy(identity_after),
+        "independent_effects_unchanged":not allowed,"effects":deepcopy(effects)}
+
 def load_model():
     raw=INVENTORY.read_bytes();inventory=json.loads(raw);model=json.loads(MANIFEST.read_text())
     validate_model(model,inventory,hashlib.sha256(raw).hexdigest())
@@ -309,7 +372,7 @@ def build_current(model,inventory):
         if old["surface_id"] in retired:continue
         row=mapped.get(old["surface_id"]) or pending.get(old["surface_id"])
         case=deepcopy(old)
-        case.update(id="CURRENT::"+old["id"],contract_version=2,kind="current",legacy_case_id=old["id"],legacy_contract=deepcopy(old),capability_id=row["capability_id"] if row else old["surface_id"].lower(),binding_status="pending" if old["surface_id"] in pending else "native-batch-worker" if old["surface_id"] in {"BG-01-MACHINE","BG-02-MACHINE"} else "native-batch-import" if old["surface_id"]=="BG-01" else "native-batch-processing" if old["surface_id"]=="BG-02" else "native-handling-worker" if old["surface_id"] in {"BG-03","BG-03-MACHINE"} else "native-inspection-worker" if old["surface_id"] in {"BG-04","BG-04-MACHINE"} else "native-notification-worker" if old["surface_id"] in {"BG-05","BG-05-MACHINE"} else "native-booking-service" if old["surface_id"]=="SERVICE-01" else "native-service-boundary" if old["surface_id"]=="SERVICE-04" else "native-staged-return" if old["surface_id"]=="ACTION-13" else "native-current-load" if old["surface_id"] in NATIVE_CURRENT_LOADS else "browser-current-navigation" if old["surface_id"] in {"ACTION-10","ACTION-11","ACTION-12","ACTION-21","ACTION-22","ACTION-24","ACTION-25","ACTION-45"} else "existing-runtime-driver")
+        case.update(id="CURRENT::"+old["id"],contract_version=2,kind="current",legacy_case_id=old["id"],legacy_contract=deepcopy(old),capability_id=row["capability_id"] if row else old["surface_id"].lower(),binding_status="pending" if old["surface_id"] in pending else "native-batch-worker" if old["surface_id"] in {"BG-01-MACHINE","BG-02-MACHINE"} else "native-batch-import" if old["surface_id"]=="BG-01" else "native-batch-processing" if old["surface_id"]=="BG-02" else "native-handling-worker" if old["surface_id"] in {"BG-03","BG-03-MACHINE"} else "native-inspection-worker" if old["surface_id"] in {"BG-04","BG-04-MACHINE"} else "native-notification-worker" if old["surface_id"] in {"BG-05","BG-05-MACHINE"} else "native-booking-service" if old["surface_id"]=="SERVICE-01" else "native-booking-routes" if old["surface_id"]=="SERVICE-02" else "native-service-boundary" if old["surface_id"]=="SERVICE-04" else "native-staged-return" if old["surface_id"]=="ACTION-13" else "native-current-load" if old["surface_id"] in NATIVE_CURRENT_LOADS else "browser-current-navigation" if old["surface_id"] in {"ACTION-10","ACTION-11","ACTION-12","ACTION-21","ACTION-22","ACTION-24","ACTION-25","ACTION-45"} else "existing-runtime-driver")
         if row:
             source="index.xhtml" if old["surface_id"]!="ACTION-13" and old["actor"]=="anonymous" and old["expected"]=="deny" and row["modern_method"]=="GET" else row["modern_source"]
             case.update(path=row["modern_target"],method=row["modern_method"],current_source=source)
@@ -392,7 +455,7 @@ class CurrentAdapter:
         if canonical is None or canonical!=case:raise UnsupportedCase()
         if case["kind"] not in {"current","replacement"} or self.legacy is None or self.provenance is None:
             raise UnsupportedCase()
-        if case["kind"]=="current" and case.get("binding_status") not in {"existing-runtime-driver","native-current-load","browser-current-navigation","native-staged-return","native-batch-import","native-batch-processing","native-batch-worker","native-handling-worker","native-inspection-worker","native-notification-worker","native-service-boundary","native-booking-service"}:
+        if case["kind"]=="current" and case.get("binding_status") not in {"existing-runtime-driver","native-current-load","browser-current-navigation","native-staged-return","native-batch-import","native-batch-processing","native-batch-worker","native-handling-worker","native-inspection-worker","native-notification-worker","native-service-boundary","native-booking-service","native-booking-routes"}:
             raise UnsupportedCase()
         if not isinstance(self.provenance,dict) or self.provenance.get("kind")!="fresh-owned-runtime" or self.provenance.get("legacy_fixture_cleanup_verified") is not True or self.provenance.get("inputs_fingerprint")!=self._run_fingerprint or re.fullmatch("[0-9a-f]{64}",str(self._run_fingerprint)) is None:raise UnsupportedCase()
         if case["kind"]=="replacement":
@@ -551,6 +614,9 @@ class CurrentAdapter:
         elif case["binding_status"]=="native-booking-service":
             observation=booking_service_observation(case,
                 getattr(self.legacy,"booking_service_observations",{}).get(case["actor"],{}))
+        elif case["binding_status"]=="native-booking-routes":
+            observation=booking_routes_observation(case,
+                getattr(self.legacy,"booking_service_route_observations",{}).get(case["actor"],{}))
         elif case["binding_status"]=="native-service-boundary":
             observation=service_boundary_observation(case,
                 getattr(self.legacy,"handling_worker_denials",{}),

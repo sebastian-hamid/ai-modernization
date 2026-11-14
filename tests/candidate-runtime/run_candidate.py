@@ -756,6 +756,60 @@ def main(after_checks=None):
                 "invocation_denied":valid if not allowed else False}
         report["booking_service_observations"]=booking_service_observations
 
+        # SERVICE-02: direct booking-service route reads and their native internal routing identity.
+        booking_route_observations={}
+        route_delta_expected={
+            "net.java.cargotracker.application.internal.DefaultBookingService#requestPossibleRoutesForCargo":1,
+            "net.java.cargotracker.infrastructure.routing.ExternalRoutingService#fetchRoutesForSpecification":1,
+            "net.java.pathfinder.api.GraphTraversalService#findShortestPath":1}
+        for actor in ("anonymous","Reader","Operator","Administrator"):
+            if actor!="anonymous":
+                login_user=actor.lower() if actor!="Administrator" else "admin"
+                sessions[login_user]=login(login_user)
+            allowed=actor in {"Operator","Administrator"}
+            proof=invoke_booking_service(actor,"routes",setup_id)
+            before_identity=proof["before"].get("routing_identity",{})
+            after_identity=proof["after"].get("routing_identity",{})
+            deltas,_=booking_method_delta(proof["before"],proof["after"],"requestPossibleRoutesForCargo")
+            # Include nested EJB invocation so bypassing either authorization boundary fails closed.
+            route_count=int(proof["body"].strip()) if re.fullmatch(r"\d+",proof["body"].strip()) else -1
+            identity_ok=(after_identity.get("principal")=="routing"
+                and after_identity.get("roles")==["RoutingService"]
+                and after_identity.get("path")=="/rest/graph-traversal/shortest-path"
+                and type(after_identity.get("sequence")) is int
+                and after_identity.get("sequence")==before_identity.get("sequence",0)+1)
+            denied=(proof["headers"].get("X-Fixture-Probe-Result")=="booking-service-role-denied")
+            absent=payload_absent(proof["body"])
+            if allowed:
+                valid=(proof["status"]==200 and not denied and route_count>0
+                    and proof["before"]["tables"]==proof["after"]["tables"]
+                    and proof["before"]["queues"]==proof["after"]["queues"]
+                    and deltas==route_delta_expected and identity_ok)
+            else:
+                valid=(proof["status"]==403 and denied and absent
+                    and proof["effects_unchanged"] and proof["before"]==proof["after"])
+            diagnostics={"status":proof["status"],"expected_status":200 if allowed else 403,
+                "route_count":route_count,"business_invocation_deltas":deltas,
+                "database_unchanged":proof["before"]["tables"]==proof["after"]["tables"],
+                "queues_unchanged":proof["before"]["queues"]==proof["after"]["queues"],
+                "effects_unchanged":proof["effects_unchanged"],"routing_identity_before":before_identity,
+                "routing_identity_after":after_identity,"routing_identity_verified":identity_ok,
+                "denial_marker":denied,"protected_payload_absent":absent}
+            report.setdefault("booking_service_route_diagnostics",{})[actor]=diagnostics
+            check("SERVICE-02 direct route read and scoped routing identity: "+actor,valid)
+            identity= None if actor=="anonymous" else report["identities"][actor.lower() if actor!="Administrator" else "admin"]
+            booking_route_observations[actor]={"driver":"native-booking-routes-v1","actor":actor,
+                "supported":True,"status":proof["status"],"expected":"allow" if allowed else "deny",
+                "identity":identity,"invocation_denied":not allowed and denied,
+                "direct_service_denied":not allowed and denied,"protected_payload_absent":absent,
+                "independent_effects_unchanged":proof["effects_unchanged"] if not allowed else False,
+                "authorized_effect_verified":valid if allowed else False,"semantic_success":valid,
+                "route_count":route_count if allowed else None,
+                "business_invocation_deltas":deltas,"routing_identity_before":before_identity,
+                "routing_identity_after":after_identity,"routing_identity_verified":identity_ok if allowed else before_identity==after_identity,
+                "effects":proof["effects"]}
+        report["booking_service_route_observations"]=booking_route_observations
+
         batch_actor_observations={}
         for actor,role in [("reader","Reader"),("operator","Operator")]:
             denied_before=settled()
