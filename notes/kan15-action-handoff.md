@@ -30,7 +30,7 @@ Exit2 is expected while unsupported cases remain. Require actual successful appl
 
 ## Remaining action priorities
 
-ACTION-42 is now verified. Next priority is select the next still-blocked current capability action from the mapping and maintain the 46 internal/worker blockers; inspect gate IDs before choosing. There are no remaining blocked replacement-driver cases in the current gate. The 76 retirement checks remain BLOCKED.
+ACTION-42 and the direct SERVICE-01/02/03 boundaries are verified. A scoped offline replay corrected the handling replacement verifier table-key mismatch and passed all six retained Operator/Administrator cases for handling-event, handling-voyage, and handling-completion. Effective current gate: 470 PASS / 0 BLOCKED. The source fresh fixture remains 780 native / 841 browser checks with cleanup verified; no second runtime run was needed. The 76 retirement checks remain BLOCKED.
 
 All five write-behavior mappings are now bound: booking, destination change, initial/replacement route selection and handling submission. Forty active/logout/expiry definitions have independent per-POST effects and action-specific permitted controls. Handling additionally proves real core JMS add/ack, registration and inspection workers, and independent Reader state. Modern replacements already have real happy/invalid/Reader-forgery/CSRF browser scenarios, but those assertions alone do not satisfy every catalogue write definition.
 
@@ -76,3 +76,12 @@ BG-05 notification consumers now use a dedicated `notification-worker` identity 
 ## Latest checkpoint — 14 November 2026 (KAN-15 SERVICE-03)
 
 Direct read-only booking facade authorization is verified for anonymous, Reader, Operator, and Administrator. Anonymous requests, including a lookup for a missing cargo, receive 403 without payload or business/database/queue effects. All three authorized roles read voyages, locations, cargos, and the three existing events for `ABC123`; missing cargo returns 404. Fresh fixture: 780 native and 841 browser checks passed; cleanup completed. Current gate: 464 PASS / 6 BLOCKED. Remaining current blocks are Operator/Administrator replacements for handling-event, handling-voyage and handling-completion. Historical inventory remains 324 PASS / 178 BLOCKED; retirement remains 76 BLOCKED. The fixture-only test probe is not a production endpoint. See `notes/evidence/kan-15-service03/validation.json` and `docs/candidate/current-capability-gate.md`. Independent review approved; changes committed and pushed after final verification.
+
+## Handling replacement replay — 14 November 2026 (KAN-15)
+
+Fixed a test/verifier table-key mismatch for positive handling proofs. Six retained same-fixture browser observations now pass strict adapter replay for Operator and Administrator handling-event, handling-voyage, and handling-completion cases. Effective current gate: **470 PASS / 0 BLOCKED**. This is an offline replay using fresh fixture observations; it is not a new runtime run. The previous fresh fixture passed 780 native and 841 browser checks with cleanup complete. Historical gate remains 324 PASS / 178 BLOCKED; retirement inventory remains 76 BLOCKED. Independent review is pending. Evidence is in notes/evidence/kan-15-handling-replacement-replay.
+
+
+## Handling replacement replay — 14 November 2026
+
+Independent review approved the HANDLING_EVENT table-key correction and the scoped replay of six retained same-fixture proofs. Effective current gate is 470 PASS / 0 BLOCKED. Historical audit remains 324 PASS / 178 BLOCKED; retirement remains 76 BLOCKED. Commit and push follow final checks. Next priority is the first specific retired-entry verifier, ACTION-08, under the approved rule that RETIRED is not PASS. See notes/evidence/kan-15-handling-replacement-replay/validation.json.

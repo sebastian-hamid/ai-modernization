@@ -1,0 +1,47 @@
+{
+  "task": "KAN-15 handling replacement proof re-evaluation",
+  "run_date": "2026-11-14",
+  "scope": "Offline re-evaluation of the six retained Operator/Administrator browser replacement observations for handling-event, handling-voyage, and handling-completion. No new runtime behavior or endpoint was added.",
+  "baseline_fresh_fixture": {
+    "status": "PASS",
+    "native_checks": 780,
+    "browser_checks": 841,
+    "cleanup_verified": true
+  },
+  "replay": {
+    "outcomes": {
+      "REPLACEMENT::handling-event::Operator": "PASS",
+      "REPLACEMENT::handling-event::Administrator": "PASS",
+      "REPLACEMENT::handling-voyage::Operator": "PASS",
+      "REPLACEMENT::handling-voyage::Administrator": "PASS",
+      "REPLACEMENT::handling-completion::Operator": "PASS",
+      "REPLACEMENT::handling-completion::Administrator": "PASS"
+    },
+    "effective_current_counts": {
+      "PASS": 470,
+      "BLOCKED": 0
+    },
+    "historical_audit_counts": {
+      "PASS": 324,
+      "BLOCKED": 178
+    },
+    "retirement_counts": {
+      "BLOCKED": 76
+    },
+    "gate_exit": 2,
+    "reason_for_exit": "All current capabilities pass; 76 retirement inventory cases remain blocked.",
+    "raw_fixture_results_sha256": "d089a8b4f1ffbb63bea9870e05e8ba4e20f68b34cdc430a43ea6abe8c9bc7280"
+  },
+  "review": {
+    "status": "APPROVED",
+    "reviewer": "/root/review_service04_adapter",
+    "date": "2026-11-14",
+    "finding": "Live HANDLING_EVENT schema key verified; all six proof hashes/details matched fresh retained run.",
+    "review_record": "notes/agent-reviews/2026-11-14-kan15-handling-replacement-review.md"
+  },
+  "limitations": [
+    "This is an offline replay of retained fresh same-fixture observations, not a second runtime run.",
+    "Raw browser/database details remain private in .work; only actor, outcome, selected event, and proof digests are retained.",
+    "Historical audit remains 324 PASS / 178 BLOCKED; retirement inventory remains 76 BLOCKED."
+  ]
+}

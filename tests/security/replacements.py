@@ -96,10 +96,10 @@ def positive_handling_samples(before, after, actor, expected_fixture):
         or after.get("stage")!="handling-event:"+actor+":after"): raise UnsupportedCase()
     old,new=before.get("tables"),after.get("tables")
     if (not isinstance(old,dict) or not old or not isinstance(new,dict) or set(old)!=set(new)
-        or not {"CARGO","HANDLINGEVENT"}.issubset(old)): raise UnsupportedCase()
+        or not {"CARGO","HANDLING_EVENT"}.issubset(old)): raise UnsupportedCase()
     for table in old:
         if not isinstance(old[table],dict) or not isinstance(new[table],dict): raise UnsupportedCase()
-        if table=="HANDLINGEVENT":
+        if table=="HANDLING_EVENT":
             if new[table].get("rows")!=old[table].get("rows",-2)+1 or new[table].get("sha256")==old[table].get("sha256"): raise UnsupportedCase()
         elif table=="CARGO":
             if new[table].get("rows")!=old[table].get("rows") or new[table].get("sha256")==old[table].get("sha256"): raise UnsupportedCase()

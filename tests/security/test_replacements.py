@@ -203,7 +203,7 @@ class ReplacementTests(unittest.TestCase):
 
     def handling_event(self, actor="Operator"):
         fixture="9"*64
-        before_tables={"CARGO":{"rows":2,"sha256":"a"*64},"HANDLINGEVENT":{"rows":5,"sha256":"b"*64},
+        before_tables={"CARGO":{"rows":2,"sha256":"a"*64},"HANDLING_EVENT":{"rows":5,"sha256":"b"*64},
                        "LOCATION":{"rows":13,"sha256":"c"*64}}
         after_tables=copy.deepcopy(before_tables)
         counters=("MessageCount","DeliveringCount","ScheduledCount","MessagesAdded","MessagesAcknowledged","MessagesExpired","MessagesKilled","AcknowledgeAttempts")
@@ -220,7 +220,7 @@ class ReplacementTests(unittest.TestCase):
         allowed=actor in {"Operator","Administrator"}
         if allowed:
             after["tables"]["CARGO"]["sha256"]="d"*64
-            after["tables"]["HANDLINGEVENT"]={"rows":6,"sha256":"e"*64}
+            after["tables"]["HANDLING_EVENT"]={"rows":6,"sha256":"e"*64}
             for queue in HANDLING_EVENT_QUEUES:
                 for counter in ("MessagesAdded","MessagesAcknowledged","AcknowledgeAttempts"):after["queues"][queue][counter]+=1
             for method in HANDLING_EVENT_WRITE_CALLS:after["business_invocations"][method]+=1
@@ -301,7 +301,7 @@ class ReplacementTests(unittest.TestCase):
             proof=self.handling_event("Operator");proof[field]=False
             with self.subTest(field=field),self.assertRaises(UnsupportedCase):
                 replacement_observation(self.case("handling-event","Operator"),proof)
-        for channel,key in [("tables","HANDLINGEVENT"),("queues","jms.queue.CargoHandledQueue")]:
+        for channel,key in [("tables","HANDLING_EVENT"),("queues","jms.queue.CargoHandledQueue")]:
             proof=self.handling_event("Operator");proof["positive_after"][channel][key]["rows" if channel=="tables" else "MessagesAdded"]=7 if channel=="tables" else 99
             with self.subTest(channel=channel),self.assertRaises(UnsupportedCase):
                 replacement_observation(self.case("handling-event","Operator"),proof)
@@ -329,7 +329,7 @@ class ReplacementTests(unittest.TestCase):
     def handling_completion(self, actor="Operator"):
         event=self.handling_event(actor)
         fixture="9"*64
-        sample={"fixture_id":fixture,"tables":{"CARGO":{"rows":2,"sha256":"a"*64},"HANDLINGEVENT":{"rows":5,"sha256":"b"*64}},
+        sample={"fixture_id":fixture,"tables":{"CARGO":{"rows":2,"sha256":"a"*64},"HANDLING_EVENT":{"rows":5,"sha256":"b"*64}},
                 "queues":{"handling":{"MessagesAdded":3}},
                 "business_invocations":{"net.java.cargotracker.interfaces.booking.rest.CargoMonitoringService#getAllCargo":4,"other":2}}
         before={**copy.deepcopy(sample),"stage":"handling-completion:"+actor+":before"}
@@ -370,7 +370,7 @@ class ReplacementTests(unittest.TestCase):
             lambda p:p.update(persisted_cargo_routed=False),
             lambda p:p["persisted_event_observation"]["matches"][0].update(completion_time="2032-02-05T00:00:00"),
             lambda p:p["persisted_event_observation"]["matches"][0].update(tracking_id="OTHERID1"),
-            lambda p:p["after"]["tables"]["HANDLINGEVENT"].update(rows=6),
+            lambda p:p["after"]["tables"]["HANDLING_EVENT"].update(rows=6),
             lambda p:p["positive_after"]["business_invocations"].update(unexpected=1),
         ]:
             proof=self.handling_completion()
