@@ -1,5 +1,5 @@
 const {chromium,request:requestFactory}=require("playwright");
-const fs=require("fs");
+const fs=require("fs");const crypto=require("crypto");
 const cfg=JSON.parse(fs.readFileSync("/run/credentials.json","utf8"));
 const base=cfg.base;
 const navigationActions=require("./navigation-actions.json");const actionProofs={};const claimedCargoProofs={};const cargoEntryProofs={};const trackingActionProofs={};const replacementProofs={};const handlingCompletionInputs={};
@@ -53,6 +53,101 @@ function unchangedEffects(before,after,expectedReadDelta=1){
   &&JSON.stringify(stableEffectJSON(otherCalls(before)))===JSON.stringify(stableEffectJSON(otherCalls(after)));
 }
 
+function protectedCargoMarkers(cargos){
+ const trackingIds=new Set(),content=new Set();
+ const visit=value=>{
+  if(typeof value==="string"){
+   const marker=value.trim();
+   if(marker.length>=4)content.add(marker);
+  }else if(Array.isArray(value)){
+   for(const item of value)visit(item);
+  }else if(value&&typeof value==="object"){
+   for(const item of Object.values(value))visit(item);
+  }
+ };
+ for(const cargo of cargos){
+  if(typeof cargo.trackingId==="string"&&cargo.trackingId.length>0)trackingIds.add(cargo.trackingId);
+  visit(cargo);
+ }
+ return {tracking_ids:[...trackingIds],unique_content_markers:[...content]};
+}
+function cargoSnapshotSha256(cargos){
+ const rows=[...cargos].sort((a,b)=>String(a.trackingId).localeCompare(String(b.trackingId)));
+ return crypto.createHash("sha256").update(JSON.stringify(rows)).digest("hex");
+}async function retiredTrackingDiscoveryAttempt(role,actor,context,base,trackingId,cargoMarkers,snapshotSha256,snapshotCount){
+ const component="trackingForm:trackIdInput";
+ const relative="admin/track.xhtml";
+ const sourcePath="/cargo-tracker/"+relative;
+ const protectedIds=[...new Set([...(cargoMarkers?.tracking_ids||[]),trackingId].filter(Boolean))];
+ const protectedContent=cargoMarkers?.unique_content_markers||[];
+ let proof,status,body,postTargetVerified=false,callbackResponseAbsent=false,protectedPayloadAbsent=false;
+ let independentEffectsUnchanged=false,currentFormVerified=false,currentCsrfPresent=false,currentViewStatePresent=false;
+ let currentLegacyComponentAbsent=false,redirectIsLogin=false,identity=null,prefix="javax";
+ const before=await observeEffects("tracking-discovery:"+role+":before");
+ if(role==="anonymous"){
+  const fields={"javax.faces.partial.ajax":"true","javax.faces.source":component,"javax.faces.partial.execute":component,
+   "javax.faces.partial.render":component,"javax.faces.partial.event":"query","trackingForm":"trackingForm",
+   [component]:component,"trackingForm:trackIdInput_query":"ABC"};
+  const response=await context.request.post(base+relative,{form:fields,maxRedirects:0});
+  body=await response.text();status=response.status();
+  const after=await observeEffects("tracking-discovery:"+role+":after");
+  independentEffectsUnchanged=unchangedEffects(before,after,0);
+  const responseUrl=new URL(response.url());
+  postTargetVerified=responseUrl.pathname===sourcePath;
+  protectedPayloadAbsent=protectedIds.every(id=>!body.includes(id))&&protectedContent.every(marker=>!body.includes(marker));
+  const autocompletePayloadAbsent=!/(ui-autocomplete|autocomplete-item|autocomplete-panel|autocomplete-suggestions|data-item-value|role=["']option)/i.test(body)&&!/^[\s]*\[[\s\S]*\][\s]*$/.test(body);
+  callbackResponseAbsent=protectedPayloadAbsent&&autocompletePayloadAbsent;
+  redirectIsLogin=status===303&&new URL(response.headers().location,base).href===base+"login";
+  check("ACTION-23 stale autocomplete POST denied to anonymous",status===303&&redirectIsLogin&&postTargetVerified&&protectedPayloadAbsent&&independentEffectsUnchanged);
+ }else{
+  const page=await context.newPage();
+  try{
+   const entry=await page.goto(base+relative);
+   const initialHtml=await page.locator("body").innerHTML();
+   const values=await page.locator("form").first().evaluate(form=>{
+    const out={};for(const el of form.querySelectorAll("input,select,textarea")){
+     if(!el.name)continue;if((el.type==="checkbox"||el.type==="radio")&&!el.checked)continue;out[el.name]=el.value;
+    }return out;
+   });
+   const viewStateKey=Object.keys(values).find(key=>/^(jakarta|javax)\.faces\.ViewState$/.test(key));
+   prefix=viewStateKey?viewStateKey.split(".")[0]:"jakarta";
+   currentCsrfPresent=typeof values.csrf==="string"&&values.csrf.length>0;
+   currentViewStatePresent=!!viewStateKey&&typeof values[viewStateKey]==="string"&&values[viewStateKey].length>0;
+   currentLegacyComponentAbsent=!initialHtml.includes("trackIdInput")&&!initialHtml.includes("completeTracking")&&!initialHtml.includes("ui-autocomplete");
+   const entryUrl=new URL(page.url());
+   currentFormVerified=entry.status()===200&&entryUrl.pathname==="/cargo-tracker/admin/track.xhtml"&&
+    await page.locator('input[id="tracking:id"]').count()===1&&currentLegacyComponentAbsent;
+   const fields={...values};
+   fields["javax.faces.partial.ajax"]="true";fields["javax.faces.source"]=component;
+   fields["javax.faces.partial.execute"]=component;fields["javax.faces.partial.render"]=component;
+   fields["javax.faces.partial.event"]="query";fields["trackingForm:trackIdInput_query"]="ABC";fields[component]=component;
+   fields[prefix+".faces.partial.ajax"]="true";fields[prefix+".faces.source"]=component;
+   fields[prefix+".faces.partial.execute"]=component;fields[prefix+".faces.partial.render"]=component;
+   fields[prefix+".faces.event"]="query";
+   const response=await context.request.post(base+relative,{form:fields,headers:{"Faces-Request":"partial/ajax","X-Requested-With":"XMLHttpRequest"},maxRedirects:0});
+   body=await response.text();status=response.status();
+   const after=await observeEffects("tracking-discovery:"+role+":after");
+   independentEffectsUnchanged=unchangedEffects(before,after,0);
+   const responseUrl=new URL(response.url());postTargetVerified=responseUrl.pathname===sourcePath;
+   protectedPayloadAbsent=protectedIds.every(id=>!body.includes(id))&&protectedContent.every(marker=>!body.includes(marker));
+   const autocompletePayloadAbsent=!/(ui-autocomplete|autocomplete-item|autocomplete-panel|autocomplete-suggestions|data-item-value|role=["']option)/i.test(body)&&!/^[\s]*\[[\s\S]*\][\s]*$/.test(body);
+   callbackResponseAbsent=protectedPayloadAbsent&&autocompletePayloadAbsent;
+   identity={server_verified:true,principal:actor.identity.principal,roles:actor.identity.roles};
+   check("ACTION-23 current typed page omits legacy autocomplete "+role,currentFormVerified&&currentCsrfPresent&&currentViewStatePresent);
+   check("ACTION-23 stale autocomplete callback is inert "+role,status===200&&postTargetVerified&&callbackResponseAbsent&&independentEffectsUnchanged);
+  }finally{await page.close();}
+ }
+ proof={driver:"browser-retired-tracking-v1",legacy_id:"ACTION-23",actor:role,method:"POST",source_path:sourcePath,
+  historical_source_component_id:component,historical_source_parameter:"javax.faces.source",current_source_parameter:role==="anonymous"?null:prefix+".faces.source",
+  response_status:status,post_target_verified:postTargetVerified,current_form_verified:currentFormVerified,
+  current_csrf_present:currentCsrfPresent,current_viewstate_present:currentViewStatePresent,
+  current_legacy_component_absent:currentLegacyComponentAbsent,callback_response_absent:callbackResponseAbsent,
+  authorization_denied:role==="anonymous",protected_payload_absent:protectedPayloadAbsent,
+  redirect_is_configured_login:redirectIsLogin,independent_effects_unchanged:independentEffectsUnchanged,
+  autocomplete_payload_absent:!/(ui-autocomplete|autocomplete-item|autocomplete-panel|autocomplete-suggestions|data-item-value|role=["']option)/i.test(body)&&!/^[\s]*\[[\s\S]*\][\s]*$/.test(body),cargo_snapshot_sha256:snapshotSha256,cargo_snapshot_count:snapshotCount,
+  ...(identity?{identity}:{})};
+ return proof;
+}
 async function retiredCancelAttempt(role,actor,context,base,trackingId,destinationCode){
  const component="j_idt8:j_idt23";
  const relative="admin/changeDestination.xhtml?trackingId="+trackingId;
@@ -1157,7 +1252,9 @@ async function retiredCancelAttempt(role,actor,context,base,trackingId,destinati
   const claimedTarget="admin/show.xhtml?trackingId="+id;
   const claimedSnapshotResponse=await reader.context.request.get(base+"rest/cargo");
   check("Claimed cargo independent snapshot available",claimedSnapshotResponse.status()===200);
-  const claimedCargo=(await claimedSnapshotResponse.json()).find(cargo=>cargo.trackingId===id);
+  const claimedCargos=await claimedSnapshotResponse.json();
+  const cargoMarkers=protectedCargoMarkers(claimedCargos);const cargoSnapshotHash=cargoSnapshotSha256(claimedCargos);
+  const claimedCargo=claimedCargos.find(cargo=>cargo.trackingId===id);
   check("Selected cargo is persistently claimed",claimedCargo?.transportStatus==="CLAIMED");
   function claimedNavigationProof(response,source,driver){
    const url=new URL(response.url());
@@ -1298,6 +1395,10 @@ async function retiredCancelAttempt(role,actor,context,base,trackingId,destinati
       legacy_entry_verified:action==="ACTION-45"};
     }finally{await page.close();}
    }
+  }
+  for(const actor of [{who:"anonymous",context:anon,identity:null},reader,operator,admin]){
+   const role=actor.who==="anonymous"?"anonymous":cargoRole(actor);
+   retiredActionProofs["RETIREMENT::ACTION-23::"+role]=await retiredTrackingDiscoveryAttempt(role,actor,actor.context,base,id,cargoMarkers,cargoSnapshotHash,claimedCargos.length);
   }
   for(const actor of [reader,operator,admin]){
    const role=cargoRole(actor);

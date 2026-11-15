@@ -51,6 +51,52 @@ class NavigationProofTests(unittest.TestCase):
             with self.subTest(field=field),self.assertRaises(AssertionError):h.promote_navigation_actions(report,result)
             self.assertEqual(len(report["access_observations"]),1)
 
+class RetiredTrackingDiscoveryProofTests(unittest.TestCase):
+    def fixture(self):
+        proofs={};hashes=h.action23_source_evidence()
+        identities={"Reader":{"server_verified":True,"principal":"reader","roles":["Reader"]},
+                    "Operator":{"server_verified":True,"principal":"operator","roles":["Operator"]},
+                    "Administrator":{"server_verified":True,"principal":"admin","roles":["Administrator"]}}
+        for role in ("anonymous","Reader","Operator","Administrator"):
+            if role=="anonymous":
+                proofs["RETIREMENT::ACTION-08::"+role]={"driver":"browser-retired-action-v1","legacy_id":"ACTION-08","actor":role,"method":"POST",
+                    "source_path":"/cargo-tracker/admin/changeDestination.xhtml?trackingId=ABCDEFGH","historical_source_component_id":"j_idt8:j_idt23",
+                    "post_target_verified":True,"callback_implementation_absent":True,"independent_effects_unchanged":True,"response_status":303,
+                    "authorization_denied":True,"protected_payload_absent":True,"redirect_is_configured_login":True,"identity":None}
+            elif role=="Reader":
+                proofs["RETIREMENT::ACTION-08::"+role]={"driver":"browser-retired-action-v1","legacy_id":"ACTION-08","actor":role,"method":"POST",
+                    "source_path":"/cargo-tracker/admin/changeDestination.xhtml?trackingId=ABCDEFGH","historical_source_component_id":"j_idt8:j_idt23",
+                    "post_target_verified":True,"callback_implementation_absent":True,"independent_effects_unchanged":True,"response_status":403,
+                    "authorization_denied":True,"protected_payload_absent":True,"identity":identities[role]}
+            else:
+                proofs["RETIREMENT::ACTION-08::"+role]={"driver":"browser-retired-action-v1","legacy_id":"ACTION-08","actor":role,"method":"POST",
+                    "source_path":"/cargo-tracker/admin/changeDestination.xhtml?trackingId=ABCDEFGH","historical_source_component_id":"j_idt8:j_idt23",
+                    "post_target_verified":True,"callback_implementation_absent":True,"independent_effects_unchanged":True,"response_status":200,
+                    "current_form_verified":True,"current_csrf_present":True,"current_viewstate_present":True,"callback_response_absent":True,"identity":identities[role]}
+            proof={"driver":"browser-retired-tracking-v1","legacy_id":"ACTION-23","actor":role,"method":"POST",
+                "source_path":"/cargo-tracker/admin/track.xhtml","historical_source_component_id":"trackingForm:trackIdInput",
+                "historical_source_parameter":"javax.faces.source","callback_implementation_absent":True,
+                "legacy_binding_discrepancy_verified":True,"source_hashes":hashes,"post_target_verified":True,
+                "callback_response_absent":True,"protected_payload_absent":True,"autocomplete_payload_absent":True,
+                "cargo_snapshot_sha256":"a"*64,"cargo_snapshot_count":4,"independent_effects_unchanged":True}
+            if role=="anonymous":proof.update(response_status=303,authorization_denied=True,redirect_is_configured_login=True,identity=None)
+            else:proof.update(response_status=200,authorization_denied=False,current_source_parameter="jakarta.faces.source",
+                current_form_verified=True,current_legacy_component_absent=True,current_csrf_present=True,current_viewstate_present=True,identity=identities[role])
+            proofs["RETIREMENT::ACTION-23::"+role]=proof
+        return proofs
+
+    def test_current_roles_and_anonymous_proof_validate_for_both_retirements(self):
+        h.validate_retirement_keys(self.fixture())
+
+    def test_action23_proof_rejects_missing_source_or_runtime_guards(self):
+        for field,value in [("legacy_binding_discrepancy_verified",False),("source_hashes",{}),
+                            ("post_target_verified",False),("callback_response_absent",False),("autocomplete_payload_absent",False),
+                            ("cargo_snapshot_sha256","invalid"),("cargo_snapshot_count",0),
+                            ("protected_payload_absent",False),("independent_effects_unchanged",False),
+                            ("current_legacy_component_absent",False),("current_csrf_present",False),
+                            ("current_viewstate_present",False),("response_status",500)]:
+            proofs=self.fixture();proofs["RETIREMENT::ACTION-23::Operator"][field]=value
+            with self.subTest(field=field),self.assertRaises(AssertionError):h.validate_retirement_keys(proofs)
 class ClaimedNavigationProofTests(unittest.TestCase):
     def test_claimed_receipts_promote_only_to_current_observations(self):
         roles={"Reader":"reader","Operator":"operator","Administrator":"admin"}

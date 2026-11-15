@@ -1,0 +1,93 @@
+{
+  "task": "KAN-15 ACTION-23 specific retired-entry evidence",
+  "run_date": "2026-11-15",
+  "candidate": {
+    "legacy_id": "ACTION-23",
+    "replacement_id": "tracking-discovery",
+    "classification": "RETIRED; outcome is not PASS"
+  },
+  "basis": {
+    "fixture_status": "PASS",
+    "browser_checks": 777,
+    "effective_current_counts": {
+      "PASS": 470
+    },
+    "pre_review_retirement_counts": {
+      "RETIRED": 4,
+      "BLOCKED": 72
+    },
+    "pre_review_gate_exit": 2,
+    "fresh_evidence": "notes/evidence/kan-15-action23-retirement/candidate-evidence.json",
+    "fresh_evidence_sha256": "f466c5c6c00e17b1983247a7f5108e768e8917647b5c46b685368a58eebc9fdd",
+    "inputs_fingerprint": "276feb12d92d4d40b8c800ad2691b6396561c55b2fac4245465dff17f3672f0d",
+    "legacy_fixture_cleanup_verified": true,
+    "imported_code_attested": false,
+    "cargo_snapshot_sha256": "a00444ba743c670ce08028d14e9bc3d2365991b345138ee7bf34263d69e107d1",
+    "cargo_snapshot_count": 13,
+    "source_hashes": {
+      "legacy_admin_page_sha256": "f9d40b19bd211ede601884b0057005932c74aefdc9e665154655eb26192e0e32",
+      "legacy_track_bean_sha256": "4268ab4111ff486c13e63cd3005092a792ad448f97a812f32bb6bae838688cd9",
+      "candidate_admin_page_sha256": "664ed623520373a9e8f9e104aebd92ca19433834a957ae964fe4ecfcbcf28b45",
+      "candidate_cargo_pages_sha256": "f2b182bf892f7951983749d0fd26bb6871a649ee3bd6849003b0ccd42c0e4af3",
+      "legacy_public_page_sha256": "9e36a35a1afc7d4035ddb48873f963c19e1b8f9a19ea6e889362ab24dd07b6eb"
+    }
+  },
+  "required_evidence": {
+    "replacement_per_actor": "fresh tracking-discovery replacement PASS for all four actors",
+    "specific_negative_entry": "historical ACTION-23 autocomplete POST attempted at exact admin path; callback implementation absent",
+    "native_role_session": "anonymous redirected to configured login; authenticated actors had current form/CSRF/ViewState and server-verified role identity",
+    "no_protected_payload": "all snapshot tracking IDs and all cargo strings >=4 characters absent from the response, and autocomplete payload absent",
+    "required_independent_effects": "before/after database, queues and business invocation snapshots unchanged for each actor",
+    "independent_review": "APPROVED by /root/review_action23_driver; RETIRED only"
+  },
+  "actor_observations": [
+    {
+      "actor": "anonymous",
+      "proof_sha256": "c68823a9790e229e82824964d897173f71cd8cfce6f63750fb4bc494e1db1356",
+      "replacement_case_id": "REPLACEMENT::tracking-discovery::anonymous",
+      "replacement_outcome": "PASS"
+    },
+    {
+      "actor": "Reader",
+      "proof_sha256": "e17662fa055bbffe6c3310f6820aeb95bd8de47cb6dbd6d3f652f577a1d1d703",
+      "replacement_case_id": "REPLACEMENT::tracking-discovery::Reader",
+      "replacement_outcome": "PASS"
+    },
+    {
+      "actor": "Operator",
+      "proof_sha256": "bcce72aa2f56e2c126fe1baec02afc9ae3edd9b5fd0216dc00ca7c8884e619ca",
+      "replacement_case_id": "REPLACEMENT::tracking-discovery::Operator",
+      "replacement_outcome": "PASS"
+    },
+    {
+      "actor": "Administrator",
+      "proof_sha256": "59a5e52553fd800432a2daff68d518dd742a64dfe31933af0dc200abcde924e1",
+      "replacement_case_id": "REPLACEMENT::tracking-discovery::Administrator",
+      "replacement_outcome": "PASS"
+    }
+  ],
+  "review": {
+    "status": "APPROVED",
+    "reviewer": "/root/review_action23_driver",
+    "date": "2026-11-15",
+    "approved_outcome": "RETIRED",
+    "pass_outcome_allowed": false,
+    "review_record": "notes/agent-reviews/2026-11-15-kan15-action23-retirement-review.md",
+    "review_record_sha256": "e3cb115b436696aba1bb41e64cc755acc33dfbf3b2ed264d9c550629c70b1259"
+  },
+  "limitations": [
+    "This receipt re-evaluates one retained fresh live fixture; it does not launch a second runtime.",
+    "Cargo strings shorter than four characters are not compared as payload markers; every tracking ID is compared.",
+    "Imported Python code identity is not attested by the runtime receipt.",
+    "ACTION-44 and unrelated retirement cases remain unchanged."
+  ],
+  "result": {
+    "action23_retired_case_ids": [
+      "RETIREMENT::ACTION-23::anonymous",
+      "RETIREMENT::ACTION-23::Reader",
+      "RETIREMENT::ACTION-23::Operator",
+      "RETIREMENT::ACTION-23::Administrator"
+    ],
+    "pass_outcome_allowed": false
+  }
+}

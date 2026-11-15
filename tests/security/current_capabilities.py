@@ -27,6 +27,12 @@ ACTION08_RETIREMENT_REVIEW=ROOT/"notes/agent-reviews/2026-11-14-kan15-action08-r
 ACTION08_RETIREMENT_REVIEW_SHA256="673381cf2fc8c4c36a20105be2ddc76decac3d1567ce7e4f5f1596ebc4ed44d6"
 ACTION08_RETIREMENT_VALIDATION_SHA256="773e9538885bd03460afc3dd43b103569ea09271a5cd6192137aab8c6652262e"
 ACTION08_RAW_RESULTS_SHA256="d089a8b4f1ffbb63bea9870e05e8ba4e20f68b34cdc430a43ea6abe8c9bc7280"
+ACTION23_RETIREMENT_VALIDATION=ROOT/"notes/evidence/kan-15-action23-retirement/validation.json"
+ACTION23_RETIREMENT_REVIEW=ROOT/"notes/agent-reviews/2026-11-15-kan15-action23-retirement-review.md"
+ACTION23_FRESH_EVIDENCE=ROOT/"notes/evidence/kan-15-action23-retirement/candidate-evidence.json"
+ACTION23_RETIREMENT_REVIEW_SHA256="e3cb115b436696aba1bb41e64cc755acc33dfbf3b2ed264d9c550629c70b1259"
+ACTION23_RETIREMENT_VALIDATION_SHA256="7168ec3bd1b537d0ca8f85d55bc59a7f79d6358123a18662ca725f362d3f3c9a"
+ACTION23_FRESH_EVIDENCE_SHA256="f466c5c6c00e17b1983247a7f5108e768e8917647b5c46b685368a58eebc9fdd"
 ACTION08_PROOF_SHA256={"anonymous":"fa403104559e7db7e9235d03e08dcf9763e245c348f97fc4bef0b36cdc6c485c","Reader":"7fbf2fd784971a123977825a64b822e4714f04b08fa27cb5af8fbc864ab760df","Operator":"edfa114363b1c46a7b2f403d129485e8cdb27c4a676dcbd4e96fbbc0035e39ff","Administrator":"749362921409b4db70c47a263c5a916616a8b933d228b5a6f5433379727e5a09"}
 APPROVED_GROUPS={'cancel-editor': {'legacy_ids': ['ACTION-08'], 'modern_method': 'GET', 'requirement': 'Leave destination editing without applying a change.'}, 'tracking-discovery': {'legacy_ids': ['ACTION-23', 'ACTION-44'], 'modern_method': 'POST', 'requirement': 'Authorized cargo discovery and valid/invalid typed tracking lookup.'}, 'booking-deadline': {'legacy_ids': ['ACTION-26', 'ACTION-32'], 'modern_method': 'POST', 'requirement': 'Strict deadline validation on the current booking form.'}, 'booking-single-page': {'legacy_ids': ['ACTION-27', 'ACTION-30', 'ACTION-34'], 'modern_method': 'POST', 'requirement': 'Origin/destination/deadline entry on one current booking page.'}, 'booking-cancel': {'legacy_ids': ['ACTION-28', 'ACTION-31', 'ACTION-33'], 'modern_method': 'GET', 'requirement': 'Leave booking without creating a cargo.'}, 'handling-single-page': {'legacy_ids': ['ACTION-35', 'ACTION-40', 'ACTION-43'], 'modern_method': 'GET', 'requirement': 'Authorized single-page handling entry and editing.'}, 'handling-cargo-voyage': {'legacy_ids': ['ACTION-36'], 'modern_method': 'POST', 'requirement': 'Valid selected cargo and available known-voyage choices; LOAD/UNLOAD requirements.'}, 'handling-location': {'legacy_ids': ['ACTION-37'], 'modern_method': 'POST', 'requirement': 'Valid required location selection.'}, 'handling-event': {'legacy_ids': ['ACTION-38'], 'modern_method': 'POST', 'requirement': 'Event validation, LOAD/UNLOAD voyage requirement and non-load voyage clearing.'}, 'handling-voyage': {'legacy_ids': ['ACTION-39'], 'modern_method': 'POST', 'requirement': 'Known-voyage validation, LOAD/UNLOAD requirements and non-load voyage clearing.'}, 'handling-completion': {'legacy_ids': ['ACTION-42'], 'modern_method': 'POST', 'requirement': 'Strict completion-time validation.'}}
 APPROVED_RETIREMENT_POLICY='Never PASS; remain BLOCKED until replacement, specific negative-entry and independent-review evidence have a supported fresh runtime verifier.'
@@ -452,6 +458,108 @@ def reviewed_action08_retirement_receipt():
     except (OSError,KeyError,TypeError,ValueError):
         return False
 
+
+def reviewed_action23_retirement_receipt():
+    try:
+        raw=ACTION23_RETIREMENT_VALIDATION.read_bytes()
+        if hashlib.sha256(raw).hexdigest()!=ACTION23_RETIREMENT_VALIDATION_SHA256:return False
+        receipt=json.loads(raw);review=receipt["review"];basis=receipt["basis"]
+        review_bytes=ACTION23_RETIREMENT_REVIEW.read_bytes()
+        evidence_bytes=ACTION23_FRESH_EVIDENCE.read_bytes()
+        if (hashlib.sha256(review_bytes).hexdigest()!=ACTION23_RETIREMENT_REVIEW_SHA256
+                or review.get("status")!="APPROVED" or review.get("reviewer")!="/root/review_action23_driver"
+                or review.get("approved_outcome")!="RETIRED" or review.get("pass_outcome_allowed") is not False
+                or review.get("review_record")!="notes/agent-reviews/2026-11-15-kan15-action23-retirement-review.md"
+                or review.get("review_record_sha256")!=ACTION23_RETIREMENT_REVIEW_SHA256
+                or receipt.get("task")!="KAN-15 ACTION-23 specific retired-entry evidence"
+                or receipt.get("candidate",{}).get("legacy_id")!="ACTION-23"
+                or receipt.get("candidate",{}).get("replacement_id")!="tracking-discovery"
+                or hashlib.sha256(evidence_bytes).hexdigest()!=ACTION23_FRESH_EVIDENCE_SHA256
+                or basis.get("fresh_evidence_sha256")!=ACTION23_FRESH_EVIDENCE_SHA256
+                or basis.get("fixture_status")!="PASS" or basis.get("browser_checks")!=777
+                or basis.get("effective_current_counts")!={"PASS":470}
+                or basis.get("pre_review_retirement_counts")!={"RETIRED":4,"BLOCKED":72}
+                or basis.get("pre_review_gate_exit")!=2
+                or basis.get("legacy_fixture_cleanup_verified") is not True
+                or basis.get("imported_code_attested") is not False):
+            return False
+        evidence=json.loads(evidence_bytes)
+        if (evidence.get("provenance",{}).get("kind")!="fresh-owned-runtime"
+                or evidence.get("provenance",{}).get("legacy_fixture_cleanup_verified") is not True
+                or evidence.get("current_counts")!={"PASS":470}
+                or evidence.get("retirement_counts")!={"RETIRED":4,"BLOCKED":72}
+                or evidence.get("gate_exit")!=2):
+            return False
+        source_hashes=action23_source_hashes()
+        if basis.get("source_hashes")!=source_hashes:return False
+        proof_map=evidence.get("retirement_observations",{})
+        actors=receipt.get("actor_observations",[])
+        by_actor={row.get("actor"):row for row in actors if isinstance(row,dict)}
+        if set(by_actor)!=set(ACTORS) or len(actors)!=4:return False
+        snapshot_hash=None
+        for actor in ACTORS:
+            proof=proof_map.get("RETIREMENT::ACTION-23::"+actor,{})
+            row=by_actor[actor]
+            canonical=json.dumps(proof,sort_keys=True,separators=(",",":"),ensure_ascii=False).encode()
+            expected_status=303 if actor=="anonymous" else 200
+            if (row.get("proof_sha256")!=hashlib.sha256(canonical).hexdigest()
+                    or row.get("replacement_case_id")!="REPLACEMENT::tracking-discovery::"+actor
+                    or row.get("replacement_outcome")!="PASS"
+                    or proof.get("driver")!="browser-retired-tracking-v1" or proof.get("legacy_id")!="ACTION-23"
+                    or proof.get("actor")!=actor or proof.get("method")!="POST"
+                    or proof.get("source_path")!="/cargo-tracker/admin/track.xhtml"
+                    or proof.get("historical_source_component_id")!="trackingForm:trackIdInput"
+                    or proof.get("historical_source_parameter")!="javax.faces.source"
+                    or proof.get("response_status")!=expected_status or proof.get("post_target_verified") is not True
+                    or proof.get("callback_implementation_absent") is not True
+                    or proof.get("legacy_binding_discrepancy_verified") is not True
+                    or proof.get("source_hashes")!=source_hashes
+                    or proof.get("callback_response_absent") is not True
+                    or proof.get("autocomplete_payload_absent") is not True
+                    or proof.get("protected_payload_absent") is not True
+                    or proof.get("independent_effects_unchanged") is not True
+                    or re.fullmatch(r"[0-9a-f]{64}",str(proof.get("cargo_snapshot_sha256"))) is None
+                    or type(proof.get("cargo_snapshot_count")) is not int or proof.get("cargo_snapshot_count")!=13):
+                return False
+            if snapshot_hash is None:snapshot_hash=proof["cargo_snapshot_sha256"]
+            elif snapshot_hash!=proof["cargo_snapshot_sha256"]:return False
+            if actor=="anonymous":
+                if proof.get("authorization_denied") is not True or proof.get("redirect_is_configured_login") is not True or proof.get("identity") is not None:return False
+            else:
+                identity=proof.get("identity",{})
+                if (proof.get("authorization_denied") is not False
+                        or proof.get("current_source_parameter")!="jakarta.faces.source"
+                        or proof.get("current_form_verified") is not True
+                        or proof.get("current_csrf_present") is not True or proof.get("current_viewstate_present") is not True
+                        or proof.get("current_legacy_component_absent") is not True
+                        or identity.get("server_verified") is not True or identity.get("principal")!=USERS[actor]
+                        or identity.get("roles")!=[actor]):
+                    return False
+        return True
+    except (OSError,KeyError,TypeError,ValueError):
+        return False
+
+
+def action23_source_hashes():
+    paths={"legacy_admin_page_sha256":ROOT/"experiments/legacy-cargotracker/src/main/webapp/admin/track.xhtml",
+           "legacy_track_bean_sha256":ROOT/"experiments/legacy-cargotracker/src/main/java/net/java/cargotracker/interfaces/tracking/web/Track.java",
+           "candidate_admin_page_sha256":ROOT/"candidate/cargotracker/src/main/webapp/admin/track.xhtml",
+           "candidate_cargo_pages_sha256":ROOT/"candidate/cargotracker/src/main/java/net/java/cargotracker/interfaces/booking/web/CargoPages.java",
+           "legacy_public_page_sha256":ROOT/"experiments/legacy-cargotracker/src/main/webapp/public/track.xhtml"}
+    raw={key:path.read_bytes() for key,path in paths.items()}
+    old_page=raw["legacy_admin_page_sha256"].decode("utf-8")
+    old_bean=raw["legacy_track_bean_sha256"].decode("utf-8")
+    new_page=raw["candidate_admin_page_sha256"].decode("utf-8")
+    new_bean=raw["candidate_cargo_pages_sha256"].decode("utf-8")
+    public_page=raw["legacy_public_page_sha256"].decode("utf-8")
+    if ("id=\"trackIdInput\"" not in old_page or "completeMethod=\"#{track.completeTracking}\"" not in old_page
+            or re.search(r"\bpublic\s+[^;{]+\bcompleteTracking\s*\(",old_bean)
+            or not re.search(r"\bpublic\s+[^;{]+\bgetTrackingIds\s*\(",old_bean)
+            or 'completeMethod="#{track.getTrackingIds}"' not in public_page or 'id="trackingId"' not in public_page or "completeTracking" in new_page
+            or "trackIdInput" in new_page or "p:autoComplete" in new_page
+            or "completeTracking" in new_bean or 'id="id"' not in new_page):
+        raise UnsupportedCase()
+    return {key:hashlib.sha256(value).hexdigest() for key,value in raw.items()}
 def validate_model(model,inventory,inventory_hash):
     if set(model)!={"schema_version","approval_record","approved_proposal_sha256","legacy_inventory_sha256","mapped_actions","pending_current_actions","replacement_capabilities","retirement_candidates","retirement_policy","public_current_capabilities"}:raise ValueError("Unknown or missing model field")
     if model.get("schema_version")!=2 or model.get("legacy_inventory_sha256")!=inventory_hash:raise ValueError("Unknown version or inventory drift")
@@ -491,9 +599,12 @@ def validate_model(model,inventory,inventory_hash):
         if set(row)!={"legacy_id","replacement_id","status","required_evidence","negative_driver"}:raise ValueError("Unknown or missing retirement field")
         old=callbacks[row["legacy_id"]];group=group_map.get(row.get("replacement_id"))
         if old["domain_mutation"] or group is None or row["legacy_id"] not in group.get("legacy_ids",[]):raise ValueError("Unbound retirement")
-        retired=row["legacy_id"]=="ACTION-08"
-        if retired:
+        if row["legacy_id"]=="ACTION-08":
             if row.get("status")!="retired" or row.get("negative_driver")!="browser-retired-action-v1" or not reviewed_action08_retirement_receipt():raise ValueError("Retirement lacks its pinned independent evidence receipt")
+        elif row["legacy_id"]=="ACTION-23" and row.get("status")=="retired":
+            if row.get("negative_driver")!="browser-retired-tracking-v1" or not reviewed_action23_retirement_receipt():raise ValueError("ACTION-23 retirement lacks its pinned independent evidence receipt")
+        elif row["legacy_id"]=="ACTION-23" and row.get("status")=="candidate":
+            if row.get("negative_driver") not in {"pending","browser-retired-tracking-v1"}:raise ValueError("Unsupported ACTION-23 retired-entry driver")
         elif row.get("status")!="candidate" or row.get("negative_driver")!="pending":raise ValueError("Premature retirement")
         if set(row.get("required_evidence",[]))!={"replacement-per-actor","specific-negative-entry","native-role-session","no-protected-payload","required-independent-effects","independent-review"}:raise ValueError("Retirement evidence weakened")
         used.append(row["legacy_id"])
@@ -885,9 +996,11 @@ class CurrentAdapter:
         observation["current_provenance"]=deepcopy(self.provenance)
         return observation
     def execute_retirement(self,case,replacement_results):
-        if (not isinstance(case,dict) or case.get("legacy_id")!="ACTION-08"
+        legacy_id=case.get("legacy_id") if isinstance(case,dict) else None
+        group={"ACTION-08":"cancel-editor","ACTION-23":"tracking-discovery"}.get(legacy_id)
+        if (not isinstance(case,dict) or legacy_id not in {"ACTION-08","ACTION-23"}
                 or case.get("actor") not in ACTORS
-                or case.get("replacement_case_id")!="REPLACEMENT::cancel-editor::"+str(case.get("actor"))
+                or case.get("replacement_case_id")!="REPLACEMENT::"+str(group)+"::"+str(case.get("actor"))
                 or self.legacy is None or not isinstance(self.provenance,dict)
                 or self.provenance.get("kind")!="fresh-owned-runtime"
                 or self.provenance.get("legacy_fixture_cleanup_verified") is not True
@@ -895,10 +1008,38 @@ class CurrentAdapter:
                 or re.fullmatch("[0-9a-f]{64}",str(self._run_fingerprint)) is None):
             raise UnsupportedCase()
         replacement=next((row for row in replacement_results if row.get("case")==case["replacement_case_id"]),None)
-        if not isinstance(replacement,dict) or replacement.get("outcome")!="PASS":
-            raise UnsupportedCase()
+        if not isinstance(replacement,dict) or replacement.get("outcome")!="PASS":raise UnsupportedCase()
         proof=deepcopy(getattr(self.legacy,"retirement_observations",{}).get(case["id"],{}))
         actor=case["actor"]
+        if legacy_id=="ACTION-23":
+            if (proof.get("driver")!="browser-retired-tracking-v1" or proof.get("legacy_id")!=legacy_id
+                    or proof.get("actor")!=actor or proof.get("method")!="POST"
+                    or proof.get("source_path")!="/cargo-tracker/admin/track.xhtml"
+                    or proof.get("historical_source_component_id")!="trackingForm:trackIdInput"
+                    or proof.get("historical_source_parameter")!="javax.faces.source"
+                    or proof.get("callback_implementation_absent") is not True
+                    or proof.get("legacy_binding_discrepancy_verified") is not True
+                    or proof.get("source_hashes")!=action23_source_hashes()
+                    or proof.get("post_target_verified") is not True
+                    or proof.get("callback_response_absent") is not True
+                    or proof.get("protected_payload_absent") is not True
+                    or proof.get("autocomplete_payload_absent") is not True
+                    or re.fullmatch(r"[0-9a-f]{64}",str(proof.get("cargo_snapshot_sha256"))) is None
+                    or type(proof.get("cargo_snapshot_count")) is not int or proof.get("cargo_snapshot_count",0)<1
+                    or proof.get("independent_effects_unchanged") is not True):
+                raise UnsupportedCase()
+            if actor=="anonymous":
+                if (proof.get("response_status")!=303 or proof.get("authorization_denied") is not True
+                        or proof.get("redirect_is_configured_login") is not True or proof.get("identity") is not None):raise UnsupportedCase()
+            else:
+                identity=proof.get("identity",{});prefix=proof.get("current_source_parameter")
+                if (proof.get("response_status")!=200 or proof.get("authorization_denied") is not False
+                        or prefix not in {"jakarta.faces.source","javax.faces.source"}
+                        or proof.get("current_form_verified") is not True or proof.get("current_legacy_component_absent") is not True
+                        or proof.get("current_csrf_present") is not True or proof.get("current_viewstate_present") is not True
+                        or identity.get("server_verified") is not True or identity.get("principal")!=USERS[actor]
+                        or identity.get("roles")!=[actor]):raise UnsupportedCase()
+            return proof
         if (proof.get("driver")!="browser-retired-action-v1" or proof.get("legacy_id")!="ACTION-08"
                 or proof.get("actor")!=actor or proof.get("method")!="POST"
                 or re.fullmatch(r"/cargo-tracker/admin/changeDestination\.xhtml\?trackingId=[A-Z0-9]{8}",str(proof.get("source_path"))) is None
@@ -929,7 +1070,6 @@ class CurrentAdapter:
                 or proof.get("identity") is not None):
             raise UnsupportedCase()
         return proof
-
 def retirement_results(model,adapter,current_results):
     results=[]
     for row in model["retirement_candidates"]:
@@ -937,6 +1077,8 @@ def retirement_results(model,adapter,current_results):
             case={"id":"RETIREMENT::"+row["legacy_id"]+"::"+actor,"legacy_id":row["legacy_id"],"actor":actor,"replacement_case_id":"REPLACEMENT::"+row["replacement_id"]+"::"+actor}
             if row.get("status")=="retired" and row["legacy_id"]=="ACTION-08" and reviewed_action08_retirement_receipt():
                 results.append({"case":case["id"],"legacy_case_id":row["legacy_id"]+"::"+actor+"::active","replacement_case_id":case["replacement_case_id"],"outcome":"RETIRED","specific_negative_entry_verified":True,"independent_review_verified":True,"review_record":"notes/agent-reviews/2026-11-14-kan15-action08-retirement-review.md","outcome_note":"Approved retired entry; RETIRED is never PASS"})
+            elif row.get("status")=="retired" and row["legacy_id"]=="ACTION-23" and reviewed_action23_retirement_receipt():
+                results.append({"case":case["id"],"legacy_case_id":row["legacy_id"]+"::"+actor+"::active","replacement_case_id":case["replacement_case_id"],"outcome":"RETIRED","specific_negative_entry_verified":True,"independent_review_verified":True,"review_record":"notes/agent-reviews/2026-11-15-kan15-action23-retirement-review.md","outcome_note":"Approved retired entry; RETIRED is never PASS"})
             else:
                 try:
                     adapter.execute_retirement(case,current_results)

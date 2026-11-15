@@ -4,6 +4,7 @@ import subprocess
 import sys
 import unittest
 LAB_EFFECTS_SOURCE = (Path(__file__).parents[1] / "candidate-runtime/observer/LabEffects.java").read_text()
+WORKFLOWS_SOURCE = Path(__file__).with_name("workflows.cjs").read_text()
 
 spec = importlib.util.spec_from_file_location("fixture_bridge", Path(__file__).with_name("effects_bridge.py"))
 bridge = importlib.util.module_from_spec(spec)
@@ -72,3 +73,23 @@ class EffectsBridgeTests(unittest.TestCase):
         for role in bridge.ROLES:
             for phase in ("before", "after"):
                 self.assertIn("retired-action:" + role + ":" + phase, bridge.STAGES)
+
+    def test_tracking_discovery_retirement_stages_are_allowlisted_for_all_actors(self):
+        producer=WORKFLOWS_SOURCE.split("async function retiredTrackingDiscoveryAttempt",1)[1].split("async function retiredCancelAttempt",1)[0]
+        before='observeEffects("tracking-discovery:"+role+":before")'
+        after='observeEffects("tracking-discovery:"+role+":after")'
+        self.assertIn(before, producer)
+        self.assertIn(after, producer)
+        self.assertLess(producer.index(before), producer.index(after))
+        expected=[f"tracking-discovery:{role}:{phase}" for role in bridge.ROLES for phase in ("before","after")]
+        self.assertEqual(len(expected),len(set(expected)))
+        self.assertTrue(set(expected).issubset(bridge.STAGES))
+        script=("import json,sys; stages="+repr(expected)+"; "
+                "[(print('@@LAB_EFFECTS@@'+json.dumps({'id':i,'stage':stage}),flush=True), "
+                "(_ for _ in ()).throw(Exception()) if json.loads(sys.stdin.readline())['id']!=i else None) "
+                "for i,stage in enumerate(stages)]; print('done',flush=True)")
+        observed=[]
+        result=bridge.run_browser_with_effects([sys.executable,"-u","-c",script],
+            lambda stage,budget:(observed.append(stage) or {"stage":stage,"fixture_id":"owned"}),5)
+        self.assertEqual(result.returncode,0)
+        self.assertEqual(observed,expected)
