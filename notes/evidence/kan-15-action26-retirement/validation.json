@@ -1,0 +1,93 @@
+{
+  "task": "KAN-15 ACTION-26 specific retired-entry evidence",
+  "run_date": "2026-11-15",
+  "candidate": {
+    "legacy_id": "ACTION-26",
+    "replacement_id": "booking-deadline",
+    "classification": "RETIRED; outcome is not PASS"
+  },
+  "basis": {
+    "fixture_status": "PASS",
+    "browser_checks": 777,
+    "effective_current_counts": {
+      "PASS": 470
+    },
+    "pre_review_retirement_counts": {
+      "RETIRED": 12,
+      "BLOCKED": 64
+    },
+    "pre_review_gate_exit": 2,
+    "fresh_evidence": "notes/evidence/kan-15-action26-retirement/candidate-evidence.json",
+    "fresh_evidence_sha256": "11262b6c1f64730ef3483d84e56b5ce92521ed3efa087ac20b5f5b85ef0e260e",
+    "inputs_fingerprint": "23fecafec7b889c8fde22d3f35dbb9f99cab404c83c1b1c0d4ab67f63d1b4888",
+    "legacy_fixture_cleanup_verified": true,
+    "imported_code_attested": false,
+    "cargo_snapshot_sha256": "a1b5e573c1556237b9111b16bb6b1c88ba694876bb38f6cb97502c917bef66e3",
+    "cargo_snapshot_count": 13,
+    "source_hashes": {
+      "legacy_booking_date_page_sha256": "7d7246678a5520b0a5f7dcca22387a07c7be8095afc2116e61c4c81b0cb372b2",
+      "legacy_booking_bean_sha256": "bdc2f0eb37f81452edcf0b4c78d9a757a671ec928b5878b76f4b158685fff9a0",
+      "candidate_booking_page_sha256": "458a97585a67e1458358a5c846d4691e6d736981b31e0146de9fef7ed6e458ef",
+      "legacy_navigation_servlet_sha256": "e774a70a01f2cc7adb9d0c2a26dea6c14ad2ed800ebbec7df384d7730db502d4",
+      "candidate_access_routes_sha256": "bd83abe21d3fb74411d7d27ed06e9cc75d937cf30d8ae021a7479c8c9169948c"
+    }
+  },
+  "required_evidence": {
+    "replacement_per_actor": "fresh booking-deadline replacement PASS for all four actors",
+    "specific_negative_entry": "historical deadline listener POST to exact legacy URL/component; candidate servlet has no POST handler",
+    "native_role_session": "Anonymous redirect; Reader denial; Operator/Admin verified identities",
+    "csrf_and_viewstate": "Operator/Admin current booking form, valid CSRF and ViewState verified before expected 405",
+    "no_protected_payload": "no cargo IDs or content markers in response",
+    "required_independent_effects": "same fixture snapshot; database, queues and business invocations unchanged",
+    "independent_review": "separate agent approved fresh evidence"
+  },
+  "actor_observations": [
+    {
+      "actor": "anonymous",
+      "proof_sha256": "8aeb5aac054254a831bef78e700501895c0d70d095c5c82264b483a68be96271",
+      "replacement_case_id": "REPLACEMENT::booking-deadline::anonymous",
+      "replacement_outcome": "PASS"
+    },
+    {
+      "actor": "Reader",
+      "proof_sha256": "dc97f39d7265da188620f8dad65dae4f3325c3061062954eed488f7cd440de72",
+      "replacement_case_id": "REPLACEMENT::booking-deadline::Reader",
+      "replacement_outcome": "PASS"
+    },
+    {
+      "actor": "Operator",
+      "proof_sha256": "a883bde35f8189ef334e7b59a48a95337bc70ffa66f4bcf1d1cc770164c3d8d2",
+      "replacement_case_id": "REPLACEMENT::booking-deadline::Operator",
+      "replacement_outcome": "PASS"
+    },
+    {
+      "actor": "Administrator",
+      "proof_sha256": "b11fcf2dcacb9ed41cba8fcd84117e9c543bf183a1c82a2eab96e629912d35b6",
+      "replacement_case_id": "REPLACEMENT::booking-deadline::Administrator",
+      "replacement_outcome": "PASS"
+    }
+  ],
+  "review": {
+    "status": "APPROVED",
+    "reviewer": "/root/review_action23_driver",
+    "date": "2026-11-15",
+    "approved_outcome": "RETIRED",
+    "pass_outcome_allowed": false,
+    "review_record": "notes/agent-reviews/2026-11-15-kan15-action26-retirement-review.md",
+    "review_record_sha256": "db2cf0b2da9621d943da25c594ce88ac2c0599a89a38b01fa1e454b48396bddc"
+  },
+  "limitations": [
+    "The fresh live run is not repeated; exact evidence and review bytes are SHA-256 pinned.",
+    "Imported Python code identity is not attested by the runtime receipt.",
+    "RETIRED is not PASS; other blocked retirement cases remain unchanged."
+  ],
+  "result": {
+    "action26_retired_case_ids": [
+      "RETIREMENT::ACTION-26::anonymous",
+      "RETIREMENT::ACTION-26::Reader",
+      "RETIREMENT::ACTION-26::Operator",
+      "RETIREMENT::ACTION-26::Administrator"
+    ],
+    "pass_outcome_allowed": false
+  }
+}

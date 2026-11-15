@@ -96,10 +96,27 @@ class RetiredTrackingDiscoveryProofTests(unittest.TestCase):
             if role=="anonymous":public["identity"]=None
             else:public["identity"]=identities[role]
             proofs["RETIREMENT::ACTION-44::"+role]=public
+            deadline={"driver":"browser-retired-deadline-v1","legacy_id":"ACTION-26","actor":role,"method":"POST",
+                "source_path":"/cargo-tracker/booking/booking-date.xhtml","historical_source_component_id":"dateForm:deadline",
+                "historical_source_parameter":"javax.faces.source","source_hashes":h.action26_source_evidence(),"current_post_handler_absent":True,
+                "post_target_verified":True,"callback_response_absent":True,"protected_payload_absent":True,
+                "independent_effects_unchanged":True,"cargo_snapshot_sha256":"c"*64,"cargo_snapshot_count":13}
+            if role=="anonymous":deadline.update(response_status=303,authorization_denied=True,redirect_is_configured_login=True,identity=None)
+            elif role=="Reader":deadline.update(response_status=403,authorization_denied=True,identity=identities[role])
+            else:deadline.update(response_status=405,authorization_denied=False,current_form_verified=True,
+                current_csrf_present=True,current_viewstate_present=True,identity=identities[role])
+            proofs["RETIREMENT::ACTION-26::"+role]=deadline
         return proofs
 
     def test_current_roles_and_anonymous_proof_validate_for_both_retirements(self):
         h.validate_retirement_keys(self.fixture())
+
+    def test_action26_stale_deadline_requires_exact_denial_or_csrf_backed_method_rejection(self):
+        h.validate_retirement_keys(self.fixture())
+        for role,field,value in [("Operator","current_csrf_present",False),("Administrator","current_viewstate_present",False),
+                                 ("Reader","response_status",405),("anonymous","redirect_is_configured_login",False)]:
+            proofs=self.fixture();proofs["RETIREMENT::ACTION-26::"+role][field]=value
+            with self.subTest(role=role,field=field),self.assertRaises(AssertionError):h.validate_retirement_keys(proofs)
 
     def test_action44_proof_requires_real_legacy_callback_and_removed_current_entry(self):
         for field,value in [("legacy_callback_implementation_verified",False),("current_callback_implementation_absent",False),

@@ -229,8 +229,31 @@ def action44_source_evidence():
         raise AssertionError("ACTION-44 public autocomplete source/candidate callback discrepancy changed")
     return {key:hashlib.sha256(value).hexdigest() for key,value in raw.items()}
 
+def action26_source_evidence():
+    legacy_page=ROOT/"experiments/legacy-cargotracker/src/main/webapp/booking/booking-date.xhtml"
+    legacy_bean=ROOT/"experiments/legacy-cargotracker/src/main/java/net/java/cargotracker/domain/model/cargo/BookingBackingBean.java"
+    candidate_page=ROOT/"candidate/cargotracker/src/main/webapp/admin/book.xhtml"
+    navigation=ROOT/"candidate/cargotracker/src/main/java/net/java/cargotracker/interfaces/booking/web/LegacyNavigationServlet.java"
+    routes=ROOT/"candidate/cargotracker/src/main/webapp/WEB-INF/access-routes.tsv"
+    paths={"legacy_booking_date_page_sha256":legacy_page,"legacy_booking_bean_sha256":legacy_bean,
+           "candidate_booking_page_sha256":candidate_page,"legacy_navigation_servlet_sha256":navigation,
+           "candidate_access_routes_sha256":routes}
+    raw={key:path.read_bytes() for key,path in paths.items()}
+    old_page=raw["legacy_booking_date_page_sha256"].decode("utf-8")
+    old_bean=raw["legacy_booking_bean_sha256"].decode("utf-8")
+    current=raw["candidate_booking_page_sha256"].decode("utf-8")
+    servlet=raw["legacy_navigation_servlet_sha256"].decode("utf-8")
+    access=raw["candidate_access_routes_sha256"].decode("utf-8")
+    if ('id="deadline"' not in old_page or 'listener="#{bookingBackingBean.deadlineUpdated}"' not in old_page
+            or not re.search(r"\bpublic\s+void\s+deadlineUpdated\s*\(\s*\)",old_bean)
+            or 'id="deadline"' not in current or "deadlineUpdated" in current
+            or '"/booking/booking-date.xhtml","/admin/book.xhtml"' not in servlet
+            or "protected void doPost" in servlet or "/booking/booking-date.xhtml\tOperator,Administrator" not in access):
+        raise AssertionError("ACTION-26 source/candidate boundary changed")
+    return {key:hashlib.sha256(value).hexdigest() for key,value in raw.items()}
+
 def expected_retirement_keys():
-    return {"RETIREMENT::"+legacy_id+"::"+role for legacy_id in ("ACTION-08","ACTION-23","ACTION-44")
+    return {"RETIREMENT::"+legacy_id+"::"+role for legacy_id in ("ACTION-08","ACTION-23","ACTION-44","ACTION-26")
             for role in ("anonymous","Reader","Operator","Administrator")}
 
 def validate_retirement_keys(proofs):
@@ -251,6 +274,28 @@ def validate_retirement_keys(proofs):
                     raise AssertionError("Authorized ACTION-08 replay lacks current-session denial proof")
             elif proof.get("authorization_denied") is not True or proof.get("protected_payload_absent") is not True or proof.get("response_status") != (403 if role=="Reader" else 303) or (role=="anonymous" and proof.get("redirect_is_configured_login") is not True):
                 raise AssertionError("Unauthorized ACTION-08 replay lacks denial proof")
+        elif legacy_id=="ACTION-26":
+            if (proof.get("driver")!="browser-retired-deadline-v1" or proof.get("historical_source_component_id")!="dateForm:deadline"
+                    or proof.get("source_path")!="/cargo-tracker/booking/booking-date.xhtml"
+                    or proof.get("source_hashes")!=action26_source_evidence() or proof.get("current_post_handler_absent") is not True
+                    or proof.get("post_target_verified") is not True or proof.get("callback_response_absent") is not True
+                    or proof.get("protected_payload_absent") is not True
+                    or proof.get("cargo_snapshot_count")!=13 or re.fullmatch(r"[0-9a-f]{64}",str(proof.get("cargo_snapshot_sha256"))) is None):
+                raise AssertionError("ACTION-26 stale deadline callback proof is incomplete")
+            if role=="anonymous":
+                if proof.get("response_status")!=303 or proof.get("redirect_is_configured_login") is not True or proof.get("identity") is not None:
+                    raise AssertionError("ACTION-26 anonymous stale request was not redirected to login")
+            elif role=="Reader":
+                identity=proof.get("identity",{})
+                if proof.get("response_status")!=403 or proof.get("authorization_denied") is not True or identity.get("server_verified") is not True or identity.get("roles")!=["Reader"]:
+                    raise AssertionError("ACTION-26 Reader stale request was not denied")
+            else:
+                identity=proof.get("identity",{})
+                if (proof.get("response_status")!=405 or proof.get("current_form_verified") is not True
+                        or proof.get("current_csrf_present") is not True or proof.get("current_viewstate_present") is not True
+                        or proof.get("authorization_denied") is not False or identity.get("server_verified") is not True
+                        or identity.get("roles")!=[role]):
+                    raise AssertionError("ACTION-26 authorized stale request did not reach method rejection with valid session CSRF")
         else:
             if legacy_id=="ACTION-23":
                 if (proof.get("driver")!="browser-retired-tracking-v1" or proof.get("historical_source_component_id")!="trackingForm:trackIdInput"
@@ -378,6 +423,7 @@ def main():
                 raise AssertionError("Obsolete destination dialog callback implementation remains in the candidate")
             source_hashes=action23_source_evidence()
             public_source_hashes=action44_source_evidence()
+            deadline_source_hashes=action26_source_evidence()
             for proof in retirement_proofs.values():
                 if proof.get("legacy_id")=="ACTION-08":
                     proof["callback_implementation_absent"]=True
@@ -387,6 +433,8 @@ def main():
                     proof["source_hashes"]=source_hashes
                 elif proof.get("legacy_id")=="ACTION-44":
                     proof["source_hashes"]=public_source_hashes
+                elif proof.get("legacy_id")=="ACTION-26":
+                    proof["source_hashes"]=deadline_source_hashes
             validate_retirement_keys(retirement_proofs)
             report["retirement_observations"]=retirement_proofs
         finally:

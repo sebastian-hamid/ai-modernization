@@ -5,6 +5,7 @@ sys.path.insert(0,str(Path(__file__).parent))
 import current_capabilities as c
 import replay_action23_retirement as action23_replay
 import replay_action44_retirement as action44_replay
+import replay_action26_retirement as action26_replay
 from contracts import UnsupportedCase,evaluate
 class FakeLegacy:
     """Privileged counterfactual unit double; never runtime evidence."""
@@ -29,8 +30,8 @@ class CurrentCapabilityTests(unittest.TestCase):
         self.assertEqual({x["legacy_case_id"] for x in current}|{x["legacy_case_id"] for x in retire},old)
         self.assertEqual(len(old),502)
         self.assertEqual({x["outcome"] for x in retire},{"RETIRED","BLOCKED"})
-        self.assertEqual(sum(x["outcome"]=="RETIRED" for x in retire),12)
-        self.assertEqual(sum(x["outcome"]=="BLOCKED" for x in retire),64)
+        self.assertEqual(sum(x["outcome"]=="RETIRED" for x in retire),16)
+        self.assertEqual(sum(x["outcome"]=="BLOCKED" for x in retire),60)
         self.assertFalse(any(x["outcome"]=="PASS" for x in retire))
     def test_reviewed_bg06_scope_receipt_is_source_bound_and_exact(self):
         promotions,provenance=c.reviewed_bg06_scope()
@@ -105,6 +106,23 @@ class CurrentCapabilityTests(unittest.TestCase):
             path=Path(temporary)/"validation.json";path.write_text(json.dumps(receipt))
             with patch.object(c,"ACTION44_RETIREMENT_VALIDATION",path):self.assertFalse(c.reviewed_action44_retirement_receipt())
 
+    def test_action26_review_receipt_is_hash_pinned_and_fail_closed(self):
+        self.assertTrue(c.reviewed_action26_retirement_receipt())
+        receipt=json.loads(c.ACTION26_RETIREMENT_VALIDATION.read_text())
+        receipt["actor_observations"][0]["proof_sha256"]="0"*64
+        with tempfile.TemporaryDirectory() as temporary:
+            path=Path(temporary)/"validation.json";path.write_text(json.dumps(receipt))
+            with patch.object(c,"ACTION26_RETIREMENT_VALIDATION",path):self.assertFalse(c.reviewed_action26_retirement_receipt())
+
+    def test_action26_replay_preserves_current_results_and_retires_only_its_four_rows(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            output=Path(temporary)/"replay.json";result=action26_replay.replay(output_path=output);saved=json.loads(output.read_text())
+        self.assertEqual(result["current_counts"],{"PASS":470})
+        self.assertEqual(result["retirement_counts_after_review"],{"RETIRED":16,"BLOCKED":60})
+        self.assertEqual(result["gate_exit"],2)
+        self.assertEqual(saved["changed_cases"],["RETIREMENT::ACTION-26::"+actor for actor in c.ACTORS])
+        self.assertTrue(all(row["outcome"]!="PASS" for row in saved["retirement_results"]))
+
     def test_action44_replay_preserves_fresh_current_results_and_retires_only_reviewed_rows(self):
         with tempfile.TemporaryDirectory() as temporary:
             output=Path(temporary)/"replay.json";result=action44_replay.replay(output_path=output);saved=json.loads(output.read_text())
@@ -133,6 +151,9 @@ class CurrentCapabilityTests(unittest.TestCase):
         self.assertEqual(len(action23),4)
         self.assertTrue(all(row["outcome"]=="RETIRED" and row["outcome"]!="PASS" for row in action23))
         self.assertTrue(all(row["outcome"]=="RETIRED" and row["outcome"]!="PASS" for row in action44))
+        action26=[row for row in results if row["case"].startswith("RETIREMENT::ACTION-26::")]
+        self.assertEqual(len(action26),4)
+        self.assertTrue(all(row["outcome"]=="RETIRED" and row["outcome"]!="PASS" for row in action26))
 
     def test_model_rejects_drift_missing_duplicate_unknown_and_weakened_policy(self):
         model,inventory=c.load_model();fingerprint=model["legacy_inventory_sha256"]
@@ -182,8 +203,8 @@ class CurrentCapabilityTests(unittest.TestCase):
         fabricated=[{"case":x,"outcome":"PASS"} for x in adapter.contracts]
         result=c.retirement_results(adapter.model,adapter,fabricated)
         self.assertEqual(len(result),76)
-        self.assertEqual(sum(x["outcome"]=="RETIRED" for x in result),12)
-        self.assertEqual(sum(x["outcome"]=="BLOCKED" for x in result),64)
+        self.assertEqual(sum(x["outcome"]=="RETIRED" for x in result),16)
+        self.assertEqual(sum(x["outcome"]=="BLOCKED" for x in result),60)
         self.assertFalse(any(x["outcome"]=="PASS" for x in result))
     def test_get_proof_binds_complete_query_and_source(self):
         proof={"supported":True,"status":200,"semantic_success":True,"identity":{"server_verified":True,"principal":"reader","roles":["Reader"]},"driver":"click","actual_target_path":"/cargo-tracker/admin/show.xhtml","query_keys":["trackingId","jfwid"],"tracking_id":"ABC123","source_page":"admin/listRouted.xhtml","action_executed":True,"target_origin_verified":True}
@@ -275,7 +296,7 @@ class CurrentCapabilityTests(unittest.TestCase):
         adapter.inventory["view_callbacks"]=[]
         with patch.object(c,"CurrentAdapter",return_value=adapter):result=c.report(live=False)
         self.assertEqual(result["current_counts"],{"BLOCKED":470})
-        self.assertEqual(result["retirement_counts"],{"RETIRED":12,"BLOCKED":64})
+        self.assertEqual(result["retirement_counts"],{"RETIRED":16,"BLOCKED":60})
         self.assertEqual(result["legacy_audit"]["total"],502)
     def test_receipt_names_canonical_cache_and_discloses_code_identity_limit(self):
         with patch.object(c,"source_fingerprint",return_value="a"*64),patch.object(c.legacy,"LiveSubsetCandidate",return_value=FakeLegacy({})) as factory:
@@ -291,7 +312,7 @@ class CurrentCapabilityTests(unittest.TestCase):
             self.assertEqual(run.returncode,2)
             result=json.loads(output.read_text())
             self.assertEqual(result["current_counts"],{"BLOCKED":470})
-            self.assertEqual(result["retirement_counts"],{"RETIRED":12,"BLOCKED":64})
+            self.assertEqual(result["retirement_counts"],{"RETIRED":16,"BLOCKED":60})
             self.assertEqual(result["legacy_audit"]["total"],502)
             self.assertEqual(result["legacy_audit"]["counts"],{"BLOCKED":502})
             self.assertIsNone(result["provenance"])
@@ -538,6 +559,38 @@ class CurrentCapabilityTests(unittest.TestCase):
                             ("cargo_snapshot_count",0),("identity",{"server_verified":True,"principal":"operator","roles":["Operator"]})]:
             adapter.legacy.retirement_observations={case["id"]:{**proof,field:value}}
             with self.subTest(field=field),self.assertRaises(UnsupportedCase):adapter.execute_retirement(case,replacement)
+
+    def test_action26_retirement_requires_denial_or_csrf_backed_405_with_no_effects(self):
+        adapter=c.CurrentAdapter();adapter._run_fingerprint="a"*64
+        adapter.provenance={"kind":"fresh-owned-runtime","inputs_fingerprint":"a"*64,"legacy_fixture_cleanup_verified":True}
+        adapter.legacy=FakeLegacy({})
+        identities={"Reader":{"server_verified":True,"principal":"reader","roles":["Reader"]},
+                    "Operator":{"server_verified":True,"principal":"operator","roles":["Operator"]},
+                    "Administrator":{"server_verified":True,"principal":"admin","roles":["Administrator"]}}
+        base={"driver":"browser-retired-deadline-v1","legacy_id":"ACTION-26","method":"POST",
+            "source_path":"/cargo-tracker/booking/booking-date.xhtml","historical_source_component_id":"dateForm:deadline",
+            "historical_source_parameter":"javax.faces.source","source_hashes":c.action26_source_hashes(),
+            "current_post_handler_absent":True,"post_target_verified":True,"callback_response_absent":True,
+            "protected_payload_absent":True,"independent_effects_unchanged":True,"cargo_snapshot_sha256":"c"*64,"cargo_snapshot_count":13}
+        replacement=[{"case":"REPLACEMENT::booking-deadline::Operator","outcome":"PASS"}]
+        operator={**base,"actor":"Operator","response_status":405,"authorization_denied":False,
+            "current_form_verified":True,"current_csrf_present":True,"current_viewstate_present":True,"identity":identities["Operator"]}
+        case={"id":"RETIREMENT::ACTION-26::Operator","legacy_id":"ACTION-26","actor":"Operator","replacement_case_id":"REPLACEMENT::booking-deadline::Operator"}
+        adapter.legacy.retirement_observations={case["id"]:operator}
+        self.assertEqual(adapter.execute_retirement(case,replacement),operator)
+        for field,value in [("response_status",403),("current_csrf_present",False),("current_viewstate_present",False),
+                            ("current_post_handler_absent",False),("protected_payload_absent",False),("independent_effects_unchanged",False),
+                            ("source_hashes",{}),("cargo_snapshot_count",0)]:
+            adapter.legacy.retirement_observations={case["id"]:{**operator,field:value}}
+            with self.subTest(field=field),self.assertRaises(UnsupportedCase):adapter.execute_retirement(case,replacement)
+        reader_case={**case,"id":"RETIREMENT::ACTION-26::Reader","actor":"Reader","replacement_case_id":"REPLACEMENT::booking-deadline::Reader"}
+        reader={**base,"actor":"Reader","response_status":403,"authorization_denied":True,"identity":identities["Reader"]}
+        adapter.legacy.retirement_observations={reader_case["id"]:reader}
+        self.assertEqual(adapter.execute_retirement(reader_case,[{"case":reader_case["replacement_case_id"],"outcome":"PASS"}]),reader)
+        anon_case={**case,"id":"RETIREMENT::ACTION-26::anonymous","actor":"anonymous","replacement_case_id":"REPLACEMENT::booking-deadline::anonymous"}
+        anonymous={**base,"actor":"anonymous","response_status":303,"authorization_denied":True,"redirect_is_configured_login":True,"identity":None}
+        adapter.legacy.retirement_observations={anon_case["id"]:anonymous}
+        self.assertEqual(adapter.execute_retirement(anon_case,[{"case":anon_case["replacement_case_id"],"outcome":"PASS"}]),anonymous)
 
     def test_bg03_requires_all_human_denials_and_dedicated_worker_identity(self):
         adapter=c.CurrentAdapter()

@@ -148,6 +148,48 @@ function cargoSnapshotSha256(cargos){
   ...(identity?{identity}:{})};
  return proof;
 }
+async function retiredBookingDeadlineCallbackAttempt(role,actor,context,base,cargoMarkers,snapshotSha256,snapshotCount){
+ const relative="booking/booking-date.xhtml",sourcePath="/cargo-tracker/"+relative,component="dateForm:deadline";
+ const protectedIds=[...(cargoMarkers?.tracking_ids||[])],protectedContent=cargoMarkers?.unique_content_markers||[];
+ const page=await context.newPage();
+ let currentFormVerified=false,currentCsrfPresent=false,currentViewStatePresent=false;
+ let responseStatus=0,body="",redirectIsLogin=false,postTargetVerified=false,effectsUnchanged=false,identity=null;
+ try{
+  const fields={"javax.faces.partial.ajax":"true","javax.faces.source":component,
+   "javax.faces.partial.execute":component,"javax.faces.partial.render":"durationPanel",
+   "javax.faces.behavior.event":"dateSelect","javax.faces.partial.event":"dateSelect",
+   "dateForm:deadline_input":"2030-12-31"};
+  if(role==="Operator"||role==="Administrator"){
+   const entry=await page.goto(base+"admin/book.xhtml");
+   const form=page.locator("form#booking");
+   const values=await form.evaluate(node=>{const out={};for(const el of node.querySelectorAll("input,select,textarea")){if(el.name)out[el.name]=el.value;}return out;});
+   const viewStateKey=Object.keys(values).find(key=>/^(jakarta|javax)\.faces\.ViewState$/.test(key));
+   currentCsrfPresent=typeof values.csrf==="string"&&values.csrf.length>0;
+   currentViewStatePresent=!!viewStateKey&&typeof values[viewStateKey]==="string"&&values[viewStateKey].length>0;
+   currentFormVerified=entry.status()===200&&new URL(page.url()).pathname==="/cargo-tracker/admin/book.xhtml"
+    &&await page.getByLabel("Arrival deadline (YYYY-MM-DD)",{exact:true}).count()===1;
+   fields.csrf=values.csrf||"";if(viewStateKey)fields[viewStateKey]=values[viewStateKey];
+  }
+  const before=await observeEffects("booking-deadline-retired:"+role+":before");
+  const response=await context.request.post(base+relative,{form:fields,headers:{"Faces-Request":"partial/ajax","X-Requested-With":"XMLHttpRequest"},maxRedirects:0});
+  body=await response.text();responseStatus=response.status();
+  const responseUrl=new URL(response.url());postTargetVerified=responseUrl.pathname===sourcePath;
+  redirectIsLogin=responseStatus===303&&response.headers()["location"]?.endsWith("/login");
+  const protectedPayloadAbsent=protectedIds.every(id=>!body.includes(id))&&protectedContent.every(marker=>!body.includes(marker));
+  const after=await observeEffects("booking-deadline-retired:"+role+":after");effectsUnchanged=unchangedEffects(before,after,0);
+  if(actor?.identity)identity={server_verified:true,principal:actor.identity.principal,roles:actor.identity.roles};
+  const expected=role==="anonymous"?responseStatus===303&&redirectIsLogin:role==="Reader"?responseStatus===403:responseStatus===405&&currentFormVerified&&currentCsrfPresent&&currentViewStatePresent;
+  check("ACTION-26 stale deadline listener denied or inert "+role,postTargetVerified&&expected&&protectedPayloadAbsent&&effectsUnchanged);
+ }finally{await page.close();}
+ return {driver:"browser-retired-deadline-v1",legacy_id:"ACTION-26",actor:role,method:"POST",source_path:sourcePath,
+  historical_source_component_id:component,historical_source_parameter:"javax.faces.source",current_post_handler_absent:true,response_status:responseStatus,
+  post_target_verified:postTargetVerified,authorization_denied:role==="anonymous"||role==="Reader",
+  redirect_is_configured_login:redirectIsLogin,protected_payload_absent:protectedIds.every(id=>!body.includes(id))&&protectedContent.every(marker=>!body.includes(marker)),
+  current_form_verified:currentFormVerified,current_csrf_present:currentCsrfPresent,current_viewstate_present:currentViewStatePresent,
+  callback_response_absent:responseStatus!==200&&protectedIds.every(id=>!body.includes(id))&&protectedContent.every(marker=>!body.includes(marker)),
+  independent_effects_unchanged:effectsUnchanged,cargo_snapshot_sha256:snapshotSha256,cargo_snapshot_count:snapshotCount,
+  ...(identity?{identity}:{})};
+}
 async function retiredPublicTrackingSuggestionAttempt(role,actor,context,base,trackingId,cargoMarkers,snapshotSha256,snapshotCount){
  const component="trackingForm:trackingId",relative="public/track.xhtml",sourcePath="/cargo-tracker/"+relative;
  const protectedIds=[...new Set([...(cargoMarkers?.tracking_ids||[]),trackingId].filter(Boolean))];
@@ -1455,6 +1497,7 @@ async function retiredCancelAttempt(role,actor,context,base,trackingId,destinati
    const role=actor.who==="anonymous"?"anonymous":cargoRole(actor);
    retiredActionProofs["RETIREMENT::ACTION-23::"+role]=await retiredTrackingDiscoveryAttempt(role,actor,actor.context,base,id,cargoMarkers,cargoSnapshotHash,claimedCargos.length);
    retiredActionProofs["RETIREMENT::ACTION-44::"+role]=await retiredPublicTrackingSuggestionAttempt(role,actor,actor.context,base,id,cargoMarkers,cargoSnapshotHash,claimedCargos.length);
+   retiredActionProofs["RETIREMENT::ACTION-26::"+role]=await retiredBookingDeadlineCallbackAttempt(role,actor,actor.context,base,cargoMarkers,cargoSnapshotHash,claimedCargos.length);
   }
   for(const actor of [reader,operator,admin]){
    const role=cargoRole(actor);
