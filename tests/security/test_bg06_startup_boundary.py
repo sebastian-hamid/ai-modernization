@@ -92,7 +92,7 @@ class Bg06StartupBoundaryTests(unittest.TestCase):
         self.assertEqual(servlet_mappings, {
             "SessionServlet.java": {"/session"},
             "LegacyNavigationServlet.java": {
-                "/public/track.xhtml", "/admin/map.xhtml", "/admin/mapFrame.html",
+                "/admin/map.xhtml", "/admin/mapFrame.html",
                 "/admin/selectItinerary.xhtml", "/eventLogger/eventLogger.xhtml",
                 "/eventLogger/root.xhtml", "/booking/booking.xhtml",
                 "/booking/booking-date.xhtml", "/booking/booking-destination.xhtml",

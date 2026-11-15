@@ -585,7 +585,7 @@ def main(after_checks=None):
             "PAGE-20":("eventLogger/eventLogger.xhtml","Report handling","handling",True,False,"mobile.xhtml"),
             "PAGE-21":("eventLogger/root.xhtml","Report handling","handling",True,False,"mobile.xhtml"),
             "PAGE-23":("mobile.xhtml","Report handling","handling",True,False,None),
-            "PAGE-25":("public/track.xhtml","Track cargo","track",False,False,"admin/track.xhtml")}
+            "PAGE-25":("public/track.xhtml","Track cargo","public-track",False,True,None)}
         def page_path(spec):
             path,heading,kind,operator,needs_id,target=spec
             return path+("?trackingId="+fixture_id if needs_id else "")
@@ -598,6 +598,7 @@ def main(after_checks=None):
             if kind=="book":return form("booking") and 'id="booking:origin"' in body and 'id="booking:deadline"' in body
             if kind=="handling":return form("handling") and 'id="handling:type"' in body and 'id="handling:location"' in body
             if kind=="track":return form("tracking") and 'id="tracking:id"' in body
+            if kind=="public-track":return 'id="trackingForm:trackingId"' in body and 'autocomplete="off"' in body and "ui-autocomplete" not in body and "tracking-result" in body
             if kind=="live":return 'id="live-cargos"' in body and 'id="live-map"' in body and "/resources/js/live-tracking.js" in body
             if kind=="error":return payload_absent(body) and not any(marker in body for marker in ["jakarta.faces.FacesException","java.lang.","password","JSESSIONID","<script","untrusted.example"])
             return False
@@ -651,7 +652,7 @@ def main(after_checks=None):
                 report["access_observations"][surface+"::"+actor+"::active"]=observation
             for surface,spec in other_pages.items():
                 path,heading,kind,operator,needs_id,target=spec
-                allowed=kind=="error" or who is not None and (not operator or who in {"operator","admin"})
+                allowed=kind in {"error","public-track"} or who is not None and (not operator or who in {"operator","admin"})
                 status,body,headers=request(opener,page_path(spec))
                 if allowed:
                     redirected=False
@@ -2282,8 +2283,13 @@ def main(after_checks=None):
                 path,heading,kind,operator,needs_id,target=spec
                 if kind=="error" or operator and who=="reader":continue
                 status,body,headers=request(opener,page_path(spec));fixed=headers.get("Location")=="/cargo-tracker/login"
-                check("Revoked remaining page login: "+surface+" "+actor+" "+state,status==303 and fixed and payload_absent(body))
-                pending[surface+"::"+actor+"::"+state]={"supported":True,"status":status,"redirect_is_configured_login":fixed,"protected_payload_absent":payload_absent(body),"identity":report["identities"][who],"authenticated_before_revocation":True,"revocation_verified":True}
+                if kind=="public-track":
+                    semantic=status==200 and page_semantics(kind,body,values)
+                    check("Revoked session retains public typed tracking: "+surface+" "+actor+" "+state,semantic)
+                    pending[surface+"::"+actor+"::"+state]={"supported":True,"status":status,"semantic_success":semantic,"public_access_after_revocation":True,"identity":None,"authenticated_before_revocation":True,"revocation_verified":True}
+                else:
+                    check("Revoked remaining page login: "+surface+" "+actor+" "+state,status==303 and fixed and payload_absent(body))
+                    pending[surface+"::"+actor+"::"+state]={"supported":True,"status":status,"redirect_is_configured_login":fixed,"protected_payload_absent":payload_absent(body),"identity":report["identities"][who],"authenticated_before_revocation":True,"revocation_verified":True}
             return pending
         def record_revocations(pending,before_sample,after_sample,who):
             for case,observation in pending.items():

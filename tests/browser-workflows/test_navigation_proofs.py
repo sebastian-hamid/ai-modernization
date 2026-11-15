@@ -121,17 +121,19 @@ class TrackingProofTests(unittest.TestCase):
         proofs={}
         for action,source in [("ACTION-24","admin/track.xhtml"),("ACTION-45","public/track.xhtml"),("ACTION-25","admin/live.xhtml")]:
             lookup=action!="ACTION-25"
+            public_lookup=action=="ACTION-45"
             for role,user in [("anonymous",None),("Reader","reader"),("Operator","operator"),("Administrator","admin")]:
-                proof={"supported":True,"status":200 if user else 303,"tracking_id":"ABCDEFGH",
+                allowed=bool(user) or public_lookup
+                proof={"supported":True,"status":200 if allowed else 303,"tracking_id":"ABCDEFGH",
                        "current_navigation_driver":"browser-lookup-v1" if lookup else "browser-marker-v1",
-                       "driver":("click" if lookup else "keyboard") if user else "direct",
+                       "driver":("click" if lookup else "keyboard") if allowed else "direct",
                        "semantic_success":True,"selected_cargo_verified":True,"persisted_details_verified":True,
                        "protected_payload_absent":True,"redirect_is_configured_login":True}
                 if user:proof["identity"]={"server_verified":True,"principal":user,"roles":[role]}
                 if lookup:
-                    proof.update(action_method="POST",action_path="/cargo-tracker/admin/track.xhtml",entry_page=source,
-                                 source_entry_verified=True,submission_status=303,invalid_inputs_verified=True,csrf_checks_verified=True,
-                                 legacy_entry_verified=True,lookup_source_denied=True)
+                    proof.update(action_method="POST",action_path="/cargo-tracker/public/track.xhtml" if public_lookup else "/cargo-tracker/admin/track.xhtml",entry_page=source,
+                                 source_entry_verified=True,submission_status=200 if public_lookup else 303,invalid_inputs_verified=True,csrf_checks_verified=not public_lookup,
+                                 legacy_entry_verified=True,autocomplete_source_payload_absent=True,lookup_source_denied=True)
                 else:
                     proof.update(action_executed=True,target_origin_verified=True,actual_target_path="/cargo-tracker/admin/show.xhtml",
                                  query_keys=["trackingId"],source_page=source if user else "index.xhtml",
@@ -148,6 +150,8 @@ class TrackingProofTests(unittest.TestCase):
             ("ACTION-24","Reader","action_method","GET"),
             ("ACTION-45","Reader","entry_page","admin/track.xhtml"),
             ("ACTION-45","Reader","legacy_entry_verified",False),
+            ("ACTION-45","anonymous","autocomplete_source_payload_absent",False),
+            ("ACTION-45","Reader","action_path","/cargo-tracker/admin/track.xhtml"),
             ("ACTION-24","Reader","invalid_inputs_verified",False),
             ("ACTION-24","Reader","csrf_checks_verified",False),
             ("ACTION-25","Reader","actual_target_path","/other"),

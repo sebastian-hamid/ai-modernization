@@ -145,17 +145,23 @@ def promote_tracking_actions(report,results):
         if not isinstance(tracking,str) or re.fullmatch("[A-Z0-9]{8}",tracking) is None:raise AssertionError("Invalid tracked cargo")
         ids.add(tracking)
         lookup=action!="ACTION-25"
-        allowed=role!="anonymous"
+        public_lookup=action=="ACTION-45"
+        allowed=role!="anonymous" or public_lookup
         if proof.get("supported") is not True or proof.get("current_navigation_driver")!=("browser-lookup-v1" if lookup else "browser-marker-v1"):raise AssertionError("Unknown tracking driver")
         if allowed:
-            identity=proof.get("identity",{})
-            if identity.get("server_verified") is not True or identity.get("principal")!={"Reader":"reader","Operator":"operator","Administrator":"admin"}[role] or identity.get("roles")!=[role]:raise AssertionError("Tracking identity mismatch")
+            if role!="anonymous":
+                identity=proof.get("identity",{})
+                if identity.get("server_verified") is not True or identity.get("principal")!={"Reader":"reader","Operator":"operator","Administrator":"admin"}[role] or identity.get("roles")!=[role]:raise AssertionError("Tracking identity mismatch")
+            elif proof.get("identity") is not None:raise AssertionError("Public anonymous lookup has an identity")
             if proof.get("status")!=200 or proof.get("driver")!=("click" if lookup else "keyboard") or not all(proof.get(k) is True for k in ("semantic_success","selected_cargo_verified","persisted_details_verified")):raise AssertionError("Tracking result lacks details")
         elif proof.get("identity") is not None or proof.get("status")!=303 or proof.get("driver")!="direct" or not all(proof.get(k) is True for k in ("protected_payload_absent","redirect_is_configured_login")):raise AssertionError("Tracking denial incomplete")
         if lookup:
-            if (proof.get("action_method"),proof.get("action_path"),proof.get("entry_page"))!=("POST","/cargo-tracker/admin/track.xhtml",actions[action]) or proof.get("source_entry_verified") is not True:raise AssertionError("Lookup POST/source mismatch")
-            if allowed:
-                if proof.get("submission_status") not in {302,303} or proof.get("invalid_inputs_verified") is not True or proof.get("csrf_checks_verified") is not True or action=="ACTION-45" and proof.get("legacy_entry_verified") is not True:raise AssertionError("Lookup form evidence incomplete")
+            expected_path="/cargo-tracker/public/track.xhtml" if public_lookup else "/cargo-tracker/admin/track.xhtml"
+            if (proof.get("action_method"),proof.get("action_path"),proof.get("entry_page"))!=("POST",expected_path,actions[action]) or proof.get("source_entry_verified") is not True:raise AssertionError("Lookup POST/source mismatch")
+            if allowed and public_lookup:
+                if proof.get("submission_status")!=200 or proof.get("invalid_inputs_verified") is not True or proof.get("legacy_entry_verified") is not True or proof.get("autocomplete_source_payload_absent") is not True or proof.get("persisted_details_verified") is not True:raise AssertionError("Public typed lookup or retired autocomplete evidence incomplete")
+            elif allowed:
+                if proof.get("submission_status") not in {302,303} or proof.get("invalid_inputs_verified") is not True or proof.get("csrf_checks_verified") is not True:raise AssertionError("Lookup form evidence incomplete")
             elif proof.get("lookup_source_denied") is not True:raise AssertionError("Lookup source denial missing")
         else:
             if not all(proof.get(k) is True for k in ("action_executed","target_origin_verified")) or proof.get("actual_target_path")!="/cargo-tracker/admin/show.xhtml" or sorted(proof.get("query_keys",[])) not in (["trackingId"],["jfwid","trackingId"]) or proof.get("source_page")!=("admin/live.xhtml" if allowed else "index.xhtml"):raise AssertionError("Marker target mismatch")

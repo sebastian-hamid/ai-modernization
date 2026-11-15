@@ -26,7 +26,7 @@
 /resources/js/live-tracking.js	PUBLIC
 /mobile.xhtml	Operator,Administrator
 /admin/track.xhtml	Reader,Operator,Administrator
-/public/track.xhtml	Reader,Operator,Administrator
+/public/track.xhtml	PUBLIC
 /admin/map.xhtml	Reader,Operator,Administrator
 /admin/mapFrame.html	Reader,Operator,Administrator
 /admin/selectItinerary.xhtml	Operator,Administrator

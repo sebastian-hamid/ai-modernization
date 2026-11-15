@@ -163,10 +163,10 @@ async function retiredCancelAttempt(role,actor,context,base,trackingId,destinati
    return {context,page,who,identity};
   }
 
-  const aliasesRead=["public/track.xhtml","admin/map.xhtml","admin/mapFrame.html"];
+  const aliasesRead=["admin/map.xhtml","admin/mapFrame.html"];
   const aliasesWrite=["admin/selectItinerary.xhtml","eventLogger/eventLogger.xhtml","eventLogger/root.xhtml","booking/booking.xhtml","booking/booking-date.xhtml","booking/booking-destination.xhtml"];
   const home=await anon.request.get(base);
-  check("Public home links to current tracking view",home.status()===200 && (await home.text()).includes("admin/track.xhtml"));
+  check("Public home links to public and authenticated tracking",home.status()===200 && (await home.text()).includes("public/track.xhtml") && (await home.text()).includes("admin/track.xhtml"));
   for(const path of [...aliasesRead,...aliasesWrite]){
    const response=await anon.request.get(base+path+"?trackingId=UNKNOWN",{maxRedirects:0});
    check("Authentication precedes legacy lookup "+path,response.status()===303 && response.headers().location.endsWith("/login"));
@@ -190,7 +190,8 @@ async function retiredCancelAttempt(role,actor,context,base,trackingId,destinati
   for(const path of ["admin/about.xhtml","admin/listRouted.xhtml","admin/listNotRouted.xhtml","admin/listClaimed.xhtml"]){
    await ap.goto(base+path);check("Anonymous filtered/About page goes to login "+path,ap.url().endsWith("/login")&&!(await ap.textContent("body")).includes("ABC123"));
   }
-  await ap.goto(base+"public/about.xhtml");await ap.getByText("Tracking requires sign-in.",{exact:true}).waitFor();check("Public About accurately explains login",!(await ap.textContent("body")).includes("ABC123"));
+  await ap.goto(base+"public/about.xhtml");await ap.getByText("Anyone with a tracking ID can view public shipment status and handling history.",{exact:true}).waitFor();check("Public About accurately explains typed tracking access",!(await ap.textContent("body")).includes("ABC123"));
+  await ap.goto(base+"index.xhtml");check("Public landing links to typed tracking",await ap.getByRole("link",{name:"Track a shipment by ID",exact:true}).getAttribute("href")!==null);
   async function liveAliases(actor){
    const role={reader:"Reader",operator:"Operator",admin:"Administrator"}[actor.who];
    for(const [surface,path] of [["PAGE-09","admin/map.xhtml"],["PAGE-10","admin/mapFrame.html"]]){
@@ -294,10 +295,22 @@ async function retiredCancelAttempt(role,actor,context,base,trackingId,destinati
    const response=await reader.context.request.get(base+path);
    check("Tracking direct invalid ID controlled "+path,response.status()===404);
   }
-  const publicTrack=await reader.context.request.get(base+"public/track.xhtml?trackingId=ABC123");
-  check("Legacy tracking reaches actual cargo",publicTrack.status()===200 && (await publicTrack.text()).includes('id="trackingId">ABC123'));
-  const noId=await reader.context.request.get(base+"public/track.xhtml");
-  check("Legacy tracking without ID shows lookup",noId.status()===200 && (await noId.text()).includes("Tracking ID"));
+  const publicTrack=await anon.request.get(base+"public/track.xhtml?trackingId=ABC123");
+  const publicHtml=await publicTrack.text();
+  check("Anonymous typed tracking lookup shows actual cargo",publicTrack.status()===200 && publicHtml.includes('id="tracking-result"') && publicHtml.includes("ABC123"));
+  const noId=await anon.request.get(base+"public/track.xhtml");
+  const noIdHtml=await noId.text();
+  check("Anonymous public lookup shows typed form without suggestions",noId.status()===200 && noIdHtml.includes("Tracking ID") && noIdHtml.includes('autocomplete="off"') && !noIdHtml.includes("ui-autocomplete"));
+  await ap.goto(base+"public/track.xhtml");
+  await ap.getByLabel("Tracking ID",{exact:true}).fill("ABC123");
+  await ap.getByRole("button",{name:"Track cargo",exact:true}).click();
+  await ap.locator("#tracking-result").waitFor();
+  check("Anonymous public form submits valid ID", (await ap.locator("#tracking-result").textContent()).includes("ABC123"));
+  await ap.goto(base+"public/track.xhtml");
+  await ap.getByLabel("Tracking ID",{exact:true}).fill("<script>");
+  await ap.getByRole("button",{name:"Track cargo",exact:true}).click();
+  await ap.getByText("Enter a valid tracking ID.",{exact:true}).waitFor();
+  check("Anonymous public form rejects malformed ID", !(await ap.textContent("body")).includes("<script>"));
   for(const path of ["admin/map.xhtml","admin/mapFrame.html"]){
    const response=await reader.context.request.get(base+path+"?redirect=https://untrusted.example",{maxRedirects:0});
    check("Fixed local legacy map redirect "+path,response.status()===303 && response.headers().location.endsWith("/admin/live.xhtml"));
@@ -1196,7 +1209,49 @@ async function retiredCancelAttempt(role,actor,context,base,trackingId,destinati
    return ["trackingId","originName","destinationName","routingStatus","transportStatus"].every(field=>actual[field]===claimedCargo[field])
     &&(await detail("Arrival deadline")).trim().split(/\s+/)[0]==="12/31/2030";
   }
-  for(const [action,source] of [["ACTION-24","admin/track.xhtml"],["ACTION-45","public/track.xhtml"]]){
+  for(const actor of [{who:"anonymous",context:anon,identity:null},reader,operator,admin]){
+   const role=actor.who==="anonymous"?"anonymous":cargoRole(actor);
+   const page=await actor.context.newPage();
+   try{
+    const entry=await page.goto(base+"public/track.xhtml");
+    check("Public tracking entry is available "+role,entry.status()===200&&navigationTarget(page.url(),"public/track.xhtml"));
+    const initialHtml=await page.locator("body").innerHTML();
+    const state=await page.locator('input[name="jakarta.faces.ViewState"]').first().inputValue();
+    const legacyAjax=await actor.context.request.post(base+"public/track.xhtml",{form:{
+     "jakarta.faces.partial.ajax":"true","jakarta.faces.source":"trackingForm:trackingId",
+     "jakarta.faces.partial.execute":"trackingForm:trackingId","jakarta.faces.partial.render":"trackingForm:trackingId",
+     "trackingForm":"trackingForm","trackingForm:trackingId":"ABC","jakarta.faces.ViewState":state
+    },maxRedirects:0});
+    const ajaxBody=await legacyAjax.text();
+    const noSuggestions=legacyAjax.status()===200&&!ajaxBody.includes("ui-autocomplete")&&
+     !ajaxBody.includes("ABC123")&&!ajaxBody.includes("DEF789")&&!ajaxBody.includes("JKL567")&&!ajaxBody.includes("MNO456")&&
+     !initialHtml.includes("ui-autocomplete")&&initialHtml.includes('autocomplete="off"');
+    check("Retired tracking autocomplete source reveals no cargo IDs "+role,noSuggestions);
+    await page.getByLabel("Tracking ID",{exact:true}).fill("UNKNOWN");
+    await page.getByRole("button",{name:"Track cargo",exact:true}).click();
+    await page.getByText("Cargo not found.",{exact:true}).waitFor();
+    const unknownSafe=!(await page.textContent("body")).includes("ABC123");
+    await page.getByLabel("Tracking ID",{exact:true}).fill("<script>");
+    await page.getByRole("button",{name:"Track cargo",exact:true}).click();
+    await page.getByText("Enter a valid tracking ID.",{exact:true}).waitFor();
+    const malformedSafe=!(await page.textContent("body")).includes("<script>");
+    await page.getByLabel("Tracking ID",{exact:true}).fill(id);
+    const [submitted]=await Promise.all([page.waitForResponse(r=>r.request().method()==="POST"&&navigationTarget(r.url(),"public/track.xhtml")),page.getByRole("button",{name:"Track cargo",exact:true}).click()]);
+    const content=(await page.locator("#tracking-result").textContent()).trim();
+    const selected=content.includes(id);
+    const renderedStatus=content.includes("Current status:")&&content.includes("Estimated arrival:");
+    check("Public lookup validates inputs and renders selected cargo "+role,[200].includes(submitted.status())&&unknownSafe&&malformedSafe&&selected&&renderedStatus);
+    trackingActionProofs["CURRENT::ACTION-45::"+role+"::active"]={
+     supported:true,status:200,semantic_success:true,current_navigation_driver:"browser-lookup-v1",tracking_id:id,
+     ...(actor.identity?{identity:{server_verified:true,principal:actor.identity.principal,roles:actor.identity.roles}}:{}),
+     driver:"click",action_method:"POST",action_path:"/cargo-tracker/public/track.xhtml",entry_page:"public/track.xhtml",source_entry_verified:true,
+     submission_status:submitted.status(),selected_cargo_verified:selected,persisted_details_verified:renderedStatus,
+     invalid_inputs_verified:unknownSafe&&malformedSafe,legacy_entry_verified:noSuggestions,csrf_checks_verified:false,
+     autocomplete_source_status:legacyAjax.status(),autocomplete_source_payload_absent:noSuggestions
+    };
+   }finally{await page.close();}
+  }
+  for(const [action,source] of [["ACTION-24","admin/track.xhtml"]]){
    for(const actor of [reader,operator,admin]){
     const role=cargoRole(actor);
     const page=await actor.context.newPage();

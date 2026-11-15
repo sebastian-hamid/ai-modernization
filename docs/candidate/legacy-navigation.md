@@ -2,13 +2,13 @@
 
 ## Functional behavior
 
-The public home page links to the current authenticated workflows. Tracking remains restricted to Reader, Operator and Administrator, including the historical URL under /public/. /admin/track.xhtml without an ID displays a lookup form. A valid known ID opens persisted cargo details. Form input that is malformed or unknown displays a controlled message. A malformed or unknown ID in a direct GET returns404; missing IDs on details, destination change or route selection return404. No destinationCoordinates property or external map client is needed for tracking.
+The public home and About pages link to a public typed cargo tracker; operational workflows remain available to signed-in users. Cargo tracking is public through a typed tracking ID lookup. The page does not enumerate cargo IDs; /admin/track.xhtml remains available for authenticated staff lookup. /admin/track.xhtml without an ID displays a lookup form. A valid known ID opens persisted cargo details. Form input that is malformed or unknown displays a controlled message. A malformed or unknown ID in a direct GET returns404; missing IDs on details, destination change or route selection return404. No destinationCoordinates property or external map client is needed for tracking.
 
-Historical GET entry points redirect303 to fixed local destinations:
+Historical GET entry points redirect303 to fixed local destinations, except public tracking, which is served directly as a typed lookup page:
 
 | Historical path | Current destination | Roles |
 | --- | --- | --- |
-| /public/track.xhtml | /admin/track.xhtml (optional trackingId retained) | Reader, Operator, Administrator |
+| /public/track.xhtml | Public typed tracking page (valid trackingId may be retained) | Public; no ID suggestions |
 | /admin/map.xhtml, /admin/mapFrame.html | /admin/live.xhtml | Reader, Operator, Administrator |
 | /admin/selectItinerary.xhtml | /admin/route.xhtml (trackingId required) | Operator, Administrator |
 | /eventLogger/eventLogger.xhtml, /eventLogger/root.xhtml | /mobile.xhtml | Operator, Administrator |
@@ -18,9 +18,9 @@ The old event logger and booking flow URLs start the current standalone form; pa
 
 ## Architecture and technical details
 
-LegacyNavigationServlet has exact URL mappings, which take precedence over Faces *.xhtml and static-file handling. This prevents obsolete raw map HTML and FlowScoped expressions from being rendered. The exact access manifest applies the same roles as the current destinations before servlet dispatch. AccessFilter treats protected .html navigation like .xhtml when redirecting anonymous callers.
+LegacyNavigationServlet has exact URL mappings, which take precedence over Faces *.xhtml and static-file handling. This prevents obsolete raw map HTML and FlowScoped expressions from being rendered. The public tracking page is served directly by Faces under an explicit PUBLIC access-manifest entry. The former autocomplete callback is removed; direct legacy autocomplete requests return no cargo ID suggestions. AccessFilter treats protected .html navigation like .xhtml when redirecting anonymous callers.
 
-Redirects use only fixed context-relative destinations. IDs retained on legacy links must be a single trackingId matching [A-Z0-9]{6,8}; arbitrary redirect parameters are ignored. The target view performs actual existence lookup. GET tracking lookup and form submission use CargoPages and the existing transactional facade. Roles and non-safe-method CSRF checks remain server-side, independent of visible links.
+Redirects use only fixed context-relative destinations. IDs retained on legacy links must be a single trackingId matching [A-Z0-9]{6,8}; arbitrary redirect parameters are ignored. The target view performs actual existence lookup. The authenticated staff tracker uses CargoPages and the existing transactional facade. Public typed tracking uses Track and CargoRepository and returns only the selected cargo's public tracking data. Roles and non-safe-method CSRF checks remain server-side, independent of visible links.
 
 Some obsolete source templates remain in the candidate for provenance; these named entry points are intercepted. Unlisted routes remain deny-by-default. Historical sources and the historical running application are preserved. This change does not enable every original UI/API, alter handling/booking business rules, or complete full security/effect-observer acceptance.
 

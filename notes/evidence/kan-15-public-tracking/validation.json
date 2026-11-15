@@ -1,0 +1,100 @@
+{
+  "issue": "KAN-15",
+  "increment": "Restore public cargo tracking as a typed ID lookup; remove cargo ID autocomplete enumeration.",
+  "verified_at": "2026-11-15",
+  "result": "PASS",
+  "runtime": {
+    "checks": 777,
+    "all_passed": true,
+    "owned_app_container_removed": true,
+    "private_runtime_files_removed": true,
+    "cleanup_errors": []
+  },
+  "chromium": {
+    "checks": 833,
+    "all_passed": true,
+    "browser_container_removed": true,
+    "private_network_removed": true,
+    "cleanup_errors": []
+  },
+  "public_tracking_by_actor": {
+    "anonymous": {
+      "page_access": 200,
+      "typed_lookup_post": 200,
+      "invalid_values_controlled": true,
+      "legacy_autocomplete_ui_absent": true,
+      "old_autocomplete_ajax_http_status": 200,
+      "old_autocomplete_ajax_has_no_cargo_ids": true,
+      "selected_cargo_rendered": true,
+      "cargo_status_and_eta_rendered": true
+    },
+    "Reader": {
+      "page_access": 200,
+      "typed_lookup_post": 200,
+      "invalid_values_controlled": true,
+      "legacy_autocomplete_ui_absent": true,
+      "old_autocomplete_ajax_http_status": 200,
+      "old_autocomplete_ajax_has_no_cargo_ids": true,
+      "selected_cargo_rendered": true,
+      "cargo_status_and_eta_rendered": true
+    },
+    "Operator": {
+      "page_access": 200,
+      "typed_lookup_post": 200,
+      "invalid_values_controlled": true,
+      "legacy_autocomplete_ui_absent": true,
+      "old_autocomplete_ajax_http_status": 200,
+      "old_autocomplete_ajax_has_no_cargo_ids": true,
+      "selected_cargo_rendered": true,
+      "cargo_status_and_eta_rendered": true
+    },
+    "Administrator": {
+      "page_access": 200,
+      "typed_lookup_post": 200,
+      "invalid_values_controlled": true,
+      "legacy_autocomplete_ui_absent": true,
+      "old_autocomplete_ajax_http_status": 200,
+      "old_autocomplete_ajax_has_no_cargo_ids": true,
+      "selected_cargo_rendered": true,
+      "cargo_status_and_eta_rendered": true
+    }
+  },
+  "unit_verification": {
+    "browser_proof_and_harness_tests": 19,
+    "candidate_runtime_tests": 48,
+    "replacement_contract_tests": 13,
+    "all_passed": true,
+    "python_compile_and_git_diff_check": "passed"
+  },
+  "scope_notes": [
+    "The route is explicitly PUBLIC and no longer redirects to the staff tracker. The public home and About pages link to typed tracking.",
+    "The public form accepts a single uppercase alphanumeric tracking ID of 6 to 8 characters. Unknown and malformed input produce controlled responses.",
+    "A direct request using the retired autocomplete component source returned HTTP 200 but contained no cargo ID suggestions; HTTP status alone is not represented as denial.",
+    "No legacy inventory row was marked RETIRED or PASS by this increment. ACTION-44 retirement remains for the gate to evaluate; ACTION-23 callback discrepancy remains unresolved.",
+    "Changing LegacyNavigationServlet invalidates source-bound BG-06 scope evidence. The scoped current-capability replay must be refreshed before relying on prior gate totals; this increment does not recalculate historical audit totals."
+  ],
+  "raw_run_sha256": {
+    ".work/kan18/results.json": "bc3b40daa99b9e87cdcd5238adb5ba7e2d9e27224be6926355104931a311f029",
+    ".work/kan19/results.json": "2d4c6ad2c506dbeb82401c3336019b411dd516de5b60c99fa29bd2bf973de0f7"
+  },
+  "source_sha256": {
+    "candidate/cargotracker/src/main/java/net/java/cargotracker/interfaces/booking/web/LegacyNavigationServlet.java": "e774a70a01f2cc7adb9d0c2a26dea6c14ad2ed800ebbec7df384d7730db502d4",
+    "candidate/cargotracker/src/main/java/net/java/cargotracker/interfaces/tracking/web/Track.java": "d161d77ebdc45f0d497977aa82a9baa8f676807c1f2a86a141b3981f9c0f5493",
+    "candidate/cargotracker/src/main/webapp/WEB-INF/access-routes.tsv": "bd83abe21d3fb74411d7d27ed06e9cc75d937cf30d8ae021a7479c8c9169948c",
+    "candidate/cargotracker/src/main/webapp/WEB-INF/templates/public-tracking.xhtml": "0d8b1ce921a9afbe063c8f019f0fad822bbbeb4b71318bb9cfc6e75f05e48e27",
+    "candidate/cargotracker/src/main/webapp/index.xhtml": "1104cd5e278fff331f1ffa78eefd81c484c78ec65381cb4de1c0093e91f28230",
+    "candidate/cargotracker/src/main/webapp/public/about.xhtml": "58b154d23174cad90e238f642e6e424e242c165133c1931ac0282c16a75d45c1",
+    "candidate/cargotracker/src/main/webapp/public/track.xhtml": "ec60c013c5173b878621eafa0b60772b7e2d7bd72089f8024f5be15524ca66c0",
+    "docs/candidate/legacy-navigation.md": "14890fe0e7d404052dfbbd3a4ce1362ffca44f9862b22fd01d8642d3d7009465",
+    "tests/browser-workflows/run_browser.py": "952ebde95029f9361e8e02e08be4cec34f41c80081af459cb5af541bdc1213f6",
+    "tests/browser-workflows/test_navigation_proofs.py": "418e4a015d7fc295f3fd235c215bcb81fa4d63b8335a9b85baa0ba765bdd223d",
+    "tests/browser-workflows/workflows.cjs": "c1b21f316314d75a50df49ebb917aecc968485e477a5b0564851641dd2764245",
+    "tests/candidate-runtime/run_candidate.py": "33b6f91424c54d9d5406600c5101d2537305cf8b8d0d88aee16e3592538fe8e0",
+    "tests/security/README.md": "4d514a86d0f3a44bb76f00bb7807ae7f02f4c4bab8e49d480a848bbc4df8b8f5",
+    "tests/security/test_bg06_startup_boundary.py": "7a1b18961322aac7907f8256aa7238107f58e30fbc7160d2de3f94adb2375fb8"
+  },
+  "independent_review": "pending",
+  "post_run_corrections": [
+    "Documentation and test-expectation corrections clarify public typed tracking and remove its obsolete servlet interception from the BG-06 route assertion. Runtime implementation and recorded runtime/browser results are unchanged."
+  ]
+}
