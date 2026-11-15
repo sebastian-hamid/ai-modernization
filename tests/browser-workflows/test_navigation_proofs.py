@@ -83,11 +83,29 @@ class RetiredTrackingDiscoveryProofTests(unittest.TestCase):
             else:proof.update(response_status=200,authorization_denied=False,current_source_parameter="jakarta.faces.source",
                 current_form_verified=True,current_legacy_component_absent=True,current_csrf_present=True,current_viewstate_present=True,identity=identities[role])
             proofs["RETIREMENT::ACTION-23::"+role]=proof
+            public={"driver":"browser-retired-public-tracking-v1","legacy_id":"ACTION-44","actor":role,"method":"POST",
+                "source_path":"/cargo-tracker/public/track.xhtml","historical_source_component_id":"trackingForm:trackingId",
+                "historical_source_parameter":"javax.faces.source","current_source_parameter":"jakarta.faces.source",
+                "current_callback_implementation_absent":True,"legacy_callback_implementation_verified":True,
+                "source_hashes":h.action44_source_evidence(),"response_status":200,
+                "post_target_verified":True,"current_form_verified":True,"current_csrf_present":False,
+                "current_viewstate_present":True,"current_legacy_component_absent":True,
+                "callback_response_absent":True,"autocomplete_payload_absent":True,"authorization_denied":False,
+                "protected_payload_absent":True,"independent_effects_unchanged":True,"redirect_is_configured_login":False,
+                "cargo_snapshot_sha256":"b"*64,"cargo_snapshot_count":4}
+            if role=="anonymous":public["identity"]=None
+            else:public["identity"]=identities[role]
+            proofs["RETIREMENT::ACTION-44::"+role]=public
         return proofs
 
     def test_current_roles_and_anonymous_proof_validate_for_both_retirements(self):
         h.validate_retirement_keys(self.fixture())
 
+    def test_action44_proof_requires_real_legacy_callback_and_removed_current_entry(self):
+        for field,value in [("legacy_callback_implementation_verified",False),("current_callback_implementation_absent",False),
+                            ("source_hashes",{}),("current_form_verified",False),("current_viewstate_present",False),("autocomplete_payload_absent",False),("cargo_snapshot_count",0)]:
+            proofs=self.fixture();proofs["RETIREMENT::ACTION-44::Operator"][field]=value
+            with self.subTest(field=field),self.assertRaises(AssertionError):h.validate_retirement_keys(proofs)
     def test_action23_proof_rejects_missing_source_or_runtime_guards(self):
         for field,value in [("legacy_binding_discrepancy_verified",False),("source_hashes",{}),
                             ("post_target_verified",False),("callback_response_absent",False),("autocomplete_payload_absent",False),

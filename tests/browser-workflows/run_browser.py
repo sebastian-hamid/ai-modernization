@@ -191,7 +191,6 @@ def action23_source_evidence():
     candidate_page=ROOT/"candidate/cargotracker/src/main/webapp/admin/track.xhtml"
     candidate_bean=ROOT/"candidate/cargotracker/src/main/java/net/java/cargotracker/interfaces/booking/web/CargoPages.java"
     public_page=ROOT/"experiments/legacy-cargotracker/src/main/webapp/public/track.xhtml"
-    public_page=ROOT/"experiments/legacy-cargotracker/src/main/webapp/public/track.xhtml"
     files={"legacy_admin_page_sha256":legacy_page,"legacy_track_bean_sha256":legacy_bean,
            "candidate_admin_page_sha256":candidate_page,"candidate_cargo_pages_sha256":candidate_bean,
            "legacy_public_page_sha256":public_page}
@@ -200,7 +199,6 @@ def action23_source_evidence():
     legacy_class=raw["legacy_track_bean_sha256"].decode("utf-8")
     current_markup=raw["candidate_admin_page_sha256"].decode("utf-8")
     current_class=raw["candidate_cargo_pages_sha256"].decode("utf-8")
-    public_markup=raw["legacy_public_page_sha256"].decode("utf-8")
     public_markup=raw["legacy_public_page_sha256"].decode("utf-8")
     if ("id=\"trackIdInput\"" not in legacy_markup or "completeMethod=\"#{track.completeTracking}\"" not in legacy_markup
             or re.search(r"\bpublic\s+[^;{]+\bcompleteTracking\s*\(",legacy_class)
@@ -211,8 +209,28 @@ def action23_source_evidence():
         raise AssertionError("ACTION-23 source/candidate callback discrepancy changed")
     return {key:hashlib.sha256(value).hexdigest() for key,value in raw.items()}
 
+def action44_source_evidence():
+    legacy_page=ROOT/"experiments/legacy-cargotracker/src/main/webapp/public/track.xhtml"
+    legacy_bean=ROOT/"experiments/legacy-cargotracker/src/main/java/net/java/cargotracker/interfaces/tracking/web/Track.java"
+    candidate_page=ROOT/"candidate/cargotracker/src/main/webapp/public/track.xhtml"
+    candidate_bean=ROOT/"candidate/cargotracker/src/main/java/net/java/cargotracker/interfaces/tracking/web/Track.java"
+    files={"legacy_public_page_sha256":legacy_page,"legacy_track_bean_sha256":legacy_bean,
+           "candidate_public_page_sha256":candidate_page,"candidate_track_bean_sha256":candidate_bean}
+    raw={key:path.read_bytes() for key,path in files.items()}
+    legacy_markup=raw["legacy_public_page_sha256"].decode("utf-8")
+    legacy_class=raw["legacy_track_bean_sha256"].decode("utf-8")
+    current_markup=raw["candidate_public_page_sha256"].decode("utf-8")
+    current_class=raw["candidate_track_bean_sha256"].decode("utf-8")
+    if ('id="trackingId"' not in legacy_markup or 'completeMethod="#{track.getTrackingIds}"' not in legacy_markup
+            or not re.search(r"\bpublic\s+List<TrackingId>\s+getTrackingIds\s*\(\s*String\s+query\s*\)",legacy_class)
+            or 'id="trackingId"' not in current_markup or "completeMethod" in current_markup
+            or "p:autoComplete" in current_markup or "getTrackingIds" in current_markup
+            or re.search(r"\bgetTrackingIds\s*\(",current_class)):
+        raise AssertionError("ACTION-44 public autocomplete source/candidate callback discrepancy changed")
+    return {key:hashlib.sha256(value).hexdigest() for key,value in raw.items()}
+
 def expected_retirement_keys():
-    return {"RETIREMENT::"+legacy_id+"::"+role for legacy_id in ("ACTION-08","ACTION-23")
+    return {"RETIREMENT::"+legacy_id+"::"+role for legacy_id in ("ACTION-08","ACTION-23","ACTION-44")
             for role in ("anonymous","Reader","Operator","Administrator")}
 
 def validate_retirement_keys(proofs):
@@ -234,26 +252,47 @@ def validate_retirement_keys(proofs):
             elif proof.get("authorization_denied") is not True or proof.get("protected_payload_absent") is not True or proof.get("response_status") != (403 if role=="Reader" else 303) or (role=="anonymous" and proof.get("redirect_is_configured_login") is not True):
                 raise AssertionError("Unauthorized ACTION-08 replay lacks denial proof")
         else:
-            if (proof.get("driver")!="browser-retired-tracking-v1" or proof.get("historical_source_component_id")!="trackingForm:trackIdInput"
-                    or proof.get("historical_source_parameter")!="javax.faces.source" or proof.get("source_path")!="/cargo-tracker/admin/track.xhtml"
-                    or proof.get("callback_implementation_absent") is not True or proof.get("legacy_binding_discrepancy_verified") is not True
-                    or proof.get("source_hashes")!=source_hashes or proof.get("post_target_verified") is not True
-                    or proof.get("callback_response_absent") is not True or proof.get("protected_payload_absent") is not True
-                    or proof.get("autocomplete_payload_absent") is not True
+            if legacy_id=="ACTION-23":
+                if (proof.get("driver")!="browser-retired-tracking-v1" or proof.get("historical_source_component_id")!="trackingForm:trackIdInput"
+                        or proof.get("source_path")!="/cargo-tracker/admin/track.xhtml"
+                        or proof.get("callback_implementation_absent") is not True
+                        or proof.get("legacy_binding_discrepancy_verified") is not True
+                        or proof.get("source_hashes")!=action23_source_evidence()):
+                    raise AssertionError("ACTION-23 source binding is incomplete")
+            else:
+                if (proof.get("driver")!="browser-retired-public-tracking-v1" or proof.get("historical_source_component_id")!="trackingForm:trackingId"
+                        or proof.get("source_path")!="/cargo-tracker/public/track.xhtml"
+                        or proof.get("current_callback_implementation_absent") is not True
+                        or proof.get("legacy_callback_implementation_verified") is not True
+                        or proof.get("source_hashes")!=action44_source_evidence()):
+                    raise AssertionError("ACTION-44 source binding is incomplete")
+            if (proof.get("historical_source_parameter")!="javax.faces.source" or proof.get("post_target_verified") is not True
+                    or proof.get("callback_response_absent") is not True or proof.get("autocomplete_payload_absent") is not True
+                    or proof.get("protected_payload_absent") is not True
                     or re.fullmatch(r"[0-9a-f]{64}",str(proof.get("cargo_snapshot_sha256"))) is None
                     or type(proof.get("cargo_snapshot_count")) is not int or proof.get("cargo_snapshot_count",0)<1):
-                raise AssertionError("ACTION-23 retired callback evidence is incomplete or source drifted")
-            if role=="anonymous":
+                raise AssertionError("Retired tracking callback response/snapshot proof is incomplete")
+            if role=="anonymous" and legacy_id=="ACTION-23":
                 if proof.get("response_status")!=303 or proof.get("authorization_denied") is not True or proof.get("redirect_is_configured_login") is not True or proof.get("identity") is not None:
-                    raise AssertionError("ACTION-23 anonymous legacy callback request was not denied")
+                    raise AssertionError("ACTION-23 anonymous admin callback request was not denied")
+            elif role=="anonymous":
+                if (proof.get("response_status")!=200 or proof.get("authorization_denied") is not False
+                        or proof.get("current_source_parameter") not in {"jakarta.faces.source","javax.faces.source"}
+                        or proof.get("current_form_verified") is not True or proof.get("current_legacy_component_absent") is not True
+                        or proof.get("current_callback_implementation_absent") is not True
+                        or proof.get("current_viewstate_present") is not True
+                        or proof.get("redirect_is_configured_login") is not False or proof.get("identity") is not None):
+                    raise AssertionError("ACTION-44 anonymous public typed page lost access or stale callback remained active")
             else:
                 identity=proof.get("identity",{});principal={"Reader":"reader","Operator":"operator","Administrator":"admin"}[role]
                 if (proof.get("response_status")!=200 or proof.get("authorization_denied") is not False
                         or proof.get("current_source_parameter") not in {"jakarta.faces.source","javax.faces.source"}
                         or proof.get("current_form_verified") is not True or proof.get("current_legacy_component_absent") is not True
-                        or proof.get("current_csrf_present") is not True or proof.get("current_viewstate_present") is not True
+                        or (legacy_id=="ACTION-44" and proof.get("current_callback_implementation_absent") is not True)
+                        or (legacy_id=="ACTION-23" and proof.get("current_csrf_present") is not True)
+                        or proof.get("current_viewstate_present") is not True
                         or identity.get("server_verified") is not True or identity.get("principal")!=principal or identity.get("roles")!=[role]):
-                    raise AssertionError("ACTION-23 current role/session boundary proof is incomplete")
+                    raise AssertionError("Current role/session boundary proof is incomplete")
 def main():
     WORK.mkdir(parents=True,exist_ok=True)
     name="ai-modernization-kan19-browser"
@@ -338,6 +377,7 @@ def main():
             if callback_source.exists():
                 raise AssertionError("Obsolete destination dialog callback implementation remains in the candidate")
             source_hashes=action23_source_evidence()
+            public_source_hashes=action44_source_evidence()
             for proof in retirement_proofs.values():
                 if proof.get("legacy_id")=="ACTION-08":
                     proof["callback_implementation_absent"]=True
@@ -345,6 +385,8 @@ def main():
                     proof["callback_implementation_absent"]=True
                     proof["legacy_binding_discrepancy_verified"]=True
                     proof["source_hashes"]=source_hashes
+                elif proof.get("legacy_id")=="ACTION-44":
+                    proof["source_hashes"]=public_source_hashes
             validate_retirement_keys(retirement_proofs)
             report["retirement_observations"]=retirement_proofs
         finally:

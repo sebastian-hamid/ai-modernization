@@ -1,0 +1,92 @@
+{
+  "task": "KAN-15 ACTION-44 specific retired-entry evidence",
+  "run_date": "2026-11-15",
+  "candidate": {
+    "legacy_id": "ACTION-44",
+    "replacement_id": "tracking-discovery",
+    "classification": "RETIRED; outcome is not PASS"
+  },
+  "basis": {
+    "fixture_status": "PASS",
+    "browser_checks": 777,
+    "effective_current_counts": {
+      "PASS": 470
+    },
+    "pre_review_retirement_counts": {
+      "RETIRED": 8,
+      "BLOCKED": 68
+    },
+    "pre_review_gate_exit": 2,
+    "fresh_evidence": "notes/evidence/kan-15-action44-retirement/candidate-evidence.json",
+    "fresh_evidence_sha256": "e97f77f83048e1fc53c3de99bdeed9f6df8e64e4e65e18a57b01a6e9c7097ecf",
+    "inputs_fingerprint": "bd2a2db085c35272cf49a5b40582d6b2ebd4d3d6be6cf20506731210be1c14a1",
+    "legacy_fixture_cleanup_verified": true,
+    "imported_code_attested": false,
+    "cargo_snapshot_sha256": "f3bd13e37c33f8ea219cbe3ae1444b56375b4a2daf71bbb9d7b95ad67b61cadb",
+    "cargo_snapshot_count": 13,
+    "source_hashes": {
+      "legacy_public_page_sha256": "9e36a35a1afc7d4035ddb48873f963c19e1b8f9a19ea6e889362ab24dd07b6eb",
+      "legacy_track_bean_sha256": "4268ab4111ff486c13e63cd3005092a792ad448f97a812f32bb6bae838688cd9",
+      "candidate_public_page_sha256": "ec60c013c5173b878621eafa0b60772b7e2d7bd72089f8024f5be15524ca66c0",
+      "candidate_track_bean_sha256": "d161d77ebdc45f0d497977aa82a9baa8f676807c1f2a86a141b3981f9c0f5493"
+    }
+  },
+  "required_evidence": {
+    "replacement_per_actor": "fresh tracking-discovery replacement PASS for all four actors",
+    "specific_negative_entry": "historical public autocomplete POST attempted at exact public path; current callback and component absent",
+    "native_role_session": "Anonymous public access preserved; authenticated roles server-verified",
+    "no_protected_payload": "no suggestions, cargo IDs or content markers in stale callback response",
+    "required_independent_effects": "same fixture snapshot; database, queues and business invocations unchanged",
+    "independent_review": "separate agent approved fresh evidence"
+  },
+  "actor_observations": [
+    {
+      "actor": "anonymous",
+      "proof_sha256": "56d2db9cee608de09629c221f7e149b76c8266838ce0977ef0435958605e827a",
+      "replacement_case_id": "REPLACEMENT::tracking-discovery::anonymous",
+      "replacement_outcome": "PASS"
+    },
+    {
+      "actor": "Reader",
+      "proof_sha256": "bb52657da0aed75429d10e517b884aa0bc81ee0522bc5993aef9f2b08e7fac92",
+      "replacement_case_id": "REPLACEMENT::tracking-discovery::Reader",
+      "replacement_outcome": "PASS"
+    },
+    {
+      "actor": "Operator",
+      "proof_sha256": "a96f3c813394ae293ad389e4fe66095c721bd27e6718c06e0eda366c8247ef00",
+      "replacement_case_id": "REPLACEMENT::tracking-discovery::Operator",
+      "replacement_outcome": "PASS"
+    },
+    {
+      "actor": "Administrator",
+      "proof_sha256": "05d88d4f431c142e062b831b7231e880a4b63db543028a5ef5f4b5ca30b3c6f4",
+      "replacement_case_id": "REPLACEMENT::tracking-discovery::Administrator",
+      "replacement_outcome": "PASS"
+    }
+  ],
+  "review": {
+    "status": "APPROVED",
+    "reviewer": "/root/review_action23_driver",
+    "date": "2026-11-15",
+    "approved_outcome": "RETIRED",
+    "pass_outcome_allowed": false,
+    "review_record": "notes/agent-reviews/2026-11-15-kan15-action44-retirement-review.md",
+    "review_record_sha256": "f90ba5168f0eae090eec1ecc52906834641bcf79dcccd9907869cdc3683cba32"
+  },
+  "limitations": [
+    "The fresh live run is not repeated; exact evidence and review bytes are SHA-256 pinned.",
+    "The public autocomplete query is read-only and the current public form has no explicit CSRF field; current form and ViewState, payload absence and unchanged effects are required.",
+    "Imported Python code identity is not attested by the runtime receipt.",
+    "RETIRED is not PASS; other blocked retirement cases remain unchanged."
+  ],
+  "result": {
+    "action44_retired_case_ids": [
+      "RETIREMENT::ACTION-44::anonymous",
+      "RETIREMENT::ACTION-44::Reader",
+      "RETIREMENT::ACTION-44::Operator",
+      "RETIREMENT::ACTION-44::Administrator"
+    ],
+    "pass_outcome_allowed": false
+  }
+}
