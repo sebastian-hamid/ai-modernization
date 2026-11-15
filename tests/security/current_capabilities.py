@@ -526,7 +526,7 @@ def build_current(model,inventory):
     return cases
 
 def source_fingerprint():
-    paths=subprocess.check_output(["git","ls-files","-co","--exclude-standard","--",".dockerignore","candidate","infrastructure/database","tests/candidate-runtime","tests/browser-workflows","tests/security","specifications/access-policy-inventory.json","specifications/current-capability-mapping-v2.json","notes/decisions/2026-11-02-current-ui-acceptance.md","notes/evidence/kan-15-bg06-scope/validation.json","notes/agent-reviews/2026-11-11-kan15-bg06-scope-review.md","notes/agent-reviews/2026-11-14-kan15-action08-retirement-review.md"],cwd=ROOT,text=True).splitlines()
+    paths=subprocess.check_output(["git","ls-files","-co","--exclude-standard","--",".dockerignore","candidate","infrastructure/database","tests/candidate-runtime","tests/browser-workflows","tests/security","specifications/access-policy-inventory.json","specifications/current-capability-mapping-v2.json","notes/decisions/2026-11-02-current-ui-acceptance.md","notes/evidence/kan-15-bg06-scope/validation.json","notes/agent-reviews/2026-11-11-kan15-bg06-scope-review.md","notes/agent-reviews/2026-11-15-kan15-bg06-scope-refresh-review.md","notes/agent-reviews/2026-11-14-kan15-action08-retirement-review.md"],cwd=ROOT,text=True).splitlines()
     digest=hashlib.sha256()
     for name in sorted(set(paths)):
         path=ROOT/name

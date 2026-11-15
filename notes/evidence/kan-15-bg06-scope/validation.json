@@ -2,8 +2,8 @@
   "schema_version": 1,
   "task": "KAN-15 BG-06",
   "driver": "fresh-disposable-bg06-scoped-gate-v1",
-  "started_at_utc": "2026-11-11T08:02:43.106269+00:00",
-  "completed_at_utc": "2026-11-11T08:04:35.270022+00:00",
+  "started_at_utc": "2026-11-15T04:40:09.440066+00:00",
+  "completed_at_utc": "2026-11-15T04:42:22.363275+00:00",
   "outcome": "PASS",
   "gate_exit": 0,
   "cases": [
@@ -49,18 +49,18 @@
     "blocked": 0
   },
   "reasons": [],
-  "runtime_receipt_sha256": "e310e0fab53caad06d8072934865746dd12b15360700d3565f7164cd4da54f9b",
+  "runtime_receipt_sha256": "b6907de20838724be42549a51f6cb51ee55f7996e20a90ce9ffd2e4e5dcb1b57",
   "gate_adapter_sha256": "ea70c54464939615712bd256fe820741b7f724d865be15d13db16e98f547048c",
   "runtime_exit_code": 0,
   "evidence": {
-    "run_id": "kan18pg-4295cb899c",
+    "run_id": "kan18pg-4e9aed9134",
     "runtime_status": "PASS",
     "checks": {
       "bg06_static_source_inventory": {
         "passed": true,
         "driver": "tests/security/test_bg06_startup_boundary.py",
         "exit_code": 0,
-        "summary": "........\n----------------------------------------------------------------------\nRan 8 tests in 0.081s\n\nOK"
+        "summary": "........\n----------------------------------------------------------------------\nRan 8 tests in 0.080s\n\nOK"
       },
       "bg06_human_boundary": {
         "passed": true,
@@ -182,19 +182,19 @@
               "session_user": "schema_migrator",
               "current_user": "schema_migrator",
               "current_role": "schema_migrator",
-              "observed_at": "2026-11-11 08:02:56.792987+00"
+              "observed_at": "2026-11-15 04:40:41.143645+00"
             },
             {
               "session_user": "schema_migrator",
               "current_user": "schema_migrator",
               "current_role": "schema_migrator",
-              "observed_at": "2026-11-11 08:03:09.272234+00"
+              "observed_at": "2026-11-15 04:40:53.955693+00"
             },
             {
               "session_user": "schema_migrator",
               "current_user": "schema_migrator",
               "current_role": "schema_migrator",
-              "observed_at": "2026-11-11 08:03:18.34263+00"
+              "observed_at": "2026-11-15 04:41:03.364989+00"
             }
           ],
           "migrations_only": true,
@@ -238,7 +238,7 @@
           "rows": {
             "location": {
               "count": 3,
-              "digest": "d8279d086ff19a5922555bf0070a382a"
+              "digest": "d6cab4ee2269194594508d490c554561"
             },
             "voyage": {
               "count": 1,
@@ -1570,7 +1570,7 @@
           "rows": {
             "location": {
               "count": 3,
-              "digest": "d8279d086ff19a5922555bf0070a382a"
+              "digest": "d6cab4ee2269194594508d490c554561"
             },
             "voyage": {
               "count": 1,
@@ -2905,7 +2905,7 @@
           "rows": {
             "location": {
               "count": 3,
-              "digest": "d8279d086ff19a5922555bf0070a382a"
+              "digest": "d6cab4ee2269194594508d490c554561"
             },
             "voyage": {
               "count": 1,
@@ -4237,7 +4237,7 @@
           "rows": {
             "location": {
               "count": 3,
-              "digest": "d8279d086ff19a5922555bf0070a382a"
+              "digest": "d6cab4ee2269194594508d490c554561"
             },
             "voyage": {
               "count": 1,
@@ -5573,7 +5573,7 @@
           "rows": {
             "location": {
               "count": 3,
-              "digest": "d8279d086ff19a5922555bf0070a382a"
+              "digest": "d6cab4ee2269194594508d490c554561"
             },
             "voyage": {
               "count": 1,
@@ -7078,19 +7078,19 @@
             "session_user": "schema_migrator",
             "current_user": "schema_migrator",
             "current_role": "schema_migrator",
-            "observed_at": "2026-11-11 08:02:56.792987+00"
+            "observed_at": "2026-11-15 04:40:41.143645+00"
           },
           {
             "session_user": "schema_migrator",
             "current_user": "schema_migrator",
             "current_role": "schema_migrator",
-            "observed_at": "2026-11-11 08:03:09.272234+00"
+            "observed_at": "2026-11-15 04:40:53.955693+00"
           },
           {
             "session_user": "schema_migrator",
             "current_user": "schema_migrator",
             "current_role": "schema_migrator",
-            "observed_at": "2026-11-11 08:03:18.34263+00"
+            "observed_at": "2026-11-15 04:41:03.364989+00"
           }
         ],
         "migrations_only": true,
@@ -7166,13 +7166,13 @@
             "session_user": "schema_migrator",
             "current_user": "schema_migrator",
             "current_role": "schema_migrator",
-            "observed_at": "2026-11-11 08:02:56.792987+00"
+            "observed_at": "2026-11-15 04:40:41.143645+00"
           },
           {
             "session_user": "schema_migrator",
             "current_user": "schema_migrator",
             "current_role": "schema_migrator",
-            "observed_at": "2026-11-11 08:03:09.272234+00"
+            "observed_at": "2026-11-15 04:40:53.955693+00"
           }
         ],
         "high_water_branch": "legacy_sequence_state (entity-id maximum branch separately covered by KAN-22)"
@@ -7213,19 +7213,19 @@
             "session_user": "schema_migrator",
             "current_user": "schema_migrator",
             "current_role": "schema_migrator",
-            "observed_at": "2026-11-11 08:02:56.792987+00"
+            "observed_at": "2026-11-15 04:40:41.143645+00"
           },
           {
             "session_user": "schema_migrator",
             "current_user": "schema_migrator",
             "current_role": "schema_migrator",
-            "observed_at": "2026-11-11 08:03:09.272234+00"
+            "observed_at": "2026-11-15 04:40:53.955693+00"
           },
           {
             "session_user": "schema_migrator",
             "current_user": "schema_migrator",
             "current_role": "schema_migrator",
-            "observed_at": "2026-11-11 08:03:18.34263+00"
+            "observed_at": "2026-11-15 04:41:03.364989+00"
           }
         ],
         "data_preserved": true,
@@ -7549,7 +7549,7 @@
       "candidate/cargotracker/src/main/java/net/java/cargotracker/interfaces/booking/web/ChangeDestination.java": "ff417f09cdeed433e06875c00c5d2fdd3ee5ee3978e630f75f425dd885940f95",
       "candidate/cargotracker/src/main/java/net/java/cargotracker/interfaces/booking/web/DashboardView.java": "0868aa0c91389f464563a1ff6d9ae843ff6776459e1cd95601db45d8f00e98a5",
       "candidate/cargotracker/src/main/java/net/java/cargotracker/interfaces/booking/web/ItinerarySelection.java": "7629cc17a94b61501fb9e99ba092a6d7a5e934ad55786b720ee542dec55bdb49",
-      "candidate/cargotracker/src/main/java/net/java/cargotracker/interfaces/booking/web/LegacyNavigationServlet.java": "22c66cbaa56e63dafe1456d8ec32c8d6bdc5bb7ca43cf20a39a497f374f7d624",
+      "candidate/cargotracker/src/main/java/net/java/cargotracker/interfaces/booking/web/LegacyNavigationServlet.java": "e774a70a01f2cc7adb9d0c2a26dea6c14ad2ed800ebbec7df384d7730db502d4",
       "candidate/cargotracker/src/main/java/net/java/cargotracker/interfaces/booking/web/ListCargo.java": "0c955eae015847d6ade62bd6f74a75cf9f6d7b041467ffe3e6b3ee1dff6fa160",
       "candidate/cargotracker/src/main/java/net/java/cargotracker/interfaces/booking/web/Registration.java": "3686611589395170d6a9c381745f90fd3d024664aed2d966801d0cb06820ada1",
       "candidate/cargotracker/src/main/java/net/java/cargotracker/interfaces/handling/HandlingEventRegistrationAttempt.java": "6a057bee9ff5abc044d800a1a859d5b0a3867460e5936e0ffcb0fc5ab3768174",
@@ -7574,13 +7574,13 @@
       "candidate/cargotracker/src/main/java/net/java/cargotracker/interfaces/security/RoutingAuthenticationFilter.java": "1c0ee6f155a100eb9431f54105f0d93624bbb19876c9c88ef84b3056981a0974",
       "candidate/cargotracker/src/main/java/net/java/cargotracker/interfaces/security/SessionServlet.java": "184e2d3e73508f5b0e27751347fefdac68a088fa40d6761d3d2103f024324d09",
       "candidate/cargotracker/src/main/java/net/java/cargotracker/interfaces/tracking/web/CargoTrackingViewAdapter.java": "640f15218535b7698da38f824e0895efa73644705b015cd2867f3e017afbf2a5",
-      "candidate/cargotracker/src/main/java/net/java/cargotracker/interfaces/tracking/web/Track.java": "c6522500eac905645562cc7d802717c1fd8e6d5dd374237d610f11b9368074c9",
+      "candidate/cargotracker/src/main/java/net/java/cargotracker/interfaces/tracking/web/Track.java": "d161d77ebdc45f0d497977aa82a9baa8f676807c1f2a86a141b3981f9c0f5493",
       "candidate/cargotracker/src/main/java/net/java/pathfinder/api/GraphTraversalService.java": "a69dc4782029a75bbdd14c72037426f8004ae2b05a35e60128756292da6a6aa1",
       "candidate/cargotracker/src/main/java/net/java/pathfinder/api/TransitEdge.java": "c40ee713fdf79ddee88c5f1b3fffbbaef16fedd76d9ebd38566e45b7c9cf55bf",
       "candidate/cargotracker/src/main/java/net/java/pathfinder/api/TransitPath.java": "b3c4f80a0cedfb8fdf24b463390544cf58ac8876d29ee0e66d4d13fd2b13b6fd",
       "candidate/cargotracker/src/main/java/net/java/pathfinder/internal/GraphDao.java": "968019f88665edb3adea560f2abd19610551d2a7e449b0d08df9c3c023276cb2",
       "candidate/cargotracker/src/main/resources/META-INF/persistence.xml": "812bd4194df2eb4abcd3dd1971d80e688a2f7f8793e0273c1f1fa7b85aa0cbdf",
-      "candidate/cargotracker/src/main/webapp/WEB-INF/access-routes.tsv": "51f9b427f5847001a8e64864359ca640e51887f371be763f7acc30a4410abd91",
+      "candidate/cargotracker/src/main/webapp/WEB-INF/access-routes.tsv": "bd83abe21d3fb74411d7d27ed06e9cc75d937cf30d8ae021a7479c8c9169948c",
       "candidate/cargotracker/src/main/webapp/WEB-INF/beans.xml": "fc9423ba8c13a9df49cdb94be0724552a9db58f1c5b110e2806bb489441ab231",
       "candidate/cargotracker/src/main/webapp/WEB-INF/faces-config.xml": "c6483cbc4f169f71311effacfd2dcbe9e67a73fb957f101ddea6ece823a55cff",
       "candidate/cargotracker/src/main/webapp/WEB-INF/jboss-ejb3.xml": "032930f3edcdf7aa20ea37e9903277c8aa172fe00cf519c82688423e1104877b",
@@ -7589,6 +7589,7 @@
       "candidate/cargotracker/src/main/webapp/WEB-INF/templates/cargo-details.xhtml": "b83bd249cce3fc922f3a8695e17bbbd57e647766d33a680214baaec763213137",
       "candidate/cargotracker/src/main/webapp/WEB-INF/templates/common/admin.xhtml": "9498a8ea7362d95f0112d341211a2ec0f44ec348fdec98c672dab42a81c01448",
       "candidate/cargotracker/src/main/webapp/WEB-INF/templates/common/public.xhtml": "7e915b7fe70398ab348fadf57c4e72a54c4aae95f41f1c420548726ec64683b5",
+      "candidate/cargotracker/src/main/webapp/WEB-INF/templates/public-tracking.xhtml": "0d8b1ce921a9afbe063c8f019f0fad822bbbeb4b71318bb9cfc6e75f05e48e27",
       "candidate/cargotracker/src/main/webapp/WEB-INF/web.xml": "98e4464400c6c313dc6b1b332c2419fa178507db4ea0d487662ca58ffe3bb0e5",
       "candidate/cargotracker/src/main/webapp/admin/about.xhtml": "5800067a1a8d7b17b62917413e2f4435960c7d88a04649d6dec4b108c6849826",
       "candidate/cargotracker/src/main/webapp/admin/book.xhtml": "458a97585a67e1458358a5c846d4691e6d736981b31e0146de9fef7ed6e458ef",
@@ -7625,10 +7626,10 @@
       "candidate/cargotracker/src/main/webapp/images/cross.png": "d04ecfc93ff86c44f6fc39e35945e3d8a7648ba8fcd97a2635920df2e88893b3",
       "candidate/cargotracker/src/main/webapp/images/error.png": "011f4e33d86b448078a2bd56b7060770b2c079e86aad2b7298ab0db216758f34",
       "candidate/cargotracker/src/main/webapp/images/tick.png": "644faffc659fb1e6778cf5290022fbcde177952c66881848e6380ed91211e878",
-      "candidate/cargotracker/src/main/webapp/index.xhtml": "d3cc569c0d8d3b675189a374318017d7f55f3de1e41d61316dc026b2fc619148",
+      "candidate/cargotracker/src/main/webapp/index.xhtml": "1104cd5e278fff331f1ffa78eefd81c484c78ec65381cb4de1c0093e91f28230",
       "candidate/cargotracker/src/main/webapp/mobile.xhtml": "92c417f474fa73b9d5b475d1c3a34ae367e4805f1db11c9c74551ea623a87909",
-      "candidate/cargotracker/src/main/webapp/public/about.xhtml": "d430aa0842b890d7eee6d01199c2a86771bab9fd9814aed70f30e9dc40360902",
-      "candidate/cargotracker/src/main/webapp/public/track.xhtml": "9e36a35a1afc7d4035ddb48873f963c19e1b8f9a19ea6e889362ab24dd07b6eb",
+      "candidate/cargotracker/src/main/webapp/public/about.xhtml": "58b154d23174cad90e238f642e6e424e242c165133c1931ac0282c16a75d45c1",
+      "candidate/cargotracker/src/main/webapp/public/track.xhtml": "ec60c013c5173b878621eafa0b60772b7e2d7bd72089f8024f5be15524ca66c0",
       "candidate/cargotracker/src/main/webapp/resources/calendar.css": "6a025aa78e66421b3f771b3abb7d41193e3ce5d4248853160134dc8c86c4cbde",
       "candidate/cargotracker/src/main/webapp/resources/cargotracker.css": "ea3f7018ad6051641513875bfb775c3a08c6e617c2d6957cee3ef59e96975923",
       "candidate/cargotracker/src/main/webapp/resources/dd.css": "4c7e0f50521c92187404cc55e43c9667a4a72b9b88e2ef22756b34cc39e7f9b9",
@@ -7668,7 +7669,7 @@
       "tests/candidate-runtime/postgresql/verify_runtime.py": "7ff5670adcc47cefb18dea68846f5152740bd95b90a35ade5460a94070cdfe96",
       "tests/security/desired-cases.json": "8f9eddd379ea86ecde657667f2ba0735e64aed37f85103e77de466fd55be9c33",
       "tests/security/run_bg06_scoped_gate.py": "ea70c54464939615712bd256fe820741b7f724d865be15d13db16e98f547048c",
-      "tests/security/test_bg06_startup_boundary.py": "d32b2a7f7b9d9c57f2be27f85522feb448bf3489764be7fd48285db16e9faf40"
+      "tests/security/test_bg06_startup_boundary.py": "7a1b18961322aac7907f8256aa7238107f58e30fbc7160d2de3f94adb2375fb8"
     },
     "schema_sha256": {
       ".dockerignore": "0470eb69c6f13a37c5476289eb4b691f36a366278a602e0f8d8a475527a00e5c",
