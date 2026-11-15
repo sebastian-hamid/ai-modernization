@@ -1240,13 +1240,14 @@ async function retiredCancelAttempt(role,actor,context,base,trackingId,destinati
     const content=(await page.locator("#tracking-result").textContent()).trim();
     const selected=content.includes(id);
     const renderedStatus=content.includes("Current status:")&&content.includes("Estimated arrival:");
-    check("Public lookup validates inputs and renders selected cargo "+role,[200].includes(submitted.status())&&unknownSafe&&malformedSafe&&selected&&renderedStatus);
+    const protectedPayloadAbsent=["ABC123","DEF789","JKL567","MNO456"].filter(other=>other!==id).every(other=>!content.includes(other));
+    check("Public lookup validates inputs and renders only selected cargo "+role,[200].includes(submitted.status())&&unknownSafe&&malformedSafe&&selected&&renderedStatus&&protectedPayloadAbsent);
     trackingActionProofs["CURRENT::ACTION-45::"+role+"::active"]={
      supported:true,status:200,semantic_success:true,current_navigation_driver:"browser-lookup-v1",tracking_id:id,
      ...(actor.identity?{identity:{server_verified:true,principal:actor.identity.principal,roles:actor.identity.roles}}:{}),
      driver:"click",action_method:"POST",action_path:"/cargo-tracker/public/track.xhtml",entry_page:"public/track.xhtml",source_entry_verified:true,
      submission_status:submitted.status(),selected_cargo_verified:selected,persisted_details_verified:renderedStatus,
-     invalid_inputs_verified:unknownSafe&&malformedSafe,legacy_entry_verified:noSuggestions,csrf_checks_verified:false,
+     invalid_inputs_verified:unknownSafe&&malformedSafe,legacy_entry_verified:noSuggestions,protected_payload_absent:protectedPayloadAbsent,csrf_checks_verified:false,
      autocomplete_source_status:legacyAjax.status(),autocomplete_source_payload_absent:noSuggestions
     };
    }finally{await page.close();}

@@ -1,0 +1,55 @@
+{
+  "task": "KAN-15 current-capability gate refresh after approved public typed tracking policy",
+  "run_date": "2026-11-15",
+  "scope": "Fresh full current-capability aggregate using the reviewed BG-06 scoped receipt and the approved public typed tracking policy. The prior intermediate failed report is preserved separately and was not overwritten.",
+  "aggregate_fixture": {
+    "status": "PASS",
+    "native_checks": 777,
+    "browser_workflows": "PASS; the live adapter requires a nonzero passing browser check count and verifies owned browser container/network cleanup",
+    "owned_runtime_container_removed": true,
+    "owned_browser_container_removed": true,
+    "owned_browser_network_removed": true,
+    "private_files_removed": true,
+    "cleanup_errors": []
+  },
+  "aggregate": {
+    "execution": "fresh-owned-runtime",
+    "current_counts": { "PASS": 470 },
+    "retirement_counts": { "RETIRED": 4, "BLOCKED": 72 },
+    "legacy_audit": { "total": 502, "counts": { "PASS": 317, "FAIL": 7, "BLOCKED": 178 } },
+    "gate_exit": 2,
+    "gate_exit_reason": "Remaining 72 retirement inventory cases are BLOCKED; the 470 current capability cases all PASS.",
+    "inputs_fingerprint": "fb376db6b657d962054a5996eb162191e382282336f93addc58f17a09ec8f336",
+    "canonical_contracts_sha256": "59986f7a13d72945e93a75a512704893036d8ea2b518175a53bb62ded11334b0",
+    "legacy_fixture_cleanup_verified": true,
+    "imported_code_attested": false
+  },
+  "bg06_separate_fixture_scope": {
+    "kind": "reviewed-fresh-scoped-runtime",
+    "driver": "fresh-disposable-bg06-scoped-gate-v1",
+    "scope_receipt_sha256": "04a1377e44b421207c69272b1252be337e502dc78f8bc4f1e57807e6d2e9f956",
+    "runtime_receipt_sha256": "b6907de20838724be42549a51f6cb51ee55f7996e20a90ce9ffd2e4e5dcb1b57",
+    "gate_adapter_sha256": "ea70c54464939615712bd256fe820741b7f724d865be15d13db16e98f547048c",
+    "run_id": "kan18pg-4e9aed9134",
+    "all_five_cases_pass": true,
+    "review_record": "notes/agent-reviews/2026-11-15-kan15-bg06-scope-refresh-review.md"
+  },
+  "tests": {
+    "security": { "passed": 117 },
+    "candidate_runtime": { "passed": 48 },
+    "browser_workflow_proofs": { "passed": 31 },
+    "python_compileall": "PASS",
+    "mapping_json_parse": "PASS",
+    "git_diff_check": "PASS"
+  },
+  "review": {
+    "verdict": "Approved for publication",
+    "reviewer": "Separate independent Codex review agent (/root/review_current_gate_refresh)",
+    "review_record": "notes/agent-reviews/2026-11-15-kan15-bg06-aggregate-refresh-review.md"
+  },
+  "limitations": [
+    "The raw BG-06 runtime receipt is not stored in this checkout; its SHA-256 is pinned by the retained scope validation and independent review record.",
+    "The legacy audit is reported separately and contains seven historical-contract FAIL outcomes; these do not affect the gate exit."
+  ],
+  "preserved_intermediate": "notes/evidence/kan-15-bg06-aggregate-refresh/current-capability-gate.json"
+}

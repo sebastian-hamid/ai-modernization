@@ -1,5 +1,14 @@
 # KAN-15 action coverage handoff
 
+## Latest checkpoint — 15 November 2026 (KAN-15 public tracking and BG-06)
+
+KAN-15 remains In Progress. The approved public typed tracking policy is now represented in the current-capability gate: PAGE-25 is public, and ACTION-45 accepts typed cargo tracking through the public POST route. Anonymous access is allowed only for the read-only lookup; proofs require valid/invalid input handling, the selected cargo details, no retired autocomplete suggestions, and no unrelated cargo payload. The historical access inventory remains unchanged.
+
+A fresh live aggregate passed all **470 current capabilities**. Retirement status is **4 RETIRED / 72 BLOCKED**, so gate exit 2 remains expected until the remaining retired-entry evidence is reviewed. The separate historical audit is 317 PASS / 7 FAIL / 178 BLOCKED. All five BG-06 cases passed using the independently reviewed refreshed scope receipt. Fresh runtime/browser verification completed with owned fixture cleanup. Security, candidate-runtime and browser-proof suites passed 117, 48 and 31 tests respectively.
+
+Evidence: `notes/evidence/kan-15-bg06-aggregate-refresh/`. The previous failed aggregate is retained as `current-capability-gate.json`; use `current-capability-gate-after-public-policy.json` for the final run. Independent review is recorded in `notes/agent-reviews/2026-11-15-kan15-bg06-aggregate-refresh-review.md`.
+
+Next priority: continue ACTION-23 tracking-discovery retired-entry evidence. Its historical callback inventory says `completeTracking`, while the read-only original source exposes `getTrackingIds`; resolve that discrepancy before claiming retirement. Preserve the historical row and keep RETIRED separate from PASS.
 ## Latest checkpoint — 14 November 2026
 
 KAN-15 remains In Progress. The fresh SERVICE-02 live-subset fixture passed 764 native checks and 841 browser checks. Both owned containers, private files and the browser network were removed without cleanup errors. Current aggregate: 460 PASS / 10 BLOCKED; historical audit: 324 PASS / 178 BLOCKED; retirement: 76 BLOCKED. Gate exit 2 reflects the remaining unsupported coverage.
@@ -95,4 +104,4 @@ Independent review approved retiring ACTION-08 after verifying replacement-per-a
 
 KAN-15 now restores public cargo tracking at '/public/track.xhtml' as a typed tracking ID lookup. The old autocomplete component and 'getTrackingIds' enumerator are removed. A fresh disposable run passed 777 runtime checks and 833 Chromium checks; cleanup of both containers, the private browser network, and runtime private files succeeded. Browser proofs covered anonymous, Reader, Operator, and Administrator lookup, invalid values, the public tracking result, and the retired autocomplete-shaped AJAX request returning no cargo ID suggestions. The public landing and About pages now link to the tracker.
 
-Evidence: notes/evidence/kan-15-public-tracking/validation.json. This increment does not mark ACTION-44 RETIRED or PASS. ACTION-23 remains blocked by the legacy callback discrepancy ('completeTracking' is listed, while the read-only original source exposes 'getTrackingIds'). The change to 'LegacyNavigationServlet' invalidates the source-bound BG-06 scope receipt; refresh that scope evidence before relying on current-gate totals. Independent review is pending.
+Evidence: notes/evidence/kan-15-public-tracking/validation.json. This increment does not mark ACTION-44 RETIRED or PASS. ACTION-23 remains blocked by the legacy callback discrepancy ('completeTracking' is listed, while the read-only original source exposes 'getTrackingIds'). The source-bound BG-06 scope receipt was refreshed and independently reviewed. The latest aggregate now passes all 470 current capabilities; 72 retirement cases remain BLOCKED. See the latest checkpoint above.

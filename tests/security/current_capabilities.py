@@ -453,12 +453,16 @@ def reviewed_action08_retirement_receipt():
         return False
 
 def validate_model(model,inventory,inventory_hash):
-    if set(model)!={"schema_version","approval_record","approved_proposal_sha256","legacy_inventory_sha256","mapped_actions","pending_current_actions","replacement_capabilities","retirement_candidates","retirement_policy"}:raise ValueError("Unknown or missing model field")
+    if set(model)!={"schema_version","approval_record","approved_proposal_sha256","legacy_inventory_sha256","mapped_actions","pending_current_actions","replacement_capabilities","retirement_candidates","retirement_policy","public_current_capabilities"}:raise ValueError("Unknown or missing model field")
     if model.get("schema_version")!=2 or model.get("legacy_inventory_sha256")!=inventory_hash:raise ValueError("Unknown version or inventory drift")
     if model.get("approval_record")!="notes/decisions/2026-11-02-current-ui-acceptance.md" or model.get("approved_proposal_sha256")!="710b00d37001276e8bd60d806f9fe21ea66a39b7b47ae465122ca78da931da5a":raise ValueError("Unbound approval")
     if inventory_hash!=APPROVED_INVENTORY_SHA256:raise ValueError("Approved inventory changed")
     if {r["legacy_id"] for r in model["mapped_actions"]}!=APPROVED_MAPPED or {r["legacy_id"] for r in model["pending_current_actions"]}!=APPROVED_PENDING or {r["legacy_id"] for r in model["retirement_candidates"]}!=set(APPROVED_RETIREMENT_GROUP):raise ValueError("Approved mapping partition changed")
     if model["retirement_policy"]!=APPROVED_RETIREMENT_POLICY:raise ValueError("Approved retirement policy changed")
+    expected_public=[{"capability_id":"public-typed-cargo-tracking","legacy_ids":["PAGE-25","ACTION-45"],"allowed_roles":["Reader","Operator","Administrator"],"anonymous":True,"read_only":True,"page_path":"/cargo-tracker/public/track.xhtml","lookup_method":"POST"}]
+    if model.get("public_current_capabilities")!=expected_public:raise ValueError("Unapproved public current capability policy")
+    public_action=next((r for r in model["mapped_actions"] if r.get("legacy_id")=="ACTION-45"),None)
+    if public_action!={"legacy_id":"ACTION-45","capability_id":"public-typed-cargo-tracking","modern_source":"public/track.xhtml","modern_target":"/cargo-tracker/public/track.xhtml","modern_method":"POST"}:raise ValueError("Public typed lookup mapping drift")
     if {r["id"] for r in model["replacement_capabilities"]}!=set(APPROVED_GROUPS):raise ValueError("Approved replacement groups changed")
     for row in model["replacement_capabilities"]:
         approved=APPROVED_GROUPS[row["id"]]
@@ -508,15 +512,41 @@ def build_current(model,inventory):
     mapped={r["legacy_id"]:r for r in model["mapped_actions"]}
     pending={r["legacy_id"]:r for r in model["pending_current_actions"]}
     retired={r["legacy_id"] for r in model["retirement_candidates"]}
+    public_policy=model["public_current_capabilities"][0]
+    public_ids=set(public_policy["legacy_ids"])
     cases=[]
     for old in build(inventory):
         if old["surface_id"] in retired:continue
         row=mapped.get(old["surface_id"]) or pending.get(old["surface_id"])
         case=deepcopy(old)
-        case.update(id="CURRENT::"+old["id"],contract_version=2,kind="current",legacy_case_id=old["id"],legacy_contract=deepcopy(old),capability_id=row["capability_id"] if row else old["surface_id"].lower(),binding_status="pending" if old["surface_id"] in pending else "native-batch-worker" if old["surface_id"] in {"BG-01-MACHINE","BG-02-MACHINE"} else "native-batch-import" if old["surface_id"]=="BG-01" else "native-batch-processing" if old["surface_id"]=="BG-02" else "native-handling-worker" if old["surface_id"] in {"BG-03","BG-03-MACHINE"} else "native-inspection-worker" if old["surface_id"] in {"BG-04","BG-04-MACHINE"} else "native-notification-worker" if old["surface_id"] in {"BG-05","BG-05-MACHINE"} else "native-booking-service" if old["surface_id"]=="SERVICE-01" else "native-booking-routes" if old["surface_id"]=="SERVICE-02" else "native-booking-facade" if old["surface_id"]=="SERVICE-03" else "native-service-boundary" if old["surface_id"]=="SERVICE-04" else "native-staged-return" if old["surface_id"]=="ACTION-13" else "native-current-load" if old["surface_id"] in NATIVE_CURRENT_LOADS else "browser-current-navigation" if old["surface_id"] in {"ACTION-10","ACTION-11","ACTION-12","ACTION-21","ACTION-22","ACTION-24","ACTION-25","ACTION-45"} else "existing-runtime-driver")
+        binding=("pending" if old["surface_id"] in pending else
+            "native-batch-worker" if old["surface_id"] in {"BG-01-MACHINE","BG-02-MACHINE"} else
+            "native-batch-import" if old["surface_id"]=="BG-01" else
+            "native-batch-processing" if old["surface_id"]=="BG-02" else
+            "native-handling-worker" if old["surface_id"] in {"BG-03","BG-03-MACHINE"} else
+            "native-inspection-worker" if old["surface_id"] in {"BG-04","BG-04-MACHINE"} else
+            "native-notification-worker" if old["surface_id"] in {"BG-05","BG-05-MACHINE"} else
+            "native-booking-service" if old["surface_id"]=="SERVICE-01" else
+            "native-booking-routes" if old["surface_id"]=="SERVICE-02" else
+            "native-booking-facade" if old["surface_id"]=="SERVICE-03" else
+            "native-service-boundary" if old["surface_id"]=="SERVICE-04" else
+            "native-staged-return" if old["surface_id"]=="ACTION-13" else
+            "native-current-load" if old["surface_id"] in NATIVE_CURRENT_LOADS else
+            "browser-current-navigation" if old["surface_id"] in {"ACTION-10","ACTION-11","ACTION-12","ACTION-21","ACTION-22","ACTION-24","ACTION-25","ACTION-45"} else
+            "existing-runtime-driver")
+        capability=row["capability_id"] if row else old["surface_id"].lower()
+        case.update(id="CURRENT::"+old["id"],contract_version=2,kind="current",
+            legacy_case_id=old["id"],legacy_contract=deepcopy(old),capability_id=capability,
+            binding_status=binding)
         if row:
             source="index.xhtml" if old["surface_id"]!="ACTION-13" and old["actor"]=="anonymous" and old["expected"]=="deny" and row["modern_method"]=="GET" else row["modern_source"]
             case.update(path=row["modern_target"],method=row["modern_method"],current_source=source)
+        if old["surface_id"] in public_ids:
+            case.update(expected="allow",capability_id=public_policy["capability_id"])
+            if old["surface_id"]=="PAGE-25":
+                case.update(path=public_policy["page_path"],method="GET",
+                    current_source="public/track.xhtml",binding_status="public-typed-tracking-page")
+                if old["channel"]=="session":case["public_after_revocation"]=True
         cases.append(case)
     for group in model["replacement_capabilities"]:
         for actor in ACTORS:
@@ -596,7 +626,7 @@ class CurrentAdapter:
         if canonical is None or canonical!=case:raise UnsupportedCase()
         if case["kind"] not in {"current","replacement"} or self.legacy is None or self.provenance is None:
             raise UnsupportedCase()
-        if case["kind"]=="current" and case.get("binding_status") not in {"existing-runtime-driver","native-current-load","browser-current-navigation","native-staged-return","native-batch-import","native-batch-processing","native-batch-worker","native-handling-worker","native-inspection-worker","native-notification-worker","native-service-boundary","native-booking-service","native-booking-routes","native-booking-facade"}:
+        if case["kind"]=="current" and case.get("binding_status") not in {"existing-runtime-driver","native-current-load","browser-current-navigation","native-staged-return","native-batch-import","native-batch-processing","native-batch-worker","native-handling-worker","native-inspection-worker","native-notification-worker","native-service-boundary","native-booking-service","native-booking-routes","native-booking-facade","public-typed-tracking-page"}:
             raise UnsupportedCase()
         if not isinstance(self.provenance,dict) or self.provenance.get("kind")!="fresh-owned-runtime" or self.provenance.get("legacy_fixture_cleanup_verified") is not True or self.provenance.get("inputs_fingerprint")!=self._run_fingerprint or re.fullmatch("[0-9a-f]{64}",str(self._run_fingerprint)) is None:raise UnsupportedCase()
         if case["kind"]=="replacement":
@@ -774,6 +804,17 @@ class CurrentAdapter:
                 raise UnsupportedCase()
             if case["surface_id"]=="ACTION-18" and observation.get("route_alias_verified") is not True:raise UnsupportedCase()
             if case["expected"]=="allow" and (observation.get("selected_cargo_verified") is not True or observation.get("current_values_verified") is not True):raise UnsupportedCase()
+        elif case["binding_status"]=="public-typed-tracking-page":
+            observation=deepcopy(self.legacy.execute(deepcopy(canonical["legacy_contract"])))
+            if (observation.get("supported") is not True or observation.get("status")!=200
+                    or observation.get("semantic_success") is not True
+                    or observation.get("protected_payload_absent") is not True):
+                raise UnsupportedCase()
+            if case["channel"]=="session" and (observation.get("identity") is not None
+                    or observation.get("public_access_after_revocation") is not True
+                    or observation.get("authenticated_before_revocation") is not True
+                    or observation.get("revocation_verified") is not True):
+                raise UnsupportedCase()
         elif case["binding_status"]=="browser-current-navigation":
             observation=deepcopy(getattr(self.legacy,"current_observations",{}).get(case["id"],{}))
             if case["surface_id"]=="ACTION-10":
@@ -783,8 +824,12 @@ class CurrentAdapter:
             elif case["surface_id"] in {"ACTION-24","ACTION-45"}:
                 if observation.get("current_navigation_driver")!="browser-lookup-v1":raise UnsupportedCase()
                 if case["expected"]=="allow":
-                    if observation.get("submission_status") not in {302,303} or observation.get("invalid_inputs_verified") is not True or observation.get("csrf_checks_verified") is not True:raise UnsupportedCase()
-                    if case["surface_id"]=="ACTION-45" and observation.get("legacy_entry_verified") is not True:raise UnsupportedCase()
+                    if case["surface_id"]=="ACTION-45":
+                        if (observation.get("submission_status")!=200 or observation.get("invalid_inputs_verified") is not True
+                                or observation.get("legacy_entry_verified") is not True or observation.get("protected_payload_absent") is not True
+                                or observation.get("action_method")!="POST" or observation.get("action_path")!="/cargo-tracker/public/track.xhtml"
+                                or observation.get("entry_page")!="public/track.xhtml" or observation.get("source_entry_verified") is not True):raise UnsupportedCase()
+                    elif observation.get("submission_status") not in {302,303} or observation.get("invalid_inputs_verified") is not True or observation.get("csrf_checks_verified") is not True:raise UnsupportedCase()
                 allowed_flags=("selected_cargo_verified","persisted_details_verified")
                 denied_flags=("lookup_source_denied",)
             elif case["surface_id"]=="ACTION-25":
@@ -803,8 +848,11 @@ class CurrentAdapter:
             observation=deepcopy(self.legacy.execute(deepcopy(canonical["legacy_contract"])))
         actor=case["actor"]
         if actor in USERS:
-            identity=observation.get("identity",{})
-            if identity.get("server_verified") is not True or identity.get("principal")!=USERS[actor] or identity.get("roles")!=[actor]:raise UnsupportedCase()
+            if case.get("capability_id")=="public-typed-cargo-tracking" and case["channel"]=="session":
+                if observation.get("identity") is not None:raise UnsupportedCase()
+            else:
+                identity=observation.get("identity",{})
+                if identity.get("server_verified") is not True or identity.get("principal")!=USERS[actor] or identity.get("roles")!=[actor]:raise UnsupportedCase()
         elif actor=="anonymous":
             if observation.get("identity") is not None:raise UnsupportedCase()
         elif actor=="routing-service":

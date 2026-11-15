@@ -598,7 +598,11 @@ def main(after_checks=None):
             if kind=="book":return form("booking") and 'id="booking:origin"' in body and 'id="booking:deadline"' in body
             if kind=="handling":return form("handling") and 'id="handling:type"' in body and 'id="handling:location"' in body
             if kind=="track":return form("tracking") and 'id="tracking:id"' in body
-            if kind=="public-track":return 'id="trackingForm:trackingId"' in body and 'autocomplete="off"' in body and "ui-autocomplete" not in body and "tracking-result" in body
+            if kind=="public-track":
+                other_ids={"ABC123","DEF789","JKL567","MNO456"}-{fixture_id}
+                return ('id="trackingForm:trackingId"' in body and 'autocomplete="off"' in body
+                    and "ui-autocomplete" not in body and "tracking-result" in body
+                    and all(tracking_id not in body for tracking_id in other_ids))
             if kind=="live":return 'id="live-cargos"' in body and 'id="live-map"' in body and "/resources/js/live-tracking.js" in body
             if kind=="error":return payload_absent(body) and not any(marker in body for marker in ["jakarta.faces.FacesException","java.lang.","password","JSESSIONID","<script","untrusted.example"])
             return False
@@ -667,6 +671,7 @@ def main(after_checks=None):
                     if target:observation["fixed_alias_verified"]=redirected
                     if kind=="live":observation.update({"shell_rendered":semantic,"browser_required":True})
                     if kind=="error":observation["protected_payload_absent"]=page_semantics(kind,body,[])
+                    if kind=="public-track":observation["protected_payload_absent"]=all(tracking_id not in body for tracking_id in {"ABC123","DEF789","JKL567","MNO456"})
                 else:
                     fixed=headers.get("Location")=="/cargo-tracker/login"
                     absent=payload_absent(body)
@@ -2286,7 +2291,7 @@ def main(after_checks=None):
                 if kind=="public-track":
                     semantic=status==200 and page_semantics(kind,body,values)
                     check("Revoked session retains public typed tracking: "+surface+" "+actor+" "+state,semantic)
-                    pending[surface+"::"+actor+"::"+state]={"supported":True,"status":status,"semantic_success":semantic,"public_access_after_revocation":True,"identity":None,"authenticated_before_revocation":True,"revocation_verified":True}
+                    pending[surface+"::"+actor+"::"+state]={"supported":True,"status":status,"semantic_success":semantic,"protected_payload_absent":all(tracking_id not in body for tracking_id in {"ABC123","DEF789","JKL567","MNO456"}-{fixture_id}),"public_access_after_revocation":True,"identity":None,"authenticated_before_revocation":True,"revocation_verified":True}
                 else:
                     check("Revoked remaining page login: "+surface+" "+actor+" "+state,status==303 and fixed and payload_absent(body))
                     pending[surface+"::"+actor+"::"+state]={"supported":True,"status":status,"redirect_is_configured_login":fixed,"protected_payload_absent":payload_absent(body),"identity":report["identities"][who],"authenticated_before_revocation":True,"revocation_verified":True}

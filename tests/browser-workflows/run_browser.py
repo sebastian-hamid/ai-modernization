@@ -154,6 +154,7 @@ def promote_tracking_actions(report,results):
                 if identity.get("server_verified") is not True or identity.get("principal")!={"Reader":"reader","Operator":"operator","Administrator":"admin"}[role] or identity.get("roles")!=[role]:raise AssertionError("Tracking identity mismatch")
             elif proof.get("identity") is not None:raise AssertionError("Public anonymous lookup has an identity")
             if proof.get("status")!=200 or proof.get("driver")!=("click" if lookup else "keyboard") or not all(proof.get(k) is True for k in ("semantic_success","selected_cargo_verified","persisted_details_verified")):raise AssertionError("Tracking result lacks details")
+            if public_lookup and proof.get("protected_payload_absent") is not True:raise AssertionError("Public tracking exposed unrelated cargo data")
         elif proof.get("identity") is not None or proof.get("status")!=303 or proof.get("driver")!="direct" or not all(proof.get(k) is True for k in ("protected_payload_absent","redirect_is_configured_login")):raise AssertionError("Tracking denial incomplete")
         if lookup:
             expected_path="/cargo-tracker/public/track.xhtml" if public_lookup else "/cargo-tracker/admin/track.xhtml"

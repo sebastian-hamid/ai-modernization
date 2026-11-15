@@ -181,9 +181,9 @@
     },
     {
       "legacy_id": "ACTION-45",
-      "capability_id": "behavior-action-45",
+      "capability_id": "public-typed-cargo-tracking",
       "modern_source": "public/track.xhtml",
-      "modern_target": "/cargo-tracker/admin/track.xhtml",
+      "modern_target": "/cargo-tracker/public/track.xhtml",
       "modern_method": "POST"
     }
   ],
@@ -621,5 +621,23 @@
       "negative_driver": "pending"
     }
   ],
-  "retirement_policy": "Never PASS; remain BLOCKED until replacement, specific negative-entry and independent-review evidence have a supported fresh runtime verifier."
+  "retirement_policy": "Never PASS; remain BLOCKED until replacement, specific negative-entry and independent-review evidence have a supported fresh runtime verifier.",
+  "public_current_capabilities": [
+    {
+      "capability_id": "public-typed-cargo-tracking",
+      "legacy_ids": [
+        "PAGE-25",
+        "ACTION-45"
+      ],
+      "allowed_roles": [
+        "Reader",
+        "Operator",
+        "Administrator"
+      ],
+      "anonymous": true,
+      "read_only": true,
+      "page_path": "/cargo-tracker/public/track.xhtml",
+      "lookup_method": "POST"
+    }
+  ]
 }

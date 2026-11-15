@@ -327,14 +327,54 @@ class CurrentCapabilityTests(unittest.TestCase):
         adapter,case,_=self.fixture("CURRENT::ACTION-45::Reader::active")
         proof={"supported":True,"status":200,"identity":{"server_verified":True,"principal":"reader","roles":["Reader"]},
                "current_navigation_driver":"browser-lookup-v1","tracking_id":"ABCDEFGH","driver":"click",
-               "action_method":"POST","action_path":"/cargo-tracker/admin/track.xhtml","entry_page":"public/track.xhtml",
-               "source_entry_verified":True,"submission_status":303,"invalid_inputs_verified":True,"csrf_checks_verified":True,
-               "legacy_entry_verified":True,"selected_cargo_verified":True,"persisted_details_verified":True}
+               "action_method":"POST","action_path":"/cargo-tracker/public/track.xhtml","entry_page":"public/track.xhtml",
+               "source_entry_verified":True,"submission_status":200,"invalid_inputs_verified":True,"csrf_checks_verified":False,
+               "legacy_entry_verified":True,"protected_payload_absent":True,"selected_cargo_verified":True,"persisted_details_verified":True}
         adapter.legacy.current_observations={case["id"]:proof}
         self.assertEqual(adapter.execute(case)["action_method"],"POST")
-        for key,value in [("legacy_entry_verified",False),("action_method","GET"),("invalid_inputs_verified",False),("csrf_checks_verified",False)]:
+        for key,value in [("legacy_entry_verified",False),("action_method","GET"),("invalid_inputs_verified",False)]:
             adapter.legacy.current_observations={case["id"]:{**proof,key:value}}
             with self.subTest(key=key),self.assertRaises(UnsupportedCase):adapter.execute(case)
+
+    def test_public_typed_tracking_overrides_only_current_page_access_and_survives_revocation(self):
+        model,inventory=c.load_model()
+        historical={case["id"]:case for case in c.build(inventory)}
+        current={case["id"]:case for case in c.build_current(model,inventory)}
+        self.assertEqual(historical["PAGE-25::anonymous::active"]["expected"],"deny")
+        page_ids=[case_id for case_id,case in current.items() if case.get("surface_id")=="PAGE-25"]
+        self.assertTrue(page_ids)
+        self.assertTrue(all(current[case_id]["expected"]=="allow" for case_id in page_ids))
+        self.assertEqual(current["CURRENT::PAGE-25::anonymous::active"]["capability_id"],"public-typed-cargo-tracking")
+        self.assertTrue(current["CURRENT::PAGE-25::Reader::logged_out"]["public_after_revocation"])
+        active=current["CURRENT::PAGE-25::anonymous::active"]
+        adapter=c.CurrentAdapter();adapter._run_fingerprint="a"*64
+        adapter.provenance={"kind":"fresh-owned-runtime","inputs_fingerprint":"a"*64,"legacy_fixture_cleanup_verified":True}
+        adapter.legacy=FakeLegacy({"supported":True,"status":200,"semantic_success":True,"protected_payload_absent":True,"identity":None})
+        self.assertEqual(evaluate(active,adapter.execute(active))[0],"PASS")
+        session=current["CURRENT::PAGE-25::Reader::logged_out"]
+        revoked={"supported":True,"status":200,"semantic_success":True,"identity":None,
+            "protected_payload_absent":True,"public_access_after_revocation":True,"authenticated_before_revocation":True,"revocation_verified":True}
+        adapter.legacy=FakeLegacy(revoked)
+        self.assertEqual(evaluate(session,adapter.execute(session))[0],"PASS")
+        adapter.legacy=FakeLegacy({**revoked,"revocation_verified":False})
+        with self.assertRaises(UnsupportedCase):adapter.execute(session)
+
+    def test_public_action45_lookup_accepts_anonymous_typed_tracking_proof(self):
+        adapter=c.CurrentAdapter();adapter._run_fingerprint="a"*64
+        adapter.provenance={"kind":"fresh-owned-runtime","inputs_fingerprint":"a"*64,"legacy_fixture_cleanup_verified":True}
+        case=copy.deepcopy(adapter.contracts["CURRENT::ACTION-45::anonymous::active"])
+        self.assertEqual(case["expected"],"allow")
+        proof={"supported":True,"status":200,"semantic_success":True,"identity":None,
+            "current_navigation_driver":"browser-lookup-v1","tracking_id":"ABCDEFGH","driver":"click",
+            "action_method":"POST","action_path":"/cargo-tracker/public/track.xhtml",
+            "entry_page":"public/track.xhtml","source_entry_verified":True,
+            "submission_status":200,"selected_cargo_verified":True,"persisted_details_verified":True,
+            "invalid_inputs_verified":True,"csrf_checks_verified":False,"legacy_entry_verified":True,"protected_payload_absent":True}
+        adapter.legacy=FakeLegacy({})
+        adapter.legacy.current_observations={case["id"]:proof}
+        observation=adapter.execute(case)
+        self.assertEqual(evaluate(case,observation)[0],"PASS")
+        self.assertEqual(case["current_source"],"public/track.xhtml")
 
     def test_marker_requires_keyboard_activation_of_verified_marker(self):
         adapter,case,_=self.fixture("CURRENT::ACTION-25::Reader::active")

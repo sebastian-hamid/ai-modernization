@@ -4,6 +4,17 @@ class UnsupportedCase(Exception):pass
 def evaluate(case,observation):
     if not observation.get("supported",False):return "BLOCKED","Required candidate adapter/observer is unavailable"
     status=observation.get("status")
+    if case.get("public_after_revocation") is True:
+        if (case["channel"]!="session" or case["expected"]!="allow"
+                or status!=200 or observation.get("identity") is not None
+                or observation.get("public_access_after_revocation") is not True
+                or observation.get("authenticated_before_revocation") is not True
+                or observation.get("revocation_verified") is not True
+                or observation.get("protected_payload_absent") is not True):
+            return "FAIL","Public page did not remain available after verified session revocation"
+        if observation.get("semantic_success") is not True:
+            return "FAIL","Public workflow result or real data missing after session revocation"
+        return "PASS","Public capability remains available after verified session revocation"
     if case["expected"]=="deny":
         if case["channel"]=="private" or (case["channel"]=="page" and case.get("classification")=="internal-template"):valid=status in {403,404}
         elif case["channel"]=="socket":valid=status in {401,403} and observation.get("upgraded") is False
