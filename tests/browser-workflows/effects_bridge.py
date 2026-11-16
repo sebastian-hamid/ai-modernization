@@ -7,7 +7,7 @@ import time
 
 PREFIX = "@@LAB_EFFECTS@@"
 EVENT_PREFIX = "@@LAB_HANDLING_EVENT@@"
-GROUPS = ("cancel-editor", "booking-cancel", "booking-deadline", "booking-single-page", "booking-positive", "handling-single-page", "handling-cargo-voyage", "handling-location", "handling-event", "handling-voyage", "handling-completion", "retired-action", "tracking-discovery", "public-tracking-discovery", "public-tracking-discovery-retired", "booking-deadline-retired", "booking-destination-retired", "booking-wizard-retired-action-27", "booking-wizard-retired-action-30", "booking-wizard-retired-action-34")
+GROUPS = ("cancel-editor", "booking-cancel", "booking-deadline", "booking-single-page", "booking-positive", "handling-single-page", "handling-cargo-voyage", "handling-location", "handling-event", "handling-voyage", "handling-completion", "retired-action", "tracking-discovery", "public-tracking-discovery", "public-tracking-discovery-retired", "booking-deadline-retired", "booking-destination-retired", "booking-wizard-retired-action-27", "booking-wizard-retired-action-30", "booking-wizard-retired-action-34", "booking-wizard-retired-action-28", "booking-wizard-retired-action-31", "booking-wizard-retired-action-33")
 ROLES = ("anonymous", "Reader", "Operator", "Administrator")
 STAGES = frozenset(
     group + ":" + role + ":" + phase

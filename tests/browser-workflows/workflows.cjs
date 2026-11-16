@@ -1554,8 +1554,9 @@ async function retiredCancelAttempt(role,actor,context,base,trackingId,destinati
   reader=await refreshRetirementActor(reader);operator=await refreshRetirementActor(operator);admin=await refreshRetirementActor(admin);
   // Earlier retired capabilities have hash-pinned independent receipts in current_capabilities.py.
   // This fresh browser pass exercises only the candidate currently under review.
-  for(const actionId of ["ACTION-27","ACTION-30","ACTION-34"]){
-   const actionEvidence=retirementRenderEvidence.actions[actionId];
+  const retirementActionEvidence={...retirementRenderEvidence.actions,...retirementRenderEvidence.cancel_actions};
+  for(const actionId of ["ACTION-27","ACTION-30","ACTION-34","ACTION-28","ACTION-31","ACTION-33"]){
+   const actionEvidence=retirementActionEvidence[actionId];
    for(const actor of [{who:"anonymous",context:anon,identity:null},reader,operator,admin]){
     const role=actor.who==="anonymous"?"anonymous":cargoRole(actor);
     retiredActionProofs["RETIREMENT::"+actionId+"::"+role]=await retiredBookingDestinationNextAttempt(role,actor,actor.context,base,cargoMarkers,cargoSnapshotHash,claimedCargos.length,actionEvidence);

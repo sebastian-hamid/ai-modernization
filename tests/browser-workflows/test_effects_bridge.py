@@ -116,7 +116,7 @@ class EffectsBridgeTests(unittest.TestCase):
         after='observeEffects(stageGroup+":"+role+":after")'
         self.assertIn(before,producer);self.assertIn(after,producer);self.assertLess(producer.index(before),producer.index(after))
         expected=[f"booking-wizard-retired-{action.lower()}:{role}:{phase}"
-                  for action in ("ACTION-27","ACTION-30","ACTION-34")
+                  for action in ("ACTION-27","ACTION-30","ACTION-34","ACTION-28","ACTION-31","ACTION-33")
                   for role in bridge.ROLES for phase in ("before","after")]
         self.assertTrue(set(expected).issubset(bridge.STAGES))
         script=("import json,sys; stages="+repr(expected)+"; "

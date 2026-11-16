@@ -1,0 +1,78 @@
+{
+  "task": "KAN-15 ACTION-28/31/33 legacy rendered and executed booking cancel actions",
+  "capture": {
+    "runtime_image": "ai-modernization-glassfish:4.1-validator-fix",
+    "runtime_image_id": "sha256:899f3ae0a00cc80fd9e8dd49d9104da4baf4aad81167754ac51c8b3c7a160e84",
+    "war_sha256": "0d0b70c6659466e0239129c9d12bd215b15fbd44677b74ca6e57265bd7e067fae",
+    "date": "2026-11-16",
+    "method": "Rendered each Cancel command in an independent wizard visit, clicked it, observed its own POST status and normalized destination. Cookies, ViewState and ClientWindow values are excluded.",
+    "fixture_cleanup_verified": true
+  },
+  "source_hashes": {
+    "legacy_booking_page_sha256": "e5de5513a4a228af50a6d703a31f157af13d4fde7c36779d9a787f386f35d57d",
+    "legacy_booking_destination_page_sha256": "7cef897d90ba372ad4fe865778d211a084de8db302c0ac02aa14679944b441bb",
+    "legacy_booking_date_page_sha256": "7d7246678a5520b0a5f7dcca22387a07c7be8095afc2116e61c4c81b0cb372b2",
+    "candidate_booking_page_sha256": "458a97585a67e1458358a5c846d4691e6d736981b31e0146de9fef7ed6e458ef",
+    "legacy_navigation_servlet_sha256": "e774a70a01f2cc7adb9d0c2a26dea6c14ad2ed800ebbec7df384d7730db502d4",
+    "candidate_access_routes_sha256": "bd83abe21d3fb74411d7d27ed06e9cc75d937cf30d8ae021a7479c8c9169948c"
+  },
+  "observations": {
+    "ACTION-33": {
+      "legacy_id": "ACTION-33",
+      "source_path": "/cargo-tracker/booking/booking.xhtml",
+      "action_expression": "/admin/dashboard",
+      "command_label": "Cancel",
+      "render_status": 200,
+      "step_text": "1.Choose the origin of the new cargo",
+      "form_id": "j_idt29",
+      "component_id": "j_idt29:j_idt35",
+      "submitted_parameter": "j_idt29:j_idt35",
+      "button_markup": "<button id=\"j_idt29:j_idt35\" name=\"j_idt29:j_idt35\" class=\"ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only\" onclick=\"PrimeFaces.ab({s:&quot;j_idt29:j_idt35&quot;});return false;\" type=\"submit\" role=\"button\" aria-disabled=\"false\"><span class=\"ui-button-text ui-c\">Cancel</span></button>",
+      "button_markup_sha256": "302d8aa5edf6a25487cfea0197025ce830d3787cd37d851b9d7706a9e2b8e29b",
+      "rendered_page_sha256": "81c41b48d6b6a7e3c6976b88063194c67e0c573ebaafc2abf8418ecf54abd4e3",
+      "viewstate_present": true,
+      "clientwindow_present": true,
+      "legacy_cancel_post_status": 200,
+      "cancel_result_path": "/cargo-tracker/admin/dashboard.xhtml",
+      "cancel_returns_to_dashboard": true
+    },
+    "ACTION-31": {
+      "legacy_id": "ACTION-31",
+      "source_path": "/cargo-tracker/booking/booking-destination.xhtml",
+      "action_expression": "/admin/dashboard",
+      "command_label": "Cancel",
+      "render_status": 200,
+      "step_text": "2. Set the destination for this new cargo coming from Chicago",
+      "form_id": "j_idt29",
+      "component_id": "j_idt29:j_idt36",
+      "submitted_parameter": "j_idt29:j_idt36",
+      "button_markup": "<button id=\"j_idt29:j_idt36\" name=\"j_idt29:j_idt36\" class=\"ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only ui-state-focus\" onclick=\"PrimeFaces.ab({s:&quot;j_idt29:j_idt36&quot;});return false;\" type=\"submit\" role=\"button\" aria-disabled=\"false\"><span class=\"ui-button-text ui-c\">Cancel</span></button>",
+      "button_markup_sha256": "12825a4a96ee9f73839cd2c5a622a70bc85ffcd45492032dd8c0d182eecbe1b1",
+      "rendered_page_sha256": "1d0cbaaee9b402158f70cf543cd91d14625cab79f5f00dfbf062dd0f2dda2747",
+      "viewstate_present": true,
+      "clientwindow_present": true,
+      "legacy_cancel_post_status": 200,
+      "cancel_result_path": "/cargo-tracker/admin/dashboard.xhtml",
+      "cancel_returns_to_dashboard": true
+    },
+    "ACTION-28": {
+      "legacy_id": "ACTION-28",
+      "source_path": "/cargo-tracker/booking/booking-date.xhtml",
+      "action_expression": "/admin/dashboard",
+      "command_label": "Cancel",
+      "render_status": 200,
+      "step_text": "3. Set the arrival deadline for this new Chicago-New York cargo",
+      "form_id": "dateForm",
+      "component_id": "dateForm:j_idt38",
+      "submitted_parameter": "dateForm:j_idt38",
+      "button_markup": "<button id=\"dateForm:j_idt38\" name=\"dateForm:j_idt38\" class=\"ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only\" onclick=\"PrimeFaces.ab({s:&quot;dateForm:j_idt38&quot;});return false;\" type=\"submit\" role=\"button\" aria-disabled=\"false\"><span class=\"ui-button-text ui-c\">Cancel</span></button>",
+      "button_markup_sha256": "247becafe0bb45fe6388560330c2bca1a347a6e8c28b7975b2f0123c05c3a180",
+      "rendered_page_sha256": "cd7c41fbae2764a136f3006372b50ebaff1f974ced74cc0513c79458d6ed4a43",
+      "viewstate_present": true,
+      "clientwindow_present": true,
+      "legacy_cancel_post_status": 200,
+      "cancel_result_path": "/cargo-tracker/admin/dashboard.xhtml",
+      "cancel_returns_to_dashboard": true
+    }
+  }
+}

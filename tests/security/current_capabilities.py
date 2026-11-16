@@ -46,6 +46,16 @@ ACTION26_RETIREMENT_VALIDATION_SHA256="7e2e0d407e6b3a6558e07b6bd6771f71a5038e857
 ACTION26_FRESH_EVIDENCE_SHA256="11262b6c1f64730ef3483d84e56b5ce92521ed3efa087ac20b5f5b85ef0e260e"
 ACTION273034_RENDER_EVIDENCE=ROOT/"notes/evidence/kan-15-action273034-retirement/legacy-rendered-actions.json"
 ACTION273034_RENDER_EVIDENCE_SHA256="254efb3c850698d6f707f279d8eb14362af9c5e28a34a141c04294e5bbe931d8"
+ACTION283133_RENDER_EVIDENCE=ROOT/"notes/evidence/kan-15-action283133-retirement/legacy-rendered-actions.json"
+ACTION283133_RENDER_EVIDENCE_SHA256="f1bf3f6d3b4df711b75d575d49c472488d7bb17177c5b8c4525fb19d15b3efd7"
+ACTION283133_PROMOTION_VALIDATION=ROOT/"notes/evidence/kan-15-action283133-retirement/promotion-validation.json"
+ACTION283133_PROMOTION_VALIDATION_SHA256="8600680c87d5562872b10e9854655044d849e3a05ae158d82a0cd29ecdea016e"
+ACTION283133_PROMOTION_REVIEW=ROOT/"notes/agent-reviews/2026-11-16-kan15-actions283133-mapping-promotion-review.md"
+ACTION283133_PROMOTION_REVIEW_SHA256="9447d7b2ac7bb7c670aee400dac33bbc250302cb3d9c55472e78d381e08da8f8"
+ACTION283133_CANDIDATE_EVIDENCE=ROOT/"notes/evidence/kan-15-action283133-retirement/candidate-evidence.json"
+ACTION283133_CANDIDATE_EVIDENCE_SHA256="53b1b644c5b0eb964848ca3e64d67bac624f2349dc16166b03d7afcf95b99c81"
+ACTION283133_BROWSER_RESULTS=ROOT/"notes/evidence/kan-15-action283133-retirement/browser-results.json"
+ACTION283133_BROWSER_RESULTS_SHA256="8fcacda9072a7b527721c67bb7387af4ef4a5258652e3cdc81cc9fc6db0301ba"
 ACTION273034_PROMOTION_VALIDATION=ROOT/"notes/evidence/kan-15-action273034-retirement/promotion-validation.json"
 ACTION273034_PROMOTION_VALIDATION_SHA256="3908d47819d4b7461cc92879e51bb1cb57fad1489ebf8b096f75652dbe1f565d"
 ACTION273034_PROMOTION_REVIEW=ROOT/"notes/agent-reviews/2026-11-16-kan15-actions273034-mapping-promotion-review.md"
@@ -816,6 +826,108 @@ def reviewed_action273034_retirement_receipt():
     except (OSError,KeyError,TypeError,ValueError,UnsupportedCase):
         return False
 
+def action283133_source_hashes():
+    paths={"legacy_booking_page_sha256":ROOT/"experiments/legacy-cargotracker/src/main/webapp/booking/booking.xhtml",
+           "legacy_booking_destination_page_sha256":ROOT/"experiments/legacy-cargotracker/src/main/webapp/booking/booking-destination.xhtml",
+           "legacy_booking_date_page_sha256":ROOT/"experiments/legacy-cargotracker/src/main/webapp/booking/booking-date.xhtml",
+           "candidate_booking_page_sha256":ROOT/"candidate/cargotracker/src/main/webapp/admin/book.xhtml",
+           "legacy_navigation_servlet_sha256":ROOT/"candidate/cargotracker/src/main/java/net/java/cargotracker/interfaces/booking/web/LegacyNavigationServlet.java",
+           "candidate_access_routes_sha256":ROOT/"candidate/cargotracker/src/main/webapp/WEB-INF/access-routes.tsv"}
+    return {key:hashlib.sha256(path.read_bytes()).hexdigest() for key,path in paths.items()}
+
+def reviewed_action283133_retirement_receipt():
+    try:
+        validation_bytes=ACTION283133_PROMOTION_VALIDATION.read_bytes()
+        evidence_bytes=ACTION283133_CANDIDATE_EVIDENCE.read_bytes()
+        browser_bytes=ACTION283133_BROWSER_RESULTS.read_bytes()
+        render_bytes=ACTION283133_RENDER_EVIDENCE.read_bytes()
+        review_bytes=ACTION283133_PROMOTION_REVIEW.read_bytes()
+        if (hashlib.sha256(validation_bytes).hexdigest()!=ACTION283133_PROMOTION_VALIDATION_SHA256
+                or hashlib.sha256(evidence_bytes).hexdigest()!=ACTION283133_CANDIDATE_EVIDENCE_SHA256
+                or hashlib.sha256(browser_bytes).hexdigest()!=ACTION283133_BROWSER_RESULTS_SHA256
+                or hashlib.sha256(render_bytes).hexdigest()!=ACTION283133_RENDER_EVIDENCE_SHA256
+                or hashlib.sha256(review_bytes).hexdigest()!=ACTION283133_PROMOTION_REVIEW_SHA256):return False
+        receipt=json.loads(validation_bytes);evidence=json.loads(evidence_bytes);browser=json.loads(browser_bytes);render=json.loads(render_bytes)
+        if (receipt.get("task")!="KAN-15 ACTION-28/31/33 mapping promotion review receipt"
+                or receipt.get("status")!="APPROVED" or receipt.get("reviewer")!="/root/review_current_capability_gate"
+                or receipt.get("review_record")!="notes/agent-reviews/2026-11-16-kan15-actions283133-mapping-promotion-review.md"
+                or receipt.get("review_record_sha256")!=ACTION283133_PROMOTION_REVIEW_SHA256
+                or receipt.get("approved_outcome")!="RETIRED" or receipt.get("pass_outcome_allowed") is not False
+                or receipt.get("actions")!=["ACTION-28","ACTION-31","ACTION-33"]
+                or receipt.get("replacement_group")!="booking-cancel"
+                or receipt.get("candidate_evidence_sha256")!=ACTION283133_CANDIDATE_EVIDENCE_SHA256
+                or receipt.get("browser_results_sha256")!=ACTION283133_BROWSER_RESULTS_SHA256
+                or receipt.get("legacy_render_evidence_sha256")!=ACTION283133_RENDER_EVIDENCE_SHA256
+                or receipt.get("browser_checks")!=908 or receipt.get("browser_failures")!=0
+                or receipt.get("legacy_cancel_actions_returned_to_dashboard") is not True
+                or receipt.get("native_checks")!=777
+                or receipt.get("candidate_counts")!={"PASS":470}
+                or receipt.get("retirement_counts_before_promotion")!={"RETIRED":32,"BLOCKED":44}
+                or receipt.get("retirement_counts_after_promotion")!={"RETIRED":44,"BLOCKED":32}
+                or receipt.get("fixture_cleanup_verified") is not True or receipt.get("actions_promoted") is not True
+                or evidence.get("provenance",{}).get("kind")!="fresh-owned-runtime"
+                or evidence.get("provenance",{}).get("legacy_fixture_cleanup_verified") is not True
+                or evidence.get("current_counts")!={"PASS":470}
+                or evidence.get("retirement_counts")!={"RETIRED":32,"BLOCKED":44}
+                or evidence.get("gate_exit")!=2 or render.get("source_hashes")!=action283133_source_hashes()):
+            return False
+        observations=render.get("observations",{})
+        if set(observations)!={"ACTION-28","ACTION-31","ACTION-33"} or any(
+                row.get("legacy_cancel_post_status")!=200
+                or row.get("cancel_result_path")!="/cargo-tracker/admin/dashboard.xhtml"
+                or row.get("cancel_returns_to_dashboard") is not True
+                for row in observations.values()):return False
+        checks=browser.get("checks",[])
+        if len(checks)!=908 or any(row.get("passed") is not True for row in checks):return False
+        check_names={row.get("name") for row in checks}
+        expected_checks={action+" rendered booking wizard action denied or inert "+actor
+                         for action in ("ACTION-28","ACTION-31","ACTION-33") for actor in ACTORS}
+        if not expected_checks.issubset(check_names):return False
+        expected={"ACTION-28":{"source":"/cargo-tracker/booking/booking-date.xhtml","component":"dateForm:j_idt38"},
+                  "ACTION-31":{"source":"/cargo-tracker/booking/booking-destination.xhtml","component":"j_idt29:j_idt36"},
+                  "ACTION-33":{"source":"/cargo-tracker/booking/booking.xhtml","component":"j_idt29:j_idt35"}}
+        proofs=evidence.get("retirement_observations",{});browser_proofs=browser.get("retirement_actions",{})
+        current=evidence.get("current_results",[]);retirements=evidence.get("retirement_results",[])
+        snapshot=None
+        for action,identity in expected.items():
+            obs=render.get("observations",{}).get(action,{})
+            for actor in ACTORS:
+                key="RETIREMENT::"+action+"::"+actor
+                proof=proofs.get(key,{});raw=browser_proofs.get(key,{})
+                replacement=next((row for row in current if row.get("case")=="REPLACEMENT::booking-cancel::"+actor),{})
+                retirement=next((row for row in retirements if row.get("case")==key),{})
+                status=303 if actor=="anonymous" else 403 if actor=="Reader" else 405
+                if (replacement.get("outcome")!="PASS" or retirement.get("outcome")!="BLOCKED"
+                        or retirement.get("specific_negative_entry_verified") is not True
+                        or proof.get("driver")!="browser-retired-booking-wizard-v1" or proof.get("legacy_id")!=action
+                        or proof.get("actor")!=actor or proof.get("method")!="POST" or proof.get("source_path")!=identity["source"]
+                        or proof.get("historical_source_component_id")!=identity["component"]
+                        or proof.get("historical_submitted_parameter")!=identity["component"]
+                        or proof.get("historical_render_evidence_verified") is not True
+                        or proof.get("historical_button_markup_sha256")!=obs.get("button_markup_sha256")
+                        or proof.get("source_hashes")!=render.get("source_hashes")
+                        or proof.get("response_status")!=status or proof.get("post_target_verified") is not True
+                        or proof.get("callback_response_absent") is not True or proof.get("protected_payload_absent") is not True
+                        or proof.get("independent_effects_unchanged") is not True
+                        or type(proof.get("cargo_snapshot_count")) is not int or proof.get("cargo_snapshot_count")!=13
+                        or proof.get("cargo_snapshot_sha256")!=raw.get("cargo_snapshot_sha256")):return False
+                if snapshot is None:snapshot=proof["cargo_snapshot_sha256"]
+                elif snapshot!=proof["cargo_snapshot_sha256"]:return False
+                if actor=="anonymous":
+                    if proof.get("authorization_denied") is not True or proof.get("redirect_is_configured_login") is not True or proof.get("identity") is not None:return False
+                elif actor=="Reader":
+                    identity_proof=proof.get("identity",{})
+                    if proof.get("authorization_denied") is not True or identity_proof.get("server_verified") is not True or identity_proof.get("principal")!=USERS[actor] or identity_proof.get("roles")!=[actor]:return False
+                else:
+                    identity_proof=proof.get("identity",{})
+                    if (proof.get("authorization_denied") is not False or proof.get("current_form_verified") is not True
+                            or proof.get("current_csrf_present") is not True or proof.get("current_viewstate_present") is not True
+                            or identity_proof.get("server_verified") is not True or identity_proof.get("principal")!=USERS[actor]
+                            or identity_proof.get("roles")!=[actor]):return False
+        return True
+    except (OSError,KeyError,TypeError,ValueError,UnsupportedCase):
+        return False
+
 def reviewed_action44_retirement_receipt():
     try:
         raw=ACTION44_RETIREMENT_VALIDATION.read_bytes()
@@ -1024,6 +1136,8 @@ def validate_model(model,inventory,inventory_hash):
             if row.get("negative_driver")!="browser-retired-destination-next-v1" or not reviewed_action32_retirement_receipt():raise ValueError("ACTION-32 retirement lacks its pinned independent evidence receipt")
         elif row["legacy_id"] in {"ACTION-27","ACTION-30","ACTION-34"} and row.get("status")=="retired":
             if row.get("negative_driver")!="browser-retired-booking-wizard-v1" or not reviewed_action273034_retirement_receipt():raise ValueError("Booking wizard retirement lacks its pinned independent promotion receipt")
+        elif row["legacy_id"] in {"ACTION-28","ACTION-31","ACTION-33"} and row.get("status")=="retired":
+            if row.get("negative_driver")!="browser-retired-booking-wizard-v1" or not reviewed_action283133_retirement_receipt():raise ValueError("Booking cancel retirement lacks its pinned independent promotion receipt")
         elif row["legacy_id"]=="ACTION-23" and row.get("status")=="candidate":
             if row.get("negative_driver") not in {"pending","browser-retired-tracking-v1"}:raise ValueError("Unsupported ACTION-23 retired-entry driver")
         elif row["legacy_id"]=="ACTION-44" and row.get("status")=="candidate":
@@ -1096,7 +1210,7 @@ def build_current(model,inventory):
     return cases
 
 def source_fingerprint():
-    paths=subprocess.check_output(["git","ls-files","-co","--exclude-standard","--",".dockerignore","candidate","infrastructure/database","tests/candidate-runtime","tests/browser-workflows","tests/security","specifications/access-policy-inventory.json","specifications/current-capability-mapping-v2.json","notes/decisions/2026-11-02-current-ui-acceptance.md","notes/evidence/kan-15-bg06-scope/validation.json","notes/agent-reviews/2026-11-11-kan15-bg06-scope-review.md","notes/agent-reviews/2026-11-15-kan15-bg06-scope-refresh-review.md","notes/agent-reviews/2026-11-14-kan15-action08-retirement-review.md","notes/evidence/kan-15-action32-retirement/legacy-rendered-entry.json","notes/evidence/kan-15-action273034-retirement/legacy-rendered-actions.json"],cwd=ROOT,text=True).splitlines()
+    paths=subprocess.check_output(["git","ls-files","-co","--exclude-standard","--",".dockerignore","candidate","infrastructure/database","tests/candidate-runtime","tests/browser-workflows","tests/security","specifications/access-policy-inventory.json","specifications/current-capability-mapping-v2.json","notes/decisions/2026-11-02-current-ui-acceptance.md","notes/evidence/kan-15-bg06-scope/validation.json","notes/agent-reviews/2026-11-11-kan15-bg06-scope-review.md","notes/agent-reviews/2026-11-15-kan15-bg06-scope-refresh-review.md","notes/agent-reviews/2026-11-14-kan15-action08-retirement-review.md","notes/evidence/kan-15-action32-retirement/legacy-rendered-entry.json","notes/evidence/kan-15-action273034-retirement/legacy-rendered-actions.json","notes/evidence/kan-15-action283133-retirement/legacy-rendered-actions.json"],cwd=ROOT,text=True).splitlines()
     digest=hashlib.sha256()
     for name in sorted(set(paths)):
         path=ROOT/name
@@ -1426,8 +1540,8 @@ class CurrentAdapter:
         return observation
     def execute_retirement(self,case,replacement_results):
         legacy_id=case.get("legacy_id") if isinstance(case,dict) else None
-        group={"ACTION-08":"cancel-editor","ACTION-23":"tracking-discovery","ACTION-44":"tracking-discovery","ACTION-26":"booking-deadline","ACTION-32":"booking-deadline","ACTION-27":"booking-single-page","ACTION-30":"booking-single-page","ACTION-34":"booking-single-page"}.get(legacy_id)
-        if (not isinstance(case,dict) or legacy_id not in {"ACTION-08","ACTION-23","ACTION-44","ACTION-26","ACTION-32","ACTION-27","ACTION-30","ACTION-34"}
+        group={"ACTION-08":"cancel-editor","ACTION-23":"tracking-discovery","ACTION-44":"tracking-discovery","ACTION-26":"booking-deadline","ACTION-32":"booking-deadline","ACTION-27":"booking-single-page","ACTION-30":"booking-single-page","ACTION-34":"booking-single-page","ACTION-28":"booking-cancel","ACTION-31":"booking-cancel","ACTION-33":"booking-cancel"}.get(legacy_id)
+        if (not isinstance(case,dict) or legacy_id not in {"ACTION-08","ACTION-23","ACTION-44","ACTION-26","ACTION-32","ACTION-27","ACTION-30","ACTION-34","ACTION-28","ACTION-31","ACTION-33"}
                 or case.get("actor") not in ACTORS
                 or case.get("replacement_case_id")!="REPLACEMENT::"+str(group)+"::"+str(case.get("actor"))
                 or self.legacy is None or not isinstance(self.provenance,dict)
@@ -1460,6 +1574,46 @@ class CurrentAdapter:
                 identity=proof.get("identity",{})
                 if (proof.get("response_status")!=403 or proof.get("authorization_denied") is not True
                         or identity.get("server_verified") is not True or identity.get("principal")!=USERS[actor] or identity.get("roles")!=[actor]):raise UnsupportedCase()
+            else:
+                identity=proof.get("identity",{})
+                if (proof.get("response_status")!=405 or proof.get("authorization_denied") is not False
+                        or proof.get("current_form_verified") is not True or proof.get("current_csrf_present") is not True
+                        or proof.get("current_viewstate_present") is not True
+                        or identity.get("server_verified") is not True or identity.get("principal")!=USERS[actor] or identity.get("roles")!=[actor]):raise UnsupportedCase()
+            return proof
+        elif legacy_id in {"ACTION-28","ACTION-31","ACTION-33"}:
+            try:
+                raw=ACTION283133_RENDER_EVIDENCE.read_bytes()
+                if hashlib.sha256(raw).hexdigest()!=ACTION283133_RENDER_EVIDENCE_SHA256:raise UnsupportedCase()
+                record=json.loads(raw);obs=record["observations"][legacy_id]
+                source_hashes=record["source_hashes"]
+                paths={"legacy_booking_page_sha256":ROOT/"experiments/legacy-cargotracker/src/main/webapp/booking/booking.xhtml",
+                       "legacy_booking_destination_page_sha256":ROOT/"experiments/legacy-cargotracker/src/main/webapp/booking/booking-destination.xhtml",
+                       "legacy_booking_date_page_sha256":ROOT/"experiments/legacy-cargotracker/src/main/webapp/booking/booking-date.xhtml",
+                       "candidate_booking_page_sha256":ROOT/"candidate/cargotracker/src/main/webapp/admin/book.xhtml",
+                       "legacy_navigation_servlet_sha256":ROOT/"candidate/cargotracker/src/main/java/net/java/cargotracker/interfaces/booking/web/LegacyNavigationServlet.java",
+                       "candidate_access_routes_sha256":ROOT/"candidate/cargotracker/src/main/webapp/WEB-INF/access-routes.tsv"}
+                actual={key:hashlib.sha256(path.read_bytes()).hexdigest() for key,path in paths.items()}
+                if actual!=source_hashes:raise UnsupportedCase()
+            except (OSError,KeyError,ValueError):raise UnsupportedCase()
+            if (proof.get("driver")!="browser-retired-booking-wizard-v1" or proof.get("legacy_id")!=legacy_id
+                    or proof.get("actor")!=actor or proof.get("method")!="POST" or proof.get("source_path")!=obs.get("source_path")
+                    or proof.get("historical_source_component_id")!=obs.get("component_id")
+                    or proof.get("historical_submitted_parameter")!=obs.get("component_id")
+                    or proof.get("historical_source_parameter")!="javax.faces.source"
+                    or proof.get("historical_render_evidence_verified") is not True
+                    or proof.get("historical_button_markup_sha256")!=obs.get("button_markup_sha256")
+                    or proof.get("source_hashes")!=source_hashes
+                    or proof.get("current_post_handler_absent") is not True or proof.get("post_target_verified") is not True
+                    or proof.get("callback_response_absent") is not True or proof.get("protected_payload_absent") is not True
+                    or proof.get("independent_effects_unchanged") is not True
+                    or type(proof.get("cargo_snapshot_count")) is not int or proof.get("cargo_snapshot_count")!=13
+                    or re.fullmatch(r"[0-9a-f]{64}",str(proof.get("cargo_snapshot_sha256"))) is None):raise UnsupportedCase()
+            if actor=="anonymous":
+                if proof.get("response_status")!=303 or proof.get("authorization_denied") is not True or proof.get("redirect_is_configured_login") is not True or proof.get("identity") is not None:raise UnsupportedCase()
+            elif actor=="Reader":
+                identity=proof.get("identity",{})
+                if proof.get("response_status")!=403 or proof.get("authorization_denied") is not True or identity.get("server_verified") is not True or identity.get("principal")!=USERS[actor] or identity.get("roles")!=[actor]:raise UnsupportedCase()
             else:
                 identity=proof.get("identity",{})
                 if (proof.get("response_status")!=405 or proof.get("authorization_denied") is not False
@@ -1626,6 +1780,8 @@ def retirement_results(model,adapter,current_results):
                 results.append({"case":case["id"],"legacy_case_id":row["legacy_id"]+"::"+actor+"::active","replacement_case_id":case["replacement_case_id"],"outcome":"RETIRED","specific_negative_entry_verified":True,"independent_review_verified":True,"review_record":"notes/agent-reviews/2026-11-15-kan15-action32-retirement-review.md","outcome_note":"Approved retired entry; RETIRED is never PASS"})
             elif row.get("status")=="retired" and row["legacy_id"] in {"ACTION-27","ACTION-30","ACTION-34"} and reviewed_action273034_retirement_receipt():
                 results.append({"case":case["id"],"legacy_case_id":row["legacy_id"]+"::"+actor+"::active","replacement_case_id":case["replacement_case_id"],"outcome":"RETIRED","specific_negative_entry_verified":True,"independent_review_verified":True,"review_record":"notes/agent-reviews/2026-11-16-kan15-actions273034-mapping-promotion-review.md","outcome_note":"Approved retired entry; RETIRED is never PASS"})
+            elif row.get("status")=="retired" and row["legacy_id"] in {"ACTION-28","ACTION-31","ACTION-33"} and reviewed_action283133_retirement_receipt():
+                results.append({"case":case["id"],"legacy_case_id":row["legacy_id"]+"::"+actor+"::active","replacement_case_id":case["replacement_case_id"],"outcome":"RETIRED","specific_negative_entry_verified":True,"independent_review_verified":True,"review_record":"notes/agent-reviews/2026-11-16-kan15-actions283133-mapping-promotion-review.md","outcome_note":"Approved retired entry; RETIRED is never PASS"})
             else:
                 try:
                     adapter.execute_retirement(case,current_results)

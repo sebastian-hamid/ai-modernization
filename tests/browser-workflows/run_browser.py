@@ -310,6 +310,45 @@ def action273034_render_evidence():
                          "button_markup_sha256":obs["button_markup_sha256"],"source_hashes":hashes}
     return {"actions":actions,"source_hashes":hashes}
 
+def action283133_render_evidence():
+    path=ROOT/"notes/evidence/kan-15-action283133-retirement/legacy-rendered-actions.json"
+    record=json.loads(path.read_text())
+    files={"legacy_booking_page_sha256":ROOT/"experiments/legacy-cargotracker/src/main/webapp/booking/booking.xhtml",
+           "legacy_booking_destination_page_sha256":ROOT/"experiments/legacy-cargotracker/src/main/webapp/booking/booking-destination.xhtml",
+           "legacy_booking_date_page_sha256":ROOT/"experiments/legacy-cargotracker/src/main/webapp/booking/booking-date.xhtml",
+           "candidate_booking_page_sha256":ROOT/"candidate/cargotracker/src/main/webapp/admin/book.xhtml",
+           "legacy_navigation_servlet_sha256":ROOT/"candidate/cargotracker/src/main/java/net/java/cargotracker/interfaces/booking/web/LegacyNavigationServlet.java",
+           "candidate_access_routes_sha256":ROOT/"candidate/cargotracker/src/main/webapp/WEB-INF/access-routes.tsv"}
+    hashes={key:hashlib.sha256(file.read_bytes()).hexdigest() for key,file in files.items()}
+    servlet=files["legacy_navigation_servlet_sha256"].read_text()
+    routes=files["candidate_access_routes_sha256"].read_text()
+    expected={"ACTION-28":("/cargo-tracker/booking/booking-date.xhtml","dateForm:j_idt38","dateForm"),
+              "ACTION-31":("/cargo-tracker/booking/booking-destination.xhtml","j_idt29:j_idt36","j_idt29"),
+              "ACTION-33":("/cargo-tracker/booking/booking.xhtml","j_idt29:j_idt35","j_idt29")}
+    if (record.get("task")!="KAN-15 ACTION-28/31/33 legacy rendered and executed booking cancel actions"
+            or record.get("source_hashes")!=hashes or record.get("capture",{}).get("fixture_cleanup_verified") is not True
+            or record.get("capture",{}).get("method") is None or "protected void doPost" in servlet):
+        raise AssertionError("ACTION-28/31/33 rendered evidence is stale or unsupported")
+    actions={}
+    for action,(source,component,form) in expected.items():
+        obs=record.get("observations",{}).get(action,{})
+        page=files[{"ACTION-28":"legacy_booking_date_page_sha256","ACTION-31":"legacy_booking_destination_page_sha256","ACTION-33":"legacy_booking_page_sha256"}[action]].read_text()
+        markup=obs.get("button_markup","")
+        if (obs.get("source_path")!=source or obs.get("action_expression")!="/admin/dashboard"
+                or obs.get("command_label")!="Cancel" or obs.get("component_id")!=component
+                or obs.get("submitted_parameter")!=component or obs.get("form_id")!=form
+                or obs.get("render_status")!=200 or obs.get("legacy_cancel_post_status")!=200
+                or obs.get("cancel_result_path")!="/cargo-tracker/admin/dashboard.xhtml"
+                or obs.get("cancel_returns_to_dashboard") is not True
+                or hashlib.sha256(markup.encode()).hexdigest()!=obs.get("button_markup_sha256")
+                or not re.search(r'<p:commandButton[^>]*value="Cancel"\s+action="/admin/dashboard"',page)
+                or source.replace("/cargo-tracker","")+"\tOperator,Administrator" not in routes
+                or '"'+source.replace("/cargo-tracker","")+'","/admin/book.xhtml"' not in servlet):
+            raise AssertionError("ACTION-28/31/33 rendered Cancel source mismatch: "+action)
+        actions[action]={"legacy_id":action,"source_path":source,"component_id":component,"form_id":form,
+                         "button_markup_sha256":obs["button_markup_sha256"],"source_hashes":hashes}
+    return {"actions":actions,"source_hashes":hashes}
+
 def expected_retirement_keys(legacy_ids=("ACTION-08","ACTION-23","ACTION-44","ACTION-26","ACTION-32")):
     return {"RETIREMENT::"+legacy_id+"::"+role for legacy_id in legacy_ids
             for role in ("anonymous","Reader","Operator","Administrator")}
@@ -325,6 +364,10 @@ def validate_retirement_keys(proofs):
         frozenset(expected_retirement_keys(("ACTION-27","ACTION-30","ACTION-34"))),
         frozenset(expected_retirement_keys(("ACTION-27","ACTION-30","ACTION-34","ACTION-08"))),
         frozenset(expected_retirement_keys(("ACTION-27","ACTION-30","ACTION-34","ACTION-32"))),
+        frozenset(expected_retirement_keys(("ACTION-28","ACTION-31","ACTION-33"))),
+        frozenset(expected_retirement_keys(("ACTION-28","ACTION-31","ACTION-33","ACTION-08"))),
+        frozenset(expected_retirement_keys(("ACTION-28","ACTION-31","ACTION-33","ACTION-27","ACTION-30","ACTION-34","ACTION-08"))),
+        frozenset(expected_retirement_keys(("ACTION-28","ACTION-31","ACTION-33","ACTION-27","ACTION-30","ACTION-34"))),
     }
     if frozenset(proofs) not in allowed:
         raise AssertionError("Missing or unexpected retired-entry observations")
@@ -343,6 +386,34 @@ def validate_retirement_keys(proofs):
                     raise AssertionError("Authorized ACTION-08 replay lacks current-session denial proof")
             elif proof.get("authorization_denied") is not True or proof.get("protected_payload_absent") is not True or proof.get("response_status") != (403 if role=="Reader" else 303) or (role=="anonymous" and proof.get("redirect_is_configured_login") is not True):
                 raise AssertionError("Unauthorized ACTION-08 replay lacks denial proof")
+        elif legacy_id in {"ACTION-28","ACTION-31","ACTION-33"}:
+            rendered=action283133_render_evidence()["actions"][legacy_id]
+            if (proof.get("driver")!="browser-retired-booking-wizard-v1"
+                    or proof.get("historical_source_component_id")!=rendered["component_id"]
+                    or proof.get("historical_submitted_parameter")!=rendered["component_id"]
+                    or proof.get("historical_source_parameter")!="javax.faces.source"
+                    or proof.get("historical_render_evidence_verified") is not True
+                    or proof.get("historical_button_markup_sha256")!=rendered["button_markup_sha256"]
+                    or proof.get("source_path")!=rendered["source_path"]
+                    or proof.get("source_hashes")!=rendered["source_hashes"]
+                    or proof.get("current_post_handler_absent") is not True
+                    or proof.get("post_target_verified") is not True
+                    or proof.get("callback_response_absent") is not True
+                    or proof.get("protected_payload_absent") is not True
+                    or proof.get("cargo_snapshot_count")!=13
+                    or re.fullmatch(r"[0-9a-f]{64}",str(proof.get("cargo_snapshot_sha256"))) is None):
+                raise AssertionError(legacy_id+" rendered booking cancel proof is incomplete")
+            if role=="anonymous":
+                if proof.get("response_status")!=303 or proof.get("redirect_is_configured_login") is not True or proof.get("identity") is not None:
+                    raise AssertionError(legacy_id+" anonymous stale cancel was not redirected to login")
+            elif role=="Reader":
+                identity=proof.get("identity",{})
+                if proof.get("response_status")!=403 or proof.get("authorization_denied") is not True or identity.get("server_verified") is not True or identity.get("roles")!=["Reader"]:
+                    raise AssertionError(legacy_id+" Reader stale cancel was not denied")
+            else:
+                identity=proof.get("identity",{})
+                if proof.get("response_status")!=405 or proof.get("authorization_denied") is not False or not all(proof.get(name) is True for name in ("current_form_verified","current_csrf_present","current_viewstate_present")) or identity.get("server_verified") is not True:
+                    raise AssertionError(legacy_id+" authorized stale cancel lacked inert-method proof")
         elif legacy_id in {"ACTION-27","ACTION-30","ACTION-34"}:
             rendered=action273034_render_evidence()["actions"][legacy_id]
             if (proof.get("driver")!="browser-retired-booking-wizard-v1"
@@ -481,7 +552,7 @@ def main():
                 ["docker","exec","-i",bid,"bash","-c","umask 077; cat > /run/credentials.json"],
                 input=json.dumps({"base":"http://"+app.NAME+":8080/cargo-tracker/","credentials":credentials,
                                   "fixture_tracking_id":report["page_fixture_tracking_id"],
-                                  "retirement_render_evidence":{"actions":action273034_render_evidence()["actions"],"action32":action32_render_evidence()}}),
+                                  "retirement_render_evidence":{"actions":action273034_render_evidence()["actions"],"cancel_actions":action283133_render_evidence()["actions"],"action32":action32_render_evidence()}}),
                 text=True,check=True,capture_output=True,
             )
             def capture(stage,remaining):

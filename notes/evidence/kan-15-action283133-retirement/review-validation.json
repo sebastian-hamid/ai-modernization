@@ -1,0 +1,48 @@
+{
+  "task": "KAN-15 ACTION-28/31/33 evidence review receipt",
+  "review_scope": "corrected fresh evidence approval only; not mapping promotion",
+  "review_record": "notes/agent-reviews/2026-11-16-kan15-actions283133-evidence-review.md",
+  "review_record_sha256": "8109a7c49a1349deb0db91869ccb9b32fc27564b45501ce348d277603b75305d",
+  "reviewer": "/root/review_action273034_evidence",
+  "status": "APPROVED_FOR_MAPPING_PROMOTION_REVIEW",
+  "approved_outcome": "RETIRED_PENDING_SEPARATE_MAPPING_PROMOTION_REVIEW",
+  "pass_outcome_allowed": false,
+  "legacy_render_evidence_sha256": "f1bf3f6d3b4df711b75d575d49c472488d7bb17177c5b8c4525fb19d15b3efd7",
+  "candidate_evidence_sha256": "53b1b644c5b0eb964848ca3e64d67bac624f2349dc16166b03d7afcf95b99c81",
+  "browser_results_sha256": "8fcacda9072a7b527721c67bb7387af4ef4a5258652e3cdc81cc9fc6db0301ba",
+  "native_checks": 777,
+  "browser_checks": 908,
+  "browser_failures": 0,
+  "current_counts": {
+    "PASS": 470
+  },
+  "pre_promotion_retirement_counts": {
+    "RETIRED": 32,
+    "BLOCKED": 44
+  },
+  "gate_exit": 2,
+  "actions": [
+    "ACTION-28",
+    "ACTION-31",
+    "ACTION-33"
+  ],
+  "fixture_cleanup_verified": true,
+  "mapping_statuses_promoted": false,
+  "legacy_cancel_posts": {
+    "ACTION-33": {
+      "status": 200,
+      "path": "/cargo-tracker/admin/dashboard.xhtml",
+      "dashboard": true
+    },
+    "ACTION-31": {
+      "status": 200,
+      "path": "/cargo-tracker/admin/dashboard.xhtml",
+      "dashboard": true
+    },
+    "ACTION-28": {
+      "status": 200,
+      "path": "/cargo-tracker/admin/dashboard.xhtml",
+      "dashboard": true
+    }
+  }
+}
