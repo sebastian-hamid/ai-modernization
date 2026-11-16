@@ -1,0 +1,96 @@
+{
+  "task": "KAN-15 ACTION-32 specific retired-entry evidence",
+  "run_date": "2026-11-16",
+  "candidate": {
+    "legacy_id": "ACTION-32",
+    "replacement_id": "booking-deadline",
+    "classification": "RETIRED; outcome is not PASS"
+  },
+  "basis": {
+    "fixture_status": "PASS",
+    "native_checks": 777,
+    "browser_checks": 848,
+    "effective_current_counts": {
+      "PASS": 470
+    },
+    "pre_review_retirement_counts": {
+      "RETIRED": 16,
+      "BLOCKED": 60
+    },
+    "pre_review_gate_exit": 2,
+    "fresh_evidence": "notes/evidence/kan-15-action32-retirement/candidate-evidence.json",
+    "fresh_evidence_sha256": "971140884fa2afe35468272e9edb3cfc0f03cb6224b97fc53c5db0669ab99ee2",
+    "native_results_sha256": "0fc617aa0f868298e46caf3f63c5e3998cf76e513439cbfb40a43c77eaef7274",
+    "browser_results_sha256": "73c8e6f74a0b441a8c7362d8ae75638b6c9a851bc023a84fcfaadae763740e37",
+    "render_evidence_sha256": "f3e959112d5072c28928bb270c85fd1b6cc78e5eca5b9d6f20e7207a01e38e5f",
+    "inputs_fingerprint": "e9bbe917255fdbd72624e5b9b164d206fe20d3ac36271b0d66effa9e373b32e0",
+    "legacy_fixture_cleanup_verified": true,
+    "browser_cleanup_verified": true,
+    "imported_code_attested": false,
+    "source_hashes": {
+      "legacy_booking_destination_page_sha256": "7cef897d90ba372ad4fe865778d211a084de8db302c0ac02aa14679944b441bb",
+      "candidate_booking_page_sha256": "458a97585a67e1458358a5c846d4691e6d736981b31e0146de9fef7ed6e458ef",
+      "legacy_navigation_servlet_sha256": "e774a70a01f2cc7adb9d0c2a26dea6c14ad2ed800ebbec7df384d7730db502d4",
+      "candidate_access_routes_sha256": "bd83abe21d3fb74411d7d27ed06e9cc75d937cf30d8ae021a7479c8c9169948c"
+    }
+  },
+  "required_evidence": {
+    "replacement_per_actor": "fresh booking-deadline replacement PASS for all four actors",
+    "specific_negative_entry": "POST to exact historically rendered destination Next component identifier",
+    "native_role_session": "anonymous redirect; Reader denial; Operator/Administrator method rejection",
+    "csrf_and_viewstate": "Operator and Administrator current form, CSRF and ViewState verified before expected 405",
+    "no_protected_payload": "protected response payload absent",
+    "required_independent_effects": "same 13-cargo snapshot; database, queues and invocations unchanged",
+    "independent_review": "separate agent approved fresh evidence"
+  },
+  "actor_observations": [
+    {
+      "actor": "anonymous",
+      "proof_sha256": "a32850af4688a3e66a70c217ae99cd0ba911e257efe23da77b1635698a1a5184",
+      "replacement_case_id": "REPLACEMENT::booking-deadline::anonymous",
+      "replacement_outcome": "PASS"
+    },
+    {
+      "actor": "Reader",
+      "proof_sha256": "74098a7fd0d6b0baaf512787dc2533f344c039958a244c61d692f699f3a25feb",
+      "replacement_case_id": "REPLACEMENT::booking-deadline::Reader",
+      "replacement_outcome": "PASS"
+    },
+    {
+      "actor": "Operator",
+      "proof_sha256": "012147a104118d4ca5bd2ae50fab6981b8712e5bce68fc4a15ba991f2f1ecb5d",
+      "replacement_case_id": "REPLACEMENT::booking-deadline::Operator",
+      "replacement_outcome": "PASS"
+    },
+    {
+      "actor": "Administrator",
+      "proof_sha256": "d0b9527dbf592614ad199241cb206ea97bc4d094edcb27aa9f355670ebbaf04f",
+      "replacement_case_id": "REPLACEMENT::booking-deadline::Administrator",
+      "replacement_outcome": "PASS"
+    }
+  ],
+  "review": {
+    "status": "APPROVED",
+    "reviewer": "/root/review_action32_evidence",
+    "date": "2026-11-16",
+    "approved_outcome": "RETIRED",
+    "pass_outcome_allowed": false,
+    "review_record": "notes/agent-reviews/2026-11-15-kan15-action32-retirement-review.md",
+    "review_record_sha256": "e6b6d16e8f6d74b9ee1f5cd2fece44503fd44c323ee28b2b5d033c34e08bb0b5"
+  },
+  "limitations": [
+    "Fresh owned runtime evidence is pinned by SHA-256; the live run is not repeated during offline replay.",
+    "Imported Python code identity is not attested by the runtime receipt.",
+    "The focused browser run did not recheck ACTION-23 Administrator; its separate issue remains outside this approval.",
+    "RETIRED is not PASS; other blocked retirement cases remain unchanged."
+  ],
+  "result": {
+    "action32_retired_case_ids": [
+      "RETIREMENT::ACTION-32::anonymous",
+      "RETIREMENT::ACTION-32::Reader",
+      "RETIREMENT::ACTION-32::Operator",
+      "RETIREMENT::ACTION-32::Administrator"
+    ],
+    "pass_outcome_allowed": false
+  }
+}

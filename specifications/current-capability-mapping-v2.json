@@ -413,7 +413,7 @@
     {
       "legacy_id": "ACTION-32",
       "replacement_id": "booking-deadline",
-      "status": "candidate",
+      "status": "retired",
       "required_evidence": [
         "replacement-per-actor",
         "specific-negative-entry",
@@ -422,7 +422,7 @@
         "required-independent-effects",
         "independent-review"
       ],
-      "negative_driver": "pending"
+      "negative_driver": "browser-retired-destination-next-v1"
     },
     {
       "legacy_id": "ACTION-27",

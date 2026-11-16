@@ -110,6 +110,22 @@ class EffectsBridgeTests(unittest.TestCase):
             lambda stage,budget:(observed.append(stage) or {"stage":stage,"fixture_id":"owned"}),5)
         self.assertEqual(result.returncode,0);self.assertEqual(observed,expected)
 
+    def test_booking_destination_retirement_stages_match_producer_and_bridge(self):
+        producer=WORKFLOWS_SOURCE.split("async function retiredBookingDestinationNextAttempt",1)[1].split("async function retiredPublicTrackingSuggestionAttempt",1)[0]
+        before='observeEffects("booking-destination-retired:"+role+":before")'
+        after='observeEffects("booking-destination-retired:"+role+":after")'
+        self.assertIn(before,producer);self.assertIn(after,producer);self.assertLess(producer.index(before),producer.index(after))
+        expected=[f"booking-destination-retired:{role}:{phase}" for role in bridge.ROLES for phase in ("before","after")]
+        self.assertTrue(set(expected).issubset(bridge.STAGES))
+        script=("import json,sys; stages="+repr(expected)+"; "
+                "[(print('@@LAB_EFFECTS@@'+json.dumps({'id':i,'stage':stage}),flush=True), "
+                "(_ for _ in ()).throw(Exception()) if json.loads(sys.stdin.readline())['id']!=i else None) "
+                "for i,stage in enumerate(stages)]; print('done',flush=True)")
+        observed=[]
+        result=bridge.run_browser_with_effects([sys.executable,"-u","-c",script],
+            lambda stage,budget:(observed.append(stage) or {"stage":stage,"fixture_id":"owned"}),5)
+        self.assertEqual(result.returncode,0);self.assertEqual(observed,expected)
+
     def test_public_tracking_retirement_stages_match_producer_and_bridge(self):
         producer=WORKFLOWS_SOURCE.split("async function retiredPublicTrackingSuggestionAttempt",1)[1].split("async function retiredCancelAttempt",1)[0]
         before='observeEffects("public-tracking-discovery-retired:"+role+":before")'

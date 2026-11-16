@@ -1,0 +1,35 @@
+{
+  "task": "KAN-15 ACTION-32 legacy rendered command identity",
+  "observation": {
+    "accessed_from": "/cargo-tracker/admin/dashboard.xhtml via Book command, then submitted the rendered origin-step Next command with USCHI",
+    "destination_view": "/cargo-tracker/booking/booking-destination.xhtml",
+    "render_status": 200,
+    "viewstate_flow_context_error": false,
+    "form_id": "j_idt29",
+    "component_id": "j_idt29:j_idt37",
+    "submitted_parameter": "j_idt29:j_idt37",
+    "command_label": "Next",
+    "action_expression": "booking-date",
+    "button_markup": "<button id=\"j_idt29:j_idt37\" name=\"j_idt29:j_idt37\" class=\"ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only\" onclick=\"PrimeFaces.ab({s:&quot;j_idt29:j_idt37&quot;});return false;\" type=\"submit\"><span class=\"ui-button-text ui-c\">Next</span></button>",
+    "button_markup_sha256": "b7a8ecbbe3ef616c45fd9ad9433b0ed5ef8470a5e154e8b5dba0e0d489be3d08",
+    "rendered_page_sha256": "53903c74c4c4dd089c09f7b8212d622ad988b13d6dca5e98a563ff30bec5aebd"
+  },
+  "source_hashes": {
+    "legacy_booking_destination_page_sha256": "7cef897d90ba372ad4fe865778d211a084de8db302c0ac02aa14679944b441bb",
+    "candidate_booking_page_sha256": "458a97585a67e1458358a5c846d4691e6d736981b31e0146de9fef7ed6e458ef",
+    "legacy_navigation_servlet_sha256": "e774a70a01f2cc7adb9d0c2a26dea6c14ad2ed800ebbec7df384d7730db502d4",
+    "candidate_access_routes_sha256": "bd83abe21d3fb74411d7d27ed06e9cc75d937cf30d8ae021a7479c8c9169948c"
+  },
+  "runtime": {
+    "glassfish_image": "ai-modernization-glassfish:4.1-validator-fix",
+    "glassfish_image_id": "sha256:899f3ae0a00cc80fd9e8dd49d9104da4baf4aad81167754ac51c8b3c7a160e84",
+    "war_sha256": "0d0b70c6659466e0239129c9d12bd215b15fbd44677b74ca6e57265bd7e067fae",
+    "context": "/cargo-tracker",
+    "captured_date_utc": "2026-11-15"
+  },
+  "sensitive_values_excluded": [
+    "JSESSIONID",
+    "javax.faces.ViewState",
+    "javax.faces.ClientWindow"
+  ]
+}

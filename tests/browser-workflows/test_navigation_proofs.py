@@ -106,10 +106,43 @@ class RetiredTrackingDiscoveryProofTests(unittest.TestCase):
             else:deadline.update(response_status=405,authorization_denied=False,current_form_verified=True,
                 current_csrf_present=True,current_viewstate_present=True,identity=identities[role])
             proofs["RETIREMENT::ACTION-26::"+role]=deadline
+            rendered=h.action32_render_evidence()
+            destination={"driver":"browser-retired-destination-next-v1","legacy_id":"ACTION-32","actor":role,"method":"POST",
+                "source_path":"/cargo-tracker/booking/booking-destination.xhtml","historical_source_component_id":rendered["component_id"],
+                "historical_submitted_parameter":rendered["component_id"],"historical_source_parameter":"javax.faces.source",
+                "historical_render_evidence_verified":True,"historical_button_markup_sha256":rendered["button_markup_sha256"],
+                "source_hashes":rendered["source_hashes"],"current_post_handler_absent":True,"post_target_verified":True,
+                "callback_response_absent":True,"protected_payload_absent":True,"independent_effects_unchanged":True,
+                "cargo_snapshot_sha256":"d"*64,"cargo_snapshot_count":13}
+            if role=="anonymous":destination.update(response_status=303,authorization_denied=True,redirect_is_configured_login=True,identity=None)
+            elif role=="Reader":destination.update(response_status=403,authorization_denied=True,identity=identities[role])
+            else:destination.update(response_status=405,authorization_denied=False,current_form_verified=True,
+                current_csrf_present=True,current_viewstate_present=True,identity=identities[role])
+            proofs["RETIREMENT::ACTION-32::"+role]=destination
         return proofs
+
+    def test_current_candidate_can_be_rechecked_while_prior_retirements_use_pinned_receipts(self):
+        all_proofs=self.fixture()
+        action32={key:value for key,value in all_proofs.items() if "::ACTION-32::" in key}
+        h.validate_retirement_keys(action32)
+        subset={key:value for key,value in all_proofs.items() if "::ACTION-32::" in key or "::ACTION-08::" in key}
+        h.validate_retirement_keys(subset)
+        subset.pop("RETIREMENT::ACTION-32::Administrator")
+        with self.assertRaises(AssertionError):h.validate_retirement_keys(subset)
+        action32.pop("RETIREMENT::ACTION-32::Administrator")
+        with self.assertRaises(AssertionError):h.validate_retirement_keys(action32)
 
     def test_current_roles_and_anonymous_proof_validate_for_both_retirements(self):
         h.validate_retirement_keys(self.fixture())
+
+    def test_action32_uses_exact_rendered_destination_next_and_denies_all_actors(self):
+        h.validate_retirement_keys(self.fixture())
+        for role,field,value in [("Operator","historical_source_component_id","j_idt29:j_idt36"),
+                                 ("Administrator","historical_submitted_parameter","j_idt29:j_idt36"),
+                                 ("Reader","response_status",405),("anonymous","redirect_is_configured_login",False),
+                                 ("Operator","current_csrf_present",False),("Administrator","current_viewstate_present",False)]:
+            proofs=self.fixture();proofs["RETIREMENT::ACTION-32::"+role][field]=value
+            with self.subTest(role=role,field=field),self.assertRaises(AssertionError):h.validate_retirement_keys(proofs)
 
     def test_action26_stale_deadline_requires_exact_denial_or_csrf_backed_method_rejection(self):
         h.validate_retirement_keys(self.fixture())

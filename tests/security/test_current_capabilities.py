@@ -6,6 +6,7 @@ import current_capabilities as c
 import replay_action23_retirement as action23_replay
 import replay_action44_retirement as action44_replay
 import replay_action26_retirement as action26_replay
+import replay_action32_retirement as action32_replay
 from contracts import UnsupportedCase,evaluate
 class FakeLegacy:
     """Privileged counterfactual unit double; never runtime evidence."""
@@ -30,8 +31,8 @@ class CurrentCapabilityTests(unittest.TestCase):
         self.assertEqual({x["legacy_case_id"] for x in current}|{x["legacy_case_id"] for x in retire},old)
         self.assertEqual(len(old),502)
         self.assertEqual({x["outcome"] for x in retire},{"RETIRED","BLOCKED"})
-        self.assertEqual(sum(x["outcome"]=="RETIRED" for x in retire),16)
-        self.assertEqual(sum(x["outcome"]=="BLOCKED" for x in retire),60)
+        self.assertEqual(sum(x["outcome"]=="RETIRED" for x in retire),20)
+        self.assertEqual(sum(x["outcome"]=="BLOCKED" for x in retire),56)
         self.assertFalse(any(x["outcome"]=="PASS" for x in retire))
     def test_reviewed_bg06_scope_receipt_is_source_bound_and_exact(self):
         promotions,provenance=c.reviewed_bg06_scope()
@@ -105,6 +106,59 @@ class CurrentCapabilityTests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as temporary:
             path=Path(temporary)/"validation.json";path.write_text(json.dumps(receipt))
             with patch.object(c,"ACTION44_RETIREMENT_VALIDATION",path):self.assertFalse(c.reviewed_action44_retirement_receipt())
+
+    def test_action32_render_identity_is_hash_pinned_and_exact(self):
+        rendered=c.action32_render_record()
+        self.assertEqual(rendered["component_id"],"j_idt29:j_idt37")
+        self.assertRegex(rendered["button_markup_sha256"],r"^[0-9a-f]{64}$")
+        record=json.loads(c.ACTION32_RENDER_EVIDENCE.read_text())
+        record["observation"]["component_id"]="j_idt29:j_idt36"
+        with tempfile.TemporaryDirectory() as temporary:
+            path=Path(temporary)/"render.json";path.write_text(json.dumps(record))
+            with patch.object(c,"ACTION32_RENDER_EVIDENCE",path):
+                with self.assertRaises(UnsupportedCase):c.action32_render_record()
+
+    def test_action32_retirement_requires_exact_rendered_component_and_role_boundary(self):
+        adapter=c.CurrentAdapter();adapter._run_fingerprint="a"*64
+        adapter.provenance={"kind":"fresh-owned-runtime","inputs_fingerprint":"a"*64,"legacy_fixture_cleanup_verified":True}
+        adapter.legacy=FakeLegacy({});actor="Operator"
+        rendered=c.action32_render_record()
+        case={"id":"RETIREMENT::ACTION-32::Operator","legacy_id":"ACTION-32","actor":actor,
+              "replacement_case_id":"REPLACEMENT::booking-deadline::Operator"}
+        proof={"driver":"browser-retired-destination-next-v1","legacy_id":"ACTION-32","actor":actor,"method":"POST",
+            "source_path":"/cargo-tracker/booking/booking-destination.xhtml","historical_source_component_id":rendered["component_id"],
+            "historical_submitted_parameter":rendered["component_id"],"historical_source_parameter":"javax.faces.source",
+            "historical_render_evidence_verified":True,"historical_button_markup_sha256":rendered["button_markup_sha256"],
+            "source_hashes":c.action32_source_hashes(),"current_post_handler_absent":True,"post_target_verified":True,
+            "callback_response_absent":True,"protected_payload_absent":True,"independent_effects_unchanged":True,
+            "cargo_snapshot_sha256":"a"*64,"cargo_snapshot_count":13,"response_status":405,
+            "authorization_denied":False,"current_form_verified":True,"current_csrf_present":True,
+            "current_viewstate_present":True,"identity":{"server_verified":True,"principal":"operator","roles":["Operator"]}}
+        adapter.legacy.retirement_observations={case["id"]:proof};replacement=[{"case":case["replacement_case_id"],"outcome":"PASS"}]
+        self.assertEqual(adapter.execute_retirement(case,replacement),proof)
+        for field,value in [("historical_source_component_id","j_idt29:j_idt36"),("historical_submitted_parameter","wrong"),
+                            ("historical_render_evidence_verified",False),("source_hashes",{}),("response_status",200),
+                            ("current_csrf_present",False),("current_viewstate_present",False),
+                            ("cargo_snapshot_count",0),("independent_effects_unchanged",False)]:
+            adapter.legacy.retirement_observations={case["id"]:{**proof,field:value}}
+            with self.subTest(field=field),self.assertRaises(UnsupportedCase):adapter.execute_retirement(case,replacement)
+
+    def test_action32_review_receipt_pins_all_fresh_run_artifacts_and_fails_closed(self):
+        self.assertTrue(c.reviewed_action32_retirement_receipt())
+        receipt=json.loads(c.ACTION32_RETIREMENT_VALIDATION.read_text())
+        receipt["actor_observations"][0]["proof_sha256"]="0"*64
+        with tempfile.TemporaryDirectory() as temporary:
+            path=Path(temporary)/"validation.json";path.write_text(json.dumps(receipt))
+            with patch.object(c,"ACTION32_RETIREMENT_VALIDATION",path):self.assertFalse(c.reviewed_action32_retirement_receipt())
+
+    def test_action32_replay_preserves_current_results_and_retires_only_its_four_rows(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            output=Path(temporary)/"replay.json";result=action32_replay.replay(output_path=output);saved=json.loads(output.read_text())
+        self.assertEqual(result["current_counts"],{"PASS":470})
+        self.assertEqual(result["retirement_counts_after_review"],{"RETIRED":20,"BLOCKED":56})
+        self.assertEqual(result["gate_exit"],2)
+        self.assertEqual(saved["changed_cases"],["RETIREMENT::ACTION-32::"+actor for actor in c.ACTORS])
+        self.assertTrue(all(row["outcome"]!="PASS" for row in saved["retirement_results"]))
 
     def test_action26_review_receipt_is_hash_pinned_and_fail_closed(self):
         self.assertTrue(c.reviewed_action26_retirement_receipt())
@@ -203,8 +257,8 @@ class CurrentCapabilityTests(unittest.TestCase):
         fabricated=[{"case":x,"outcome":"PASS"} for x in adapter.contracts]
         result=c.retirement_results(adapter.model,adapter,fabricated)
         self.assertEqual(len(result),76)
-        self.assertEqual(sum(x["outcome"]=="RETIRED" for x in result),16)
-        self.assertEqual(sum(x["outcome"]=="BLOCKED" for x in result),60)
+        self.assertEqual(sum(x["outcome"]=="RETIRED" for x in result),20)
+        self.assertEqual(sum(x["outcome"]=="BLOCKED" for x in result),56)
         self.assertFalse(any(x["outcome"]=="PASS" for x in result))
     def test_get_proof_binds_complete_query_and_source(self):
         proof={"supported":True,"status":200,"semantic_success":True,"identity":{"server_verified":True,"principal":"reader","roles":["Reader"]},"driver":"click","actual_target_path":"/cargo-tracker/admin/show.xhtml","query_keys":["trackingId","jfwid"],"tracking_id":"ABC123","source_page":"admin/listRouted.xhtml","action_executed":True,"target_origin_verified":True}
@@ -296,7 +350,7 @@ class CurrentCapabilityTests(unittest.TestCase):
         adapter.inventory["view_callbacks"]=[]
         with patch.object(c,"CurrentAdapter",return_value=adapter):result=c.report(live=False)
         self.assertEqual(result["current_counts"],{"BLOCKED":470})
-        self.assertEqual(result["retirement_counts"],{"RETIRED":16,"BLOCKED":60})
+        self.assertEqual(result["retirement_counts"],{"RETIRED":20,"BLOCKED":56})
         self.assertEqual(result["legacy_audit"]["total"],502)
     def test_receipt_names_canonical_cache_and_discloses_code_identity_limit(self):
         with patch.object(c,"source_fingerprint",return_value="a"*64),patch.object(c.legacy,"LiveSubsetCandidate",return_value=FakeLegacy({})) as factory:
@@ -312,7 +366,7 @@ class CurrentCapabilityTests(unittest.TestCase):
             self.assertEqual(run.returncode,2)
             result=json.loads(output.read_text())
             self.assertEqual(result["current_counts"],{"BLOCKED":470})
-            self.assertEqual(result["retirement_counts"],{"RETIRED":16,"BLOCKED":60})
+            self.assertEqual(result["retirement_counts"],{"RETIRED":20,"BLOCKED":56})
             self.assertEqual(result["legacy_audit"]["total"],502)
             self.assertEqual(result["legacy_audit"]["counts"],{"BLOCKED":502})
             self.assertIsNone(result["provenance"])

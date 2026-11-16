@@ -252,12 +252,45 @@ def action26_source_evidence():
         raise AssertionError("ACTION-26 source/candidate boundary changed")
     return {key:hashlib.sha256(value).hexdigest() for key,value in raw.items()}
 
-def expected_retirement_keys():
-    return {"RETIREMENT::"+legacy_id+"::"+role for legacy_id in ("ACTION-08","ACTION-23","ACTION-44","ACTION-26")
+def action32_render_evidence():
+    evidence_path=ROOT/"notes/evidence/kan-15-action32-retirement/legacy-rendered-entry.json"
+    record=json.loads(evidence_path.read_text())
+    files={"legacy_booking_destination_page_sha256":ROOT/"experiments/legacy-cargotracker/src/main/webapp/booking/booking-destination.xhtml",
+           "candidate_booking_page_sha256":ROOT/"candidate/cargotracker/src/main/webapp/admin/book.xhtml",
+           "legacy_navigation_servlet_sha256":ROOT/"candidate/cargotracker/src/main/java/net/java/cargotracker/interfaces/booking/web/LegacyNavigationServlet.java",
+           "candidate_access_routes_sha256":ROOT/"candidate/cargotracker/src/main/webapp/WEB-INF/access-routes.tsv"}
+    hashes={key:hashlib.sha256(path.read_bytes()).hexdigest() for key,path in files.items()}
+    obs=record.get("observation",{});markup=obs.get("button_markup","")
+    if (record.get("task")!="KAN-15 ACTION-32 legacy rendered command identity"
+            or record.get("source_hashes")!=hashes or obs.get("component_id")!="j_idt29:j_idt37"
+            or obs.get("submitted_parameter")!="j_idt29:j_idt37" or obs.get("form_id")!="j_idt29"
+            or obs.get("destination_view")!="/cargo-tracker/booking/booking-destination.xhtml"
+            or obs.get("render_status")!=200 or obs.get("viewstate_flow_context_error") is not False
+            or "<button id=\"j_idt29:j_idt37\"" not in markup or ">Next</span>" not in markup
+            or hashlib.sha256(markup.encode()).hexdigest()!=obs.get("button_markup_sha256")):
+        raise AssertionError("ACTION-32 rendered JSF component identity is not bound to current source bytes")
+    old=files["legacy_booking_destination_page_sha256"].read_text()
+    servlet=files["legacy_navigation_servlet_sha256"].read_text();routes=files["candidate_access_routes_sha256"].read_text()
+    if ('<p:commandButton value="Next" action="booking-date" />' not in old
+            or '"/booking/booking-destination.xhtml","/admin/book.xhtml"' not in servlet
+            or "protected void doPost" in servlet or "/booking/booking-destination.xhtml\tOperator,Administrator" not in routes):
+        raise AssertionError("ACTION-32 source/candidate POST boundary changed")
+    return {"component_id":obs["component_id"],"button_markup_sha256":obs["button_markup_sha256"],"source_hashes":hashes}
+
+def expected_retirement_keys(legacy_ids=("ACTION-08","ACTION-23","ACTION-44","ACTION-26","ACTION-32")):
+    return {"RETIREMENT::"+legacy_id+"::"+role for legacy_id in legacy_ids
             for role in ("anonymous","Reader","Operator","Administrator")}
 
+
 def validate_retirement_keys(proofs):
-    if set(proofs)!=expected_retirement_keys():
+    # A fresh run may focus on the candidate being reviewed. Previously approved
+    # retirements stay governed by their separate hash-pinned review receipts.
+    allowed={
+        frozenset(expected_retirement_keys()),
+        frozenset(expected_retirement_keys(("ACTION-32",))),
+        frozenset(expected_retirement_keys(("ACTION-32","ACTION-08"))),
+    }
+    if frozenset(proofs) not in allowed:
         raise AssertionError("Missing or unexpected retired-entry observations")
     source_hashes=action23_source_evidence()
     for key,proof in proofs.items():
@@ -274,6 +307,33 @@ def validate_retirement_keys(proofs):
                     raise AssertionError("Authorized ACTION-08 replay lacks current-session denial proof")
             elif proof.get("authorization_denied") is not True or proof.get("protected_payload_absent") is not True or proof.get("response_status") != (403 if role=="Reader" else 303) or (role=="anonymous" and proof.get("redirect_is_configured_login") is not True):
                 raise AssertionError("Unauthorized ACTION-08 replay lacks denial proof")
+        elif legacy_id=="ACTION-32":
+            rendered=action32_render_evidence()
+            if (proof.get("driver")!="browser-retired-destination-next-v1" or proof.get("historical_source_component_id")!=rendered["component_id"]
+                    or proof.get("historical_submitted_parameter")!=rendered["component_id"]
+                    or proof.get("historical_source_parameter")!="javax.faces.source"
+                    or proof.get("historical_render_evidence_verified") is not True
+                    or proof.get("historical_button_markup_sha256")!=rendered["button_markup_sha256"]
+                    or proof.get("source_path")!="/cargo-tracker/booking/booking-destination.xhtml"
+                    or proof.get("source_hashes")!=rendered["source_hashes"] or proof.get("current_post_handler_absent") is not True
+                    or proof.get("post_target_verified") is not True or proof.get("callback_response_absent") is not True
+                    or proof.get("protected_payload_absent") is not True
+                    or proof.get("cargo_snapshot_count")!=13 or re.fullmatch(r"[0-9a-f]{64}",str(proof.get("cargo_snapshot_sha256"))) is None):
+                raise AssertionError("ACTION-32 rendered destination Next proof is incomplete")
+            if role=="anonymous":
+                if proof.get("response_status")!=303 or proof.get("redirect_is_configured_login") is not True or proof.get("identity") is not None:
+                    raise AssertionError("ACTION-32 anonymous stale Next request was not redirected to login")
+            elif role=="Reader":
+                identity=proof.get("identity",{})
+                if proof.get("response_status")!=403 or proof.get("authorization_denied") is not True or identity.get("server_verified") is not True or identity.get("roles")!=["Reader"]:
+                    raise AssertionError("ACTION-32 Reader stale Next request was not denied")
+            else:
+                identity=proof.get("identity",{})
+                if (proof.get("response_status")!=405 or proof.get("current_form_verified") is not True
+                        or proof.get("current_csrf_present") is not True or proof.get("current_viewstate_present") is not True
+                        or proof.get("authorization_denied") is not False or identity.get("server_verified") is not True
+                        or identity.get("roles")!=[role]):
+                    raise AssertionError("ACTION-32 authorized stale Next request did not reach method rejection with current session CSRF")
         elif legacy_id=="ACTION-26":
             if (proof.get("driver")!="browser-retired-deadline-v1" or proof.get("historical_source_component_id")!="dateForm:deadline"
                     or proof.get("source_path")!="/cargo-tracker/booking/booking-date.xhtml"
@@ -356,7 +416,8 @@ def main():
             subprocess.run(
                 ["docker","exec","-i",bid,"bash","-c","umask 077; cat > /run/credentials.json"],
                 input=json.dumps({"base":"http://"+app.NAME+":8080/cargo-tracker/","credentials":credentials,
-                                  "fixture_tracking_id":report["page_fixture_tracking_id"]}),
+                                  "fixture_tracking_id":report["page_fixture_tracking_id"],
+                                  "retirement_render_evidence":action32_render_evidence()}),
                 text=True,check=True,capture_output=True,
             )
             def capture(stage,remaining):
@@ -424,6 +485,7 @@ def main():
             source_hashes=action23_source_evidence()
             public_source_hashes=action44_source_evidence()
             deadline_source_hashes=action26_source_evidence()
+            render_evidence=action32_render_evidence()
             for proof in retirement_proofs.values():
                 if proof.get("legacy_id")=="ACTION-08":
                     proof["callback_implementation_absent"]=True
@@ -435,6 +497,8 @@ def main():
                     proof["source_hashes"]=public_source_hashes
                 elif proof.get("legacy_id")=="ACTION-26":
                     proof["source_hashes"]=deadline_source_hashes
+                elif proof.get("legacy_id")=="ACTION-32":
+                    proof["source_hashes"]=render_evidence["source_hashes"]
             validate_retirement_keys(retirement_proofs)
             report["retirement_observations"]=retirement_proofs
         finally:
