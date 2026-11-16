@@ -146,3 +146,27 @@ class EffectsBridgeTests(unittest.TestCase):
             lambda stage,budget:(observed.append(stage) or {"stage":stage,"fixture_id":"owned"}),5)
         self.assertEqual(result.returncode,0)
         self.assertEqual(observed,expected)
+
+    def test_wrong_csrf_handling_stages_match_producer_and_bridge(self):
+        producer=WORKFLOWS_SOURCE.split('const wrongCsrfBefore=await observeEffects',1)[1].split('handlingCsrfProofs[cargoRole(actor)]',1)[0]
+        self.assertIn('"handling-wrong-csrf:"+cargoRole(actor)+":before"',producer)
+        self.assertIn('"handling-wrong-csrf:"+cargoRole(actor)+":after"',producer)
+        expected=[f"handling-wrong-csrf:{role}:{phase}"
+                  for role in ("Operator","Administrator") for phase in ("before","after")]
+        self.assertEqual(set(expected),{stage for stage in bridge.STAGES if stage.startswith("handling-wrong-csrf:")})
+        self.assertNotIn("handling-wrong-csrf:anonymous:before",bridge.STAGES)
+        self.assertNotIn("handling-wrong-csrf:Reader:before",bridge.STAGES)
+        script=("import json,sys; stages="+repr(expected)+"; "
+                "[(print('@@LAB_EFFECTS@@'+json.dumps({'id':i,'stage':stage}),flush=True), "
+                "(_ for _ in ()).throw(Exception()) if json.loads(sys.stdin.readline())['id']!=i else None) "
+                "for i,stage in enumerate(stages)]; print('done',flush=True)")
+        observed=[]
+        result=bridge.run_browser_with_effects([sys.executable,"-u","-c",script],
+            lambda stage,budget:(observed.append(stage) or {"stage":stage,"fixture_id":"owned"}),5)
+        self.assertEqual(result.returncode,0)
+        self.assertEqual(observed,expected)
+        for role in ("anonymous","Reader"):
+            invalid='print(\'@@LAB_EFFECTS@@{"id":0,"stage":"handling-wrong-csrf:'+role+':before"}\',flush=True); input()'
+            with self.subTest(role=role),self.assertRaises(RuntimeError):
+                bridge.run_browser_with_effects([sys.executable,"-u","-c",invalid],
+                    lambda *args:self.fail("Unauthorized observer stage reached"),5)

@@ -4,7 +4,7 @@ const cfg=JSON.parse(fs.readFileSync("/run/credentials.json","utf8"));
 const base=cfg.base;
 const retirementRenderEvidence=cfg.retirement_render_evidence;
 const navigationActions=require("./navigation-actions.json");const actionProofs={};const claimedCargoProofs={};const cargoEntryProofs={};const trackingActionProofs={};const replacementProofs={};const handlingCompletionInputs={};
-const checks=[];const failures=[];const retiredActionProofs={};const retirementSessionDiagnostics={};const pageSemantics={};const socketObservations={};const socketTrace=[];const disconnectEvidence={};let abruptPeer=null;let witnessForDiagnostics=null;let stage="initialize";let navigation=null;
+const checks=[];const failures=[];const handlingCsrfProofs={};const retiredActionProofs={};const retirementSessionDiagnostics={};const pageSemantics={};const socketObservations={};const socketTrace=[];const disconnectEvidence={};let abruptPeer=null;let witnessForDiagnostics=null;let stage="initialize";let navigation=null;
 function check(name,ok){stage=name;checks.push({name,passed:!!ok});if(!ok)throw new Error(name);}
 async function traceSocket(label,actor){
  if(!actor)return;
@@ -1348,9 +1348,49 @@ async function retiredCancelAttempt(role,actor,context,base,trackingId,destinati
    check("Reader forged mobile POST denied",readerPost.status()===403);
    const mobileNoToken=await actor.context.request.post(base+"mobile.xhtml",{form:{"handling":"handling","handling:submit":"","jakarta.faces.ViewState":mobileState}});
    check("Mobile mutation requires CSRF",mobileNoToken.status()===403);
+   const handlingLocation=actor===operator?"USCHI":"DEHAM";
    await actor.page.getByLabel("Cargo",{exact:true}).selectOption(id);
    await actor.page.getByLabel("Event",{exact:true}).selectOption("LOAD");
-   const handlingLocation=actor===operator?"USCHI":"DEHAM";
+   await actor.page.getByLabel("Location",{exact:true}).selectOption(handlingLocation);
+   const validCompletion=actor===operator?"2032-02-02 10:00":"2032-02-04 10:00";
+   await actor.page.getByLabel("Completion time (YYYY-MM-DD HH:mm)").fill(validCompletion);
+   await actor.page.getByLabel("Voyage (required for LOAD/UNLOAD)",{exact:true}).selectOption("0100S");
+   const validMobileForm=await actor.page.locator("#handling").evaluate(form=>Object.fromEntries(new FormData(form).entries()));
+   const currentCsrf=(await (await actor.context.request.get(base+"session")).json()).csrf;
+   const formReady=validMobileForm.handling==="handling"&&typeof currentCsrf==="string"&&currentCsrf.length>0&&
+    validMobileForm.csrf===currentCsrf&&validMobileForm["handling:cargo"]===id&&
+    validMobileForm["handling:type"]==="LOAD"&&validMobileForm["handling:location"]===handlingLocation&&
+    validMobileForm["handling:time"]===validCompletion&&validMobileForm["handling:voyage"]==="0100S"&&
+    typeof validMobileForm["jakarta.faces.ViewState"]==="string"&&validMobileForm["jakarta.faces.ViewState"].length>0;
+   check("Wrong-CSRF probe uses otherwise-valid mobile submission "+actor.who,formReady);
+   const wrongToken="deliberately-invalid-csrf-token";
+   const wrongCsrfBefore=await observeEffects("handling-wrong-csrf:"+cargoRole(actor)+":before");
+   const wrongCsrfForm={...validMobileForm,csrf:wrongToken,"handling:submit":""};
+   const submitMarkerPresent=wrongCsrfForm["handling:submit"]==="";
+   check("Wrong-CSRF probe preserves the submit marker "+actor.who,submitMarkerPresent);
+   const wrongCsrfResponse=await actor.context.request.post(base+"mobile.xhtml",{form:wrongCsrfForm,maxRedirects:0});
+   const wrongCsrfBody=await wrongCsrfResponse.text();
+   const protectedPayloadAbsent=!wrongCsrfBody.includes(id)&&!wrongCsrfBody.includes(handlingLocation)&&
+    !wrongCsrfBody.includes("Accepted for processing.");
+   check("Wrong-CSRF mobile submission rejected without payload "+actor.who,wrongCsrfResponse.status()===403&&protectedPayloadAbsent);
+   const wrongCsrfAfter=await observeEffects("handling-wrong-csrf:"+cargoRole(actor)+":after");
+   const wrongCsrfEffectsUnchanged=unchangedEffects(wrongCsrfBefore,wrongCsrfAfter,0);
+   check("Wrong-CSRF mobile submission leaves all effects unchanged "+actor.who,wrongCsrfEffectsUnchanged);
+   handlingCsrfProofs[cargoRole(actor)]={source_path:"/cargo-tracker/mobile.xhtml",actor:cargoRole(actor),
+    valid_submission_form:formReady,current_csrf_present:validMobileForm.csrf===currentCsrf,
+    current_csrf_nonempty:typeof currentCsrf==="string"&&currentCsrf.length>0,
+    submit_marker_present:submitMarkerPresent,wrong_token_distinct:validMobileForm.csrf!==wrongToken,response_status:wrongCsrfResponse.status(),
+    protected_payload_absent:protectedPayloadAbsent,independent_effects_unchanged:wrongCsrfEffectsUnchanged,
+    identity:{server_verified:true,principal:actor.identity.principal,roles:actor.identity.roles},
+    before:wrongCsrfBefore,after:wrongCsrfAfter};
+   const refreshedMobile=await actor.page.reload();
+   await actor.page.getByRole("heading",{name:"Report handling",exact:true}).waitFor();
+   const submitAfterRefresh=actor.page.getByRole("button",{name:"Submit handling report",exact:true});
+   const pageUsable=refreshedMobile.status()===200&&actor.page.url().endsWith("/mobile.xhtml")&&
+    await actor.page.locator("#handling").isVisible()&&await submitAfterRefresh.isVisible()&&await submitAfterRefresh.isEnabled();
+   check("Wrong-CSRF rejection leaves current page usable "+actor.who,pageUsable);
+   await actor.page.getByLabel("Cargo",{exact:true}).selectOption(id);
+   await actor.page.getByLabel("Event",{exact:true}).selectOption("LOAD");
    await actor.page.getByLabel("Location",{exact:true}).selectOption(handlingLocation);
    await actor.page.getByLabel("Completion time (YYYY-MM-DD HH:mm)").fill("2032-02-30 10:00");
    await actor.page.getByRole("button",{name:"Submit handling report",exact:true}).click();
@@ -1866,5 +1906,5 @@ async function retiredCancelAttempt(role,actor,context,base,trackingId,destinati
   disconnectEvidence.graceful_close_code=1000;
   check("No page or asset errors",failures.length===0);
  } catch(error){try{await traceSocket("failure",witnessForDiagnostics);}catch(ignored){}checks.push({name:stage+" failed ("+error.name+")",outcome:"FAIL",passed:false});process.exitCode=1;}
- finally{effectsInput.close();process.stdin.destroy();if(abruptPeer&&!abruptPeer.socket.destroyed)abruptPeer.socket.destroy();if(replayClient)await replayClient.dispose();await browser.close();fs.writeFileSync("/out/results.json",JSON.stringify({scope:"Real Chromium cargo read/booking/destination/routing/live/handling workflows",checks,last_navigation:navigation,resource_errors:failures,page_semantics:pageSemantics,socket_observations:socketObservations,socket_diagnostics:socketTrace,disconnect_evidence:disconnectEvidence,retirement_session_diagnostics:retirementSessionDiagnostics,navigation_actions:actionProofs,claimed_cargo_actions:claimedCargoProofs,cargo_entry_actions:cargoEntryProofs,tracking_actions:trackingActionProofs,replacement_actions:replacementProofs,retirement_actions:retiredActionProofs},null,2)+"\n");}
+ finally{effectsInput.close();process.stdin.destroy();if(abruptPeer&&!abruptPeer.socket.destroyed)abruptPeer.socket.destroy();if(replayClient)await replayClient.dispose();await browser.close();fs.writeFileSync("/out/results.json",JSON.stringify({scope:"Real Chromium cargo read/booking/destination/routing/live/handling workflows",checks,last_navigation:navigation,resource_errors:failures,page_semantics:pageSemantics,socket_observations:socketObservations,socket_diagnostics:socketTrace,disconnect_evidence:disconnectEvidence,retirement_session_diagnostics:retirementSessionDiagnostics,navigation_actions:actionProofs,claimed_cargo_actions:claimedCargoProofs,cargo_entry_actions:cargoEntryProofs,tracking_actions:trackingActionProofs,replacement_actions:replacementProofs,handling_csrf_proofs:handlingCsrfProofs,retirement_actions:retiredActionProofs},null,2)+"\n");}
 })();

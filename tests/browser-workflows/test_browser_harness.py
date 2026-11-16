@@ -3,6 +3,51 @@ from pathlib import Path
 from unittest.mock import patch
 spec=importlib.util.spec_from_file_location("browser_harness",Path(__file__).with_name("run_browser.py"))
 harness=importlib.util.module_from_spec(spec);spec.loader.exec_module(harness)
+class HandlingCsrfProofTests(unittest.TestCase):
+    def fixture(self):
+        proofs={}
+        for role,user in (("Operator","operator"),("Administrator","admin")):
+            before={"fixture_id":"owned-fixture","stage":"handling-wrong-csrf:"+role+":before",
+                    "tables":{"CARGO":{"rows":13,"sha256":"a"*64}},
+                    "queues":{"jms.queue.CargoHandledQueue":{"MessagesAdded":5}},
+                    "business_invocations":{"submitReport":2}}
+            after={"fixture_id":"owned-fixture","stage":"handling-wrong-csrf:"+role+":after",
+                   "tables":{"CARGO":{"rows":13,"sha256":"a"*64}},
+                   "queues":{"jms.queue.CargoHandledQueue":{"MessagesAdded":5}},
+                   "business_invocations":{"submitReport":2}}
+            proofs[role]={"source_path":"/cargo-tracker/mobile.xhtml","actor":role,
+                          "valid_submission_form":True,"current_csrf_present":True,"current_csrf_nonempty":True,
+                          "submit_marker_present":True,"wrong_token_distinct":True,"response_status":403,
+                          "protected_payload_absent":True,"independent_effects_unchanged":True,
+                          "identity":{"server_verified":True,"principal":user,"roles":[role]},
+                          "before":before,"after":after}
+        return proofs
+    def test_valid_wrong_csrf_proofs_for_both_permitted_roles(self):
+        harness.validate_handling_csrf_proofs(self.fixture())
+    def test_missing_role_or_incomplete_form_fails_closed(self):
+        for change in ("missing_role","invalid_form","missing_csrf","empty_csrf","same_token","wrong_status","wrong_principal","wrong_role"):
+            proofs=self.fixture()
+            if change=="missing_role":proofs.pop("Administrator")
+            elif change=="invalid_form":proofs["Operator"]["valid_submission_form"]=False
+            elif change=="missing_csrf":proofs["Administrator"]["current_csrf_present"]=False
+            elif change=="empty_csrf":proofs["Operator"]["current_csrf_nonempty"]=False
+            elif change=="same_token":proofs["Operator"]["wrong_token_distinct"]=False
+            elif change=="wrong_principal":proofs["Operator"]["identity"]["principal"]="admin"
+            elif change=="wrong_role":proofs["Administrator"]["identity"]["roles"]=["Reader"]
+            else:proofs["Administrator"]["response_status"]=200
+            with self.subTest(change=change),self.assertRaises(AssertionError):
+                harness.validate_handling_csrf_proofs(proofs)
+    def test_effects_or_identity_changes_fail_closed(self):
+        for change in ("database","queue","invocation","principal"):
+            proofs=self.fixture()
+            if change=="database":proofs["Operator"]["after"]["tables"]["CARGO"]["sha256"]="b"*64
+            elif change=="queue":proofs["Administrator"]["after"]["queues"]["jms.queue.CargoHandledQueue"]["MessagesAdded"]=6
+            elif change=="invocation":proofs["Operator"]["after"]["business_invocations"]["submitReport"]=3
+            else:proofs["Administrator"]["identity"]["server_verified"]=False
+            with self.subTest(change=change),self.assertRaises(AssertionError):
+                harness.validate_handling_csrf_proofs(proofs)
+
+
 class BrowserCleanupTests(unittest.TestCase):
     def test_replacement_output_requires_exact_canonical_actor_keys(self):
         keys=harness.expected_replacement_keys()

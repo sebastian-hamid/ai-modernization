@@ -185,6 +185,31 @@ def validate_replacement_keys(proofs):
     if set(proofs)!=expected_replacement_keys():
         raise AssertionError("Missing or unexpected replacement observations")
 
+def validate_handling_csrf_proofs(proofs):
+    roles=("Operator","Administrator")
+    if set(proofs)!=set(roles):
+        raise AssertionError("Missing or unexpected handling CSRF observations")
+    for role in roles:
+        proof=proofs[role]
+        if (proof.get("source_path")!="/cargo-tracker/mobile.xhtml" or proof.get("actor")!=role
+                or not all(proof.get(name) is True for name in
+                    ("valid_submission_form","current_csrf_present","current_csrf_nonempty","submit_marker_present",
+                     "wrong_token_distinct","protected_payload_absent","independent_effects_unchanged"))
+                or proof.get("response_status")!=403
+                or proof.get("identity",{}).get("server_verified") is not True
+                or proof.get("identity",{}).get("principal")!={"Operator":"operator","Administrator":"admin"}[role]
+                or proof.get("identity",{}).get("roles")!=[role]):
+            raise AssertionError("Invalid wrong-CSRF handling proof for "+role)
+        before,after=proof.get("before",{}),proof.get("after",{})
+        if (before.get("fixture_id")!=after.get("fixture_id")
+                or before.get("stage")!="handling-wrong-csrf:"+role+":before"
+                or after.get("stage")!="handling-wrong-csrf:"+role+":after"
+                or not before.get("tables") or before.get("tables")!=after.get("tables")
+                or not before.get("queues") or before.get("queues")!=after.get("queues")
+                or not before.get("business_invocations") or before.get("business_invocations")!=after.get("business_invocations")):
+            raise AssertionError("Wrong-CSRF handling effects changed or are incomplete for "+role)
+
+
 def action23_source_evidence():
     legacy_page=ROOT/"experiments/legacy-cargotracker/src/main/webapp/admin/track.xhtml"
     legacy_bean=ROOT/"experiments/legacy-cargotracker/src/main/java/net/java/cargotracker/interfaces/tracking/web/Track.java"
@@ -613,6 +638,9 @@ def main():
             replacement_proofs=results.get("replacement_actions",{})
             validate_replacement_keys(replacement_proofs)
             report["replacement_observations"]=replacement_proofs
+            handling_csrf_proofs=results.get("handling_csrf_proofs",{})
+            validate_handling_csrf_proofs(handling_csrf_proofs)
+            report["handling_csrf_observations"]=handling_csrf_proofs
             retirement_proofs=results.get("retirement_actions",{})
             callback_source=ROOT/"candidate/cargotracker/src/main/java/net/java/cargotracker/interfaces/booking/web/ChangeDestinationDialog.java"
             if callback_source.exists():

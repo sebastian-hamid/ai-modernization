@@ -1,0 +1,108 @@
+{
+  "task": "KAN-15 supplemental current mobile handling CSRF rejection verification",
+  "run_date": "2026-11-17",
+  "scope": "Current replacement behavior only; no legacy retirement classification is changed.",
+  "execution": {
+    "kind": "fresh-owned-runtime",
+    "native_checks": 777,
+    "native_status": "PASS",
+    "browser_checks": 922,
+    "browser_failed_checks": 0,
+    "candidate_cleanup": {
+      "owned_container_removed": true,
+      "private_files_removed": true,
+      "errors": []
+    },
+    "browser_cleanup": {
+      "container_removed": true,
+      "network_removed": true,
+      "errors": []
+    },
+    "current_capability_counts": {
+      "PASS": 470
+    },
+    "retirement_counts": {
+      "RETIRED": 44,
+      "BLOCKED": 32
+    },
+    "gate_exit": 2,
+    "provenance": {
+      "kind": "fresh-owned-runtime",
+      "inputs_fingerprint": "265ca59520a036e4b814fce84a8d7ca0f010510af8c4e1d2e1acca8c2fbf39f8",
+      "canonical_contracts_sha256": "6cc5ffb67cbbd9e7611931bb8408a9a3c49b2836909d02afbcd1927862c1c37f",
+      "legacy_fixture_cleanup_verified": true,
+      "imported_code_attested": false,
+      "fingerprint_scope": "On-disk inputs and constructed canonical contracts; already imported Python code identity is not attested.",
+      "reviewed_bg06_scope": {
+        "kind": "reviewed-fresh-scoped-runtime",
+        "driver": "fresh-disposable-bg06-scoped-gate-v1",
+        "scope_receipt_sha256": "04a1377e44b421207c69272b1252be337e502dc78f8bc4f1e57807e6d2e9f956",
+        "runtime_receipt_sha256": "b6907de20838724be42549a51f6cb51ee55f7996e20a90ce9ffd2e4e5dcb1b57",
+        "gate_adapter_sha256": "ea70c54464939615712bd256fe820741b7f724d865be15d13db16e98f547048c",
+        "run_id": "kan18pg-4e9aed9134",
+        "started_at_utc": "2026-11-15T04:40:09.440066+00:00",
+        "completed_at_utc": "2026-11-15T04:42:22.363275+00:00"
+      }
+    }
+  },
+  "actor_observations": [
+    {
+      "case_id": "HANDLING-WRONG-CSRF::Operator",
+      "principal": "operator",
+      "roles": [
+        "Operator"
+      ],
+      "source_path": "/cargo-tracker/mobile.xhtml",
+      "otherwise_valid_form": true,
+      "current_csrf_present_and_nonempty": true,
+      "wrong_token_distinct": true,
+      "submit_marker_present": true,
+      "response_status": 403,
+      "protected_payload_absent": true,
+      "independent_effects_unchanged": true,
+      "before_stage": "handling-wrong-csrf:Operator:before",
+      "after_stage": "handling-wrong-csrf:Operator:after",
+      "fixture_id": "eebf6a2ac66c6c0c17749ed73e33e1ac08f1ed597a2009d26bb389811884998d",
+      "replacement_case_id": "REPLACEMENT::handling-single-page::Operator",
+      "actor": "Operator"
+    },
+    {
+      "case_id": "HANDLING-WRONG-CSRF::Administrator",
+      "principal": "admin",
+      "roles": [
+        "Administrator"
+      ],
+      "source_path": "/cargo-tracker/mobile.xhtml",
+      "otherwise_valid_form": true,
+      "current_csrf_present_and_nonempty": true,
+      "wrong_token_distinct": true,
+      "submit_marker_present": true,
+      "response_status": 403,
+      "protected_payload_absent": true,
+      "independent_effects_unchanged": true,
+      "before_stage": "handling-wrong-csrf:Administrator:before",
+      "after_stage": "handling-wrong-csrf:Administrator:after",
+      "fixture_id": "eebf6a2ac66c6c0c17749ed73e33e1ac08f1ed597a2009d26bb389811884998d",
+      "replacement_case_id": "REPLACEMENT::handling-single-page::Administrator",
+      "actor": "Administrator"
+    }
+  ],
+  "artifacts": {
+    "candidate-evidence.json": "b0faa143490030b9e85c0dedca0c19ae8a2ce8a2fb5d0ae0c9a7144641f456c5",
+    "native-results.json": "5f95aacec4299343e3cf569eff84a7a739d3c65a2629881e49cddf105f8816bd",
+    "browser-results.json": "1a1aedc0e093c234cf0de839506762f8406df1a06e42d75a847b1f3ae4f26f50"
+  },
+  "review": {
+    "status": "PENDING",
+    "scope": "Independent review of implementation and fresh live evidence"
+  },
+  "limitations": [
+    "The run reports imported_code_attested=false; the runtime fingerprint covers on-disk inputs and constructed contracts, not already imported Python code identity.",
+    "The gate exit is 2 because 32 unrelated legacy retirement rows remain BLOCKED; this verification does not change them.",
+    "The probe verifies the current mobile handling replacement and does not promote ACTION-35/40/43 or related legacy handling callbacks."
+  ],
+  "prior_attempts": [
+    "Attempt 1 passed all 777 native checks but stopped before browser completion because the effects bridge had not yet allowlisted the new wrong-CSRF stage; the bridge allowlist and tests were corrected.",
+    "Attempt 2 passed 777 native checks and the Operator wrong-CSRF assertion, then timed out at the following mobile invalid-calendar assertion; a fresh page reload/usability guard was added before this passing run."
+  ]
+}

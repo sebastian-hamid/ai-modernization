@@ -7,12 +7,12 @@ import time
 
 PREFIX = "@@LAB_EFFECTS@@"
 EVENT_PREFIX = "@@LAB_HANDLING_EVENT@@"
-GROUPS = ("cancel-editor", "booking-cancel", "booking-deadline", "booking-single-page", "booking-positive", "handling-single-page", "handling-cargo-voyage", "handling-location", "handling-event", "handling-voyage", "handling-completion", "retired-action", "tracking-discovery", "public-tracking-discovery", "public-tracking-discovery-retired", "booking-deadline-retired", "booking-destination-retired", "booking-wizard-retired-action-27", "booking-wizard-retired-action-30", "booking-wizard-retired-action-34", "booking-wizard-retired-action-28", "booking-wizard-retired-action-31", "booking-wizard-retired-action-33")
+GROUPS = ("cancel-editor", "booking-cancel", "booking-deadline", "booking-single-page", "booking-positive", "handling-single-page", "handling-cargo-voyage", "handling-location", "handling-event", "handling-voyage", "handling-completion", "retired-action", "tracking-discovery", "public-tracking-discovery", "public-tracking-discovery-retired", "booking-deadline-retired", "booking-destination-retired", "booking-wizard-retired-action-27", "booking-wizard-retired-action-30", "booking-wizard-retired-action-34", "booking-wizard-retired-action-28", "booking-wizard-retired-action-31", "booking-wizard-retired-action-33", "handling-wrong-csrf")
 ROLES = ("anonymous", "Reader", "Operator", "Administrator")
 STAGES = frozenset(
     group + ":" + role + ":" + phase
     for group in GROUPS
-    for role in (("Operator", "Administrator") if group == "booking-positive" else ROLES)
+    for role in (("Operator", "Administrator") if group in {"booking-positive", "handling-wrong-csrf"} else ROLES)
     for phase in ("before", "after")
 )
 
