@@ -1,0 +1,45 @@
+{
+  "task": "KAN-15 ACTION-27/30/34 evidence review receipt",
+  "review_scope": "fresh evidence approval only; not mapping promotion",
+  "review_record": "notes/agent-reviews/2026-11-16-kan15-action273034-evidence-review.md",
+  "review_record_sha256": "95cf9c82cc21bdd663f2b84eed2a53de62564f5d4ec184abc08bc41400325ae0",
+  "reviewer": "/root/review_action273034_evidence",
+  "status": "APPROVED_FOR_MAPPING_PROMOTION_REVIEW",
+  "approved_outcome": "RETIRED_PENDING_SEPARATE_MAPPING_PROMOTION_REVIEW",
+  "pass_outcome_allowed": false,
+  "legacy_render_evidence_sha256": "254efb3c850698d6f707f279d8eb14362af9c5e28a34a141c04294e5bbe931d8",
+  "candidate_evidence_sha256": "9847d60eea220aabe5ede648a487bddd1933a3e774c848e96be1caded37d0e10",
+  "browser_results_sha256": "fb307132d13270b5d195c610b4b611504b162029dcd4e0d0252af1b110a05f5f",
+  "browser_checks": 872,
+  "browser_failures": 0,
+  "current_counts": {
+    "PASS": 470
+  },
+  "pre_promotion_retirement_counts": {
+    "RETIRED": 20,
+    "BLOCKED": 56
+  },
+  "gate_exit": 2,
+  "actions": [
+    "ACTION-27",
+    "ACTION-30",
+    "ACTION-34"
+  ],
+  "actor_statuses": {
+    "anonymous": 303,
+    "Reader": 403,
+    "Operator": 405,
+    "Administrator": 405
+  },
+  "replacement_group": "booking-single-page",
+  "replacement_outcomes": {
+    "anonymous": "PASS",
+    "Reader": "PASS",
+    "Operator": "PASS",
+    "Administrator": "PASS"
+  },
+  "fixture_cleanup_verified": true,
+  "effects_snapshot_assertions_verified": true,
+  "effects_raw_snapshots_retained": false,
+  "mapping_statuses_promoted": false
+}

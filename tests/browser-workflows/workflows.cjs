@@ -192,7 +192,9 @@ async function retiredBookingDeadlineCallbackAttempt(role,actor,context,base,car
   ...(identity?{identity}:{})};
 }
 async function retiredBookingDestinationNextAttempt(role,actor,context,base,cargoMarkers,snapshotSha256,snapshotCount,renderEvidence){
- const relative="booking/booking-destination.xhtml",sourcePath="/cargo-tracker/"+relative,component=renderEvidence.component_id;
+ const legacyId=renderEvidence.legacy_id,relative=renderEvidence.source_path.replace("/cargo-tracker/",""),
+  sourcePath=renderEvidence.source_path,component=renderEvidence.component_id,
+  stageGroup="booking-wizard-retired-"+legacyId.toLowerCase();
  const protectedIds=[...(cargoMarkers?.tracking_ids||[])],protectedContent=cargoMarkers?.unique_content_markers||[];
  const page=await context.newPage();let currentFormVerified=false,currentCsrfPresent=false,currentViewStatePresent=false;
  let responseStatus=0,body="",redirectIsLogin=false,postTargetVerified=false,effectsUnchanged=false,identity=null;
@@ -200,7 +202,7 @@ async function retiredBookingDestinationNextAttempt(role,actor,context,base,carg
   const fields={"javax.faces.partial.ajax":"true","javax.faces.source":component,
    "javax.faces.partial.execute":component,"javax.faces.partial.render":"@all",
    "javax.faces.behavior.event":"action","javax.faces.partial.event":"click",
-   [component]:component,"j_idt29":"j_idt29"};
+   [component]:component,[renderEvidence.form_id]:renderEvidence.form_id};
   if(role==="Operator"||role==="Administrator"){
    const entry=await page.goto(base+"admin/book.xhtml"),form=page.locator("form#booking");
    const values=await form.evaluate(node=>{const out={};for(const el of node.querySelectorAll("input,select,textarea")){if(el.name)out[el.name]=el.value;}return out;});
@@ -213,19 +215,19 @@ async function retiredBookingDestinationNextAttempt(role,actor,context,base,carg
     &&!currentHtml.includes(component)&&!currentHtml.includes("booking-destination.xhtml");
    fields.csrf=values.csrf||"";if(viewStateKey)fields[viewStateKey]=values[viewStateKey];
   }
-  const before=await observeEffects("booking-destination-retired:"+role+":before");
+  const before=await observeEffects(stageGroup+":"+role+":before");
   const response=await context.request.post(base+relative,{form:fields,headers:{"Faces-Request":"partial/ajax","X-Requested-With":"XMLHttpRequest"},maxRedirects:0});
   body=await response.text();responseStatus=response.status();
   postTargetVerified=new URL(response.url()).pathname===sourcePath;
   redirectIsLogin=responseStatus===303&&response.headers()["location"]?.endsWith("/login");
   const protectedPayloadAbsent=protectedIds.every(id=>!body.includes(id))&&protectedContent.every(marker=>!body.includes(marker));
-  const after=await observeEffects("booking-destination-retired:"+role+":after");effectsUnchanged=unchangedEffects(before,after,0);
+  const after=await observeEffects(stageGroup+":"+role+":after");effectsUnchanged=unchangedEffects(before,after,0);
   if(actor?.identity)identity={server_verified:true,principal:actor.identity.principal,roles:actor.identity.roles};
   const expected=role==="anonymous"?responseStatus===303&&redirectIsLogin:role==="Reader"?responseStatus===403:responseStatus===405&&currentFormVerified&&currentCsrfPresent&&currentViewStatePresent;
-  check("ACTION-32 rendered destination Next denied or inert "+role,postTargetVerified&&expected&&protectedPayloadAbsent&&effectsUnchanged);
+  check(legacyId+" rendered booking wizard action denied or inert "+role,postTargetVerified&&expected&&protectedPayloadAbsent&&effectsUnchanged);
  }finally{await page.close();}
  const protectedPayloadAbsent=protectedIds.every(id=>!body.includes(id))&&protectedContent.every(marker=>!body.includes(marker));
- return {driver:"browser-retired-destination-next-v1",legacy_id:"ACTION-32",actor:role,method:"POST",source_path:sourcePath,
+ return {driver:"browser-retired-booking-wizard-v1",legacy_id:legacyId,actor:role,method:"POST",source_path:sourcePath,
   historical_source_component_id:component,historical_source_parameter:"javax.faces.source",historical_submitted_parameter:component,
   historical_render_evidence_verified:true,historical_button_markup_sha256:renderEvidence.button_markup_sha256,
   source_hashes:renderEvidence.source_hashes,current_post_handler_absent:true,response_status:responseStatus,
@@ -1552,9 +1554,12 @@ async function retiredCancelAttempt(role,actor,context,base,trackingId,destinati
   reader=await refreshRetirementActor(reader);operator=await refreshRetirementActor(operator);admin=await refreshRetirementActor(admin);
   // Earlier retired capabilities have hash-pinned independent receipts in current_capabilities.py.
   // This fresh browser pass exercises only the candidate currently under review.
-  for(const actor of [{who:"anonymous",context:anon,identity:null},reader,operator,admin]){
-   const role=actor.who==="anonymous"?"anonymous":cargoRole(actor);
-   retiredActionProofs["RETIREMENT::ACTION-32::"+role]=await retiredBookingDestinationNextAttempt(role,actor,actor.context,base,cargoMarkers,cargoSnapshotHash,claimedCargos.length,retirementRenderEvidence);
+  for(const actionId of ["ACTION-27","ACTION-30","ACTION-34"]){
+   const actionEvidence=retirementRenderEvidence.actions[actionId];
+   for(const actor of [{who:"anonymous",context:anon,identity:null},reader,operator,admin]){
+    const role=actor.who==="anonymous"?"anonymous":cargoRole(actor);
+    retiredActionProofs["RETIREMENT::"+actionId+"::"+role]=await retiredBookingDestinationNextAttempt(role,actor,actor.context,base,cargoMarkers,cargoSnapshotHash,claimedCargos.length,actionEvidence);
+   }
   }
   for(const actor of [reader,operator,admin]){
    const role=cargoRole(actor);

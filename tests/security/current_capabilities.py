@@ -44,6 +44,8 @@ ACTION26_FRESH_EVIDENCE=ROOT/"notes/evidence/kan-15-action26-retirement/candidat
 ACTION26_RETIREMENT_REVIEW_SHA256="db2cf0b2da9621d943da25c594ce88ac2c0599a89a38b01fa1e454b48396bddc"
 ACTION26_RETIREMENT_VALIDATION_SHA256="7e2e0d407e6b3a6558e07b6bd6771f71a5038e857e4080c51d8d65484d8188bb"
 ACTION26_FRESH_EVIDENCE_SHA256="11262b6c1f64730ef3483d84e56b5ce92521ed3efa087ac20b5f5b85ef0e260e"
+ACTION273034_RENDER_EVIDENCE=ROOT/"notes/evidence/kan-15-action273034-retirement/legacy-rendered-actions.json"
+ACTION273034_RENDER_EVIDENCE_SHA256="254efb3c850698d6f707f279d8eb14362af9c5e28a34a141c04294e5bbe931d8"
 ACTION32_RETIREMENT_VALIDATION=ROOT/"notes/evidence/kan-15-action32-retirement/validation.json"
 ACTION32_RETIREMENT_REVIEW=ROOT/"notes/agent-reviews/2026-11-15-kan15-action32-retirement-review.md"
 ACTION32_FRESH_EVIDENCE=ROOT/"notes/evidence/kan-15-action32-retirement/candidate-evidence.json"
@@ -986,7 +988,7 @@ def build_current(model,inventory):
     return cases
 
 def source_fingerprint():
-    paths=subprocess.check_output(["git","ls-files","-co","--exclude-standard","--",".dockerignore","candidate","infrastructure/database","tests/candidate-runtime","tests/browser-workflows","tests/security","specifications/access-policy-inventory.json","specifications/current-capability-mapping-v2.json","notes/decisions/2026-11-02-current-ui-acceptance.md","notes/evidence/kan-15-bg06-scope/validation.json","notes/agent-reviews/2026-11-11-kan15-bg06-scope-review.md","notes/agent-reviews/2026-11-15-kan15-bg06-scope-refresh-review.md","notes/agent-reviews/2026-11-14-kan15-action08-retirement-review.md","notes/evidence/kan-15-action32-retirement/legacy-rendered-entry.json"],cwd=ROOT,text=True).splitlines()
+    paths=subprocess.check_output(["git","ls-files","-co","--exclude-standard","--",".dockerignore","candidate","infrastructure/database","tests/candidate-runtime","tests/browser-workflows","tests/security","specifications/access-policy-inventory.json","specifications/current-capability-mapping-v2.json","notes/decisions/2026-11-02-current-ui-acceptance.md","notes/evidence/kan-15-bg06-scope/validation.json","notes/agent-reviews/2026-11-11-kan15-bg06-scope-review.md","notes/agent-reviews/2026-11-15-kan15-bg06-scope-refresh-review.md","notes/agent-reviews/2026-11-14-kan15-action08-retirement-review.md","notes/evidence/kan-15-action32-retirement/legacy-rendered-entry.json","notes/evidence/kan-15-action273034-retirement/legacy-rendered-actions.json"],cwd=ROOT,text=True).splitlines()
     digest=hashlib.sha256()
     for name in sorted(set(paths)):
         path=ROOT/name
@@ -1316,8 +1318,8 @@ class CurrentAdapter:
         return observation
     def execute_retirement(self,case,replacement_results):
         legacy_id=case.get("legacy_id") if isinstance(case,dict) else None
-        group={"ACTION-08":"cancel-editor","ACTION-23":"tracking-discovery","ACTION-44":"tracking-discovery","ACTION-26":"booking-deadline","ACTION-32":"booking-deadline"}.get(legacy_id)
-        if (not isinstance(case,dict) or legacy_id not in {"ACTION-08","ACTION-23","ACTION-44","ACTION-26","ACTION-32"}
+        group={"ACTION-08":"cancel-editor","ACTION-23":"tracking-discovery","ACTION-44":"tracking-discovery","ACTION-26":"booking-deadline","ACTION-32":"booking-deadline","ACTION-27":"booking-single-page","ACTION-30":"booking-single-page","ACTION-34":"booking-single-page"}.get(legacy_id)
+        if (not isinstance(case,dict) or legacy_id not in {"ACTION-08","ACTION-23","ACTION-44","ACTION-26","ACTION-32","ACTION-27","ACTION-30","ACTION-34"}
                 or case.get("actor") not in ACTORS
                 or case.get("replacement_case_id")!="REPLACEMENT::"+str(group)+"::"+str(case.get("actor"))
                 or self.legacy is None or not isinstance(self.provenance,dict)
@@ -1350,6 +1352,46 @@ class CurrentAdapter:
                 identity=proof.get("identity",{})
                 if (proof.get("response_status")!=403 or proof.get("authorization_denied") is not True
                         or identity.get("server_verified") is not True or identity.get("principal")!=USERS[actor] or identity.get("roles")!=[actor]):raise UnsupportedCase()
+            else:
+                identity=proof.get("identity",{})
+                if (proof.get("response_status")!=405 or proof.get("authorization_denied") is not False
+                        or proof.get("current_form_verified") is not True or proof.get("current_csrf_present") is not True
+                        or proof.get("current_viewstate_present") is not True
+                        or identity.get("server_verified") is not True or identity.get("principal")!=USERS[actor] or identity.get("roles")!=[actor]):raise UnsupportedCase()
+            return proof
+        elif legacy_id in {"ACTION-27","ACTION-30","ACTION-34"}:
+            try:
+                raw=ACTION273034_RENDER_EVIDENCE.read_bytes()
+                if hashlib.sha256(raw).hexdigest()!=ACTION273034_RENDER_EVIDENCE_SHA256:raise UnsupportedCase()
+                record=json.loads(raw);obs=record["observations"][legacy_id]
+                source_hashes=record["source_hashes"]
+                paths={"legacy_booking_page_sha256":ROOT/"experiments/legacy-cargotracker/src/main/webapp/booking/booking.xhtml",
+                       "legacy_booking_destination_page_sha256":ROOT/"experiments/legacy-cargotracker/src/main/webapp/booking/booking-destination.xhtml",
+                       "legacy_booking_date_page_sha256":ROOT/"experiments/legacy-cargotracker/src/main/webapp/booking/booking-date.xhtml",
+                       "candidate_booking_page_sha256":ROOT/"candidate/cargotracker/src/main/webapp/admin/book.xhtml",
+                       "legacy_navigation_servlet_sha256":ROOT/"candidate/cargotracker/src/main/java/net/java/cargotracker/interfaces/booking/web/LegacyNavigationServlet.java",
+                       "candidate_access_routes_sha256":ROOT/"candidate/cargotracker/src/main/webapp/WEB-INF/access-routes.tsv"}
+                actual={key:hashlib.sha256(path.read_bytes()).hexdigest() for key,path in paths.items()}
+                if actual!=source_hashes:raise UnsupportedCase()
+            except (OSError,KeyError,ValueError):raise UnsupportedCase()
+            if (proof.get("driver")!="browser-retired-booking-wizard-v1" or proof.get("legacy_id")!=legacy_id
+                    or proof.get("actor")!=actor or proof.get("method")!="POST"
+                    or proof.get("source_path")!=obs.get("source_path")
+                    or proof.get("historical_source_component_id")!=obs.get("component_id")
+                    or proof.get("historical_submitted_parameter")!=obs.get("component_id")
+                    or proof.get("historical_render_evidence_verified") is not True
+                    or proof.get("historical_button_markup_sha256")!=obs.get("button_markup_sha256")
+                    or proof.get("source_hashes")!=source_hashes
+                    or proof.get("current_post_handler_absent") is not True or proof.get("post_target_verified") is not True
+                    or proof.get("callback_response_absent") is not True or proof.get("protected_payload_absent") is not True
+                    or proof.get("independent_effects_unchanged") is not True
+                    or type(proof.get("cargo_snapshot_count")) is not int or proof.get("cargo_snapshot_count")!=13
+                    or re.fullmatch(r"[0-9a-f]{64}",str(proof.get("cargo_snapshot_sha256"))) is None):raise UnsupportedCase()
+            if actor=="anonymous":
+                if proof.get("response_status")!=303 or proof.get("authorization_denied") is not True or proof.get("redirect_is_configured_login") is not True or proof.get("identity") is not None:raise UnsupportedCase()
+            elif actor=="Reader":
+                identity=proof.get("identity",{})
+                if proof.get("response_status")!=403 or proof.get("authorization_denied") is not True or identity.get("server_verified") is not True or identity.get("principal")!=USERS[actor] or identity.get("roles")!=[actor]:raise UnsupportedCase()
             else:
                 identity=proof.get("identity",{})
                 if (proof.get("response_status")!=405 or proof.get("authorization_denied") is not False

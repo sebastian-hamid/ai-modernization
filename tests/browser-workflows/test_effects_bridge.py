@@ -112,10 +112,12 @@ class EffectsBridgeTests(unittest.TestCase):
 
     def test_booking_destination_retirement_stages_match_producer_and_bridge(self):
         producer=WORKFLOWS_SOURCE.split("async function retiredBookingDestinationNextAttempt",1)[1].split("async function retiredPublicTrackingSuggestionAttempt",1)[0]
-        before='observeEffects("booking-destination-retired:"+role+":before")'
-        after='observeEffects("booking-destination-retired:"+role+":after")'
+        before='observeEffects(stageGroup+":"+role+":before")'
+        after='observeEffects(stageGroup+":"+role+":after")'
         self.assertIn(before,producer);self.assertIn(after,producer);self.assertLess(producer.index(before),producer.index(after))
-        expected=[f"booking-destination-retired:{role}:{phase}" for role in bridge.ROLES for phase in ("before","after")]
+        expected=[f"booking-wizard-retired-{action.lower()}:{role}:{phase}"
+                  for action in ("ACTION-27","ACTION-30","ACTION-34")
+                  for role in bridge.ROLES for phase in ("before","after")]
         self.assertTrue(set(expected).issubset(bridge.STAGES))
         script=("import json,sys; stages="+repr(expected)+"; "
                 "[(print('@@LAB_EFFECTS@@'+json.dumps({'id':i,'stage':stage}),flush=True), "
