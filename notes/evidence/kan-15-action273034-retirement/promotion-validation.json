@@ -1,0 +1,39 @@
+{
+  "task": "KAN-15 ACTION-27/30/34 mapping promotion review receipt",
+  "status": "APPROVED",
+  "reviewer": "/root/review_current_capability_gate",
+  "review_record": "notes/agent-reviews/2026-11-16-kan15-actions273034-mapping-promotion-review.md",
+  "review_record_sha256": "811a12922bab66ce3c5b42d01823a358e0b474d6acca70835aab19e2937e43f6",
+  "approved_outcome": "RETIRED",
+  "pass_outcome_allowed": false,
+  "actions": [
+    "ACTION-27",
+    "ACTION-30",
+    "ACTION-34"
+  ],
+  "replacement_group": "booking-single-page",
+  "candidate_evidence_sha256": "9847d60eea220aabe5ede648a487bddd1933a3e774c848e96be1caded37d0e10",
+  "browser_results_sha256": "fb307132d13270b5d195c610b4b611504b162029dcd4e0d0252af1b110a05f5f",
+  "legacy_render_evidence_sha256": "254efb3c850698d6f707f279d8eb14362af9c5e28a34a141c04294e5bbe931d8",
+  "evidence_review_validation_sha256": "af485489a42b24af887cc17d63063ddbfa01c4fdab0a0d7a5435f52800b22019",
+  "browser_checks": 872,
+  "browser_failures": 0,
+  "candidate_counts": {
+    "PASS": 470
+  },
+  "retirement_counts_before_promotion": {
+    "RETIRED": 20,
+    "BLOCKED": 56
+  },
+  "retirement_counts_after_promotion": {
+    "RETIRED": 32,
+    "BLOCKED": 44
+  },
+  "gate_exit": 2,
+  "fixture_cleanup_verified": true,
+  "actions_promoted": true,
+  "limitations": [
+    "Effects and protected-payload observations are persisted as validated assertions; raw before/after snapshots and HTTP bodies are not retained.",
+    "Only ACTION-27, ACTION-30 and ACTION-34 are promoted; RETIRED is not PASS."
+  ]
+}

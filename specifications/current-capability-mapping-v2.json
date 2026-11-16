@@ -427,7 +427,7 @@
     {
       "legacy_id": "ACTION-27",
       "replacement_id": "booking-single-page",
-      "status": "candidate",
+      "status": "retired",
       "required_evidence": [
         "replacement-per-actor",
         "specific-negative-entry",
@@ -436,12 +436,12 @@
         "required-independent-effects",
         "independent-review"
       ],
-      "negative_driver": "pending"
+      "negative_driver": "browser-retired-booking-wizard-v1"
     },
     {
       "legacy_id": "ACTION-30",
       "replacement_id": "booking-single-page",
-      "status": "candidate",
+      "status": "retired",
       "required_evidence": [
         "replacement-per-actor",
         "specific-negative-entry",
@@ -450,12 +450,12 @@
         "required-independent-effects",
         "independent-review"
       ],
-      "negative_driver": "pending"
+      "negative_driver": "browser-retired-booking-wizard-v1"
     },
     {
       "legacy_id": "ACTION-34",
       "replacement_id": "booking-single-page",
-      "status": "candidate",
+      "status": "retired",
       "required_evidence": [
         "replacement-per-actor",
         "specific-negative-entry",
@@ -464,7 +464,7 @@
         "required-independent-effects",
         "independent-review"
       ],
-      "negative_driver": "pending"
+      "negative_driver": "browser-retired-booking-wizard-v1"
     },
     {
       "legacy_id": "ACTION-28",
