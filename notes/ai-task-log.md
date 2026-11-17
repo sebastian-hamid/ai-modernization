@@ -361,3 +361,9 @@ Added tests invoking the real EventItemReader row parser: valid RECEIVE row, wro
 ## 17 November 2026 — KAN-23 completion-order delivery derivation
 
 Added a CargoTest case where input list order and registration order differ from completion order, and verified the later-completed CLAIM controls derived transport status and last location. Focused Java 25 Maven run passed 11 tests (0 failures/errors/skips). Independent review approved with no findings: `notes/agent-reviews/2026-11-17-kan23-completion-order-review.md`. This does not cover equal-time ties or concurrent persistence semantics.
+
+
+## 17 November 2026 — KAN-23 duplicate handling-event storage and downstream observation
+
+In a fresh disposable Java 25/WildFly candidate fixture, replayed the same operator CUSTOMS report for a run-created cargo (USCHI; completion 2030-01-03 10:00). The second submission added one handling_event row, added and acknowledged one message in each of HandlingEventRegistrationAttemptQueue and CargoHandledQueue, and caused one more registration service/worker and cargo inspection service/worker invocation. Cargo delivery projection stayed IN_PORT at USCHI. Conclusion: identical reports are not suppressed at persistence or downstream queue processing; de-duplication in HandlingHistory only affects its derived view. Runtime suite passed 777 checks and 52 domain/characterization tests; cleanup removed the isolated fixture and private files with no cleanup errors. Shared KAN-18 and Jenkins were unchanged. Evidence: `notes/evidence/kan23-duplicate-handling-event/README.md` and `summary.json`. This observation does not define the desired replay policy or verify concurrent duplicate submission.
+Independent review approved this runtime observation and the updated candidate-test count guard with no actionable findings: `notes/agent-reviews/2026-11-17-kan23-duplicate-event-review.md`.

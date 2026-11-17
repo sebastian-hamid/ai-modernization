@@ -1,0 +1,54 @@
+{
+  "cleanup": {
+    "errors": [],
+    "owned_container_removed": true,
+    "private_files_removed": true
+  },
+  "delivery_after_replay": {
+    "lastKnownLocationCode": "USCHI",
+    "transportStatus": "IN_PORT"
+  },
+  "event_attributes": {
+    "cargo": "run-local operator booking",
+    "completion_time": "2030-01-03 10:00",
+    "location": "USCHI",
+    "type": "CUSTOMS"
+  },
+  "fixture_id": "kan15-dupcheck-20261117",
+  "http_status_note": "The ad-hoc output field for submission_http_status was overwritten by the subsequent GET /rest/cargo status. Exact POST status is intentionally omitted; callback verified it was in the accepted 2xx/204 set before proceeding.",
+  "interpretation": "The second submission was accepted, persisted as an additional handling-event row, and repeated both asynchronous queue/worker paths. It was not idempotently suppressed at storage or downstream processing. Delivery projection remained IN_PORT at USCHI.",
+  "maven_domain_tests": {
+    "empty_legacy_todo_retained": true,
+    "errors": 0,
+    "failures": 0,
+    "skipped": 0,
+    "tests": 52
+  },
+  "purpose": "Observe storage and downstream effects of replaying one identical handling report in an isolated candidate runtime.",
+  "queue_deltas": {
+    "jms.queue.CargoHandledQueue": {
+      "AcknowledgeAttempts": 1,
+      "MessagesAcknowledged": 1,
+      "MessagesAdded": 1
+    },
+    "jms.queue.HandlingEventRegistrationAttemptQueue": {
+      "AcknowledgeAttempts": 1,
+      "MessagesAcknowledged": 1,
+      "MessagesAdded": 1
+    }
+  },
+  "run_status": "PASS",
+  "runtime_checks_passed": 777,
+  "same_report_replayed": true,
+  "service_and_worker_invocation_deltas": {
+    "net.java.cargotracker.application.internal.DefaultCargoInspectionService#inspectCargo": 1,
+    "net.java.cargotracker.application.internal.DefaultHandlingEventService#registerHandlingEvent": 1,
+    "net.java.cargotracker.infrastructure.messaging.jms.CargoHandledConsumer#onMessage": 1,
+    "net.java.cargotracker.infrastructure.messaging.jms.HandlingEventRegistrationAttemptConsumer#onMessage": 1,
+    "net.java.cargotracker.infrastructure.messaging.jms.HandlingWorkerAudit#recordConsumedAttempt": 1,
+    "net.java.cargotracker.infrastructure.messaging.jms.InspectionWorkerAudit#recordConsumedAttempt": 1
+  },
+  "source_revision": "5ffcd5b",
+  "storage_rows_added": 1,
+  "ticket": "KAN-23"
+}
