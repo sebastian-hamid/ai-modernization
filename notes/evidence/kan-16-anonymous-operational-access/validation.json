@@ -1,0 +1,593 @@
+{
+  "task": "KAN-16 confirmed anonymous operational access denial evidence",
+  "result": "SCOPED_ACCEPTANCE_VERIFIED",
+  "baseline": {
+    "coverage_review": "notes/test-coverage-review.md",
+    "coverage_review_sha256": "34f112742bf93d0fb6638d9961f7ac409fb7a68d7e4a6df7331b362071ecd842",
+    "strict_gate_summary": "notes/evidence/coverage-review-2026-10-27/strict-gate-summary.json",
+    "strict_gate_summary_sha256": "24ea0996178a79f104705a72a3d9a2700aa23ffa04f321c1ac61f41a70db5bb0",
+    "observations": "notes/evidence/coverage-review-2026-10-27/observations.json",
+    "observations_sha256": "e907bfff8e8a0a4b0a91d3d4c3fc5765168e00b60f98328e2db26fbcdf0e64e2",
+    "anonymous_operational_surfaces": 13,
+    "access_gate": "FAIL",
+    "candidate_scope_surfaces_reproduced": 12,
+    "separate_websocket_finding": "tracking WebSocket 101 with untrusted Origin; tracked under KAN-17 and not claimed as fixed here"
+  },
+  "fresh_candidate_run": {
+    "run_id": "kan15-handling-pages-d",
+    "source_revision": "ffcb67714f77866e7659d4547909ebb3305f901e",
+    "candidate_checks": 777,
+    "candidate_failures": 0,
+    "browser_checks": 970,
+    "browser_failures": 0,
+    "cleanup_verified": true,
+    "current_capability_counts": {
+      "PASS": 470
+    },
+    "gate_evidence": "notes/evidence/kan-15-handling-page-retirement/current-capability-gate.json",
+    "gate_evidence_sha256": "96c59c67f207af4cd5d6fb8364e4a7a3471c1fac339abe0534737ca36f72a74e",
+    "candidate_report": "notes/evidence/kan-15-handling-page-retirement/candidate-runtime-results.json",
+    "candidate_report_sha256": "637f8b53c5a52c5e799b99516ffa8136492cbbb39110ab63845f6e69bc3f8ff1",
+    "browser_report": "notes/evidence/kan-15-handling-page-retirement/browser-results.json",
+    "browser_report_sha256": "eac9cf910aa529352709d74952d6e068a7aa8c5044f96c5ddf0f2825543609f6",
+    "retirement_replay": "notes/evidence/kan-15-handling-page-retirement/current-capability-replay.json",
+    "retirement_replay_sha256": "4a315add4cecd70b2967a71c8dbf24e269e8b71fa8f6ce2e5f990e695bdabbb9",
+    "final_retirement_counts": {
+      "RETIRED": 72,
+      "BLOCKED": 4
+    }
+  },
+  "verified_baseline_paths": [
+    "admin/about.xhtml",
+    "admin/changeDestination.xhtml?trackingId=ABC123",
+    "admin/dashboard.xhtml",
+    "admin/listClaimed.xhtml",
+    "admin/listNotRouted.xhtml",
+    "admin/listRouted.xhtml",
+    "admin/map.xhtml",
+    "admin/route.xhtml?trackingId=DEF789",
+    "admin/selectItinerary.xhtml?trackingId=DEF789",
+    "admin/show.xhtml?trackingId=ABC123",
+    "handling report write",
+    "rest/cargo"
+  ],
+  "candidate_page_access": [
+    {
+      "surface_id": "PAGE-03",
+      "path": "/cargo-tracker/admin/about.xhtml",
+      "allowed_roles": [
+        "Reader",
+        "Operator",
+        "Administrator"
+      ],
+      "observations": [
+        {
+          "actor": "anonymous",
+          "status": 303,
+          "outcome": "PASS",
+          "principal": null,
+          "login_redirect": true,
+          "protected_payload_absent": true
+        },
+        {
+          "actor": "Reader",
+          "status": 200,
+          "outcome": "PASS",
+          "principal": "reader",
+          "login_redirect": null,
+          "protected_payload_absent": null
+        },
+        {
+          "actor": "Operator",
+          "status": 200,
+          "outcome": "PASS",
+          "principal": "operator",
+          "login_redirect": null,
+          "protected_payload_absent": null
+        },
+        {
+          "actor": "Administrator",
+          "status": 200,
+          "outcome": "PASS",
+          "principal": "admin",
+          "login_redirect": null,
+          "protected_payload_absent": null
+        }
+      ]
+    },
+    {
+      "surface_id": "PAGE-04",
+      "path": "/cargo-tracker/admin/changeDestination.xhtml",
+      "allowed_roles": [
+        "Operator",
+        "Administrator"
+      ],
+      "observations": [
+        {
+          "actor": "anonymous",
+          "status": 303,
+          "outcome": "PASS",
+          "principal": null,
+          "login_redirect": true,
+          "protected_payload_absent": true
+        },
+        {
+          "actor": "Reader",
+          "status": 403,
+          "outcome": "PASS",
+          "principal": "reader",
+          "login_redirect": false,
+          "protected_payload_absent": true
+        },
+        {
+          "actor": "Operator",
+          "status": 200,
+          "outcome": "PASS",
+          "principal": "operator",
+          "login_redirect": null,
+          "protected_payload_absent": null
+        },
+        {
+          "actor": "Administrator",
+          "status": 200,
+          "outcome": "PASS",
+          "principal": "admin",
+          "login_redirect": null,
+          "protected_payload_absent": null
+        }
+      ]
+    },
+    {
+      "surface_id": "PAGE-05",
+      "path": "/cargo-tracker/admin/dashboard.xhtml",
+      "allowed_roles": [
+        "Reader",
+        "Operator",
+        "Administrator"
+      ],
+      "observations": [
+        {
+          "actor": "anonymous",
+          "status": 303,
+          "outcome": "PASS",
+          "principal": null,
+          "login_redirect": true,
+          "protected_payload_absent": true
+        },
+        {
+          "actor": "Reader",
+          "status": 200,
+          "outcome": "PASS",
+          "principal": "reader",
+          "login_redirect": null,
+          "protected_payload_absent": null
+        },
+        {
+          "actor": "Operator",
+          "status": 200,
+          "outcome": "PASS",
+          "principal": "operator",
+          "login_redirect": null,
+          "protected_payload_absent": null
+        },
+        {
+          "actor": "Administrator",
+          "status": 200,
+          "outcome": "PASS",
+          "principal": "admin",
+          "login_redirect": null,
+          "protected_payload_absent": null
+        }
+      ]
+    },
+    {
+      "surface_id": "PAGE-06",
+      "path": "/cargo-tracker/admin/listClaimed.xhtml",
+      "allowed_roles": [
+        "Reader",
+        "Operator",
+        "Administrator"
+      ],
+      "observations": [
+        {
+          "actor": "anonymous",
+          "status": 303,
+          "outcome": "PASS",
+          "principal": null,
+          "login_redirect": true,
+          "protected_payload_absent": true
+        },
+        {
+          "actor": "Reader",
+          "status": 200,
+          "outcome": "PASS",
+          "principal": "reader",
+          "login_redirect": null,
+          "protected_payload_absent": null
+        },
+        {
+          "actor": "Operator",
+          "status": 200,
+          "outcome": "PASS",
+          "principal": "operator",
+          "login_redirect": null,
+          "protected_payload_absent": null
+        },
+        {
+          "actor": "Administrator",
+          "status": 200,
+          "outcome": "PASS",
+          "principal": "admin",
+          "login_redirect": null,
+          "protected_payload_absent": null
+        }
+      ]
+    },
+    {
+      "surface_id": "PAGE-07",
+      "path": "/cargo-tracker/admin/listNotRouted.xhtml",
+      "allowed_roles": [
+        "Reader",
+        "Operator",
+        "Administrator"
+      ],
+      "observations": [
+        {
+          "actor": "anonymous",
+          "status": 303,
+          "outcome": "PASS",
+          "principal": null,
+          "login_redirect": true,
+          "protected_payload_absent": true
+        },
+        {
+          "actor": "Reader",
+          "status": 200,
+          "outcome": "PASS",
+          "principal": "reader",
+          "login_redirect": null,
+          "protected_payload_absent": null
+        },
+        {
+          "actor": "Operator",
+          "status": 200,
+          "outcome": "PASS",
+          "principal": "operator",
+          "login_redirect": null,
+          "protected_payload_absent": null
+        },
+        {
+          "actor": "Administrator",
+          "status": 200,
+          "outcome": "PASS",
+          "principal": "admin",
+          "login_redirect": null,
+          "protected_payload_absent": null
+        }
+      ]
+    },
+    {
+      "surface_id": "PAGE-08",
+      "path": "/cargo-tracker/admin/listRouted.xhtml",
+      "allowed_roles": [
+        "Reader",
+        "Operator",
+        "Administrator"
+      ],
+      "observations": [
+        {
+          "actor": "anonymous",
+          "status": 303,
+          "outcome": "PASS",
+          "principal": null,
+          "login_redirect": true,
+          "protected_payload_absent": true
+        },
+        {
+          "actor": "Reader",
+          "status": 200,
+          "outcome": "PASS",
+          "principal": "reader",
+          "login_redirect": null,
+          "protected_payload_absent": null
+        },
+        {
+          "actor": "Operator",
+          "status": 200,
+          "outcome": "PASS",
+          "principal": "operator",
+          "login_redirect": null,
+          "protected_payload_absent": null
+        },
+        {
+          "actor": "Administrator",
+          "status": 200,
+          "outcome": "PASS",
+          "principal": "admin",
+          "login_redirect": null,
+          "protected_payload_absent": null
+        }
+      ]
+    },
+    {
+      "surface_id": "PAGE-09",
+      "path": "/cargo-tracker/admin/map.xhtml",
+      "allowed_roles": [
+        "Reader",
+        "Operator",
+        "Administrator"
+      ],
+      "observations": [
+        {
+          "actor": "anonymous",
+          "status": 303,
+          "outcome": "PASS",
+          "principal": null,
+          "login_redirect": true,
+          "protected_payload_absent": true
+        },
+        {
+          "actor": "Reader",
+          "status": 200,
+          "outcome": "PASS",
+          "principal": "reader",
+          "login_redirect": null,
+          "protected_payload_absent": null
+        },
+        {
+          "actor": "Operator",
+          "status": 200,
+          "outcome": "PASS",
+          "principal": "operator",
+          "login_redirect": null,
+          "protected_payload_absent": null
+        },
+        {
+          "actor": "Administrator",
+          "status": 200,
+          "outcome": "PASS",
+          "principal": "admin",
+          "login_redirect": null,
+          "protected_payload_absent": null
+        }
+      ]
+    },
+    {
+      "surface_id": "PAGE-11",
+      "path": "/cargo-tracker/admin/route.xhtml",
+      "allowed_roles": [
+        "Operator",
+        "Administrator"
+      ],
+      "observations": [
+        {
+          "actor": "anonymous",
+          "status": 303,
+          "outcome": "PASS",
+          "principal": null,
+          "login_redirect": true,
+          "protected_payload_absent": true
+        },
+        {
+          "actor": "Reader",
+          "status": 403,
+          "outcome": "PASS",
+          "principal": "reader",
+          "login_redirect": false,
+          "protected_payload_absent": true
+        },
+        {
+          "actor": "Operator",
+          "status": 200,
+          "outcome": "PASS",
+          "principal": "operator",
+          "login_redirect": null,
+          "protected_payload_absent": null
+        },
+        {
+          "actor": "Administrator",
+          "status": 200,
+          "outcome": "PASS",
+          "principal": "admin",
+          "login_redirect": null,
+          "protected_payload_absent": null
+        }
+      ]
+    },
+    {
+      "surface_id": "PAGE-12",
+      "path": "/cargo-tracker/admin/selectItinerary.xhtml",
+      "allowed_roles": [
+        "Operator",
+        "Administrator"
+      ],
+      "observations": [
+        {
+          "actor": "anonymous",
+          "status": 303,
+          "outcome": "PASS",
+          "principal": null,
+          "login_redirect": true,
+          "protected_payload_absent": true
+        },
+        {
+          "actor": "Reader",
+          "status": 403,
+          "outcome": "PASS",
+          "principal": "reader",
+          "login_redirect": false,
+          "protected_payload_absent": true
+        },
+        {
+          "actor": "Operator",
+          "status": 200,
+          "outcome": "PASS",
+          "principal": "operator",
+          "login_redirect": null,
+          "protected_payload_absent": null
+        },
+        {
+          "actor": "Administrator",
+          "status": 200,
+          "outcome": "PASS",
+          "principal": "admin",
+          "login_redirect": null,
+          "protected_payload_absent": null
+        }
+      ]
+    },
+    {
+      "surface_id": "PAGE-13",
+      "path": "/cargo-tracker/admin/show.xhtml",
+      "allowed_roles": [
+        "Reader",
+        "Operator",
+        "Administrator"
+      ],
+      "observations": [
+        {
+          "actor": "anonymous",
+          "status": 303,
+          "outcome": "PASS",
+          "principal": null,
+          "login_redirect": true,
+          "protected_payload_absent": true
+        },
+        {
+          "actor": "Reader",
+          "status": 200,
+          "outcome": "PASS",
+          "principal": "reader",
+          "login_redirect": null,
+          "protected_payload_absent": null
+        },
+        {
+          "actor": "Operator",
+          "status": 200,
+          "outcome": "PASS",
+          "principal": "operator",
+          "login_redirect": null,
+          "protected_payload_absent": null
+        },
+        {
+          "actor": "Administrator",
+          "status": 200,
+          "outcome": "PASS",
+          "principal": "admin",
+          "login_redirect": null,
+          "protected_payload_absent": null
+        }
+      ]
+    }
+  ],
+  "candidate_api_access": {
+    "API-01": {
+      "allowed_roles": [
+        "Reader",
+        "Operator",
+        "Administrator"
+      ],
+      "observations": [
+        {
+          "actor": "anonymous",
+          "status": 401,
+          "outcome": "PASS",
+          "principal": null,
+          "protected_payload_absent": true,
+          "authorized_effect_verified": null
+        },
+        {
+          "actor": "Reader",
+          "status": 200,
+          "outcome": "PASS",
+          "principal": "reader",
+          "protected_payload_absent": null,
+          "authorized_effect_verified": null
+        },
+        {
+          "actor": "Operator",
+          "status": 200,
+          "outcome": "PASS",
+          "principal": "operator",
+          "protected_payload_absent": null,
+          "authorized_effect_verified": null
+        },
+        {
+          "actor": "Administrator",
+          "status": 200,
+          "outcome": "PASS",
+          "principal": "admin",
+          "protected_payload_absent": null,
+          "authorized_effect_verified": null
+        }
+      ]
+    },
+    "API-02": {
+      "allowed_roles": [
+        "Operator",
+        "Administrator"
+      ],
+      "observations": [
+        {
+          "actor": "anonymous",
+          "status": 401,
+          "outcome": "PASS",
+          "principal": null,
+          "protected_payload_absent": true,
+          "authorized_effect_verified": null
+        },
+        {
+          "actor": "Reader",
+          "status": 403,
+          "outcome": "PASS",
+          "principal": "reader",
+          "protected_payload_absent": true,
+          "authorized_effect_verified": null
+        },
+        {
+          "actor": "Operator",
+          "status": 204,
+          "outcome": "PASS",
+          "principal": "operator",
+          "protected_payload_absent": null,
+          "authorized_effect_verified": true
+        },
+        {
+          "actor": "Administrator",
+          "status": 204,
+          "outcome": "PASS",
+          "principal": "admin",
+          "protected_payload_absent": null,
+          "authorized_effect_verified": true
+        }
+      ]
+    }
+  },
+  "denied_report_effects": {
+    "cases": [
+      "anonymous valid handling report",
+      "Reader valid handling report",
+      "Operator missing CSRF",
+      "Operator wrong CSRF",
+      "Reader forged booking callback",
+      "Operator missing-CSRF booking callback"
+    ],
+    "response_statuses": {
+      "anonymous": 401,
+      "Reader": 403,
+      "Operator_missing_or_wrong_csrf": 403
+    },
+    "snapshot_equal_before_after": true,
+    "before_snapshot_sha256": "c14bf101b53ce37aa55428587792724ca1e35c4a0e904ad02d09153a2b8458dd",
+    "after_snapshot_sha256": "c14bf101b53ce37aa55428587792724ca1e35c4a0e904ad02d09153a2b8458dd",
+    "database_table_count": 6,
+    "queue_count": 7,
+    "business_invocation_count": 22,
+    "comparison_scope": "Same fresh runtime fixture; settled database tables, queue counters and business invocations."
+  },
+  "limits": [
+    "The KAN-16 scope covers the 12 baseline HTTP operational read/write findings; the thirteenth baseline finding is the separate WebSocket handshake tracked under KAN-17.",
+    "The current-capability aggregate is broader than KAN-16 and still exits 2 because four retirement rows remain BLOCKED; this does not invalidate the scoped current access cases.",
+    "The runner marks global denied_write_absence_verified false because the whole 502-case catalogue is not complete; this receipt claims only the specifically observed API-02 and CSRF-denied report cases."
+  ]
+}
