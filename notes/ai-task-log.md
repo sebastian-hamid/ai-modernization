@@ -356,3 +356,8 @@ Added service-level negative-path tests: unknown cargo yields no route candidate
 ## 17 November 2026 — KAN-23 batch CSV row parsing
 
 Added tests invoking the real EventItemReader row parser: valid RECEIVE row, wrong column counts, invalid completion time, malformed UN/LOCODE, and unknown event type. Targeted `BatchLineValidationCharacterizationTest` passed 5 tests (0 failures/errors/skips) in the pinned Maven/Temurin 25 container. Independent review approved with no actionable findings, accepting reflection for the private pure parser because batch paths are fixed: `notes/agent-reviews/2026-11-17-kan23-csv-validation-review.md`. This does not verify file staging, archive/failed disposition, or whole batch job outcomes.
+
+
+## 17 November 2026 — KAN-23 completion-order delivery derivation
+
+Added a CargoTest case where input list order and registration order differ from completion order, and verified the later-completed CLAIM controls derived transport status and last location. Focused Java 25 Maven run passed 11 tests (0 failures/errors/skips). Independent review approved with no findings: `notes/agent-reviews/2026-11-17-kan23-completion-order-review.md`. This does not cover equal-time ties or concurrent persistence semantics.

@@ -47,6 +47,27 @@ public class CargoTest {
     }
 
     @Test
+    public void testDeliveryUsesCompletionOrderRatherThanRegistrationOrder() {
+        Cargo cargo = new Cargo(new TrackingId("ORDER1"),
+                new RouteSpecification(SampleLocations.SHANGHAI,
+                        SampleLocations.GOTHENBURG, new Date(Long.MAX_VALUE)));
+        HandlingEvent received = new HandlingEvent(cargo, new Date(1000),
+                new Date(9000), HandlingEvent.Type.RECEIVE,
+                SampleLocations.SHANGHAI);
+        HandlingEvent claimed = new HandlingEvent(cargo, new Date(2000),
+                new Date(100), HandlingEvent.Type.CLAIM,
+                SampleLocations.GOTHENBURG);
+
+        cargo.deriveDeliveryProgress(new HandlingHistory(
+                Arrays.asList(claimed, received)));
+
+        assertEquals(TransportStatus.CLAIMED,
+                cargo.getDelivery().getTransportStatus());
+        assertEquals(SampleLocations.GOTHENBURG,
+                cargo.getDelivery().getLastKnownLocation());
+    }
+
+    @Test
     public void testRoutingStatus() {
         Cargo cargo = new Cargo(new TrackingId("XYZ"), new RouteSpecification(
                 SampleLocations.STOCKHOLM, SampleLocations.MELBOURNE,
