@@ -1,0 +1,128 @@
+{
+  "task": "KAN-15 ACTION-43 old initFlow page-hook proof",
+  "result": "HOOK_SPECIFIC_PROOF_VERIFIED_PENDING_USER_RETIREMENT_DECISION",
+  "date": "2026-11-17",
+  "source_evidence": {
+    "legacy_action": "ACTION-43",
+    "legacy_path": "/cargo-tracker/mobile.xhtml",
+    "legacy_source_revision": "57fc7b32d2597e43b5e0d454e707e0146de5258a",
+    "legacy_binding": "<f:viewAction action=\"#{holderBean.initFlow}\" />",
+    "legacy_binding_count": 1,
+    "candidate_same_url_is_replacement": true,
+    "candidate_init_flow_facelet_bindings": [],
+    "candidate_handling_form_present": true,
+    "candidate_holderbean_initflow_method_retained": true,
+    "source_hashes": {
+      "experiments/legacy-cargotracker/src/main/webapp/mobile.xhtml": "120f434ea63fef57b2c5810ed97baba74f270d9299a90b52b31a8106bdbf9b45",
+      "candidate/cargotracker/src/main/webapp/mobile.xhtml": "92c417f474fa73b9d5b475d1c3a34ae367e4805f1db11c9c74551ea623a87909",
+      "candidate/cargotracker/src/main/java/net/java/cargotracker/interfaces/handling/mobile/HolderBean.java": "c1d64ab4d10d4afca7034068e29b880fe986a3b0fa974e66b99d7f66a8c7be62"
+    },
+    "candidate_facelet_count_scanned": 30,
+    "candidate_facelet_paths_scanned": [
+      "candidate/cargotracker/src/main/webapp/WEB-INF/templates/candidate.xhtml",
+      "candidate/cargotracker/src/main/webapp/WEB-INF/templates/cargo-details.xhtml",
+      "candidate/cargotracker/src/main/webapp/WEB-INF/templates/common/admin.xhtml",
+      "candidate/cargotracker/src/main/webapp/WEB-INF/templates/common/public.xhtml",
+      "candidate/cargotracker/src/main/webapp/WEB-INF/templates/public-tracking.xhtml",
+      "candidate/cargotracker/src/main/webapp/admin/about.xhtml",
+      "candidate/cargotracker/src/main/webapp/admin/book.xhtml",
+      "candidate/cargotracker/src/main/webapp/admin/changeDestination.xhtml",
+      "candidate/cargotracker/src/main/webapp/admin/dashboard.xhtml",
+      "candidate/cargotracker/src/main/webapp/admin/import.xhtml",
+      "candidate/cargotracker/src/main/webapp/admin/listClaimed.xhtml",
+      "candidate/cargotracker/src/main/webapp/admin/listNotRouted.xhtml",
+      "candidate/cargotracker/src/main/webapp/admin/listRouted.xhtml",
+      "candidate/cargotracker/src/main/webapp/admin/live.xhtml",
+      "candidate/cargotracker/src/main/webapp/admin/map.xhtml",
+      "candidate/cargotracker/src/main/webapp/admin/route.xhtml",
+      "candidate/cargotracker/src/main/webapp/admin/selectItinerary.xhtml",
+      "candidate/cargotracker/src/main/webapp/admin/show.xhtml",
+      "candidate/cargotracker/src/main/webapp/admin/track.xhtml",
+      "candidate/cargotracker/src/main/webapp/booking/booking-date.xhtml",
+      "candidate/cargotracker/src/main/webapp/booking/booking-destination.xhtml",
+      "candidate/cargotracker/src/main/webapp/booking/booking.xhtml",
+      "candidate/cargotracker/src/main/webapp/error.xhtml",
+      "candidate/cargotracker/src/main/webapp/error_404.xhtml",
+      "candidate/cargotracker/src/main/webapp/eventLogger/eventLogger.xhtml",
+      "candidate/cargotracker/src/main/webapp/eventLogger/root.xhtml",
+      "candidate/cargotracker/src/main/webapp/index.xhtml",
+      "candidate/cargotracker/src/main/webapp/mobile.xhtml",
+      "candidate/cargotracker/src/main/webapp/public/about.xhtml",
+      "candidate/cargotracker/src/main/webapp/public/track.xhtml"
+    ]
+  },
+  "fresh_run_evidence": {
+    "run_id": "kan15-handling-pages-d",
+    "source_revision": "ffcb67714f77866e7659d4547909ebb3305f901e",
+    "candidate_checks": 777,
+    "browser_checks": 970,
+    "current_capability_counts": {
+      "PASS": 470
+    },
+    "cleanup_verified": true,
+    "artifact_hashes": {
+      "candidate-runtime-results.json": {
+        "path": "notes/evidence/kan-15-handling-page-retirement/candidate-runtime-results.json",
+        "sha256": "637f8b53c5a52c5e799b99516ffa8136492cbbb39110ab63845f6e69bc3f8ff1"
+      },
+      "browser-results.json": {
+        "path": "notes/evidence/kan-15-handling-page-retirement/browser-results.json",
+        "sha256": "eac9cf910aa529352709d74952d6e068a7aa8c5044f96c5ddf0f2825543609f6"
+      },
+      "current-capability-gate.json": {
+        "path": "notes/evidence/kan-15-handling-page-retirement/current-capability-gate.json",
+        "sha256": "96c59c67f207af4cd5d6fb8364e4a7a3471c1fac339abe0534737ca36f72a74e"
+      }
+    },
+    "actor_observations": {
+      "anonymous": {
+        "status": 303,
+        "effects_unchanged": true,
+        "login_redirect_verified": true,
+        "protected_payload_absent": true
+      },
+      "Reader": {
+        "status": 403,
+        "effects_unchanged": true,
+        "protected_payload_absent": true,
+        "server_identity": {
+          "server_verified": true,
+          "principal": "reader",
+          "roles": [
+            "Reader"
+          ]
+        }
+      },
+      "Operator": {
+        "status": 200,
+        "effects_unchanged": true,
+        "server_identity": {
+          "server_verified": true,
+          "principal": "operator",
+          "roles": [
+            "Operator"
+          ]
+        },
+        "replacement_form_and_workflow_verified": true
+      },
+      "Administrator": {
+        "status": 200,
+        "effects_unchanged": true,
+        "server_identity": {
+          "server_verified": true,
+          "principal": "admin",
+          "roles": [
+            "Administrator"
+          ]
+        },
+        "replacement_form_and_workflow_verified": true
+      }
+    }
+  },
+  "limits": [
+    "The historical f:viewAction binding is absent from candidate Facelets; the same URL serves the role-protected current handling page.",
+    "The HolderBean.initFlow method and old flow resources remain in the candidate; this proves only that the old page hook is unbound.",
+    "The fresh run did not instrument direct Java method invocation counts. Runtime replacement checks are combined with source-bound Facelet inspection; no production behavior is claimed.",
+    "ACTION-43 remains BLOCKED pending independent review and the user's retirement decision. RETIRED would never count as PASS."
+  ]
+}
