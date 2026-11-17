@@ -511,7 +511,7 @@
     {
       "legacy_id": "ACTION-35",
       "replacement_id": "handling-single-page",
-      "status": "candidate",
+      "status": "retired",
       "required_evidence": [
         "replacement-per-actor",
         "specific-negative-entry",
@@ -520,12 +520,12 @@
         "required-independent-effects",
         "independent-review"
       ],
-      "negative_driver": "pending"
+      "negative_driver": "browser-retired-handling-page-v1"
     },
     {
       "legacy_id": "ACTION-40",
       "replacement_id": "handling-single-page",
-      "status": "candidate",
+      "status": "retired",
       "required_evidence": [
         "replacement-per-actor",
         "specific-negative-entry",
@@ -534,7 +534,7 @@
         "required-independent-effects",
         "independent-review"
       ],
-      "negative_driver": "pending"
+      "negative_driver": "browser-retired-handling-page-v1"
     },
     {
       "legacy_id": "ACTION-43",

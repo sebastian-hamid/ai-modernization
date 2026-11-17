@@ -10,6 +10,8 @@ WORK=(ROOT/".work"/LIVE_RUN_ID/"browser") if LIVE_RUN_ID else ROOT/".work/kan19"
 BROWSER_IMAGE=("ai-modernization-"+LIVE_RUN_ID+":browser") if LIVE_RUN_ID else "ai-modernization-kan19:browser"
 handling_capture_spec=importlib.util.spec_from_file_location("handling_retirement_evidence",ROOT/"tests/security/handling_retirement_evidence.py")
 handling_capture=importlib.util.module_from_spec(handling_capture_spec);handling_capture_spec.loader.exec_module(handling_capture)
+redirect_spec=importlib.util.spec_from_file_location("handling_page_redirects",ROOT/"tests/security/handling_page_redirects.py")
+redirects=importlib.util.module_from_spec(redirect_spec);redirect_spec.loader.exec_module(redirects)
 spec=importlib.util.spec_from_file_location("candidate_runtime",ROOT/"tests/candidate-runtime/run_candidate.py")
 app=importlib.util.module_from_spec(spec);spec.loader.exec_module(app)
 bridge_spec=importlib.util.spec_from_file_location("effects_bridge",Path(__file__).with_name("effects_bridge.py"))
@@ -495,6 +497,31 @@ def action283133_render_evidence():
                          "button_markup_sha256":obs["button_markup_sha256"],"source_hashes":hashes}
     return {"actions":actions,"source_hashes":hashes}
 
+def handling_page_retirement_evidence():
+    paths={
+      "legacy_event_logger_page_sha256":ROOT/"experiments/legacy-cargotracker/src/main/webapp/eventLogger/eventLogger.xhtml",
+      "candidate_mobile_page_sha256":ROOT/"candidate/cargotracker/src/main/webapp/mobile.xhtml",
+      "candidate_legacy_navigation_servlet_sha256":ROOT/"candidate/cargotracker/src/main/java/net/java/cargotracker/interfaces/booking/web/LegacyNavigationServlet.java",
+      "candidate_access_routes_sha256":ROOT/"candidate/cargotracker/src/main/webapp/WEB-INF/access-routes.tsv"}
+    raw={key:path.read_bytes() for key,path in paths.items()}
+    legacy=raw["legacy_event_logger_page_sha256"].decode();current=raw["candidate_mobile_page_sha256"].decode()
+    servlet=raw["candidate_legacy_navigation_servlet_sha256"].decode();routes=raw["candidate_access_routes_sha256"].decode()
+    patterns={"ACTION-35":r'<p:button value="Next" id="nextBtn" outcome="pm:secondScreen\?transition=flip"[^>]*/>',
+              "ACTION-40":r'<p:button value="Back" outcome="pm:firstScreen\?transition=flip"\s*/>'}
+    actions={}
+    for action,pattern in patterns.items():
+        match=re.search(pattern,legacy)
+        if not match:raise AssertionError("Missing source-bound legacy handling navigation control: "+action)
+        actions[action]={"legacy_id":action,"source_component_id":"firstScreen:nextBtn" if action=="ACTION-35" else "secondScreen:back",
+          "outcome":"pm:secondScreen?transition=flip" if action=="ACTION-35" else "pm:firstScreen?transition=flip",
+          "legacy_control_sha256":hashlib.sha256(match.group(0).encode()).hexdigest()}
+    if ('"/eventLogger/eventLogger.xhtml","/mobile.xhtml"' not in servlet
+            or "/eventLogger/eventLogger.xhtml\tOperator,Administrator" not in routes
+            or 'id="handling"' not in current or "Report handling" not in current or "Event Logger" in current
+            or 'outcome="pm:secondScreen?transition=flip"' in current or 'outcome="pm:firstScreen?transition=flip"' in current):
+        raise AssertionError("Candidate handling page is not a replacement for the protected legacy mobile flow")
+    return {"actions":actions,"source_hashes":{key:hashlib.sha256(value).hexdigest() for key,value in raw.items()}}
+
 def expected_retirement_keys(legacy_ids=("ACTION-08","ACTION-23","ACTION-44","ACTION-26","ACTION-32")):
     return {"RETIREMENT::"+legacy_id+"::"+role for legacy_id in legacy_ids
             for role in ("anonymous","Reader","Operator","Administrator")}
@@ -506,6 +533,7 @@ def validate_retirement_keys(proofs):
     allowed={
         frozenset(expected_retirement_keys()),
         frozenset(expected_retirement_keys(("ACTION-32",))),
+        frozenset(expected_retirement_keys(("ACTION-35","ACTION-40"))),
         frozenset(expected_retirement_keys(("ACTION-32","ACTION-08"))),
         frozenset(expected_retirement_keys(("ACTION-27","ACTION-30","ACTION-34"))),
         frozenset(expected_retirement_keys(("ACTION-27","ACTION-30","ACTION-34","ACTION-08"))),
@@ -515,13 +543,46 @@ def validate_retirement_keys(proofs):
         frozenset(expected_retirement_keys(("ACTION-28","ACTION-31","ACTION-33","ACTION-27","ACTION-30","ACTION-34","ACTION-08"))),
         frozenset(expected_retirement_keys(("ACTION-28","ACTION-31","ACTION-33","ACTION-27","ACTION-30","ACTION-34"))),
     }
-    if frozenset(proofs) not in allowed:
+    handling_ids={"ACTION-35","ACTION-40"}
+    handling_keys={"RETIREMENT::"+action+"::"+role for action in handling_ids for role in ("anonymous","Reader","Operator","Administrator")}
+    non_handling={key for key in proofs if key.split("::")[1] not in handling_ids}
+    if (frozenset(non_handling) not in allowed and not (not non_handling and set(proofs)==handling_keys)) or set(proofs)-non_handling not in (set(),handling_keys):
         raise AssertionError("Missing or unexpected retired-entry observations")
+    handling_evidence=handling_page_retirement_evidence()
+    for key in set(proofs)-non_handling:
+        action,role=key.split("::")[1:];proof=proofs[key]
+        observed=handling_evidence["actions"][action]
+        expected_status={"anonymous":303,"Reader":403,"Operator":303,"Administrator":303}[role]
+        expected_location="/login" if role=="anonymous" else "/mobile.xhtml" if role in {"Operator","Administrator"} else None
+        identity=proof.get("identity") or {}
+        if (proof.get("driver")!="browser-retired-handling-page-v1" or proof.get("method")!="GET"
+                or proof.get("source_path")!="/cargo-tracker/eventLogger/eventLogger.xhtml"
+                or proof.get("legacy_outcome")!=observed["outcome"]
+                or proof.get("legacy_control_sha256")!=observed["legacy_control_sha256"]
+                or proof.get("source_hashes")!=handling_evidence["source_hashes"]
+                or proof.get("source_control_identity_verified") is not True
+                or proof.get("candidate_legacy_page_redirect_verified") is not True
+                or not redirects.is_safe_handling_redirect(proof,expected_location)
+                or proof.get("response_status")!=expected_status
+                or proof.get("redirect_target")!=expected_location
+                or proof.get("protected_payload_absent") is not True
+                or proof.get("independent_effects_unchanged") is not True):
+            raise AssertionError("Handling legacy page denial/replacement proof is incomplete: "+key)
+        if role=="anonymous":
+            if identity or proof.get("authorization_denied") is not True or proof.get("redirect_is_configured_login") is not True:raise AssertionError("Anonymous legacy handling access was not denied")
+        elif role=="Reader":
+            if proof.get("authorization_denied") is not True or identity.get("server_verified") is not True or identity.get("principal")!="reader" or identity.get("roles")!=["Reader"]:raise AssertionError("Reader legacy handling access was not denied")
+        else:
+            if (proof.get("authorization_denied") is not False or proof.get("replacement_served") is not True
+                    or proof.get("legacy_controls_absent") is not True or identity.get("server_verified") is not True
+                    or identity.get("principal")!={"Operator":"operator","Administrator":"admin"}[role] or identity.get("roles")!=[role]):raise AssertionError("Authorized legacy route did not reach the current handling replacement")
     source_hashes=action23_source_evidence()
     for key,proof in proofs.items():
         legacy_id,role=key.split("::")[1:]
-        if proof.get("legacy_id")!=legacy_id or proof.get("actor")!=role or proof.get("method")!="POST" or proof.get("independent_effects_unchanged") is not True:
+        if proof.get("legacy_id")!=legacy_id or proof.get("actor")!=role or (proof.get("method")!="GET" if legacy_id in {"ACTION-35","ACTION-40"} else proof.get("method")!="POST") or proof.get("independent_effects_unchanged") is not True:
             raise AssertionError("Invalid retired-entry observation identity or effects proof")
+        if legacy_id in {"ACTION-35","ACTION-40"}:
+            continue
         if legacy_id=="ACTION-08":
             if proof.get("driver")!="browser-retired-action-v1" or proof.get("historical_source_component_id")!="j_idt8:j_idt23":
                 raise AssertionError("Invalid ACTION-08 retired-entry driver")
@@ -699,7 +760,7 @@ def main():
                 ["docker","exec","-i",bid,"bash","-c","umask 077; cat > /run/credentials.json"],
                 input=json.dumps({"base":"http://"+app.NAME+":8080/cargo-tracker/","credentials":credentials,
                                   "fixture_tracking_id":report["page_fixture_tracking_id"],
-                                  "retirement_render_evidence":{"actions":action273034_render_evidence()["actions"],"cancel_actions":action283133_render_evidence()["actions"],"action32":action32_render_evidence()},
+                                  "retirement_render_evidence":{"actions":action273034_render_evidence()["actions"],"cancel_actions":action283133_render_evidence()["actions"],"action32":action32_render_evidence(),"handling_page":handling_page_retirement_evidence()},
                                   "handling_callback_render_evidence":handling_source_evidence}),
                 text=True,check=True,capture_output=True,
             )

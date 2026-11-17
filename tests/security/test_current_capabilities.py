@@ -10,6 +10,7 @@ import replay_action32_retirement as action32_replay
 import replay_action273034_retirement as action273034_replay
 import replay_action283133_retirement as action283133_replay
 import replay_handling_callback_retirement as handling_callback_replay
+import replay_handling_page_retirement as handling_page_replay
 from contracts import UnsupportedCase,evaluate
 class FakeLegacy:
     """Privileged counterfactual unit double; never runtime evidence."""
@@ -34,8 +35,8 @@ class CurrentCapabilityTests(unittest.TestCase):
         self.assertEqual({x["legacy_case_id"] for x in current}|{x["legacy_case_id"] for x in retire},old)
         self.assertEqual(len(old),502)
         self.assertEqual({x["outcome"] for x in retire},{"RETIRED","BLOCKED"})
-        self.assertEqual(sum(x["outcome"]=="RETIRED" for x in retire),64)
-        self.assertEqual(sum(x["outcome"]=="BLOCKED" for x in retire),12)
+        self.assertEqual(sum(x["outcome"]=="RETIRED" for x in retire),72)
+        self.assertEqual(sum(x["outcome"]=="BLOCKED" for x in retire),4)
         self.assertFalse(any(x["outcome"]=="PASS" for x in retire))
     def test_reviewed_bg06_scope_receipt_is_source_bound_and_exact(self):
         promotions,provenance=c.reviewed_bg06_scope()
@@ -170,7 +171,7 @@ class CurrentCapabilityTests(unittest.TestCase):
         self.assertTrue(all(row["outcome"]=="RETIRED" and row["independent_review_verified"] is True for row in changed))
         self.assertEqual({row["legacy_case_id"].split("::")[0] for row in changed},{"ACTION-27","ACTION-30","ACTION-34"})
         counts={name:sum(row["outcome"]==name for row in rows) for name in ("RETIRED","BLOCKED","PASS")}
-        self.assertEqual(counts,{"RETIRED":64,"BLOCKED":12,"PASS":0})
+        self.assertEqual(counts,{"RETIRED":72,"BLOCKED":4,"PASS":0})
 
     def test_handling_callback_promotion_receipt_is_pinned_and_promotes_only_twenty_rows(self):
         self.assertTrue(c.reviewed_handling_callback_retirement_receipt())
@@ -186,7 +187,33 @@ class CurrentCapabilityTests(unittest.TestCase):
         self.assertEqual(len(promoted),20)
         self.assertTrue(all(row["outcome"]=="RETIRED" and row["independent_review_verified"] is True for row in promoted))
         counts={name:sum(row["outcome"]==name for row in rows) for name in ("RETIRED","BLOCKED","PASS")}
-        self.assertEqual(counts,{"RETIRED":64,"BLOCKED":12,"PASS":0})
+        self.assertEqual(counts,{"RETIRED":72,"BLOCKED":4,"PASS":0})
+
+    def test_handling_page_promotion_receipt_is_pinned_and_promotes_only_eight_rows(self):
+        self.assertTrue(c.reviewed_handling_page_retirement_receipt())
+        receipt=json.loads(c.HANDLING_PAGE_PROMOTION_VALIDATION.read_text())
+        receipt["browser_failures"]=1
+        with tempfile.TemporaryDirectory() as temporary:
+            path=Path(temporary)/"promotion.json";path.write_text(json.dumps(receipt))
+            with patch.object(c,"HANDLING_PAGE_PROMOTION_VALIDATION",path):
+                self.assertFalse(c.reviewed_handling_page_retirement_receipt())
+        model,_=c.load_model()
+        rows=c.retirement_results(model,c.CurrentAdapter(),[])
+        promoted=[row for row in rows if row["legacy_case_id"].split("::")[0] in c.HANDLING_PAGE_RETIREMENT_ACTIONS]
+        self.assertEqual(len(promoted),8)
+        self.assertTrue(all(row["outcome"]=="RETIRED" and row["independent_review_verified"] is True for row in promoted))
+        counts={name:sum(row["outcome"]==name for row in rows) for name in ("RETIRED","BLOCKED","PASS")}
+        self.assertEqual(counts,{"RETIRED":72,"BLOCKED":4,"PASS":0})
+
+    def test_handling_page_promotion_replay_changes_only_eight_rows(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            output=Path(temporary)/"replay.json";result=handling_page_replay.replay(output_path=output);saved=json.loads(output.read_text())
+        self.assertEqual(result["current_counts"],{"PASS":470})
+        self.assertEqual(result["retirement_counts_after_review"],{"RETIRED":72,"BLOCKED":4})
+        self.assertEqual(result["gate_exit"],2)
+        expected=["RETIREMENT::"+action+"::"+actor for action in c.HANDLING_PAGE_RETIREMENT_ACTIONS for actor in c.ACTORS]
+        self.assertEqual(saved["changed_cases"],expected)
+        self.assertTrue(all(row["outcome"]!="PASS" for row in saved["retirement_results"]))
 
     def test_handling_callback_promotion_replay_changes_only_twenty_rows(self):
         with tempfile.TemporaryDirectory() as temporary:
@@ -237,7 +264,7 @@ class CurrentCapabilityTests(unittest.TestCase):
         self.assertEqual(len(changed),12)
         self.assertTrue(all(row["outcome"]=="RETIRED" and row["independent_review_verified"] for row in changed))
         counts={name:sum(row["outcome"]==name for row in rows) for name in ("RETIRED","BLOCKED","PASS")}
-        self.assertEqual(counts,{"RETIRED":64,"BLOCKED":12,"PASS":0})
+        self.assertEqual(counts,{"RETIRED":72,"BLOCKED":4,"PASS":0})
 
     def test_action32_replay_preserves_current_results_and_retires_only_its_four_rows(self):
         with tempfile.TemporaryDirectory() as temporary:
@@ -345,8 +372,8 @@ class CurrentCapabilityTests(unittest.TestCase):
         fabricated=[{"case":x,"outcome":"PASS"} for x in adapter.contracts]
         result=c.retirement_results(adapter.model,adapter,fabricated)
         self.assertEqual(len(result),76)
-        self.assertEqual(sum(x["outcome"]=="RETIRED" for x in result),64)
-        self.assertEqual(sum(x["outcome"]=="BLOCKED" for x in result),12)
+        self.assertEqual(sum(x["outcome"]=="RETIRED" for x in result),72)
+        self.assertEqual(sum(x["outcome"]=="BLOCKED" for x in result),4)
         self.assertFalse(any(x["outcome"]=="PASS" for x in result))
     def test_get_proof_binds_complete_query_and_source(self):
         proof={"supported":True,"status":200,"semantic_success":True,"identity":{"server_verified":True,"principal":"reader","roles":["Reader"]},"driver":"click","actual_target_path":"/cargo-tracker/admin/show.xhtml","query_keys":["trackingId","jfwid"],"tracking_id":"ABC123","source_page":"admin/listRouted.xhtml","action_executed":True,"target_origin_verified":True}
@@ -438,7 +465,7 @@ class CurrentCapabilityTests(unittest.TestCase):
         adapter.inventory["view_callbacks"]=[]
         with patch.object(c,"CurrentAdapter",return_value=adapter):result=c.report(live=False)
         self.assertEqual(result["current_counts"],{"BLOCKED":470})
-        self.assertEqual(result["retirement_counts"],{"RETIRED":64,"BLOCKED":12})
+        self.assertEqual(result["retirement_counts"],{"RETIRED":72,"BLOCKED":4})
         self.assertEqual(result["legacy_audit"]["total"],502)
     def test_receipt_names_canonical_cache_and_discloses_code_identity_limit(self):
         with patch.object(c,"source_fingerprint",return_value="a"*64),patch.object(c.legacy,"LiveSubsetCandidate",return_value=FakeLegacy({})) as factory:
@@ -454,7 +481,7 @@ class CurrentCapabilityTests(unittest.TestCase):
             self.assertEqual(run.returncode,2)
             result=json.loads(output.read_text())
             self.assertEqual(result["current_counts"],{"BLOCKED":470})
-            self.assertEqual(result["retirement_counts"],{"RETIRED":64,"BLOCKED":12})
+            self.assertEqual(result["retirement_counts"],{"RETIRED":72,"BLOCKED":4})
             self.assertEqual(result["legacy_audit"]["total"],502)
             self.assertEqual(result["legacy_audit"]["counts"],{"BLOCKED":502})
             self.assertIsNone(result["provenance"])
@@ -1269,6 +1296,33 @@ class CurrentCapabilityTests(unittest.TestCase):
                             ("identity",{"principal":"admin","roles":["Administrator"]})]:
             adapter.legacy.batch_import_observations={"anonymous":{**anonymous,field:value}}
             with self.subTest(field=field),self.assertRaises(UnsupportedCase):adapter.execute(anon_case)
+    def test_handling_page_retirement_proof_binds_old_control_and_role_safe_redirect(self):
+        evidence=c.handling_page_retirement_source_evidence()
+        for action,source in evidence["actions"].items():
+            for actor in c.ACTORS:
+                status={"anonymous":303,"Reader":403,"Operator":303,"Administrator":303}[actor]
+                redirect="/login" if actor=="anonymous" else "/mobile.xhtml" if actor in {"Operator","Administrator"} else None
+                proof={"driver":"browser-retired-handling-page-v1","legacy_id":action,"actor":actor,"method":"GET",
+                    "source_path":"/cargo-tracker/eventLogger/eventLogger.xhtml","legacy_outcome":source["outcome"],
+                    "legacy_control_sha256":source["legacy_control_sha256"],"source_hashes":evidence["source_hashes"],
+                    "source_control_identity_verified":True,"candidate_legacy_page_redirect_verified":True,
+                    "response_status":status,"redirect_target":redirect,"application_origin":"http://candidate:8080",
+                    "application_context_path":"/cargo-tracker","redirect_location":None if actor=="Reader" else "/cargo-tracker"+redirect,
+                    "authorization_denied":actor in {"anonymous","Reader"},
+                    "redirect_is_configured_login":actor=="anonymous","protected_payload_absent":True,"independent_effects_unchanged":True,
+                    "replacement_served":actor in {"Operator","Administrator"},"legacy_controls_absent":actor in {"Operator","Administrator"}}
+                if actor!="anonymous":proof["identity"]={"server_verified":True,"principal":c.USERS[actor],"roles":[actor]}
+                self.assertEqual(c.verify_handling_page_retirement_proof(action,actor,proof),proof)
+                bad_redirects=[("response_status",500),("legacy_control_sha256","0"*64),("protected_payload_absent",False),("independent_effects_unchanged",False)]
+                if actor=="anonymous":
+                    bad_redirects.append(("redirect_location","https://attacker.example/cargo-tracker/login"))
+                if actor in {"Operator","Administrator"}:
+                    bad_redirects.extend([("redirect_location","https://attacker.example/cargo-tracker/mobile.xhtml"),
+                        ("redirect_location","/wrong-context/mobile.xhtml")])
+                for field,value in bad_redirects:
+                    with self.subTest(action=action,actor=actor,field=field),self.assertRaises(UnsupportedCase):
+                        c.verify_handling_page_retirement_proof(action,actor,{**proof,field:value})
+
     def test_handling_callback_retirement_requires_pinned_shape_and_fresh_effect_denial(self):
         adapter=c.CurrentAdapter();adapter._run_fingerprint="a"*64
         adapter.provenance={"kind":"fresh-owned-runtime","inputs_fingerprint":"a"*64,"legacy_fixture_cleanup_verified":True}

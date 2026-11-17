@@ -420,12 +420,46 @@ async function retiredCancelAttempt(role,actor,context,base,trackingId,destinati
      candidateViewState=candidateViewStateParameter?form[candidateViewStateParameter]||"":"";
      currentFormVerified=currentPage.status()===200&&form.handling==="handling"&&form.csrf===csrf;
     }
+    const handlingPageBefore=await observeEffects("handling-retired-page:"+role+":before");
     const get=await context.request.get(base+"eventLogger/eventLogger.xhtml",{maxRedirects:0});
+    const handlingPageAfter=await observeEffects("handling-retired-page:"+role+":after");
+    const handlingPageEffectsUnchanged=unchangedEffects(handlingPageBefore,handlingPageAfter,0);
+    const legacyGetBody=await get.text();
+    const handlingPagePayloadAbsent=get.status()!==200&&!legacyGetBody.includes("Event Logger")
+      &&!legacyGetBody.includes("ABC123")&&!legacyGetBody.includes("DEF789")&&!legacyGetBody.includes("Stockholm");
     const expectedGet=role==="anonymous"?303:role==="Reader"?403:303;
     const getLocation=get.headers()["location"]||"";
-    const getRedirectValid=role==="anonymous"?getLocation.endsWith("/login"):
-     role==="Reader"?get.status()===403:getLocation.endsWith("/mobile.xhtml");
+    const appUrl=new URL(base),appPath=appUrl.pathname.replace(/\/$/,"");
+    const resolvedGetLocation=getLocation?new URL(getLocation,appUrl):null;
+    const expectedRedirect=role==="anonymous"?"/login":role==="Reader"?null:"/mobile.xhtml";
+    const getRedirectValid=role==="Reader"?get.status()===403&&!getLocation:
+     get.status()===303&&resolvedGetLocation!==null&&resolvedGetLocation.origin===appUrl.origin
+      &&!resolvedGetLocation.username&&!resolvedGetLocation.password
+      &&resolvedGetLocation.pathname===appPath+expectedRedirect
+      &&!resolvedGetLocation.search&&!resolvedGetLocation.hash;
     check("Legacy handling GET alias status "+role,get.status()===expectedGet&&getRedirectValid);
+    check("Legacy handling page GET leaves effects unchanged "+role,handlingPageEffectsUnchanged);
+    const handlingPageEvidence=cfg.retirement_render_evidence.handling_page;
+    const currentLegacyControlsAbsent=(role==="Operator"||role==="Administrator")
+      ?await page.locator("#firstScreen, #secondScreen").count()===0&&!(await page.locator("body").innerText()).includes("Event Logger"):true;
+    for(const actionId of ["ACTION-35","ACTION-40"]){
+     const action=handlingPageEvidence.actions[actionId];
+     const redirectPath=resolvedGetLocation?resolvedGetLocation.pathname:null;
+     const redirectTarget=redirectPath===null?null:redirectPath.startsWith(appPath+"/")?redirectPath.slice(appPath.length):redirectPath;
+     const denied=role==="anonymous"||role==="Reader";
+     retiredActionProofs["RETIREMENT::"+actionId+"::"+role]={
+      driver:"browser-retired-handling-page-v1",legacy_id:actionId,actor:role,method:"GET",
+      source_path:"/cargo-tracker/eventLogger/eventLogger.xhtml",legacy_outcome:action.outcome,
+      legacy_control_sha256:action.legacy_control_sha256,source_hashes:handlingPageEvidence.source_hashes,
+      source_control_identity_verified:true,candidate_legacy_page_redirect_verified:getRedirectValid,
+      response_status:get.status(),redirect_target:role==="Reader"?null:redirectTarget,
+      application_origin:appUrl.origin,application_context_path:appPath,redirect_location:getLocation||null,
+      authorization_denied:denied,redirect_is_configured_login:role==="anonymous",
+      protected_payload_absent:handlingPagePayloadAbsent,independent_effects_unchanged:handlingPageEffectsUnchanged,
+      replacement_served:(role==="Operator"||role==="Administrator")&&currentFormVerified,
+      legacy_controls_absent:currentLegacyControlsAbsent,
+      ...(actor.identity?{identity:{server_verified:true,principal:actor.identity.principal,roles:actor.identity.roles}}:{})};
+    }
     const before=await observeEffects("handling-retired-callback:"+role+":before");
     const callbacks=[];
     for(const actionId of actionIds){

@@ -1,0 +1,52 @@
+{
+  "task": "KAN-15 handling page retirement promotion review receipt",
+  "status": "APPROVED",
+  "reviewer": "/root/review_kan15_handling_page",
+  "review_record": "notes/agent-reviews/2026-11-17-kan15-handling-page-retirement-review.md",
+  "review_record_sha256": "f51613251278825ca4859f442f65e56c1b614603a2bc1a307f5b19aa6b8a0704",
+  "gate_evidence": "notes/evidence/kan-15-handling-page-retirement/current-capability-gate.json",
+  "gate_evidence_sha256": "96c59c67f207af4cd5d6fb8364e4a7a3471c1fac339abe0534737ca36f72a74e",
+  "candidate_report": "notes/evidence/kan-15-handling-page-retirement/candidate-runtime-results.json",
+  "candidate_report_sha256": "637f8b53c5a52c5e799b99516ffa8136492cbbb39110ab63845f6e69bc3f8ff1",
+  "browser_report": "notes/evidence/kan-15-handling-page-retirement/browser-results.json",
+  "browser_report_sha256": "eac9cf910aa529352709d74952d6e068a7aa8c5044f96c5ddf0f2825543609f6",
+  "run_id": "kan15-handling-pages-d",
+  "actions": [
+    "ACTION-35",
+    "ACTION-40"
+  ],
+  "actors": [
+    "anonymous",
+    "Reader",
+    "Operator",
+    "Administrator"
+  ],
+  "replacement_groups": {
+    "ACTION-35": "handling-single-page",
+    "ACTION-40": "handling-single-page"
+  },
+  "candidate_checks": 777,
+  "browser_checks": 970,
+  "browser_failures": 0,
+  "fixture_cleanup_verified": true,
+  "current_counts_before_promotion": {
+    "PASS": 470
+  },
+  "retirement_counts_before_promotion": {
+    "RETIRED": 64,
+    "BLOCKED": 12
+  },
+  "retirement_counts_after_promotion": {
+    "RETIRED": 72,
+    "BLOCKED": 4
+  },
+  "rows_promoted": 8,
+  "other_retirement_rows_unchanged": 68,
+  "pass_outcome_allowed": false,
+  "gate_exit_after_promotion": 2,
+  "limitations": [
+    "The fresh live run is not repeated during offline promotion replay.",
+    "Effects equality is saved as a boolean; the inspected source comparator compares tables, queues, and business invocation deltas.",
+    "ACTION-43 remains blocked pending user decision."
+  ]
+}

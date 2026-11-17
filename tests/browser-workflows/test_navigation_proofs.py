@@ -144,6 +144,33 @@ class RetiredTrackingDiscoveryProofTests(unittest.TestCase):
             proofs=self.fixture();proofs["RETIREMENT::ACTION-32::"+role][field]=value
             with self.subTest(role=role,field=field),self.assertRaises(AssertionError):h.validate_retirement_keys(proofs)
 
+    def test_handling_page_retirement_binds_both_controls_to_role_denial_and_replacement(self):
+        evidence=h.handling_page_retirement_evidence();proofs={}
+        for action,source in evidence["actions"].items():
+            for role in ("anonymous","Reader","Operator","Administrator"):
+                status={"anonymous":303,"Reader":403,"Operator":303,"Administrator":303}[role]
+                target="/login" if role=="anonymous" else "/mobile.xhtml" if role in {"Operator","Administrator"} else None
+                identity=None if role=="anonymous" else {"server_verified":True,"principal":{"Reader":"reader","Operator":"operator","Administrator":"admin"}[role],"roles":[role]}
+                proofs["RETIREMENT::"+action+"::"+role]={"driver":"browser-retired-handling-page-v1","legacy_id":action,"actor":role,"method":"GET",
+                    "source_path":"/cargo-tracker/eventLogger/eventLogger.xhtml","legacy_outcome":source["outcome"],
+                    "legacy_control_sha256":source["legacy_control_sha256"],"source_hashes":evidence["source_hashes"],
+                    "source_control_identity_verified":True,"candidate_legacy_page_redirect_verified":True,
+                    "response_status":status,"redirect_target":target,"application_origin":"http://candidate:8080",
+                    "application_context_path":"/cargo-tracker","redirect_location":None if role=="Reader" else "/cargo-tracker"+target,
+                    "authorization_denied":role in {"anonymous","Reader"},
+                    "redirect_is_configured_login":role=="anonymous","protected_payload_absent":True,"independent_effects_unchanged":True,
+                    "replacement_served":role in {"Operator","Administrator"},"legacy_controls_absent":role in {"Operator","Administrator"},
+                    **({"identity":identity} if identity else {})}
+        h.validate_retirement_keys(proofs)
+        for action in evidence["actions"]:
+            for role,field,value in [("anonymous","redirect_is_configured_login",False),("Reader","response_status",303),
+                                     ("Operator","legacy_controls_absent",False),("Administrator","source_hashes",{}),
+                                     ("anonymous","redirect_location","https://attacker.example/cargo-tracker/login"),
+                                     ("Operator","redirect_location","https://attacker.example/cargo-tracker/mobile.xhtml"),
+                                     ("Administrator","redirect_location","/wrong-context/mobile.xhtml")]:
+                changed=copy.deepcopy(proofs);changed["RETIREMENT::"+action+"::"+role][field]=value
+                with self.subTest(action=action,role=role,field=field),self.assertRaises(AssertionError):h.validate_retirement_keys(changed)
+
     def test_action26_stale_deadline_requires_exact_denial_or_csrf_backed_method_rejection(self):
         h.validate_retirement_keys(self.fixture())
         for role,field,value in [("Operator","current_csrf_present",False),("Administrator","current_viewstate_present",False),
