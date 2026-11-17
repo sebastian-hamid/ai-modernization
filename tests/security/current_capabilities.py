@@ -86,6 +86,12 @@ APPROVED_RETIREMENT_GROUP={ident:group for group,row in APPROVED_GROUPS.items() 
 HANDLING_CALLBACK_RETIREMENT_ACTIONS={"ACTION-36":"handling-cargo-voyage","ACTION-37":"handling-location",
     "ACTION-38":"handling-event","ACTION-39":"handling-voyage","ACTION-42":"handling-completion"}
 HANDLING_PAGE_RETIREMENT_ACTIONS={"ACTION-35":"handling-single-page","ACTION-40":"handling-single-page"}
+ACTION43_HOOK_VALIDATION=ROOT/"notes/evidence/kan-15-action43-hook/validation.json"
+ACTION43_HOOK_REVIEW=ROOT/"notes/agent-reviews/2026-11-17-kan15-action43-hook-review.md"
+ACTION43_HOOK_DECISION=ROOT/"notes/decisions/2026-11-17-action43-retirement.md"
+ACTION43_HOOK_VALIDATION_SHA256="83e8c77e91369d29fc180269fa0d7bbf8a76e837149bf356c50e7d4f370150bc"
+ACTION43_HOOK_REVIEW_SHA256="0482aab03cebd061adf267dc4b0c2118bdc6e5ecba02218ca10610592b99e0ed"
+ACTION43_HOOK_DECISION_SHA256="8043019b075afb19bf959bec0b48bc9824c27f097b4679184f63fcf9bc9e9b31"
 HANDLING_CALLBACK_PROMOTION_VALIDATION=ROOT/"notes/evidence/kan-15-handling-callback-retirement/promotion-validation.json"
 HANDLING_CALLBACK_PROMOTION_REVIEW=ROOT/"notes/agent-reviews/2026-11-17-kan15-handling-callback-promotion-review.md"
 HANDLING_CALLBACK_GATE_EVIDENCE=ROOT/"notes/evidence/kan-15-handling-callback-retirement/current-capability-gate.json"
@@ -1251,6 +1257,45 @@ def action32_render_record():
         raise UnsupportedCase()
     return {"component_id":obs["component_id"],"button_markup_sha256":obs["button_markup_sha256"],"source_hashes":record["source_hashes"]}
 
+
+def reviewed_action43_hook_retirement_receipt():
+    """Validate evidence, independent review, and user approval for hook-only retirement."""
+    try:
+        proof_bytes=ACTION43_HOOK_VALIDATION.read_bytes()
+        review_bytes=ACTION43_HOOK_REVIEW.read_bytes()
+        decision_bytes=ACTION43_HOOK_DECISION.read_bytes()
+        if (hashlib.sha256(proof_bytes).hexdigest()!=ACTION43_HOOK_VALIDATION_SHA256
+                or hashlib.sha256(review_bytes).hexdigest()!=ACTION43_HOOK_REVIEW_SHA256
+                or hashlib.sha256(decision_bytes).hexdigest()!=ACTION43_HOOK_DECISION_SHA256):
+            return False
+        proof=json.loads(proof_bytes)
+        source=proof.get("source_evidence",{})
+        fresh=proof.get("fresh_run_evidence",{})
+        actors=fresh.get("actor_observations",{})
+        if (proof.get("task")!="KAN-15 ACTION-43 old initFlow page-hook proof"
+                or proof.get("result")!="HOOK_SPECIFIC_PROOF_VERIFIED_PENDING_USER_RETIREMENT_DECISION"
+                or source.get("legacy_action")!="ACTION-43"
+                or source.get("legacy_binding")!='<f:viewAction action="#{holderBean.initFlow}" />'
+                or source.get("legacy_binding_count")!=1
+                or source.get("candidate_init_flow_facelet_bindings")!=[]
+                or source.get("candidate_handling_form_present") is not True
+                or source.get("candidate_holderbean_initflow_method_retained") is not True
+                or fresh.get("run_id")!="kan15-handling-pages-d"
+                or fresh.get("candidate_checks")!=777 or fresh.get("browser_checks")!=970
+                or fresh.get("current_capability_counts")!={"PASS":470}
+                or fresh.get("cleanup_verified") is not True
+                or {key:value.get("status") for key,value in actors.items()}!={"anonymous":303,"Reader":403,"Operator":200,"Administrator":200}
+                or actors.get("anonymous",{}).get("protected_payload_absent") is not True
+                or actors.get("Reader",{}).get("protected_payload_absent") is not True
+                or actors.get("Operator",{}).get("replacement_form_and_workflow_verified") is not True
+                or actors.get("Administrator",{}).get("replacement_form_and_workflow_verified") is not True):
+            return False
+        review=review_bytes.decode();decision=decision_bytes.decode()
+        return ("Verdict: **APPROVED**" in review and "as `RETIRED`, never `PASS`" in review
+                and "Approved — retire ACTION-43 as RETIRED, never PASS" in decision)
+    except (OSError,KeyError,TypeError,ValueError):
+        return False
+
 def validate_model(model,inventory,inventory_hash):
     if set(model)!={"schema_version","approval_record","approved_proposal_sha256","legacy_inventory_sha256","mapped_actions","pending_current_actions","replacement_capabilities","retirement_candidates","retirement_policy","public_current_capabilities"}:raise ValueError("Unknown or missing model field")
     if model.get("schema_version")!=2 or model.get("legacy_inventory_sha256")!=inventory_hash:raise ValueError("Unknown version or inventory drift")
@@ -1308,6 +1353,10 @@ def validate_model(model,inventory,inventory_hash):
             if row.get("negative_driver")!="browser-rendered-handling-callback-shape-v1" or not reviewed_handling_callback_retirement_receipt():raise ValueError("Handling callback retirement lacks its pinned independent promotion receipt")
         elif row["legacy_id"] in HANDLING_CALLBACK_RETIREMENT_ACTIONS and row.get("status")=="candidate":
             if row.get("negative_driver") not in {"pending","browser-rendered-handling-callback-shape-v1"}:raise ValueError("Unsupported handling callback retired-entry driver")
+        elif row["legacy_id"]=="ACTION-43" and row.get("status")=="retired":
+            if row.get("negative_driver")!="browser-retired-handling-hook-v1" or not reviewed_action43_hook_retirement_receipt():raise ValueError("ACTION-43 hook retirement lacks its pinned proof, independent review, or user decision")
+        elif row["legacy_id"]=="ACTION-43" and row.get("status")=="candidate":
+            if row.get("negative_driver") not in {"pending","browser-retired-handling-hook-v1"}:raise ValueError("Unsupported ACTION-43 hook retirement driver")
         elif row["legacy_id"] in HANDLING_PAGE_RETIREMENT_ACTIONS and row.get("status")=="retired":
             if row.get("negative_driver")!="browser-retired-handling-page-v1" or not reviewed_handling_page_retirement_receipt():raise ValueError("Handling page retirement lacks its pinned independent promotion receipt")
         elif row["legacy_id"] in HANDLING_PAGE_RETIREMENT_ACTIONS and row.get("status")=="candidate":

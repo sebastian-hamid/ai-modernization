@@ -539,7 +539,7 @@
     {
       "legacy_id": "ACTION-43",
       "replacement_id": "handling-single-page",
-      "status": "candidate",
+      "status": "retired",
       "required_evidence": [
         "replacement-per-actor",
         "specific-negative-entry",
@@ -548,7 +548,7 @@
         "required-independent-effects",
         "independent-review"
       ],
-      "negative_driver": "pending"
+      "negative_driver": "browser-retired-handling-hook-v1"
     },
     {
       "legacy_id": "ACTION-36",

@@ -1,5 +1,10 @@
 # KAN-15 action coverage handoff
 
+## Latest checkpoint — 17 November 2026 (ACTION-43)
+
+User approved retiring only the old `mobile.xhtml` page-level `holderBean.initFlow` hook. Source-bound evidence and same-URL role-protected replacement checks were independently approved; the user decision, validation, and hook review are pinned in `notes/evidence/kan-15-action43-hook/`; the separate replay review is in `notes/agent-reviews/2026-11-17-kan15-action43-retirement-replay-review.md`. The offline replay changes exactly the four ACTION-43 actor rows to RETIRED and preserves every other row. Effective current/retirement gate: 470 PASS / 76 RETIRED / 0 BLOCKED, exit 0. Historical audit remains 317 PASS / 7 FAIL / 178 BLOCKED (exit 1) and is preserved separately. No runtime was launched for the replay. KAN-15 can now proceed to overall acceptance review; do not mark it Done until that review checks all Jira acceptance criteria. `HolderBean.initFlow()` and the old flow resources remain; only the page hook was retired.
+
+
 ## Latest checkpoint — 15 November 2026 (KAN-15 public tracking and BG-06)
 
 KAN-15 remains In Progress. The approved public typed tracking policy is now represented in the current-capability gate: PAGE-25 is public, and ACTION-45 accepts typed cargo tracking through the public POST route. Anonymous access is allowed only for the read-only lookup; proofs require valid/invalid input handling, the selected cargo details, no retired autocomplete suggestions, and no unrelated cargo payload. The historical access inventory remains unchanged.

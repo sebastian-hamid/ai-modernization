@@ -12,7 +12,7 @@ The proof reuses the fresh `kan15-handling-pages-d` fixture: 777 candidate check
 
 `HolderBean.initFlow()` and the old event-logger flow resources remain in the candidate source. This evidence proves that the old hook is no longer bound from candidate Facelets and that the replacement route works under the approved roles. It does not claim all old flow code was removed, nor does the fresh run instrument direct Java method invocation counts. The proof is from the synthetic candidate and makes no production claim.
 
-Independent review approved this evidence as sufficient to retire only the old `initFlow` page hook as `RETIRED`. ACTION-43 remains `BLOCKED` until the user decides whether to apply that classification; `RETIRED` is never `PASS`. See the [review record](../../agent-reviews/2026-11-17-kan15-action43-hook-review.md).
+Independent review approved this evidence as sufficient to retire only the old `initFlow` page hook as `RETIRED`. The user approved the narrow retirement. An offline replay changes only the four ACTION-43 actor rows to `RETIRED`, producing an effective current gate of 470 PASS / 76 RETIRED / 0 BLOCKED (exit 0). The preserved historical audit remains 317 PASS / 7 FAIL / 178 BLOCKED (exit 1) and is reported separately; no new runtime was launched. `RETIRED` is never `PASS`. See the [effective replay](current-capability-replay.json), [user decision](../../decisions/2026-11-17-action43-retirement.md), [hook proof review](../../agent-reviews/2026-11-17-kan15-action43-hook-review.md), and [retirement replay review](../../agent-reviews/2026-11-17-kan15-action43-retirement-replay-review.md). See the [review record](../../agent-reviews/2026-11-17-kan15-action43-hook-review.md).
 
 ## Evidence
 
