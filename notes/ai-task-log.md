@@ -346,3 +346,8 @@ Replaced the empty `ItineraryTest.testNextExpectedEvent` TODO with focused asser
 ## 17 November 2026 — KAN-23 domain invalid-input characterization
 
 Added characterization tests for UN/LOCODE normalization, accepted numeric location characters 2–9, malformed/null codes, null TrackingId, RouteSpecification null fields, and identical origin/destination. Targeted `DomainInputValidationCharacterizationTest` passed 9 tests (0 failures/errors/skips) in the pinned Maven/Temurin 25 container. Independent review approved with no findings: `notes/agent-reviews/2026-11-17-kan23-input-validation-review.md`. Tests do not prove booking-service validation, persistence rollback or REST error handling; those remain open.
+
+
+## 17 November 2026 — KAN-23 unknown-cargo booking paths
+
+Added service-level negative-path tests: unknown cargo yields no route candidates without routing, and route assignment rejects unknown cargo before repository storage. The test doubles fail on unexpected collaborator calls and record store attempts. Targeted `BookingServiceFailureCharacterizationTest` passed 2 tests (0 failures/errors/skips) in the pinned Maven/Temurin 25 container. Independent review approved with no findings: `notes/agent-reviews/2026-11-17-kan23-booking-negative-review.md`. The doubles do not prove database or EJB transaction rollback; that remains open.
