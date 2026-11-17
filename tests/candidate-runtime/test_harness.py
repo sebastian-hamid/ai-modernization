@@ -1,8 +1,29 @@
-import contextlib,importlib.util,io,json,subprocess,tempfile,unittest
+import contextlib,importlib.util,io,json,os,subprocess,tempfile,unittest
 from pathlib import Path
 from unittest.mock import patch
 spec=importlib.util.spec_from_file_location("kan18",Path(__file__).with_name("run_candidate.py"))
 harness=importlib.util.module_from_spec(spec);spec.loader.exec_module(harness)
+class LiveRunNamespaceTests(unittest.TestCase):
+    def load_candidate(self,instance):
+        env=dict(os.environ)
+        if instance is None:env.pop("AI_MODERNIZATION_LIVE_RUN_ID",None)
+        else:env["AI_MODERNIZATION_LIVE_RUN_ID"]=instance
+        with patch.dict(os.environ,env,clear=True):
+            spec=importlib.util.spec_from_file_location("candidate_namespace_test",Path(__file__).with_name("run_candidate.py"))
+            module=importlib.util.module_from_spec(spec);spec.loader.exec_module(module)
+        return module
+    def test_default_namespace_remains_the_shared_kan18_contract(self):
+        module=self.load_candidate(None)
+        self.assertEqual(module.WORK,module.ROOT/".work/kan18")
+        self.assertEqual(module.NAME,"ai-modernization-kan18")
+    def test_kan15_namespace_is_isolated_and_uses_its_candidate_image(self):
+        module=self.load_candidate("kan15-callback-capture")
+        self.assertEqual(module.WORK,module.ROOT/".work/kan15-callback-capture/candidate-runtime")
+        self.assertEqual(module.NAME,"ai-modernization-kan15-callback-capture")
+        self.assertEqual(module.IMAGE,"ai-modernization-kan15-callback-capture:candidate")
+    def test_invalid_namespace_fails_closed(self):
+        with self.assertRaises(ValueError):self.load_candidate("../../kan18")
+
 class BatchInvocationAccountingTests(unittest.TestCase):
     def test_two_unsafe_attempts_and_one_concurrent_form_have_exact_deltas(self):
         self.assertEqual(harness.expected_batch_control_deltas(),{

@@ -1,14 +1,17 @@
 #!/usr/bin/env python3
 """Run limited real Cargo Tracker migration checks in a disposable lab runtime."""
 from pathlib import Path
-import hashlib,http.cookiejar,html,json,re,secrets,shutil,subprocess,tempfile,time,urllib.request,urllib.error,urllib.parse
+import os,hashlib,http.cookiejar,html,json,re,secrets,shutil,subprocess,tempfile,time,urllib.request,urllib.error,urllib.parse
 import xml.etree.ElementTree as ET
 from concurrent.futures import ThreadPoolExecutor
 from datetime import datetime
 ROOT=Path(__file__).resolve().parents[2]
-WORK=ROOT/".work/kan18"
-NAME="ai-modernization-kan18"
-IMAGE="ai-modernization-kan18:candidate"
+LIVE_RUN_ID=os.environ.get("AI_MODERNIZATION_LIVE_RUN_ID","")
+if LIVE_RUN_ID and not re.fullmatch(r"kan15-[a-z0-9-]{1,40}",LIVE_RUN_ID):
+    raise ValueError("Invalid AI modernization live-run identifier")
+WORK=(ROOT/".work"/LIVE_RUN_ID/"candidate-runtime") if LIVE_RUN_ID else ROOT/".work/kan18"
+NAME=("ai-modernization-"+LIVE_RUN_ID) if LIVE_RUN_ID else "ai-modernization-kan18"
+IMAGE=("ai-modernization-"+LIVE_RUN_ID+":candidate") if LIVE_RUN_ID else "ai-modernization-kan18:candidate"
 class NoRedirect(urllib.request.HTTPRedirectHandler):
     def redirect_request(self,*args,**kwargs):return None
 def command(*args,timeout=30):return subprocess.check_output(args,stderr=subprocess.STDOUT,text=True,timeout=timeout).strip()
@@ -519,7 +522,8 @@ def main(after_checks=None):
         report["image_id"]=command("docker","image","inspect","--format","{{.Id}}",IMAGE)
         guard=subprocess.run(["docker","run","--rm",IMAGE],capture_output=True,text=True)
         check("Disposable image refuses absent opt-in",guard.returncode==2 and "Disposable lab opt-in required" in guard.stderr)
-        container=command("docker","run","-d","--name",NAME,"--label","ai-modernization.task=KAN-18","--init","-e","DISPOSABLE_CANDIDATE_LAB=true","-e","LAB_IMPORT_ENABLED=true","-p","127.0.0.1::8080","--mount",f"type=bind,src={private},dst=/run/kan18,readonly",IMAGE)
+        task_label="KAN-15" if LIVE_RUN_ID else "KAN-18"
+        container=command("docker","run","-d","--name",NAME,"--label","ai-modernization.task="+task_label,"--init","-e","DISPOSABLE_CANDIDATE_LAB=true","-e","LAB_IMPORT_ENABLED=true","-e","LAB_CANDIDATE_HOSTNAME="+NAME,"-p","127.0.0.1::8080","--mount",f"type=bind,src={private},dst=/run/kan18,readonly",IMAGE)
         with tempfile.TemporaryDirectory(prefix="domain-reports-",dir=WORK) as temporary:
             command("docker","cp",container+":/opt/jboss/lab-evidence/surefire",temporary+"/surefire")
             suites=[ET.parse(path).getroot() for path in Path(temporary).rglob("TEST-*.xml")]

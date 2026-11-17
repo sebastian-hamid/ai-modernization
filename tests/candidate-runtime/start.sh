@@ -14,4 +14,5 @@ done
 # Restrict BatchPermission to the explicit worker identity and use that identity for JBeret jobs.
 "$JBOSS_HOME/bin/jboss-cli.sh" --file=/opt/jboss/configure-batch-security.cli
 "$JBOSS_HOME/bin/jboss-cli.sh" --file=/opt/jboss/notification-disposition.cli
-exec "$JBOSS_HOME/bin/standalone.sh" -Dlab.candidate.disposable=true -Dlab.import.enabled="${LAB_IMPORT_ENABLED:-false}" -Dcargo.websocket.allowed-origins=http://ai-modernization-kan18:8080 -Dcargo.routing.credentials=/run/kan18/routing-client.properties -c standalone-full.xml -b 0.0.0.0
+candidate_hostname="${LAB_CANDIDATE_HOSTNAME:-ai-modernization-kan18}"
+exec "$JBOSS_HOME/bin/standalone.sh" -Dlab.candidate.disposable=true -Dlab.import.enabled="${LAB_IMPORT_ENABLED:-false}" -Dcargo.websocket.allowed-origins="http://${candidate_hostname}:8080" -Dcargo.routing.credentials=/run/kan18/routing-client.properties -c standalone-full.xml -b 0.0.0.0

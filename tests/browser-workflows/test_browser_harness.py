@@ -1,8 +1,26 @@
-import contextlib,importlib.util,io,json,subprocess,tempfile,unittest
+import contextlib,importlib.util,io,json,os,subprocess,tempfile,unittest
 from pathlib import Path
 from unittest.mock import patch
 spec=importlib.util.spec_from_file_location("browser_harness",Path(__file__).with_name("run_browser.py"))
 harness=importlib.util.module_from_spec(spec);spec.loader.exec_module(harness)
+class BrowserRunNamespaceTests(unittest.TestCase):
+    def load_browser(self,instance):
+        env=dict(os.environ)
+        if instance is None:env.pop("AI_MODERNIZATION_LIVE_RUN_ID",None)
+        else:env["AI_MODERNIZATION_LIVE_RUN_ID"]=instance
+        with patch.dict(os.environ,env,clear=True):
+            spec=importlib.util.spec_from_file_location("browser_namespace_test",Path(__file__).with_name("run_browser.py"))
+            module=importlib.util.module_from_spec(spec);spec.loader.exec_module(module)
+        return module
+    def test_kan15_browser_and_candidate_namespaces_are_isolated(self):
+        module=self.load_browser("kan15-callback-capture")
+        self.assertEqual(module.WORK,module.ROOT/".work/kan15-callback-capture/browser")
+        self.assertEqual(module.app.WORK,module.ROOT/".work/kan15-callback-capture/candidate-runtime")
+        self.assertEqual(module.app.NAME,"ai-modernization-kan15-callback-capture")
+        self.assertEqual(module.BROWSER_IMAGE,"ai-modernization-kan15-callback-capture:browser")
+    def test_invalid_browser_namespace_fails_closed(self):
+        with self.assertRaises(ValueError):self.load_browser("../../kan18")
+
 class HandlingCsrfProofTests(unittest.TestCase):
     def fixture(self):
         proofs={}
@@ -47,6 +65,74 @@ class HandlingCsrfProofTests(unittest.TestCase):
             with self.subTest(change=change),self.assertRaises(AssertionError):
                 harness.validate_handling_csrf_proofs(proofs)
 
+
+class HandlingCallbackRetirementTests(unittest.TestCase):
+    def setUp(self):
+        self.source=harness.handling_capture.load_source_evidence()
+    def fixture(self):
+        proofs={}
+        status={"anonymous":303,"Reader":403,"Operator":405,"Administrator":405}
+        page_status={"anonymous":303,"Reader":403,"Operator":200,"Administrator":200}
+        get_status={"anonymous":303,"Reader":403,"Operator":303,"Administrator":303}
+        principal={"Reader":"reader","Operator":"operator","Administrator":"admin"}
+        roles={"Reader":["Reader"],"Operator":["Operator"],"Administrator":["Administrator"]}
+        actions=("ACTION-36","ACTION-37","ACTION-38","ACTION-39","ACTION-42")
+        for actor in ("anonymous","Reader","Operator","Administrator"):
+            before={"fixture_id":"owned","stage":"handling-retired-callback:"+actor+":before",
+                    "tables":{"CARGO":{"rows":13,"sha256":"a"*64}},
+                    "queues":{"CargoHandledQueue":{"MessagesAdded":5}},
+                    "business_invocations":{"submitReport":2}}
+            after={"fixture_id":"owned","stage":"handling-retired-callback:"+actor+":after",
+                   "tables":{"CARGO":{"rows":13,"sha256":"a"*64}},
+                   "queues":{"CargoHandledQueue":{"MessagesAdded":5}},
+                   "business_invocations":{"submitReport":2}}
+            permitted=actor in {"Operator","Administrator"}
+            viewstate_parameter="jakarta.faces.ViewState" if permitted else ""
+            callbacks=[]
+            for action in actions:
+                src=self.source["actions"][action]
+                names=list(src["parameter_names"])
+                if permitted:names.extend(("csrf",viewstate_parameter))
+                callbacks.append({"legacy_id":action,"source_component_id":src["source_component_id"],
+                    "behavior_event":src["behavior_event"],"partial_event":src["partial_event"],
+                    "execute":src["execute"],"render":src["render"],"callback_input_name":src["callback_input_name"],
+                    "submitted_callback_value":src["selected_value"],"submitted_parameter_names":names,
+                    "source_parameter_names":src["parameter_names"],"submitted_shape_matches":True,
+                    "legacy_dynamic_fields_substituted":True,"candidate_csrf_submitted":permitted,
+                    "candidate_viewstate_submitted":permitted,"response_status":status[actor],
+                    "post_target_verified":True,"authorization_denied":not permitted,
+                    "callback_response_absent":permitted,"protected_payload_absent":True,
+                    "redirect_is_configured_login":actor=="anonymous",
+                    "submitted_content_type":src["content_type"],"submitted_faces_request":src["faces_request"],
+                    "exact_raw_legacy_replay":False,"replay_kind":"sanitized-rendered-callback-shape"})
+            proofs[actor]={"actor":actor,"identity":None if actor=="anonymous" else
+                    {"server_verified":True,"principal":principal[actor],"roles":roles[actor]},
+                   "source_path":"/cargo-tracker/eventLogger/eventLogger.xhtml",
+                   "current_page_status":page_status[actor],"legacy_get_status":get_status[actor],
+                   "legacy_get_redirect_valid":True,"current_mobile_form_verified":permitted,
+                   "current_csrf_present":actor!="anonymous","current_viewstate_parameter":viewstate_parameter,
+                   "current_viewstate_present":permitted,"independent_effects_unchanged":True,
+                   "before":before,"after":after,"callbacks":callbacks}
+        return proofs
+    def test_valid_rendered_callback_shape_denials_for_all_actors(self):
+        result=harness.validate_handling_callback_retirements(self.fixture(),self.source)
+        self.assertEqual(len(result),20)
+        self.assertEqual({row["response_status"] for row in result.values() if row["actor"] in {"Operator","Administrator"}},{405})
+        self.assertEqual({row["historical_callback_input_name"] for row in result.values() if row["legacy_id"]=="ACTION-42"},{"secondScreen:j_idt31:completionDate_input"})
+        self.assertTrue(all(row["exact_raw_legacy_replay"] is False for row in result.values()))
+    def test_callback_shape_validation_fails_closed(self):
+        for mutation in ("missing_actor","wrong_status","wrong_source","changed_effect","wrong_submitted_value","missing_parameter","unredacted_dynamic_state","false_exact_claim"):
+            proofs=self.fixture()
+            if mutation=="missing_actor":proofs.pop("Reader")
+            elif mutation=="wrong_status":proofs["Operator"]["callbacks"][0]["response_status"]=200
+            elif mutation=="wrong_source":proofs["Administrator"]["callbacks"][1]["source_component_id"]="forged:component"
+            elif mutation=="changed_effect":proofs["Reader"]["after"]["queues"]["CargoHandledQueue"]["MessagesAdded"]=6
+            elif mutation=="wrong_submitted_value":proofs["Administrator"]["callbacks"][4]["submitted_callback_value"]="guessed-value"
+            elif mutation=="missing_parameter":proofs["Operator"]["callbacks"][4]["submitted_parameter_names"].remove("secondScreen:j_idt31:completionDate_input")
+            elif mutation=="unredacted_dynamic_state":proofs["Reader"]["callbacks"][0]["legacy_dynamic_fields_substituted"]=False
+            else:proofs["Operator"]["callbacks"][0]["exact_raw_legacy_replay"]=True
+            with self.subTest(mutation=mutation),self.assertRaises(AssertionError):
+                harness.validate_handling_callback_retirements(proofs,self.source)
 
 class BrowserCleanupTests(unittest.TestCase):
     def test_replacement_output_requires_exact_canonical_actor_keys(self):
@@ -98,7 +184,7 @@ class BrowserCleanupTests(unittest.TestCase):
                 with self.assertRaises(expected):harness.main()
             if mode=="timeout":
                 diagnostic=json.loads((work/"browser-timeout.json").read_text())
-                self.assertEqual(diagnostic["timeout_seconds"],600)
+                self.assertEqual(diagnostic["timeout_seconds"],900)
                 self.assertEqual(diagnostic["elapsed_seconds"],421)
                 self.assertEqual(diagnostic["last_completed_effect_stage"],"handling-single-page:Reader:after")
                 self.assertEqual(diagnostic["pending_effect_stage"],"handling-single-page:Operator:before")

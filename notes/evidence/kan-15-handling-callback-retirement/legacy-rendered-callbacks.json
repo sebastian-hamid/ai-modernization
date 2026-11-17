@@ -1,0 +1,442 @@
+{
+  "task": "KAN-15 source-rendered legacy handling callback capture",
+  "capture_date": "2026-11-17",
+  "legacy_source_revision": "57fc7b32d2597e43b5e0d454e707e0146de5258a",
+  "entry_path": "/cargo-tracker/mobile.xhtml",
+  "rendered_flow_path": "/cargo-tracker/eventLogger/eventLogger.xhtml",
+  "entry_response_status": 200,
+  "rendered_response_sha256": "88cd943f52f035780b8b7cdff10147c62df8a2025b0798612c82422ab933f708",
+  "callbacks": [
+    {
+      "legacy_id": "ACTION-36",
+      "method": "POST",
+      "path": "/cargo-tracker/eventLogger/eventLogger.xhtml",
+      "content_type": "application/x-www-form-urlencoded; charset=UTF-8",
+      "faces_request": "partial/ajax",
+      "ajax": true,
+      "source_component_id": "firstScreen:firstForm:trackingId",
+      "behavior_event": "valueChange",
+      "partial_event": "change",
+      "execute": "firstScreen:firstForm:trackingId",
+      "render": "firstScreen:firstForm firstScreen:nextBtn",
+      "callback_input_name": "firstScreen:firstForm:trackingId",
+      "selected_value": "ABC123",
+      "parameter_names": [
+        "javax.faces.partial.ajax",
+        "javax.faces.source",
+        "javax.faces.partial.execute",
+        "javax.faces.partial.render",
+        "javax.faces.behavior.event",
+        "javax.faces.partial.event",
+        "firstScreen:firstForm",
+        "firstScreen:firstForm:trackingId",
+        "firstScreen:firstForm:portCode",
+        "firstScreen:firstForm:eventType",
+        "javax.faces.ViewState",
+        "javax.faces.ClientWindow",
+        "javax.faces.RenderKitId"
+      ],
+      "parameters": [
+        {
+          "name": "javax.faces.partial.ajax",
+          "value": "true"
+        },
+        {
+          "name": "javax.faces.source",
+          "value": "firstScreen:firstForm:trackingId"
+        },
+        {
+          "name": "javax.faces.partial.execute",
+          "value": "firstScreen:firstForm:trackingId"
+        },
+        {
+          "name": "javax.faces.partial.render",
+          "value": "firstScreen:firstForm firstScreen:nextBtn"
+        },
+        {
+          "name": "javax.faces.behavior.event",
+          "value": "valueChange"
+        },
+        {
+          "name": "javax.faces.partial.event",
+          "value": "change"
+        },
+        {
+          "name": "firstScreen:firstForm",
+          "value": "firstScreen:firstForm"
+        },
+        {
+          "name": "firstScreen:firstForm:trackingId",
+          "value": "ABC123"
+        },
+        {
+          "name": "firstScreen:firstForm:portCode",
+          "value": ""
+        },
+        {
+          "name": "firstScreen:firstForm:eventType",
+          "value": ""
+        },
+        {
+          "name": "javax.faces.ViewState",
+          "value": "<present; value redacted>"
+        },
+        {
+          "name": "javax.faces.ClientWindow",
+          "value": "<present; value redacted>"
+        },
+        {
+          "name": "javax.faces.RenderKitId",
+          "value": "PRIMEFACES_MOBILE"
+        }
+      ],
+      "viewstate_present": true,
+      "clientwindow_present": true,
+      "response_status": 200
+    },
+    {
+      "legacy_id": "ACTION-37",
+      "method": "POST",
+      "path": "/cargo-tracker/eventLogger/eventLogger.xhtml",
+      "content_type": "application/x-www-form-urlencoded; charset=UTF-8",
+      "faces_request": "partial/ajax",
+      "ajax": true,
+      "source_component_id": "firstScreen:firstForm:portCode",
+      "behavior_event": "valueChange",
+      "partial_event": "change",
+      "execute": "firstScreen:firstForm:portCode",
+      "render": "firstScreen:nextBtn",
+      "callback_input_name": "firstScreen:firstForm:portCode",
+      "selected_value": "USCHI",
+      "parameter_names": [
+        "javax.faces.partial.ajax",
+        "javax.faces.source",
+        "javax.faces.partial.execute",
+        "javax.faces.partial.render",
+        "javax.faces.behavior.event",
+        "javax.faces.partial.event",
+        "firstScreen:firstForm",
+        "firstScreen:firstForm:trackingId",
+        "firstScreen:firstForm:portCode",
+        "firstScreen:firstForm:eventType",
+        "javax.faces.ViewState",
+        "javax.faces.ClientWindow"
+      ],
+      "parameters": [
+        {
+          "name": "javax.faces.partial.ajax",
+          "value": "true"
+        },
+        {
+          "name": "javax.faces.source",
+          "value": "firstScreen:firstForm:portCode"
+        },
+        {
+          "name": "javax.faces.partial.execute",
+          "value": "firstScreen:firstForm:portCode"
+        },
+        {
+          "name": "javax.faces.partial.render",
+          "value": "firstScreen:nextBtn"
+        },
+        {
+          "name": "javax.faces.behavior.event",
+          "value": "valueChange"
+        },
+        {
+          "name": "javax.faces.partial.event",
+          "value": "change"
+        },
+        {
+          "name": "firstScreen:firstForm",
+          "value": "firstScreen:firstForm"
+        },
+        {
+          "name": "firstScreen:firstForm:trackingId",
+          "value": "ABC123"
+        },
+        {
+          "name": "firstScreen:firstForm:portCode",
+          "value": "USCHI"
+        },
+        {
+          "name": "firstScreen:firstForm:eventType",
+          "value": ""
+        },
+        {
+          "name": "javax.faces.ViewState",
+          "value": "<present; value redacted>"
+        },
+        {
+          "name": "javax.faces.ClientWindow",
+          "value": "<present; value redacted>"
+        }
+      ],
+      "viewstate_present": true,
+      "clientwindow_present": true,
+      "response_status": 200
+    },
+    {
+      "legacy_id": "ACTION-38",
+      "method": "POST",
+      "path": "/cargo-tracker/eventLogger/eventLogger.xhtml",
+      "content_type": "application/x-www-form-urlencoded; charset=UTF-8",
+      "faces_request": "partial/ajax",
+      "ajax": true,
+      "source_component_id": "firstScreen:firstForm:eventType",
+      "behavior_event": "valueChange",
+      "partial_event": "change",
+      "execute": "firstScreen:firstForm:eventType",
+      "render": "firstScreen:firstForm:panelVoyage firstScreen:nextBtn",
+      "callback_input_name": "firstScreen:firstForm:eventType",
+      "selected_value": "LOAD",
+      "parameter_names": [
+        "javax.faces.partial.ajax",
+        "javax.faces.source",
+        "javax.faces.partial.execute",
+        "javax.faces.partial.render",
+        "javax.faces.behavior.event",
+        "javax.faces.partial.event",
+        "firstScreen:firstForm",
+        "firstScreen:firstForm:trackingId",
+        "firstScreen:firstForm:portCode",
+        "firstScreen:firstForm:eventType",
+        "javax.faces.ViewState",
+        "javax.faces.ClientWindow"
+      ],
+      "parameters": [
+        {
+          "name": "javax.faces.partial.ajax",
+          "value": "true"
+        },
+        {
+          "name": "javax.faces.source",
+          "value": "firstScreen:firstForm:eventType"
+        },
+        {
+          "name": "javax.faces.partial.execute",
+          "value": "firstScreen:firstForm:eventType"
+        },
+        {
+          "name": "javax.faces.partial.render",
+          "value": "firstScreen:firstForm:panelVoyage firstScreen:nextBtn"
+        },
+        {
+          "name": "javax.faces.behavior.event",
+          "value": "valueChange"
+        },
+        {
+          "name": "javax.faces.partial.event",
+          "value": "change"
+        },
+        {
+          "name": "firstScreen:firstForm",
+          "value": "firstScreen:firstForm"
+        },
+        {
+          "name": "firstScreen:firstForm:trackingId",
+          "value": "ABC123"
+        },
+        {
+          "name": "firstScreen:firstForm:portCode",
+          "value": "USCHI"
+        },
+        {
+          "name": "firstScreen:firstForm:eventType",
+          "value": "LOAD"
+        },
+        {
+          "name": "javax.faces.ViewState",
+          "value": "<present; value redacted>"
+        },
+        {
+          "name": "javax.faces.ClientWindow",
+          "value": "<present; value redacted>"
+        }
+      ],
+      "viewstate_present": true,
+      "clientwindow_present": true,
+      "response_status": 200
+    },
+    {
+      "legacy_id": "ACTION-39",
+      "method": "POST",
+      "path": "/cargo-tracker/eventLogger/eventLogger.xhtml",
+      "content_type": "application/x-www-form-urlencoded; charset=UTF-8",
+      "faces_request": "partial/ajax",
+      "ajax": true,
+      "source_component_id": "firstScreen:firstForm:voyage",
+      "behavior_event": "valueChange",
+      "partial_event": "change",
+      "execute": "firstScreen:firstForm:voyage",
+      "render": "firstScreen:nextBtn",
+      "callback_input_name": "firstScreen:firstForm:voyage",
+      "selected_value": "0100S",
+      "parameter_names": [
+        "javax.faces.partial.ajax",
+        "javax.faces.source",
+        "javax.faces.partial.execute",
+        "javax.faces.partial.render",
+        "javax.faces.behavior.event",
+        "javax.faces.partial.event",
+        "firstScreen:firstForm",
+        "firstScreen:firstForm:trackingId",
+        "firstScreen:firstForm:portCode",
+        "firstScreen:firstForm:eventType",
+        "firstScreen:firstForm:voyage",
+        "javax.faces.ViewState",
+        "javax.faces.ClientWindow"
+      ],
+      "parameters": [
+        {
+          "name": "javax.faces.partial.ajax",
+          "value": "true"
+        },
+        {
+          "name": "javax.faces.source",
+          "value": "firstScreen:firstForm:voyage"
+        },
+        {
+          "name": "javax.faces.partial.execute",
+          "value": "firstScreen:firstForm:voyage"
+        },
+        {
+          "name": "javax.faces.partial.render",
+          "value": "firstScreen:nextBtn"
+        },
+        {
+          "name": "javax.faces.behavior.event",
+          "value": "valueChange"
+        },
+        {
+          "name": "javax.faces.partial.event",
+          "value": "change"
+        },
+        {
+          "name": "firstScreen:firstForm",
+          "value": "firstScreen:firstForm"
+        },
+        {
+          "name": "firstScreen:firstForm:trackingId",
+          "value": "ABC123"
+        },
+        {
+          "name": "firstScreen:firstForm:portCode",
+          "value": "USCHI"
+        },
+        {
+          "name": "firstScreen:firstForm:eventType",
+          "value": "LOAD"
+        },
+        {
+          "name": "firstScreen:firstForm:voyage",
+          "value": "0100S"
+        },
+        {
+          "name": "javax.faces.ViewState",
+          "value": "<present; value redacted>"
+        },
+        {
+          "name": "javax.faces.ClientWindow",
+          "value": "<present; value redacted>"
+        }
+      ],
+      "viewstate_present": true,
+      "clientwindow_present": true,
+      "response_status": 200
+    },
+    {
+      "legacy_id": "ACTION-42",
+      "method": "POST",
+      "path": "/cargo-tracker/eventLogger/eventLogger.xhtml",
+      "content_type": "application/x-www-form-urlencoded; charset=UTF-8",
+      "faces_request": "partial/ajax",
+      "ajax": true,
+      "source_component_id": "secondScreen:j_idt31:completionDate",
+      "behavior_event": "dateSelect",
+      "partial_event": "dateSelect",
+      "execute": "secondScreen:j_idt31:completionDate",
+      "render": "secondScreen:j_idt28:subBtn",
+      "callback_input_name": "secondScreen:j_idt31:completionDate_input",
+      "selected_value": "11-17-2026",
+      "parameter_names": [
+        "javax.faces.partial.ajax",
+        "javax.faces.source",
+        "javax.faces.partial.execute",
+        "javax.faces.partial.render",
+        "javax.faces.behavior.event",
+        "javax.faces.partial.event",
+        "secondScreen:j_idt31",
+        "secondScreen:j_idt31:completionDate_input",
+        "javax.faces.ViewState",
+        "javax.faces.ClientWindow",
+        "javax.faces.RenderKitId"
+      ],
+      "parameters": [
+        {
+          "name": "javax.faces.partial.ajax",
+          "value": "true"
+        },
+        {
+          "name": "javax.faces.source",
+          "value": "secondScreen:j_idt31:completionDate"
+        },
+        {
+          "name": "javax.faces.partial.execute",
+          "value": "secondScreen:j_idt31:completionDate"
+        },
+        {
+          "name": "javax.faces.partial.render",
+          "value": "secondScreen:j_idt28:subBtn"
+        },
+        {
+          "name": "javax.faces.behavior.event",
+          "value": "dateSelect"
+        },
+        {
+          "name": "javax.faces.partial.event",
+          "value": "dateSelect"
+        },
+        {
+          "name": "secondScreen:j_idt31",
+          "value": "secondScreen:j_idt31"
+        },
+        {
+          "name": "secondScreen:j_idt31:completionDate_input",
+          "value": "11-17-2026"
+        },
+        {
+          "name": "javax.faces.ViewState",
+          "value": "<present; value redacted>"
+        },
+        {
+          "name": "javax.faces.ClientWindow",
+          "value": "<present; value redacted>"
+        },
+        {
+          "name": "javax.faces.RenderKitId",
+          "value": "PRIMEFACES_MOBILE"
+        }
+      ],
+      "viewstate_present": true,
+      "clientwindow_present": true,
+      "response_status": 200
+    }
+  ],
+  "privacy": {
+    "raw_viewstate_retained": false,
+    "session_cookie_retained": false,
+    "passwords_retained": false
+  },
+  "capture_method": "Playwright browser-generated request capture; dynamic ViewState and ClientWindow values redacted",
+  "capture_script_sha256": "e453bf2658f4e8a1f11f9725b8dc1aa7bb0c743d0650c31369e88f7c26192566",
+  "source_hashes": {
+    "legacy_handling_page_sha256": "af162091836c165c96e43ba06b34a567558d45eb4c98af6d66284d71780c6a75",
+    "legacy_handling_flow_sha256": "9e5e7fe716a0d63638326d67e1adaf0afef7cc75a194f7d36e7db377b76c30a8",
+    "legacy_flow_starter_sha256": "120f434ea63fef57b2c5810ed97baba74f270d9299a90b52b31a8106bdbf9b45",
+    "legacy_handling_bean_sha256": "b0f9974e5cdf241649a9a8571d8bc0c03eaafee252eee5475a9dae3bd39fdf86",
+    "candidate_navigation_servlet_sha256": "e774a70a01f2cc7adb9d0c2a26dea6c14ad2ed800ebbec7df384d7730db502d4",
+    "candidate_access_routes_sha256": "bd83abe21d3fb74411d7d27ed06e9cc75d937cf30d8ae021a7479c8c9169948c",
+    "candidate_handling_page_sha256": "92c417f474fa73b9d5b475d1c3a34ae367e4805f1db11c9c74551ea623a87909"
+  }
+}

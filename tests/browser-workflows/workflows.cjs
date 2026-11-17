@@ -4,7 +4,7 @@ const cfg=JSON.parse(fs.readFileSync("/run/credentials.json","utf8"));
 const base=cfg.base;
 const retirementRenderEvidence=cfg.retirement_render_evidence;
 const navigationActions=require("./navigation-actions.json");const actionProofs={};const claimedCargoProofs={};const cargoEntryProofs={};const trackingActionProofs={};const replacementProofs={};const handlingCompletionInputs={};
-const checks=[];const failures=[];const handlingCsrfProofs={};const retiredActionProofs={};const retirementSessionDiagnostics={};const pageSemantics={};const socketObservations={};const socketTrace=[];const disconnectEvidence={};let abruptPeer=null;let witnessForDiagnostics=null;let stage="initialize";let navigation=null;
+const checks=[];const failures=[];const handlingCsrfProofs={};const handlingCallbackRetirements={};const retiredActionProofs={};const retirementSessionDiagnostics={};const pageSemantics={};const socketObservations={};const socketTrace=[];const disconnectEvidence={};let abruptPeer=null;let witnessForDiagnostics=null;let stage="initialize";let navigation=null;
 function check(name,ok){stage=name;checks.push({name,passed:!!ok});if(!ok)throw new Error(name);}
 async function traceSocket(label,actor){
  if(!actor)return;
@@ -402,6 +402,90 @@ async function retiredCancelAttempt(role,actor,context,base,trackingId,destinati
    return {context,page,who,identity};
   }
 
+  async function proveHandlingCallbackRetirements(actors){
+   const actions=cfg.handling_callback_render_evidence.actions;
+   const actionIds=["ACTION-36","ACTION-37","ACTION-38","ACTION-39","ACTION-42"];
+   for(const actor of actors){
+    const role=actor.role,context=actor.context,page=actor.page;
+    const currentPage=await context.request.get(base+"mobile.xhtml",{maxRedirects:0});
+    let csrf="",candidateViewState="",candidateViewStateParameter="",currentFormVerified=false;
+    if(role!=="anonymous"){
+     const sessionResponse=await context.request.get(base+"session");
+     const session=await sessionResponse.json();csrf=session.csrf||"";
+    }
+    if(role==="Operator"||role==="Administrator"){
+     await page.goto(base+"mobile.xhtml");
+     const form=await page.locator("#handling").evaluate(element=>Object.fromEntries(new FormData(element).entries()));
+     candidateViewStateParameter=Object.keys(form).find(key=>/^(jakarta|javax)\.faces\.ViewState$/.test(key))||"";
+     candidateViewState=candidateViewStateParameter?form[candidateViewStateParameter]||"":"";
+     currentFormVerified=currentPage.status()===200&&form.handling==="handling"&&form.csrf===csrf;
+    }
+    const get=await context.request.get(base+"eventLogger/eventLogger.xhtml",{maxRedirects:0});
+    const expectedGet=role==="anonymous"?303:role==="Reader"?403:303;
+    const getLocation=get.headers()["location"]||"";
+    const getRedirectValid=role==="anonymous"?getLocation.endsWith("/login"):
+     role==="Reader"?get.status()===403:getLocation.endsWith("/mobile.xhtml");
+    check("Legacy handling GET alias status "+role,get.status()===expectedGet&&getRedirectValid);
+    const before=await observeEffects("handling-retired-callback:"+role+":before");
+    const callbacks=[];
+    for(const actionId of actionIds){
+     const source=actions[actionId],form={};
+     for(const parameter of source.parameters){
+      if(parameter.name==="javax.faces.ViewState")form[parameter.name]="redacted-legacy-viewstate-not-reused";
+      else if(parameter.name==="javax.faces.ClientWindow")form[parameter.name]="redacted-legacy-clientwindow-not-reused";
+      else form[parameter.name]=parameter.value;
+     }
+     const allowedRole=role==="Operator"||role==="Administrator";
+     if(allowedRole){
+      form.csrf=csrf;
+      if(candidateViewStateParameter)form[candidateViewStateParameter]=candidateViewState;
+     }
+     const submittedSource=form["javax.faces.source"],submittedBehavior=form["javax.faces.behavior.event"];
+     const submittedValue=form[source.callback_input_name],submittedNames=Object.keys(form);
+     const legacyStateSubstituted=form["javax.faces.ViewState"]==="redacted-legacy-viewstate-not-reused"
+      &&form["javax.faces.ClientWindow"]==="redacted-legacy-clientwindow-not-reused";
+     const candidateCsrfSubmitted=allowedRole&&typeof csrf==="string"&&csrf.length>0&&form.csrf===csrf;
+     const candidateViewStateSubmitted=allowedRole&&!!candidateViewStateParameter&&typeof candidateViewState==="string"
+      &&candidateViewState.length>0&&form[candidateViewStateParameter]===candidateViewState;
+     const legacyShapeIncluded=source.parameter_names.every(name=>Object.prototype.hasOwnProperty.call(form,name));
+     const response=await context.request.post(base+"eventLogger/eventLogger.xhtml",{
+      form,headers:{"Content-Type":source.content_type,"Faces-Request":source.faces_request,"X-Requested-With":"XMLHttpRequest"},maxRedirects:0
+     });
+     const body=await response.text();
+     const expectedPost=role==="anonymous"?303:role==="Reader"?403:405;
+     const responseUrl=new URL(response.url());
+     const postTargetVerified=responseUrl.pathname==="/cargo-tracker/eventLogger/eventLogger.xhtml";
+     const payloadAbsent=!body.includes("ABC123")&&!body.includes("USCHI")&&!body.includes("0100S")&&!body.includes("Accepted for processing.");
+     const loginRedirect=response.status()===303&&(response.headers()["location"]||"").endsWith("/login");
+     const denied=role==="anonymous"||role==="Reader";
+     const callbackAbsent=allowedRole&&response.status()===405;
+     const submittedShapeMatches=legacyShapeIncluded&&submittedSource===source.source_component_id
+      &&submittedBehavior===source.behavior_event&&form["javax.faces.partial.event"]===source.partial_event
+      &&form["javax.faces.partial.execute"]===source.execute&&form["javax.faces.partial.render"]===source.render
+      &&submittedValue===source.selected_value&&form["javax.faces.partial.ajax"]==="true"
+      &&legacyStateSubstituted&&(!allowedRole||(candidateCsrfSubmitted&&candidateViewStateSubmitted));
+     check("Rendered-shape legacy handling callback denied "+actionId+" "+role,response.status()===expectedPost&&postTargetVerified&&payloadAbsent&&submittedShapeMatches&&(role!=="anonymous"||loginRedirect));
+     callbacks.push({legacy_id:actionId,source_component_id:submittedSource,behavior_event:submittedBehavior,
+      partial_event:form["javax.faces.partial.event"],execute:form["javax.faces.partial.execute"],render:form["javax.faces.partial.render"],
+      callback_input_name:source.callback_input_name,submitted_callback_value:submittedValue,submitted_parameter_names:submittedNames,
+      source_parameter_names:source.parameter_names,submitted_shape_matches:submittedShapeMatches,
+      legacy_dynamic_fields_substituted:legacyStateSubstituted,candidate_csrf_submitted:candidateCsrfSubmitted,
+      candidate_viewstate_submitted:candidateViewStateSubmitted,
+      response_status:response.status(),post_target_verified:postTargetVerified,authorization_denied:denied,
+      callback_response_absent:callbackAbsent,protected_payload_absent:payloadAbsent,redirect_is_configured_login:loginRedirect,
+      submitted_content_type:source.content_type,submitted_faces_request:source.faces_request,
+      exact_raw_legacy_replay:false,replay_kind:"sanitized-rendered-callback-shape"});
+    }
+    const after=await observeEffects("handling-retired-callback:"+role+":after");
+    const effectsUnchanged=unchangedEffects(before,after,0);
+    check("Rendered-shape handling callbacks leave all effects unchanged "+role,effectsUnchanged);
+    handlingCallbackRetirements[role]={actor:role,identity:actor.identity?{server_verified:true,principal:actor.identity.principal,roles:actor.identity.roles}:null,current_page_status:currentPage.status(),
+     current_mobile_form_verified:currentFormVerified,current_csrf_present:typeof csrf==="string"&&csrf.length>0,
+     current_viewstate_parameter:candidateViewStateParameter,current_viewstate_present:typeof candidateViewState==="string"&&candidateViewState.length>0,
+     legacy_get_status:get.status(),legacy_get_location:getLocation,legacy_get_redirect_valid:getRedirectValid,
+     source_path:"/cargo-tracker/eventLogger/eventLogger.xhtml",independent_effects_unchanged:effectsUnchanged,before,after,callbacks};
+   }
+  }
   const aliasesRead=["admin/map.xhtml","admin/mapFrame.html"];
   const aliasesWrite=["admin/selectItinerary.xhtml","eventLogger/eventLogger.xhtml","eventLogger/root.xhtml","booking/booking.xhtml","booking/booking-date.xhtml","booking/booking-destination.xhtml"];
   const home=await anon.request.get(base);
@@ -1304,6 +1388,12 @@ async function retiredCancelAttempt(role,actor,context,base,trackingId,destinati
   check("Missing CSRF booking POST denied",noCsrf.status()===403);
 
   let admin=await login("admin");await navigationProofs(admin);await liveAliases(admin);await book(admin);
+  await proveHandlingCallbackRetirements([
+   {role:"anonymous",context:anon,page:ap},
+   {role:"Reader",context:reader.context,page:reader.page,identity:reader.identity},
+   {role:"Operator",context:operator.context,page:operator.page,identity:operator.identity},
+   {role:"Administrator",context:admin.context,page:admin.page,identity:admin.identity}
+  ]);
   for(const actor of [operator,admin]){
    for(const path of aliasesWrite){
     const response=await actor.context.request.get(base+path+(path.includes("selectItinerary")?"?trackingId="+id:""));
@@ -1906,5 +1996,5 @@ async function retiredCancelAttempt(role,actor,context,base,trackingId,destinati
   disconnectEvidence.graceful_close_code=1000;
   check("No page or asset errors",failures.length===0);
  } catch(error){try{await traceSocket("failure",witnessForDiagnostics);}catch(ignored){}checks.push({name:stage+" failed ("+error.name+")",outcome:"FAIL",passed:false});process.exitCode=1;}
- finally{effectsInput.close();process.stdin.destroy();if(abruptPeer&&!abruptPeer.socket.destroyed)abruptPeer.socket.destroy();if(replayClient)await replayClient.dispose();await browser.close();fs.writeFileSync("/out/results.json",JSON.stringify({scope:"Real Chromium cargo read/booking/destination/routing/live/handling workflows",checks,last_navigation:navigation,resource_errors:failures,page_semantics:pageSemantics,socket_observations:socketObservations,socket_diagnostics:socketTrace,disconnect_evidence:disconnectEvidence,retirement_session_diagnostics:retirementSessionDiagnostics,navigation_actions:actionProofs,claimed_cargo_actions:claimedCargoProofs,cargo_entry_actions:cargoEntryProofs,tracking_actions:trackingActionProofs,replacement_actions:replacementProofs,handling_csrf_proofs:handlingCsrfProofs,retirement_actions:retiredActionProofs},null,2)+"\n");}
+ finally{effectsInput.close();process.stdin.destroy();if(abruptPeer&&!abruptPeer.socket.destroyed)abruptPeer.socket.destroy();if(replayClient)await replayClient.dispose();await browser.close();fs.writeFileSync("/out/results.json",JSON.stringify({scope:"Real Chromium cargo read/booking/destination/routing/live/handling workflows",checks,last_navigation:navigation,resource_errors:failures,page_semantics:pageSemantics,socket_observations:socketObservations,socket_diagnostics:socketTrace,disconnect_evidence:disconnectEvidence,retirement_session_diagnostics:retirementSessionDiagnostics,navigation_actions:actionProofs,claimed_cargo_actions:claimedCargoProofs,cargo_entry_actions:cargoEntryProofs,tracking_actions:trackingActionProofs,replacement_actions:replacementProofs,handling_csrf_proofs:handlingCsrfProofs,handling_callback_retirements:handlingCallbackRetirements,retirement_actions:retiredActionProofs},null,2)+"\n");}
 })();

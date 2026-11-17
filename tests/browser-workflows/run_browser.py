@@ -1,11 +1,17 @@
 #!/usr/bin/env python3
 """Owned app + Chromium fixture; no shared services, no browser credential persistence."""
 from pathlib import Path
-import importlib.util,json,re,subprocess,time,uuid,hashlib
+import importlib.util,json,re,subprocess,time,uuid,hashlib,os
 ROOT=Path(__file__).resolve().parents[2]
+LIVE_RUN_ID=os.environ.get("AI_MODERNIZATION_LIVE_RUN_ID","")
+if LIVE_RUN_ID and not re.fullmatch(r"kan15-[a-z0-9-]{1,40}",LIVE_RUN_ID):
+    raise ValueError("Invalid AI modernization live-run identifier")
+WORK=(ROOT/".work"/LIVE_RUN_ID/"browser") if LIVE_RUN_ID else ROOT/".work/kan19"
+BROWSER_IMAGE=("ai-modernization-"+LIVE_RUN_ID+":browser") if LIVE_RUN_ID else "ai-modernization-kan19:browser"
+handling_capture_spec=importlib.util.spec_from_file_location("handling_retirement_evidence",ROOT/"tests/security/handling_retirement_evidence.py")
+handling_capture=importlib.util.module_from_spec(handling_capture_spec);handling_capture_spec.loader.exec_module(handling_capture)
 spec=importlib.util.spec_from_file_location("candidate_runtime",ROOT/"tests/candidate-runtime/run_candidate.py")
 app=importlib.util.module_from_spec(spec);spec.loader.exec_module(app)
-WORK=ROOT/".work/kan19"
 bridge_spec=importlib.util.spec_from_file_location("effects_bridge",Path(__file__).with_name("effects_bridge.py"))
 bridge=importlib.util.module_from_spec(bridge_spec)
 bridge_spec.loader.exec_module(bridge)
@@ -209,6 +215,121 @@ def validate_handling_csrf_proofs(proofs):
                 or not before.get("business_invocations") or before.get("business_invocations")!=after.get("business_invocations")):
             raise AssertionError("Wrong-CSRF handling effects changed or are incomplete for "+role)
 
+
+def validate_handling_callback_retirements(observations,source_evidence):
+    roles=("anonymous","Reader","Operator","Administrator")
+    actions=("ACTION-36","ACTION-37","ACTION-38","ACTION-39","ACTION-42")
+    if set(observations)!=set(roles):
+        raise AssertionError("Missing or unexpected handling callback actor proofs")
+    expected_page_status={"anonymous":303,"Reader":403,"Operator":200,"Administrator":200}
+    expected_get_status={"anonymous":303,"Reader":403,"Operator":303,"Administrator":303}
+    expected_post_status={"anonymous":303,"Reader":403,"Operator":405,"Administrator":405}
+    expanded={}
+    for role in roles:
+        proof=observations[role]
+        identity=proof.get("identity")
+        if (proof.get("actor")!=role or proof.get("source_path")!="/cargo-tracker/eventLogger/eventLogger.xhtml"
+                or proof.get("current_page_status")!=expected_page_status[role]
+                or proof.get("legacy_get_status")!=expected_get_status[role]
+                or proof.get("legacy_get_redirect_valid") is not True
+                or proof.get("independent_effects_unchanged") is not True
+                or len(proof.get("callbacks",[]))!=len(actions)):
+            raise AssertionError("Invalid handling callback actor proof for "+role)
+        if role=="anonymous":
+            if identity is not None or proof.get("current_csrf_present") is not False:
+                raise AssertionError("Anonymous handling callback proof contains an identity or CSRF session")
+        else:
+            expected_identity={"Reader":("reader",["Reader"]),"Operator":("operator",["Operator"]),"Administrator":("admin",["Administrator"])}[role]
+            if identity!={"server_verified":True,"principal":expected_identity[0],"roles":expected_identity[1]}:
+                raise AssertionError("Handling callback proof lacks server-verified actor identity for "+role)
+            if proof.get("current_csrf_present") is not True:
+                raise AssertionError("Authenticated callback proof lacks current candidate CSRF state for "+role)
+        allowed=role in {"Operator","Administrator"}
+        if proof.get("current_mobile_form_verified") is not allowed:
+            raise AssertionError("Handling callback proof has incomplete current form evidence for "+role)
+        viewstate_parameter=proof.get("current_viewstate_parameter")
+        if allowed:
+            if (not isinstance(viewstate_parameter,str) or not viewstate_parameter.startswith("jakarta.faces.ViewState")
+                    or proof.get("current_viewstate_present") is not True):
+                raise AssertionError("Permitted callback proof lacks current candidate ViewState for "+role)
+        elif viewstate_parameter!="" or proof.get("current_viewstate_present") is not False:
+            raise AssertionError("Denied callback proof unexpectedly contains current candidate ViewState for "+role)
+        before,after=proof.get("before",{}),proof.get("after",{})
+        if (before.get("fixture_id")!=after.get("fixture_id")
+                or before.get("stage")!="handling-retired-callback:"+role+":before"
+                or after.get("stage")!="handling-retired-callback:"+role+":after"
+                or not before.get("tables") or before.get("tables")!=after.get("tables")
+                or not before.get("queues") or before.get("queues")!=after.get("queues")
+                or not before.get("business_invocations") or before.get("business_invocations")!=after.get("business_invocations")):
+            raise AssertionError("Handling callback denial changed or incompletely observed effects for "+role)
+        rows=proof.get("callbacks",[])
+        by_id={row.get("legacy_id"):row for row in rows if isinstance(row,dict)}
+        if set(by_id)!=set(actions) or len(rows)!=len(actions):
+            raise AssertionError("Handling callback proof does not bind all exact legacy actions for "+role)
+        for action in actions:
+            observed=by_id[action]
+            rendered=source_evidence["actions"][action]
+            if (observed.get("source_component_id")!=rendered["source_component_id"]
+                    or observed.get("behavior_event")!=rendered["behavior_event"]
+                    or observed.get("partial_event")!=rendered["partial_event"]
+                    or observed.get("execute")!=rendered["execute"]
+                    or observed.get("render")!=rendered["render"]
+                    or observed.get("callback_input_name")!=rendered["callback_input_name"]
+                    or observed.get("submitted_callback_value")!=rendered["selected_value"]
+                    or observed.get("source_parameter_names")!=rendered["parameter_names"]
+                    or not set(rendered["parameter_names"]).issubset(set(observed.get("submitted_parameter_names",[])))
+                    or observed.get("submitted_shape_matches") is not True
+                    or observed.get("legacy_dynamic_fields_substituted") is not True
+                    or observed.get("candidate_csrf_submitted") is not allowed
+                    or observed.get("candidate_viewstate_submitted") is not allowed
+                    or observed.get("submitted_content_type")!=rendered["content_type"]
+                    or observed.get("submitted_faces_request")!=rendered["faces_request"]
+                    or observed.get("exact_raw_legacy_replay") is not False
+                    or observed.get("replay_kind")!="sanitized-rendered-callback-shape"
+                    or observed.get("response_status")!=expected_post_status[role]
+                    or observed.get("post_target_verified") is not True
+                    or observed.get("protected_payload_absent") is not True):
+                raise AssertionError("Invalid rendered callback shape denial proof for "+action+" "+role)
+            submitted=set(observed["submitted_parameter_names"])
+            expected_names=set(rendered["parameter_names"])
+            if allowed:
+                expected_names.update(("csrf",viewstate_parameter))
+            if submitted!=expected_names:
+                raise AssertionError("Submitted callback parameter names differ from rendered shape for "+action+" "+role)
+            denied=role in {"anonymous","Reader"}
+            if observed.get("authorization_denied") is not denied:
+                raise AssertionError("Handling callback authorization outcome changed for "+action+" "+role)
+            if allowed and observed.get("callback_response_absent") is not True:
+                raise AssertionError("Authorized legacy callback did not reach method refusal for "+action+" "+role)
+            if role=="anonymous" and observed.get("redirect_is_configured_login") is not True:
+                raise AssertionError("Anonymous legacy callback was not redirected to login")
+            expanded["RETIREMENT::"+action+"::"+role]={
+                "driver":"browser-rendered-handling-callback-shape-v1","legacy_id":action,"actor":role,"method":"POST",
+                "source_path":proof["source_path"],"historical_source_component_id":rendered["source_component_id"],
+                "historical_source_parameter":"javax.faces.source","behavior_event":rendered["behavior_event"],
+                "historical_execute":rendered["execute"],"historical_render":rendered["render"],
+                "historical_render_evidence_verified":True,"source_capture_sha256":source_evidence["capture_sha256"],
+                "source_hashes":source_evidence["source_hashes"],"legacy_parameter_names":rendered["parameter_names"],
+                "submitted_parameter_names":observed["submitted_parameter_names"],
+                "historical_callback_input_name":rendered["callback_input_name"],
+                "submitted_callback_value":observed["submitted_callback_value"],
+                "rendered_callback_shape_verified":True,"exact_raw_legacy_replay":False,
+                "dynamic_legacy_state_redacted":observed["legacy_dynamic_fields_substituted"],
+                "candidate_viewstate_parameter":viewstate_parameter or None,
+                "candidate_viewstate_present":proof["current_viewstate_present"],
+                "candidate_viewstate_submitted":observed["candidate_viewstate_submitted"],
+                "candidate_csrf_present":proof["current_csrf_present"],
+                "candidate_csrf_submitted":observed["candidate_csrf_submitted"],
+                "response_status":observed["response_status"],"post_target_verified":observed["post_target_verified"],
+                "authorization_denied":observed["authorization_denied"],
+                "callback_response_absent":observed["callback_response_absent"],
+                "protected_payload_absent":observed["protected_payload_absent"],
+                "redirect_is_configured_login":observed["redirect_is_configured_login"],
+                "independent_effects_unchanged":proof["independent_effects_unchanged"],
+                "current_form_verified":proof["current_mobile_form_verified"],"identity":identity,
+                "before":before,"after":after
+            }
+    return expanded
 
 def action23_source_evidence():
     legacy_page=ROOT/"experiments/legacy-cargotracker/src/main/webapp/admin/track.xhtml"
@@ -560,10 +681,11 @@ def validate_retirement_keys(proofs):
                     raise AssertionError("Current role/session boundary proof is incomplete")
 def main():
     WORK.mkdir(parents=True,exist_ok=True)
-    name="ai-modernization-kan19-browser"
+    handling_source_evidence=handling_capture.load_source_evidence()
+    name=("ai-modernization-"+LIVE_RUN_ID+"-browser") if LIVE_RUN_ID else "ai-modernization-kan19-browser"
     if subprocess.run(["docker","inspect",name],stdout=subprocess.DEVNULL,stderr=subprocess.DEVNULL).returncode==0:raise RuntimeError("Browser container already exists")
     with (WORK/"browser-build.log").open("w") as log:
-        build=subprocess.run(["docker","build","-t","ai-modernization-kan19:browser",str(ROOT/"tests/browser-workflows")],stdout=log,stderr=subprocess.STDOUT)
+        build=subprocess.run(["docker","build","-t",BROWSER_IMAGE,str(ROOT/"tests/browser-workflows")],stdout=log,stderr=subprocess.STDOUT)
     if build.returncode:raise RuntimeError("Browser build failed")
     # Browser credentials travel over stdin to tmpfs, not env/argv/image or bind-mounted results.
     def browser(container,base,credentials,report):
@@ -571,13 +693,14 @@ def main():
         try:
             network=subprocess.check_output(["docker","network","create","--internal","ai-modernization-kan19-"+uuid.uuid4().hex[:12]],text=True).strip()
             subprocess.run(["docker","network","connect",network,container],check=True,capture_output=True)
-            bid=subprocess.check_output(["docker","create","--name",name,"--init","--network",network,"--shm-size=512m","--tmpfs","/run:rw,noexec,nosuid,size=1m","--tmpfs","/out:rw,noexec,nosuid,size=8m","-i","ai-modernization-kan19:browser","sleep","infinity"],text=True).strip()
+            bid=subprocess.check_output(["docker","create","--name",name,"--init","--network",network,"--shm-size=512m","--tmpfs","/run:rw,noexec,nosuid,size=1m","--tmpfs","/out:rw,noexec,nosuid,size=8m","-i",BROWSER_IMAGE,"sleep","infinity"],text=True).strip()
             subprocess.run(["docker","start",bid],check=True,capture_output=True)
             subprocess.run(
                 ["docker","exec","-i",bid,"bash","-c","umask 077; cat > /run/credentials.json"],
                 input=json.dumps({"base":"http://"+app.NAME+":8080/cargo-tracker/","credentials":credentials,
                                   "fixture_tracking_id":report["page_fixture_tracking_id"],
-                                  "retirement_render_evidence":{"actions":action273034_render_evidence()["actions"],"cancel_actions":action283133_render_evidence()["actions"],"action32":action32_render_evidence()}}),
+                                  "retirement_render_evidence":{"actions":action273034_render_evidence()["actions"],"cancel_actions":action283133_render_evidence()["actions"],"action32":action32_render_evidence()},
+                                  "handling_callback_render_evidence":handling_source_evidence}),
                 text=True,check=True,capture_output=True,
             )
             def capture(stage,remaining):
@@ -605,11 +728,11 @@ def main():
                 if len(candidates)!=1:raise RuntimeError("Cannot identify unique app JVM for event observer")
                 raw=app.command("docker","exec",container,"java","-cp","/opt/jboss/observer-client","ReadEffects",candidates[0],"handling-event",tracking_id,completion_date,location_code,timeout=max(.1,deadline-time.monotonic()))
                 return json.loads(raw)
-            # The lifecycle workflow contains two independent five-by-15-second
-            # browser idle windows (150 seconds total), in addition to page,
-            # event-worker and post-revocation checks. Leave a bounded 600-second
-            # budget for the full browser suite after the added handling matrix.
-            bound_seconds=600
+            # The lifecycle workflow has two independent five-by-15-second idle
+            # windows plus all page, event-worker, and denial matrices. A fresh
+            # prior run reached its final booking-cancel effects stage at 600s,
+            # so allow one bounded 900-second window for the full suite.
+            bound_seconds=900
             try:
                 proc=bridge.run_browser_with_effects(
                     ["docker","exec","-i",bid,"node","workflows.cjs"],capture,timeout=bound_seconds,inspect_event=inspect_event,
@@ -641,6 +764,8 @@ def main():
             handling_csrf_proofs=results.get("handling_csrf_proofs",{})
             validate_handling_csrf_proofs(handling_csrf_proofs)
             report["handling_csrf_observations"]=handling_csrf_proofs
+            handling_callback_proofs=results.get("handling_callback_retirements",{})
+            report["handling_callback_retirement_observations"]=validate_handling_callback_retirements(handling_callback_proofs,handling_source_evidence)
             retirement_proofs=results.get("retirement_actions",{})
             callback_source=ROOT/"candidate/cargotracker/src/main/java/net/java/cargotracker/interfaces/booking/web/ChangeDestinationDialog.java"
             if callback_source.exists():
