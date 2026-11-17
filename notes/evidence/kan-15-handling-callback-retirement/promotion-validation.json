@@ -1,0 +1,54 @@
+{
+  "task": "KAN-15 handling callback retirement promotion review receipt",
+  "status": "APPROVED",
+  "reviewer": "/root/review_kan15_callback_final",
+  "review_record": "notes/agent-reviews/2026-11-17-kan15-handling-callback-promotion-review.md",
+  "review_record_sha256": "40a513fa8b2dedcc4bfe3f10fe77a66e345fd939cfc6d30a0ef64e7c32828dcb",
+  "gate_evidence": "notes/evidence/kan-15-handling-callback-retirement/current-capability-gate.json",
+  "gate_evidence_sha256": "2aac7f064b53f7a49a44dc4860d46c5422f370e2c89f8584cd769923d019cba2",
+  "candidate_report": "notes/evidence/kan-15-handling-callback-retirement/candidate-runtime-results.json",
+  "candidate_report_sha256": "c3b9da47d899659447b25f3e84b2e015a975ec0266eca523d36bf6de557e9fbf",
+  "browser_report": "notes/evidence/kan-15-handling-callback-retirement/browser-results.json",
+  "browser_report_sha256": "519e7f2e96b63ea1aee21114112500b99f6dcc58f0e1d3f4b23fbd5fe5ea8b16",
+  "legacy_capture_sha256": "a0f2eb78c8f3c0698f35fd5b2c2cec109a9c2eecc608ae78742c6961a4d113cb",
+  "run_id": "kan15-handling-callback-gate",
+  "actions": [
+    "ACTION-36",
+    "ACTION-37",
+    "ACTION-38",
+    "ACTION-39",
+    "ACTION-42"
+  ],
+  "actors": [
+    "anonymous",
+    "Reader",
+    "Operator",
+    "Administrator"
+  ],
+  "replacement_groups": {
+    "ACTION-36": "handling-cargo-voyage",
+    "ACTION-37": "handling-location",
+    "ACTION-38": "handling-event",
+    "ACTION-39": "handling-voyage",
+    "ACTION-42": "handling-completion"
+  },
+  "candidate_checks": 777,
+  "browser_checks": 958,
+  "browser_failures": 0,
+  "fixture_cleanup_verified": true,
+  "current_counts_before_promotion": {
+    "PASS": 470
+  },
+  "retirement_counts_before_promotion": {
+    "RETIRED": 44,
+    "BLOCKED": 32
+  },
+  "retirement_counts_after_promotion": {
+    "RETIRED": 64,
+    "BLOCKED": 12
+  },
+  "rows_promoted": 20,
+  "other_retirement_rows_unchanged": 56,
+  "pass_outcome_allowed": false,
+  "gate_exit_after_promotion": 2
+}

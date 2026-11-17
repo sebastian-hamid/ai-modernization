@@ -553,7 +553,7 @@
     {
       "legacy_id": "ACTION-36",
       "replacement_id": "handling-cargo-voyage",
-      "status": "candidate",
+      "status": "retired",
       "required_evidence": [
         "replacement-per-actor",
         "specific-negative-entry",
@@ -562,12 +562,12 @@
         "required-independent-effects",
         "independent-review"
       ],
-      "negative_driver": "pending"
+      "negative_driver": "browser-rendered-handling-callback-shape-v1"
     },
     {
       "legacy_id": "ACTION-37",
       "replacement_id": "handling-location",
-      "status": "candidate",
+      "status": "retired",
       "required_evidence": [
         "replacement-per-actor",
         "specific-negative-entry",
@@ -576,12 +576,12 @@
         "required-independent-effects",
         "independent-review"
       ],
-      "negative_driver": "pending"
+      "negative_driver": "browser-rendered-handling-callback-shape-v1"
     },
     {
       "legacy_id": "ACTION-38",
       "replacement_id": "handling-event",
-      "status": "candidate",
+      "status": "retired",
       "required_evidence": [
         "replacement-per-actor",
         "specific-negative-entry",
@@ -590,12 +590,12 @@
         "required-independent-effects",
         "independent-review"
       ],
-      "negative_driver": "pending"
+      "negative_driver": "browser-rendered-handling-callback-shape-v1"
     },
     {
       "legacy_id": "ACTION-39",
       "replacement_id": "handling-voyage",
-      "status": "candidate",
+      "status": "retired",
       "required_evidence": [
         "replacement-per-actor",
         "specific-negative-entry",
@@ -604,12 +604,12 @@
         "required-independent-effects",
         "independent-review"
       ],
-      "negative_driver": "pending"
+      "negative_driver": "browser-rendered-handling-callback-shape-v1"
     },
     {
       "legacy_id": "ACTION-42",
       "replacement_id": "handling-completion",
-      "status": "candidate",
+      "status": "retired",
       "required_evidence": [
         "replacement-per-actor",
         "specific-negative-entry",
@@ -618,7 +618,7 @@
         "required-independent-effects",
         "independent-review"
       ],
-      "negative_driver": "pending"
+      "negative_driver": "browser-rendered-handling-callback-shape-v1"
     }
   ],
   "retirement_policy": "Never PASS; remain BLOCKED until replacement, specific negative-entry and independent-review evidence have a supported fresh runtime verifier.",

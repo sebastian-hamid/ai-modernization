@@ -84,6 +84,17 @@ APPROVED_RETIREMENT_POLICY='Never PASS; remain BLOCKED until replacement, specif
 APPROVED_RETIREMENT_GROUP={ident:group for group,row in APPROVED_GROUPS.items() for ident in row["legacy_ids"]}
 HANDLING_CALLBACK_RETIREMENT_ACTIONS={"ACTION-36":"handling-cargo-voyage","ACTION-37":"handling-location",
     "ACTION-38":"handling-event","ACTION-39":"handling-voyage","ACTION-42":"handling-completion"}
+HANDLING_CALLBACK_PROMOTION_VALIDATION=ROOT/"notes/evidence/kan-15-handling-callback-retirement/promotion-validation.json"
+HANDLING_CALLBACK_PROMOTION_REVIEW=ROOT/"notes/agent-reviews/2026-11-17-kan15-handling-callback-promotion-review.md"
+HANDLING_CALLBACK_GATE_EVIDENCE=ROOT/"notes/evidence/kan-15-handling-callback-retirement/current-capability-gate.json"
+HANDLING_CALLBACK_CANDIDATE_EVIDENCE=ROOT/"notes/evidence/kan-15-handling-callback-retirement/candidate-runtime-results.json"
+HANDLING_CALLBACK_BROWSER_EVIDENCE=ROOT/"notes/evidence/kan-15-handling-callback-retirement/browser-results.json"
+HANDLING_CALLBACK_PROMOTION_VALIDATION_SHA256="8e321f7d7548865d3fb083168fb03af4dfa90e8101b755d1599b037a1a996319"
+HANDLING_CALLBACK_PROMOTION_REVIEW_SHA256="40a513fa8b2dedcc4bfe3f10fe77a66e345fd939cfc6d30a0ef64e7c32828dcb"
+HANDLING_CALLBACK_GATE_SHA256="2aac7f064b53f7a49a44dc4860d46c5422f370e2c89f8584cd769923d019cba2"
+HANDLING_CALLBACK_CANDIDATE_SHA256="c3b9da47d899659447b25f3e84b2e015a975ec0266eca523d36bf6de557e9fbf"
+HANDLING_CALLBACK_BROWSER_SHA256="519e7f2e96b63ea1aee21114112500b99f6dcc58f0e1d3f4b23fbd5fe5ea8b16"
+HANDLING_CALLBACK_CAPTURE_SHA256="a0f2eb78c8f3c0698f35fd5b2c2cec109a9c2eecc608ae78742c6961a4d113cb"
 SCOPED_SOURCES={"/cargo-tracker/admin/show.xhtml","/cargo-tracker/admin/changeDestination.xhtml","/cargo-tracker/admin/route.xhtml","/cargo-tracker/admin/selectItinerary.xhtml"}
 
 def local_uri(value):
@@ -433,6 +444,84 @@ def load_model():
     raw=INVENTORY.read_bytes();inventory=json.loads(raw);model=json.loads(MANIFEST.read_text())
     validate_model(model,inventory,hashlib.sha256(raw).hexdigest())
     return model,inventory
+
+def reviewed_handling_callback_retirement_receipt():
+    """Verify the separately reviewed promotion against immutable run evidence."""
+    try:
+        validation_bytes=HANDLING_CALLBACK_PROMOTION_VALIDATION.read_bytes()
+        review_bytes=HANDLING_CALLBACK_PROMOTION_REVIEW.read_bytes()
+        gate_bytes=HANDLING_CALLBACK_GATE_EVIDENCE.read_bytes()
+        candidate_bytes=HANDLING_CALLBACK_CANDIDATE_EVIDENCE.read_bytes()
+        browser_bytes=HANDLING_CALLBACK_BROWSER_EVIDENCE.read_bytes()
+        capture=load_handling_callback_source_evidence()
+        hashes=(hashlib.sha256(validation_bytes).hexdigest(),hashlib.sha256(review_bytes).hexdigest(),
+                hashlib.sha256(gate_bytes).hexdigest(),hashlib.sha256(candidate_bytes).hexdigest(),
+                hashlib.sha256(browser_bytes).hexdigest())
+        if hashes!=(HANDLING_CALLBACK_PROMOTION_VALIDATION_SHA256,HANDLING_CALLBACK_PROMOTION_REVIEW_SHA256,
+                    HANDLING_CALLBACK_GATE_SHA256,HANDLING_CALLBACK_CANDIDATE_SHA256,HANDLING_CALLBACK_BROWSER_SHA256):return False
+        receipt=json.loads(validation_bytes);gate=json.loads(gate_bytes)
+        candidate=json.loads(candidate_bytes);browser=json.loads(browser_bytes)
+        actions=list(HANDLING_CALLBACK_RETIREMENT_ACTIONS)
+        if (receipt.get("task")!="KAN-15 handling callback retirement promotion review receipt"
+                or receipt.get("status")!="APPROVED" or receipt.get("reviewer")!="/root/review_kan15_callback_final"
+                or receipt.get("review_record")!="notes/agent-reviews/2026-11-17-kan15-handling-callback-promotion-review.md"
+                or receipt.get("review_record_sha256")!=HANDLING_CALLBACK_PROMOTION_REVIEW_SHA256
+                or receipt.get("gate_evidence_sha256")!=HANDLING_CALLBACK_GATE_SHA256
+                or receipt.get("candidate_report_sha256")!=HANDLING_CALLBACK_CANDIDATE_SHA256
+                or receipt.get("browser_report_sha256")!=HANDLING_CALLBACK_BROWSER_SHA256
+                or receipt.get("legacy_capture_sha256")!=HANDLING_CALLBACK_CAPTURE_SHA256
+                or receipt.get("actions")!=actions or receipt.get("actors")!=ACTORS
+                or receipt.get("replacement_groups")!=HANDLING_CALLBACK_RETIREMENT_ACTIONS
+                or receipt.get("candidate_checks")!=777 or receipt.get("browser_checks")!=958
+                or receipt.get("browser_failures")!=0 or receipt.get("fixture_cleanup_verified") is not True
+                or receipt.get("current_counts_before_promotion")!={"PASS":470}
+                or receipt.get("retirement_counts_before_promotion")!={"RETIRED":44,"BLOCKED":32}
+                or receipt.get("retirement_counts_after_promotion")!={"RETIRED":64,"BLOCKED":12}
+                or receipt.get("rows_promoted")!=20 or receipt.get("other_retirement_rows_unchanged")!=56
+                or receipt.get("pass_outcome_allowed") is not False or receipt.get("gate_exit_after_promotion")!=2):return False
+        expected_actions=list(HANDLING_CALLBACK_RETIREMENT_ACTIONS)
+        candidate_checks=candidate.get("checks",[]);browser_checks=browser.get("checks",[])
+        if (candidate.get("status")!="PASS" or candidate.get("count")!=777 or len(candidate_checks)!=777
+                or any(row.get("passed") is not True for row in candidate_checks)
+                or len(candidate.get("handling_callback_retirement_observations",{}))!=20
+                or len(browser_checks)!=958 or any(row.get("passed") is not True for row in browser_checks)
+                or gate.get("execution")!="fresh-owned-runtime" or gate.get("current_counts")!={"PASS":470}
+                or gate.get("retirement_counts")!={"RETIRED":44,"BLOCKED":32} or gate.get("gate_exit")!=2
+                or gate.get("provenance",{}).get("legacy_fixture_cleanup_verified") is not True
+                or gate.get("provenance",{}).get("kind")!="fresh-owned-runtime"):
+            return False
+        if len(gate.get("retirement_results",[]))!=76 or any(row.get("outcome")=="PASS" for row in gate["retirement_results"]):return False
+        observations=candidate["handling_callback_retirement_observations"]
+        gate_observations=gate.get("retirement_observations",{})
+        browser_retirements=browser.get("handling_callback_retirements",{})
+        expected_keys={"RETIREMENT::"+action+"::"+actor for action in expected_actions for actor in ACTORS}
+        if set(observations)!=expected_keys:return False
+        for action in expected_actions:
+            for actor in ACTORS:
+                key="RETIREMENT::"+action+"::"+actor
+                browser_actor=browser_retirements.get(actor,{})
+                browser_callback=next((item for item in browser_actor.get("callbacks",[]) if item.get("legacy_id")==action),None)
+                if key not in gate_observations or gate_observations[key]!=observations[key] or not isinstance(browser_callback,dict):return False
+                proof=observations[key]
+                if (browser_callback.get("submitted_shape_matches") is not True
+                        or browser_callback.get("submitted_callback_value")!=proof.get("submitted_callback_value")
+                        or browser_callback.get("response_status")!=proof.get("response_status")
+                        or browser_callback.get("post_target_verified") is not True
+                        or browser_callback.get("protected_payload_absent") is not True):return False
+        replacement_rows={row.get("case"):row for row in gate.get("current_results",[]) if row.get("case","").startswith("REPLACEMENT::")}
+        retirement_rows={row.get("case"):row for row in gate["retirement_results"]}
+        for action in expected_actions:
+            for actor in ACTORS:
+                key="RETIREMENT::"+action+"::"+actor
+                before=retirement_rows.get(key,{})
+                proof=observations.get(key)
+                if (before.get("outcome")!="BLOCKED" or before.get("specific_negative_entry_verified") is not True
+                        or replacement_rows.get("REPLACEMENT::"+HANDLING_CALLBACK_RETIREMENT_ACTIONS[action]+"::"+actor,{}).get("outcome")!="PASS"):
+                    return False
+                verify_handling_callback_retirement_proof(action,actor,proof)
+        return hashlib.sha256(HANDLING_CALLBACK_PROMOTION_REVIEW.read_bytes()).hexdigest()==HANDLING_CALLBACK_PROMOTION_REVIEW_SHA256
+    except (OSError,KeyError,TypeError,ValueError,UnsupportedCase):
+        return False
 
 def reviewed_action08_retirement_receipt():
     try:
@@ -1141,6 +1230,10 @@ def validate_model(model,inventory,inventory_hash):
             if row.get("negative_driver")!="browser-retired-booking-wizard-v1" or not reviewed_action273034_retirement_receipt():raise ValueError("Booking wizard retirement lacks its pinned independent promotion receipt")
         elif row["legacy_id"] in {"ACTION-28","ACTION-31","ACTION-33"} and row.get("status")=="retired":
             if row.get("negative_driver")!="browser-retired-booking-wizard-v1" or not reviewed_action283133_retirement_receipt():raise ValueError("Booking cancel retirement lacks its pinned independent promotion receipt")
+        elif row["legacy_id"] in HANDLING_CALLBACK_RETIREMENT_ACTIONS and row.get("status")=="retired":
+            if row.get("negative_driver")!="browser-rendered-handling-callback-shape-v1" or not reviewed_handling_callback_retirement_receipt():raise ValueError("Handling callback retirement lacks its pinned independent promotion receipt")
+        elif row["legacy_id"] in HANDLING_CALLBACK_RETIREMENT_ACTIONS and row.get("status")=="candidate":
+            if row.get("negative_driver") not in {"pending","browser-rendered-handling-callback-shape-v1"}:raise ValueError("Unsupported handling callback retired-entry driver")
         elif row["legacy_id"]=="ACTION-23" and row.get("status")=="candidate":
             if row.get("negative_driver") not in {"pending","browser-retired-tracking-v1"}:raise ValueError("Unsupported ACTION-23 retired-entry driver")
         elif row["legacy_id"]=="ACTION-44" and row.get("status")=="candidate":
@@ -1213,7 +1306,7 @@ def build_current(model,inventory):
     return cases
 
 def source_fingerprint():
-    paths=subprocess.check_output(["git","ls-files","-co","--exclude-standard","--",".dockerignore","candidate","infrastructure/database","tests/candidate-runtime","tests/browser-workflows","tests/security","specifications/access-policy-inventory.json","specifications/current-capability-mapping-v2.json","notes/decisions/2026-11-02-current-ui-acceptance.md","notes/evidence/kan-15-bg06-scope/validation.json","notes/agent-reviews/2026-11-11-kan15-bg06-scope-review.md","notes/agent-reviews/2026-11-15-kan15-bg06-scope-refresh-review.md","notes/agent-reviews/2026-11-14-kan15-action08-retirement-review.md","notes/evidence/kan-15-action32-retirement/legacy-rendered-entry.json","notes/evidence/kan-15-action273034-retirement/legacy-rendered-actions.json","notes/evidence/kan-15-action283133-retirement/legacy-rendered-actions.json","notes/evidence/kan-15-handling-callback-retirement"],cwd=ROOT,text=True).splitlines()
+    paths=subprocess.check_output(["git","ls-files","-co","--exclude-standard","--",".dockerignore","candidate","infrastructure/database","tests/candidate-runtime","tests/browser-workflows","tests/security","specifications/access-policy-inventory.json","specifications/current-capability-mapping-v2.json","notes/decisions/2026-11-02-current-ui-acceptance.md","notes/evidence/kan-15-bg06-scope/validation.json","notes/agent-reviews/2026-11-11-kan15-bg06-scope-review.md","notes/agent-reviews/2026-11-15-kan15-bg06-scope-refresh-review.md","notes/agent-reviews/2026-11-14-kan15-action08-retirement-review.md","notes/evidence/kan-15-action32-retirement/legacy-rendered-entry.json","notes/evidence/kan-15-action273034-retirement/legacy-rendered-actions.json","notes/evidence/kan-15-action283133-retirement/legacy-rendered-actions.json","notes/evidence/kan-15-handling-callback-retirement","notes/agent-reviews/2026-11-17-kan15-handling-callback-promotion-review.md"],cwd=ROOT,text=True).splitlines()
     digest=hashlib.sha256()
     for name in sorted(set(paths)):
         path=ROOT/name
@@ -1851,6 +1944,8 @@ def retirement_results(model,adapter,current_results):
                 results.append({"case":case["id"],"legacy_case_id":row["legacy_id"]+"::"+actor+"::active","replacement_case_id":case["replacement_case_id"],"outcome":"RETIRED","specific_negative_entry_verified":True,"independent_review_verified":True,"review_record":"notes/agent-reviews/2026-11-16-kan15-actions273034-mapping-promotion-review.md","outcome_note":"Approved retired entry; RETIRED is never PASS"})
             elif row.get("status")=="retired" and row["legacy_id"] in {"ACTION-28","ACTION-31","ACTION-33"} and reviewed_action283133_retirement_receipt():
                 results.append({"case":case["id"],"legacy_case_id":row["legacy_id"]+"::"+actor+"::active","replacement_case_id":case["replacement_case_id"],"outcome":"RETIRED","specific_negative_entry_verified":True,"independent_review_verified":True,"review_record":"notes/agent-reviews/2026-11-16-kan15-actions283133-mapping-promotion-review.md","outcome_note":"Approved retired entry; RETIRED is never PASS"})
+            elif row.get("status")=="retired" and row["legacy_id"] in HANDLING_CALLBACK_RETIREMENT_ACTIONS and reviewed_handling_callback_retirement_receipt():
+                results.append({"case":case["id"],"legacy_case_id":row["legacy_id"]+"::"+actor+"::active","replacement_case_id":case["replacement_case_id"],"outcome":"RETIRED","specific_negative_entry_verified":True,"independent_review_verified":True,"review_record":"notes/agent-reviews/2026-11-17-kan15-handling-callback-promotion-review.md","outcome_note":"Approved retired entry; RETIRED is never PASS"})
             else:
                 try:
                     adapter.execute_retirement(case,current_results)
