@@ -341,3 +341,8 @@ Built and deployed the candidate WAR on WildFly 42 using its default `CargoTrack
 ## 17 November 2026 — KAN-23 next expected activity coverage
 
 Replaced the empty `ItineraryTest.testNextExpectedEvent` TODO with focused assertions for the complete two-leg expected-activity lifecycle (RECEIVE, LOAD, UNLOAD, transfer LOAD, final UNLOAD, CLAIM), no activity after claim, and empty activity when the route is misrouted or the handling event is misdirected. This is test-only; no production behavior changed. In the pinned Java 25 Maven container, the focused `ItineraryTest` passed 3 tests (0 failures/errors/skips). Direct host Maven testing is unavailable because WSL Java 21 cannot compile the Java 25 candidate; verification used the repository's pinned Maven/Temurin 25 image. Independent review approved with no findings: `notes/agent-reviews/2026-11-17-kan23-next-expected-activity-review.md`. KAN-23 remains In Progress; booking, handling replay/order/concurrency, CSV and broader prioritized-matrix gaps remain open.
+
+
+## 17 November 2026 — KAN-23 domain invalid-input characterization
+
+Added characterization tests for UN/LOCODE normalization, accepted numeric location characters 2–9, malformed/null codes, null TrackingId, RouteSpecification null fields, and identical origin/destination. Targeted `DomainInputValidationCharacterizationTest` passed 9 tests (0 failures/errors/skips) in the pinned Maven/Temurin 25 container. Independent review approved with no findings: `notes/agent-reviews/2026-11-17-kan23-input-validation-review.md`. Tests do not prove booking-service validation, persistence rollback or REST error handling; those remain open.
