@@ -39,6 +39,7 @@ class LiveSubsetCandidate:
         self.current_observations=report.get("current_access_observations",{})
         self.replacement_observations=report.get("replacement_observations",{})
         self.retirement_observations=report.get("retirement_observations",{})
+        self.handling_callback_retirement_observations=report.get("handling_callback_retirement_observations",{})
         self.contracts=bound_contracts()
     def execute(self,case):
         canonical=self.contracts.get(case.get("id"))

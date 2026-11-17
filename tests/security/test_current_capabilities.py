@@ -50,6 +50,7 @@ class CurrentCapabilityTests(unittest.TestCase):
         paths=command.call_args.args[0]
         for expected in (".dockerignore","infrastructure/database",
                 "notes/evidence/kan-15-bg06-scope/validation.json",
+                "notes/evidence/kan-15-handling-callback-retirement",
                 "notes/agent-reviews/2026-11-11-kan15-bg06-scope-review.md"):
             self.assertIn(expected,paths)
     def test_bg06_scope_promotes_only_five_blocked_rows_with_separate_provenance(self):
@@ -1241,4 +1242,49 @@ class CurrentCapabilityTests(unittest.TestCase):
                             ("identity",{"principal":"admin","roles":["Administrator"]})]:
             adapter.legacy.batch_import_observations={"anonymous":{**anonymous,field:value}}
             with self.subTest(field=field),self.assertRaises(UnsupportedCase):adapter.execute(anon_case)
+    def test_handling_callback_retirement_requires_pinned_shape_and_fresh_effect_denial(self):
+        adapter=c.CurrentAdapter();adapter._run_fingerprint="a"*64
+        adapter.provenance={"kind":"fresh-owned-runtime","inputs_fingerprint":"a"*64,"legacy_fixture_cleanup_verified":True}
+        actor="Operator";legacy_id="ACTION-36"
+        case={"id":"RETIREMENT::"+legacy_id+"::"+actor,"legacy_id":legacy_id,"actor":actor,
+              "replacement_case_id":"REPLACEMENT::handling-cargo-voyage::"+actor}
+        source={"source_component_id":"firstScreen:firstForm:trackingId","behavior_event":"valueChange",
+                "execute":"firstScreen:firstForm:trackingId","render":"firstScreen:firstForm firstScreen:nextBtn",
+                "callback_input_name":"firstScreen:firstForm:trackingId","selected_value":"ABC123",
+                "parameter_names":["javax.faces.source","firstScreen:firstForm:trackingId"]}
+        evidence={"actions":{legacy_id:source},"capture_sha256":"b"*64,"source_hashes":{"legacy":"c"*64}}
+        snapshot={"fixture_id":"owned-fixture","tables":{"CARGO":{"rows":1,"sha256":"d"*64}},
+                  "queues":{"handled":{"MessageCount":0}},"business_invocations":{"Handling#register":0}}
+        before={**snapshot,"stage":"handling-retired-callback:Operator:before"}
+        after={**snapshot,"stage":"handling-retired-callback:Operator:after"}
+        proof={"driver":"browser-rendered-handling-callback-shape-v1","legacy_id":legacy_id,"actor":actor,
+               "method":"POST","source_path":"/cargo-tracker/eventLogger/eventLogger.xhtml",
+               "historical_source_component_id":source["source_component_id"],"historical_source_parameter":"javax.faces.source",
+               "behavior_event":source["behavior_event"],"historical_execute":source["execute"],"historical_render":source["render"],
+               "historical_render_evidence_verified":True,"source_capture_sha256":evidence["capture_sha256"],
+               "source_hashes":evidence["source_hashes"],"legacy_parameter_names":source["parameter_names"],
+               "historical_callback_input_name":source["callback_input_name"],"submitted_callback_value":source["selected_value"],
+               "rendered_callback_shape_verified":True,"exact_raw_legacy_replay":False,"dynamic_legacy_state_redacted":True,
+               "submitted_parameter_names":source["parameter_names"]+["csrf","jakarta.faces.ViewState"],
+               "candidate_viewstate_parameter":"jakarta.faces.ViewState","candidate_viewstate_present":True,
+               "candidate_viewstate_submitted":True,"candidate_csrf_present":True,"candidate_csrf_submitted":True,
+               "response_status":405,"post_target_verified":True,"authorization_denied":False,
+               "callback_response_absent":True,"protected_payload_absent":True,"redirect_is_configured_login":False,
+               "current_form_verified":True,"identity":{"server_verified":True,"principal":"operator","roles":["Operator"]},
+               "independent_effects_unchanged":True,"before":before,"after":after}
+        adapter.legacy=FakeLegacy({})
+        adapter.legacy.handling_callback_retirement_observations={case["id"]:proof}
+        replacement=[{"case":case["replacement_case_id"],"outcome":"PASS"}]
+        with patch.object(c,"load_handling_callback_source_evidence",return_value=evidence):
+            self.assertEqual(adapter.execute_retirement(case,replacement),proof)
+            for field,value in [("response_status",403),("exact_raw_legacy_replay",True),
+                                ("protected_payload_absent",False),("candidate_csrf_submitted",False),
+                                ("identity",{"server_verified":True,"principal":"reader","roles":["Reader"]}),
+                                ("source_capture_sha256","bad"),("independent_effects_unchanged",False)]:
+                adapter.legacy.handling_callback_retirement_observations={case["id"]:{**proof,field:value}}
+                with self.subTest(field=field),self.assertRaises(UnsupportedCase):
+                    adapter.execute_retirement(case,replacement)
+            adapter.legacy.handling_callback_retirement_observations={case["id"]:proof}
+            with self.assertRaises(UnsupportedCase):
+                adapter.execute_retirement(case,[])
 if __name__=="__main__":unittest.main()

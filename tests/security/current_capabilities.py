@@ -10,6 +10,7 @@ import run_candidate_contracts as legacy
 from staged_returns import return_observation
 from replacements import SUPPORTED_REPLACEMENTS, replacement_observation
 from replay_bg06_scoped_gate import validate_scope as validate_bg06_scope
+from handling_retirement_evidence import load_source_evidence as load_handling_callback_source_evidence
 MANIFEST=ROOT/"specifications/current-capability-mapping-v2.json"
 INVENTORY=ROOT/"specifications/access-policy-inventory.json"
 NATIVE_CURRENT_LOADS=frozenset({"ACTION-07","ACTION-15","ACTION-16","ACTION-18","ACTION-20"})
@@ -81,6 +82,8 @@ ACTION08_PROOF_SHA256={"anonymous":"fa403104559e7db7e9235d03e08dcf9763e245c348f9
 APPROVED_GROUPS={'cancel-editor': {'legacy_ids': ['ACTION-08'], 'modern_method': 'GET', 'requirement': 'Leave destination editing without applying a change.'}, 'tracking-discovery': {'legacy_ids': ['ACTION-23', 'ACTION-44'], 'modern_method': 'POST', 'requirement': 'Authorized cargo discovery and valid/invalid typed tracking lookup.'}, 'booking-deadline': {'legacy_ids': ['ACTION-26', 'ACTION-32'], 'modern_method': 'POST', 'requirement': 'Strict deadline validation on the current booking form.'}, 'booking-single-page': {'legacy_ids': ['ACTION-27', 'ACTION-30', 'ACTION-34'], 'modern_method': 'POST', 'requirement': 'Origin/destination/deadline entry on one current booking page.'}, 'booking-cancel': {'legacy_ids': ['ACTION-28', 'ACTION-31', 'ACTION-33'], 'modern_method': 'GET', 'requirement': 'Leave booking without creating a cargo.'}, 'handling-single-page': {'legacy_ids': ['ACTION-35', 'ACTION-40', 'ACTION-43'], 'modern_method': 'GET', 'requirement': 'Authorized single-page handling entry and editing.'}, 'handling-cargo-voyage': {'legacy_ids': ['ACTION-36'], 'modern_method': 'POST', 'requirement': 'Valid selected cargo and available known-voyage choices; LOAD/UNLOAD requirements.'}, 'handling-location': {'legacy_ids': ['ACTION-37'], 'modern_method': 'POST', 'requirement': 'Valid required location selection.'}, 'handling-event': {'legacy_ids': ['ACTION-38'], 'modern_method': 'POST', 'requirement': 'Event validation, LOAD/UNLOAD voyage requirement and non-load voyage clearing.'}, 'handling-voyage': {'legacy_ids': ['ACTION-39'], 'modern_method': 'POST', 'requirement': 'Known-voyage validation, LOAD/UNLOAD requirements and non-load voyage clearing.'}, 'handling-completion': {'legacy_ids': ['ACTION-42'], 'modern_method': 'POST', 'requirement': 'Strict completion-time validation.'}}
 APPROVED_RETIREMENT_POLICY='Never PASS; remain BLOCKED until replacement, specific negative-entry and independent-review evidence have a supported fresh runtime verifier.'
 APPROVED_RETIREMENT_GROUP={ident:group for group,row in APPROVED_GROUPS.items() for ident in row["legacy_ids"]}
+HANDLING_CALLBACK_RETIREMENT_ACTIONS={"ACTION-36":"handling-cargo-voyage","ACTION-37":"handling-location",
+    "ACTION-38":"handling-event","ACTION-39":"handling-voyage","ACTION-42":"handling-completion"}
 SCOPED_SOURCES={"/cargo-tracker/admin/show.xhtml","/cargo-tracker/admin/changeDestination.xhtml","/cargo-tracker/admin/route.xhtml","/cargo-tracker/admin/selectItinerary.xhtml"}
 
 def local_uri(value):
@@ -1210,7 +1213,7 @@ def build_current(model,inventory):
     return cases
 
 def source_fingerprint():
-    paths=subprocess.check_output(["git","ls-files","-co","--exclude-standard","--",".dockerignore","candidate","infrastructure/database","tests/candidate-runtime","tests/browser-workflows","tests/security","specifications/access-policy-inventory.json","specifications/current-capability-mapping-v2.json","notes/decisions/2026-11-02-current-ui-acceptance.md","notes/evidence/kan-15-bg06-scope/validation.json","notes/agent-reviews/2026-11-11-kan15-bg06-scope-review.md","notes/agent-reviews/2026-11-15-kan15-bg06-scope-refresh-review.md","notes/agent-reviews/2026-11-14-kan15-action08-retirement-review.md","notes/evidence/kan-15-action32-retirement/legacy-rendered-entry.json","notes/evidence/kan-15-action273034-retirement/legacy-rendered-actions.json","notes/evidence/kan-15-action283133-retirement/legacy-rendered-actions.json"],cwd=ROOT,text=True).splitlines()
+    paths=subprocess.check_output(["git","ls-files","-co","--exclude-standard","--",".dockerignore","candidate","infrastructure/database","tests/candidate-runtime","tests/browser-workflows","tests/security","specifications/access-policy-inventory.json","specifications/current-capability-mapping-v2.json","notes/decisions/2026-11-02-current-ui-acceptance.md","notes/evidence/kan-15-bg06-scope/validation.json","notes/agent-reviews/2026-11-11-kan15-bg06-scope-review.md","notes/agent-reviews/2026-11-15-kan15-bg06-scope-refresh-review.md","notes/agent-reviews/2026-11-14-kan15-action08-retirement-review.md","notes/evidence/kan-15-action32-retirement/legacy-rendered-entry.json","notes/evidence/kan-15-action273034-retirement/legacy-rendered-actions.json","notes/evidence/kan-15-action283133-retirement/legacy-rendered-actions.json","notes/evidence/kan-15-handling-callback-retirement"],cwd=ROOT,text=True).splitlines()
     digest=hashlib.sha256()
     for name in sorted(set(paths)):
         path=ROOT/name
@@ -1255,6 +1258,68 @@ def apply_bg06_scoped_results(current_results,promotions,provenance):
             row["evidence_provenance"]=deepcopy(provenance)
         output.append(row)
     return output
+
+def verify_handling_callback_retirement_proof(legacy_id,actor,proof):
+    """Bind one actor's fresh rendered callback denial to pinned source evidence."""
+    if legacy_id not in HANDLING_CALLBACK_RETIREMENT_ACTIONS or actor not in ACTORS or not isinstance(proof,dict):
+        raise UnsupportedCase()
+    try:
+        evidence=load_handling_callback_source_evidence()
+        rendered=evidence["actions"][legacy_id]
+    except (OSError,KeyError,TypeError,ValueError):
+        raise UnsupportedCase()
+    allowed=actor in {"Operator","Administrator"}
+    expected_status=303 if actor=="anonymous" else 403 if actor=="Reader" else 405
+    expected_identity=None if actor=="anonymous" else {
+        "server_verified":True,"principal":USERS[actor],"roles":[actor]}
+    expected_parameters=list(rendered["parameter_names"])
+    expected_viewstate="jakarta.faces.ViewState" if allowed else None
+    if allowed:
+        expected_parameters.extend(["csrf",expected_viewstate])
+    before,after=proof.get("before",{}),proof.get("after",{})
+    required_effects=("tables","queues","business_invocations")
+    if (proof.get("driver")!="browser-rendered-handling-callback-shape-v1"
+            or proof.get("legacy_id")!=legacy_id or proof.get("actor")!=actor
+            or proof.get("method")!="POST" or proof.get("source_path")!="/cargo-tracker/eventLogger/eventLogger.xhtml"
+            or proof.get("historical_source_component_id")!=rendered["source_component_id"]
+            or proof.get("historical_source_parameter")!="javax.faces.source"
+            or proof.get("behavior_event")!=rendered["behavior_event"]
+            or proof.get("historical_execute")!=rendered["execute"]
+            or proof.get("historical_render")!=rendered["render"]
+            or proof.get("historical_render_evidence_verified") is not True
+            or proof.get("source_capture_sha256")!=evidence["capture_sha256"]
+            or proof.get("source_hashes")!=evidence["source_hashes"]
+            or proof.get("legacy_parameter_names")!=rendered["parameter_names"]
+            or proof.get("historical_callback_input_name")!=rendered["callback_input_name"]
+            or proof.get("submitted_callback_value")!=rendered["selected_value"]
+            or proof.get("rendered_callback_shape_verified") is not True
+            or proof.get("exact_raw_legacy_replay") is not False
+            or proof.get("dynamic_legacy_state_redacted") is not True
+            or not isinstance(proof.get("submitted_parameter_names"),list)
+            or any(not isinstance(item,str) for item in proof["submitted_parameter_names"])
+            or len(proof["submitted_parameter_names"])!=len(set(proof["submitted_parameter_names"]))
+            or set(proof["submitted_parameter_names"])!=set(expected_parameters)
+            or proof.get("candidate_viewstate_parameter")!=expected_viewstate
+            or proof.get("candidate_viewstate_present") is not allowed
+            or proof.get("candidate_viewstate_submitted") is not allowed
+            or proof.get("candidate_csrf_present") is not (actor!="anonymous")
+            or proof.get("candidate_csrf_submitted") is not allowed
+            or proof.get("response_status")!=expected_status or proof.get("post_target_verified") is not True
+            or proof.get("authorization_denied") is not (actor in {"anonymous","Reader"})
+            or proof.get("callback_response_absent") is not allowed
+            or proof.get("protected_payload_absent") is not True
+            or proof.get("redirect_is_configured_login") is not (actor=="anonymous")
+            or proof.get("current_form_verified") is not allowed
+            or proof.get("identity")!=expected_identity
+            or proof.get("independent_effects_unchanged") is not True
+            or not isinstance(before,dict) or not isinstance(after,dict)
+            or before.get("fixture_id")!=after.get("fixture_id")
+            or before.get("stage")!="handling-retired-callback:"+actor+":before"
+            or after.get("stage")!="handling-retired-callback:"+actor+":after"
+            or any(not before.get(key) or before.get(key)!=after.get(key) for key in required_effects)):
+        raise UnsupportedCase()
+    return deepcopy(proof)
+
 
 class CurrentAdapter:
     def __init__(self,live=False):
@@ -1540,8 +1605,9 @@ class CurrentAdapter:
         return observation
     def execute_retirement(self,case,replacement_results):
         legacy_id=case.get("legacy_id") if isinstance(case,dict) else None
-        group={"ACTION-08":"cancel-editor","ACTION-23":"tracking-discovery","ACTION-44":"tracking-discovery","ACTION-26":"booking-deadline","ACTION-32":"booking-deadline","ACTION-27":"booking-single-page","ACTION-30":"booking-single-page","ACTION-34":"booking-single-page","ACTION-28":"booking-cancel","ACTION-31":"booking-cancel","ACTION-33":"booking-cancel"}.get(legacy_id)
-        if (not isinstance(case,dict) or legacy_id not in {"ACTION-08","ACTION-23","ACTION-44","ACTION-26","ACTION-32","ACTION-27","ACTION-30","ACTION-34","ACTION-28","ACTION-31","ACTION-33"}
+        group={"ACTION-08":"cancel-editor","ACTION-23":"tracking-discovery","ACTION-44":"tracking-discovery","ACTION-26":"booking-deadline","ACTION-32":"booking-deadline","ACTION-27":"booking-single-page","ACTION-30":"booking-single-page","ACTION-34":"booking-single-page","ACTION-28":"booking-cancel","ACTION-31":"booking-cancel","ACTION-33":"booking-cancel",**HANDLING_CALLBACK_RETIREMENT_ACTIONS}.get(legacy_id)
+        allowed_retirements={"ACTION-08","ACTION-23","ACTION-44","ACTION-26","ACTION-32","ACTION-27","ACTION-30","ACTION-34","ACTION-28","ACTION-31","ACTION-33",*HANDLING_CALLBACK_RETIREMENT_ACTIONS}
+        if (not isinstance(case,dict) or legacy_id not in allowed_retirements
                 or case.get("actor") not in ACTORS
                 or case.get("replacement_case_id")!="REPLACEMENT::"+str(group)+"::"+str(case.get("actor"))
                 or self.legacy is None or not isinstance(self.provenance,dict)
@@ -1552,8 +1618,11 @@ class CurrentAdapter:
             raise UnsupportedCase()
         replacement=next((row for row in replacement_results if row.get("case")==case["replacement_case_id"]),None)
         if not isinstance(replacement,dict) or replacement.get("outcome")!="PASS":raise UnsupportedCase()
-        proof=deepcopy(getattr(self.legacy,"retirement_observations",{}).get(case["id"],{}))
         actor=case["actor"]
+        if legacy_id in HANDLING_CALLBACK_RETIREMENT_ACTIONS:
+            callback_proof=deepcopy(getattr(self.legacy,"handling_callback_retirement_observations",{}).get(case["id"],{}))
+            return verify_handling_callback_retirement_proof(legacy_id,actor,callback_proof)
+        proof=deepcopy(getattr(self.legacy,"retirement_observations",{}).get(case["id"],{}))
         if legacy_id=="ACTION-26":
             try:source_hashes=action26_source_hashes()
             except (OSError,UnsupportedCase):raise UnsupportedCase()
@@ -1801,4 +1870,9 @@ def report(live=False):
     status=exit_code(current)
     if status==0 and any(r["outcome"]!="RETIRED" for r in retirements):status=2
     retirement_observations=deepcopy(getattr(adapter.legacy,"retirement_observations",{})) if live else {}
+    if live:
+        callback_observations=getattr(adapter.legacy,"handling_callback_retirement_observations",{})
+        overlap=set(retirement_observations)&set(callback_observations)
+        if overlap:raise ValueError("Handling callback observations overlap another retirement source")
+        retirement_observations.update(deepcopy(callback_observations))
     return {"schema_version":2,"execution":"fresh-owned-runtime" if live else "not executed","current_counts":dict(Counter(r["outcome"] for r in current)),"current_results":current,"retirement_counts":dict(Counter(r["outcome"] for r in retirements)),"retirement_results":retirements,"retirement_observations":retirement_observations,"legacy_audit":{"total":len(audit),"counts":dict(Counter(r["outcome"] for r in audit)),"results":audit},"gate_exit":status,"provenance":adapter.provenance}
