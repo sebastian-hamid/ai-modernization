@@ -351,3 +351,8 @@ Added characterization tests for UN/LOCODE normalization, accepted numeric locat
 ## 17 November 2026 — KAN-23 unknown-cargo booking paths
 
 Added service-level negative-path tests: unknown cargo yields no route candidates without routing, and route assignment rejects unknown cargo before repository storage. The test doubles fail on unexpected collaborator calls and record store attempts. Targeted `BookingServiceFailureCharacterizationTest` passed 2 tests (0 failures/errors/skips) in the pinned Maven/Temurin 25 container. Independent review approved with no findings: `notes/agent-reviews/2026-11-17-kan23-booking-negative-review.md`. The doubles do not prove database or EJB transaction rollback; that remains open.
+
+
+## 17 November 2026 — KAN-23 batch CSV row parsing
+
+Added tests invoking the real EventItemReader row parser: valid RECEIVE row, wrong column counts, invalid completion time, malformed UN/LOCODE, and unknown event type. Targeted `BatchLineValidationCharacterizationTest` passed 5 tests (0 failures/errors/skips) in the pinned Maven/Temurin 25 container. Independent review approved with no actionable findings, accepting reflection for the private pure parser because batch paths are fixed: `notes/agent-reviews/2026-11-17-kan23-csv-validation-review.md`. This does not verify file staging, archive/failed disposition, or whole batch job outcomes.
