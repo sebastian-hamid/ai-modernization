@@ -4,13 +4,17 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 import java.lang.reflect.Field;
 import java.lang.reflect.Proxy;
+import java.util.Date;
 import java.util.List;
 import net.java.cargotracker.application.RouteSelectionException;
 import net.java.cargotracker.application.internal.DefaultBookingService;
 import net.java.cargotracker.domain.model.cargo.Cargo;
 import net.java.cargotracker.domain.model.cargo.CargoRepository;
 import net.java.cargotracker.domain.model.cargo.Itinerary;
+import net.java.cargotracker.domain.model.cargo.RoutingStatus;
+import net.java.cargotracker.domain.model.cargo.RouteSpecification;
 import net.java.cargotracker.domain.model.cargo.TrackingId;
+import net.java.cargotracker.domain.model.location.SampleLocations;
 import net.java.cargotracker.domain.service.RoutingService;
 import org.junit.Before;
 import org.junit.Test;
@@ -65,6 +69,37 @@ public class BookingServiceFailureCharacterizationTest {
             return;
         }
         throw new AssertionError("Unknown cargo route assignment must be rejected");
+    }
+
+    @Test
+    public void assigningUnsuitableRouteToKnownCargoIsRejectedBeforeStore() throws Exception {
+        TrackingId trackingId = new TrackingId("KNOWN01");
+        Cargo cargo = new Cargo(trackingId, new RouteSpecification(
+                SampleLocations.SHANGHAI, SampleLocations.GOTHENBURG,
+                new Date(Long.MAX_VALUE)));
+        CargoRepository cargoRepository = proxy(CargoRepository.class,
+                (method, args) -> {
+                    if ("find".equals(method)) {
+                        return trackingId.equals(args[0]) ? cargo : null;
+                    }
+                    if ("store".equals(method)) {
+                        storeCalls++;
+                        return null;
+                    }
+                    throw new UnsupportedOperationException(method);
+                });
+        inject("cargoRepository", cargoRepository);
+
+        try {
+            service.assignCargoToRoute(Itinerary.EMPTY_ITINERARY, trackingId);
+        } catch (RouteSelectionException expected) {
+            assertEquals(0, storeCalls);
+            assertEquals(Itinerary.EMPTY_ITINERARY, cargo.getItinerary());
+            assertEquals(RoutingStatus.NOT_ROUTED,
+                    cargo.getDelivery().getRoutingStatus());
+            return;
+        }
+        throw new AssertionError("A route that misses the cargo endpoints must be rejected");
     }
 
     private void inject(String fieldName, Object value) throws Exception {

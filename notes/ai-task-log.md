@@ -352,6 +352,10 @@ Added characterization tests for UN/LOCODE normalization, accepted numeric locat
 
 Added service-level negative-path tests: unknown cargo yields no route candidates without routing, and route assignment rejects unknown cargo before repository storage. The test doubles fail on unexpected collaborator calls and record store attempts. Targeted `BookingServiceFailureCharacterizationTest` passed 2 tests (0 failures/errors/skips) in the pinned Maven/Temurin 25 container. Independent review approved with no findings: `notes/agent-reviews/2026-11-17-kan23-booking-negative-review.md`. The doubles do not prove database or EJB transaction rollback; that remains open.
 
+## 20 November 2026 — KAN-23 unsuitable route rejection
+
+Added a known-cargo characterization case where an empty itinerary misses the required route endpoints. It verifies `RouteSelectionException`, no repository store call, and the cargo remains unrouted with its empty itinerary. Targeted `BookingServiceFailureCharacterizationTest` passed 3 tests (0 failures/errors/skips) in the pinned Maven/Temurin 25 container. Independent review approved with no findings: `notes/agent-reviews/2026-11-20-kan23-booking-route-rejection-review.md`. This proxy-based test verifies service behavior, not persistence transaction rollback.
+
 
 ## 17 November 2026 — KAN-23 batch CSV row parsing
 
