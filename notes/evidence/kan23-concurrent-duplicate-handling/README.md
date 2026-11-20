@@ -1,0 +1,9 @@
+# KAN-23 concurrent duplicate handling observation
+
+In a fresh disposable Java 25/WildFly candidate fixture, five concurrent REST submissions sent the same CUSTOMS report for one run-created cargo (USCHI, completion 2030-01-07 10:00). Five worker threads each used an authenticated operator session; a barrier released their identical POSTs together. All five requests returned HTTP 204. The precondition confirmed the cargo was already `IN_PORT` at USCHI before the submissions.
+
+The observation recorded five new handling-event rows, five additions and acknowledgements in both `HandlingEventRegistrationAttemptQueue` and `CargoHandledQueue`, and five invocations each of report submission, event registration, handling-attempt processing, cargo inspection, and the inspection tracking callback. No rejected, misdirected, dead-lettered, or expired messages were observed. The cargo projection remained `IN_PORT` at USCHI and was not marked misdirected. The delivered-cargo queue did not change.
+
+This shows that concurrent identical reports are accepted, persisted separately, and processed separately. The cargo projection remained stable in this run, but duplicate work and repeated tracking callbacks occurred; the observation does not establish that duplicates are harmless to connected clients or external systems. It does not establish exactly-once delivery, external email delivery, or recovery behavior under an actual worker/database failure.
+
+The full isolated candidate suite passed 777 checks and 53 domain tests (zero failures, errors, or skips). The owned container and private fixture files were removed with no cleanup errors. An independent progress monitor checked the shared KAN-18 and Jenkins containers during the run; their identities and ports remained unchanged, and the final read-only container status showed both still up. Run details are in `summary.json`.

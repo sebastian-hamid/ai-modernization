@@ -529,7 +529,7 @@ def main(after_checks=None):
             suites=[ET.parse(path).getroot() for path in Path(temporary).rglob("TEST-*.xml")]
             report["domain_tests"]={key:sum(int(suite.get(key,"0")) for suite in suites) for key in ["tests","failures","errors","skipped"]}
             report["domain_tests"]["empty_legacy_todo_retained"]=True
-            check("52 candidate domain tests execute",report["domain_tests"]["tests"]==52 and all(report["domain_tests"][key]==0 for key in ["failures","errors","skipped"]))
+            check("53 candidate domain tests execute",report["domain_tests"]["tests"]==53 and all(report["domain_tests"][key]==0 for key in ["failures","errors","skipped"]))
         port=int(command("docker","port",container,"8080/tcp").rsplit(":",1)[1])
         base=f"http://127.0.0.1:{port}/cargo-tracker/"
         deadline=time.monotonic()+150

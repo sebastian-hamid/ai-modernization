@@ -1,0 +1,87 @@
+{
+  "ticket": "KAN-23",
+  "run_id": "kan15-concurrent-customs-20261120",
+  "source_revision": "0f7c386",
+  "purpose": "Observe persistence and asynchronous effects of five concurrent identical handling reports in an isolated candidate runtime.",
+  "event": {
+    "type": "CUSTOMS",
+    "location": "USCHI",
+    "completion_time": "2030-01-07 10:00",
+    "cargo": "run-created operator booking",
+    "submissions": 5,
+    "concurrent_start": true,
+    "method": "Five worker threads each used a separate authenticated operator session and waited on a five-party barrier before posting the same payload.",
+    "http_statuses": [204, 204, 204, 204, 204]
+  },
+  "precondition": {
+    "verified": true,
+    "cargo_transport_status": "IN_PORT",
+    "cargo_last_known_location": "USCHI",
+    "cargo_misdirected": false
+  },
+  "storage_rows_added": 5,
+  "queue_deltas": {
+    "HandlingEventRegistrationAttemptQueue": {
+      "messages_added": 5,
+      "messages_acknowledged": 5,
+      "messages_expired": 0,
+      "messages_in_dead_letter_queue": 0
+    },
+    "CargoHandledQueue": {
+      "messages_added": 5,
+      "messages_acknowledged": 5,
+      "messages_expired": 0,
+      "messages_in_dead_letter_queue": 0
+    },
+    "DeliveredCargoQueue": {
+      "messages_added": 0,
+      "messages_acknowledged": 0
+    },
+    "MisdirectedCargoQueue": {
+      "messages_added": 0,
+      "messages_acknowledged": 0
+    },
+    "RejectedRegistrationAttemptsQueue": {
+      "messages_added": 0,
+      "messages_acknowledged": 0
+    }
+  },
+  "business_invocation_deltas": {
+    "DefaultHandlingEventService.registerHandlingEvent": 5,
+    "HandlingReportService.submitReport": 5,
+    "HandlingEventRegistrationAttemptConsumer.onMessage": 5,
+    "CargoHandledConsumer.onMessage": 5,
+    "DefaultCargoInspectionService.inspectCargo": 5,
+    "RealtimeCargoTrackingService.onCargoInspected": 5
+  },
+  "final_cargo_projection": {
+    "transport_status": "IN_PORT",
+    "last_known_location": "USCHI",
+    "misdirected": false
+  },
+  "full_runtime_checks": {
+    "passed": 777,
+    "failed": 0
+  },
+  "domain_tests": {
+    "tests": 53,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0
+  },
+  "cleanup": {
+    "owned_container_removed": true,
+    "private_files_removed": true,
+    "errors": []
+  },
+  "shared_service_check": {
+    "services": ["ai-modernization-kan18", "ai-modernization-jenkins"],
+    "independent_monitor_checked_identity_and_ports": true,
+    "final_read_only_status": "both still up"
+  },
+  "limitations": [
+    "The run does not establish exactly-once delivery or that duplicate work is harmless to connected clients.",
+    "External email delivery was not established.",
+    "The run did not inject database or worker failures to test recovery."
+  ]
+}

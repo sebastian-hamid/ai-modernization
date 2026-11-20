@@ -356,6 +356,10 @@ Added service-level negative-path tests: unknown cargo yields no route candidate
 
 Added a known-cargo characterization case where an empty itinerary misses the required route endpoints. It verifies `RouteSelectionException`, no repository store call, and the cargo remains unrouted with its empty itinerary. Targeted `BookingServiceFailureCharacterizationTest` passed 3 tests (0 failures/errors/skips) in the pinned Maven/Temurin 25 container. Independent review approved with no findings: `notes/agent-reviews/2026-11-20-kan23-booking-route-rejection-review.md`. This proxy-based test verifies service behavior, not persistence transaction rollback.
 
+## 20 November 2026 — KAN-23 concurrent identical handling reports
+
+Five concurrent identical CUSTOMS REST submissions for one run-created cargo were accepted in a fresh disposable fixture. Five operator sessions released identical POSTs together using a barrier; all returned 204. Five handling rows were stored and five messages were acknowledged in each of the registration-attempt and cargo-handled queues. Registration, both consumers, inspection, and the tracking callback each ran five times. Cargo remained `IN_PORT` at USCHI; rejection, misdirection, DLQ, expiry, and delivered-cargo queue deltas were zero. Full runner: 777/777 checks; domain tests: 53/53; owned container and private files removed. An independent progress monitor checked the shared KAN-18 and Jenkins identities/ports during the run; final status showed both still up. Evidence: `notes/evidence/kan23-concurrent-duplicate-handling/`. Repeated processing is confirmed; absence of harm to connected clients or external systems is not established. The exact-count candidate test guard is updated to 53 for the added booking test.
+
 
 ## 17 November 2026 — KAN-23 batch CSV row parsing
 
