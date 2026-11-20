@@ -48,4 +48,22 @@ public class HandlingHistoryTest {
 	public void testMostRecentlyCompletedEvent() {
 		assertEquals(event2, handlingHistory.getMostRecentlyCompletedEvent());
 	}
+
+	@Test
+	public void testDistinctEventsWithEqualCompletionTimesAreBothRetained() {
+		Date completion = new Date(300);
+		HandlingEvent unload = new HandlingEvent(cargo, completion,
+				new Date(400), HandlingEvent.Type.UNLOAD,
+				SampleLocations.DALLAS, voyage);
+		HandlingEvent customs = new HandlingEvent(cargo, completion,
+				new Date(500), HandlingEvent.Type.CUSTOMS,
+				SampleLocations.DALLAS);
+
+		HandlingHistory history = new HandlingHistory(Arrays.asList(unload,
+				customs));
+
+		assertEquals(2, history.getDistinctEventsByCompletionTime().size());
+		assertTrue(history.getDistinctEventsByCompletionTime().contains(unload));
+		assertTrue(history.getDistinctEventsByCompletionTime().contains(customs));
+	}
 }
