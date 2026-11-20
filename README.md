@@ -9,6 +9,7 @@ Windows 11 + WSL2 Ubuntu development environment, local Jenkins and a preserved 
 - [Prepared Jira backlog](specifications/jira-backlog.md)
 - [Entrypoint permissions and security test map](specifications/access-policy-map.md)
 - [Responsive handling workflow](docs/candidate/mobile-handling.md)
+- [REST handling-report input validation](docs/candidate/handling-report-input-validation.md)
 - [Authenticated live tracking UI](docs/candidate/live-tracking-ui.md)
 - [Secured sample routing workflow and service identity](docs/candidate/routing-workflow.md)
 - [Real browser cargo workflows and verification](docs/candidate/browser-workflows.md)

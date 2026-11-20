@@ -1,0 +1,5 @@
+{
+  "candidate/cargotracker/src/main/java/net/java/cargotracker/interfaces/handling/rest/HandlingReportService.java": "69b125ada60b2b9d52ad513738849ced8c3249562bc5ed5c63df0f3693f7504b",
+  "tests/candidate-runtime/run_candidate.py": "15d508376d38c826bc7a0fdfbec47d020166f6230167f38bc290127128000e48",
+  "tests/candidate-runtime/test_harness.py": "7a06f610195a51a8053d131bb4091d9f8e7b6c8c8e0219ca204ad7b9a11044c6"
+}

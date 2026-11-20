@@ -7,7 +7,7 @@ from concurrent.futures import ThreadPoolExecutor
 from datetime import datetime
 ROOT=Path(__file__).resolve().parents[2]
 LIVE_RUN_ID=os.environ.get("AI_MODERNIZATION_LIVE_RUN_ID","")
-if LIVE_RUN_ID and not re.fullmatch(r"kan15-[a-z0-9-]{1,40}",LIVE_RUN_ID):
+if LIVE_RUN_ID and not re.fullmatch(r"kan(?:15|24)-[a-z0-9-]{1,40}",LIVE_RUN_ID):
     raise ValueError("Invalid AI modernization live-run identifier")
 WORK=(ROOT/".work"/LIVE_RUN_ID/"candidate-runtime") if LIVE_RUN_ID else ROOT/".work/kan18"
 NAME=("ai-modernization-"+LIVE_RUN_ID) if LIVE_RUN_ID else "ai-modernization-kan18"
@@ -448,7 +448,7 @@ def main(after_checks=None):
     attempt_producer_password=secrets.token_urlsafe(28)
     routing_password=secrets.token_urlsafe(28)
     container=None;checks=[]
-    report={"task":"KAN-18/KAN-15","scope":"Real Cargo Tracker candidate: monitoring/handling/session plus Faces list/booking/details/destination routes","checks":checks,"status":"FAIL","identities":{},"access_observations":{}}
+    report={"task":"KAN-"+LIVE_RUN_ID[3:LIVE_RUN_ID.index("-")] if LIVE_RUN_ID else "KAN-18","scope":"Real Cargo Tracker candidate: monitoring/handling/session plus Faces list/booking/details/destination routes","checks":checks,"status":"FAIL","identities":{},"access_observations":{}}
     def check(name,condition):
         checks.append({"name":name,"passed":bool(condition)})
         if not condition:raise AssertionError(name)
@@ -522,7 +522,7 @@ def main(after_checks=None):
         report["image_id"]=command("docker","image","inspect","--format","{{.Id}}",IMAGE)
         guard=subprocess.run(["docker","run","--rm",IMAGE],capture_output=True,text=True)
         check("Disposable image refuses absent opt-in",guard.returncode==2 and "Disposable lab opt-in required" in guard.stderr)
-        task_label="KAN-15" if LIVE_RUN_ID else "KAN-18"
+        task_label=("KAN-"+LIVE_RUN_ID[3:LIVE_RUN_ID.index("-")]) if LIVE_RUN_ID else "KAN-18"
         container=command("docker","run","-d","--name",NAME,"--label","ai-modernization.task="+task_label,"--init","-e","DISPOSABLE_CANDIDATE_LAB=true","-e","LAB_IMPORT_ENABLED=true","-e","LAB_CANDIDATE_HOSTNAME="+NAME,"-p","127.0.0.1::8080","--mount",f"type=bind,src={private},dst=/run/kan18,readonly",IMAGE)
         with tempfile.TemporaryDirectory(prefix="domain-reports-",dir=WORK) as temporary:
             command("docker","cp",container+":/opt/jboss/lab-evidence/surefire",temporary+"/surefire")
@@ -1704,8 +1704,8 @@ def main(after_checks=None):
         payload=json.dumps({"trackingId":"DEF789","eventType":"RECEIVE","unLocode":"FIHEL","completionTime":"2030-01-01 10:00"}).encode()
         # Content type must be JSON on real handling path.
         last_handling={}
-        def handling_as(opener,token=None):
-            req=urllib.request.Request(base+"rest/handling/reports",data=payload,headers={"Content-Type":"application/json",**({"X-CSRF-Token":token} if token else {})})
+        def handling_as(opener,token=None,body=None):
+            req=urllib.request.Request(base+"rest/handling/reports",data=payload if body is None else body,headers={"Content-Type":"application/json",**({"X-CSRF-Token":token} if token else {})})
             try:r=opener.open(req,timeout=10)
             except urllib.error.HTTPError as error:r=error
             with r:
@@ -1733,6 +1733,37 @@ def main(after_checks=None):
 
         after_denied=settled()
         check("Denied REST reports leave independent DB queue invocation snapshots unchanged",before_denied==after_denied)
+        malformed_cases=[
+            ("invalid event type",{"trackingId":"DEF789","eventType":"INVALID","unLocode":"FIHEL","completionTime":"2030-01-01 10:00"}),
+            ("malformed UN/LOCODE",{"trackingId":"DEF789","eventType":"RECEIVE","unLocode":"12345","completionTime":"2030-01-01 10:00"}),
+            ("impossible calendar date",{"trackingId":"DEF789","eventType":"RECEIVE","unLocode":"FIHEL","completionTime":"2030-02-30 10:00"}),
+            ("trailing or partial date content",{"trackingId":"DEF789","eventType":"RECEIVE","unLocode":"FIHEL","completionTime":"2030-01-01 10:0x"}),
+        ]
+        before_malformed=settled()
+        for label,invalid_report in malformed_cases:
+            status=handling_as(sessions["operator"][1],sessions["operator"][2],json.dumps(invalid_report).encode())
+            check("Malformed handling request returns sanitized HTTP 400: "+label,status==400 and last_handling["protected_payload_absent"])
+        after_malformed=settled()
+        invocation_names=set(before_malformed["business_invocations"]) | set(after_malformed["business_invocations"])
+        invocation_deltas={name:after_malformed["business_invocations"].get(name,0)-before_malformed["business_invocations"].get(name,0)
+            for name in invocation_names
+            if after_malformed["business_invocations"].get(name,0)!=before_malformed["business_invocations"].get(name,0)}
+        submit_report_deltas={name:delta for name,delta in invocation_deltas.items() if name.endswith("HandlingReportService#submitReport")}
+        unexpected_invocation_deltas={name:delta for name,delta in invocation_deltas.items() if not name.endswith("HandlingReportService#submitReport")}
+        malformed_effects_unchanged=(before_malformed["tables"]==after_malformed["tables"]
+            and before_malformed["queues"]==after_malformed["queues"]
+            and not unexpected_invocation_deltas
+            and len(submit_report_deltas)==1
+            and sum(submit_report_deltas.values())==len(malformed_cases))
+        report["malformed_handling_requests"]={"cases":[label for label,_ in malformed_cases],"status":400,
+            "database_unchanged":before_malformed["tables"]==after_malformed["tables"],
+            "queues_unchanged":before_malformed["queues"]==after_malformed["queues"],
+            "submit_report_invocation_deltas":submit_report_deltas,
+            "unexpected_business_invocation_deltas":unexpected_invocation_deltas,
+            "before":{"tables":before_malformed["tables"],"queues":before_malformed["queues"],"business_invocations":before_malformed["business_invocations"]},
+            "after":{"tables":after_malformed["tables"],"queues":after_malformed["queues"],"business_invocations":after_malformed["business_invocations"]},
+            "effects_unchanged":malformed_effects_unchanged}
+        check("Malformed handling requests leave database and queue unchanged; invoke no downstream business service",malformed_effects_unchanged)
         report["scoped_denied_effects"]={"scope":"Anonymous/Reader/missing-or-wrong-CSRF handling POST; Reader/missing-CSRF booking callback","before":before_denied,"after":after_denied,"independent_snapshots_match":before_denied==after_denied}
         report["denied_write_absence_verified"]=False # Entire catalogue remains unverified.
         def denial_observation(response,before_sample,after_sample,who=None,revoked=False):

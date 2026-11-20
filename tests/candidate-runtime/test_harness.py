@@ -21,6 +21,10 @@ class LiveRunNamespaceTests(unittest.TestCase):
         self.assertEqual(module.WORK,module.ROOT/".work/kan15-callback-capture/candidate-runtime")
         self.assertEqual(module.NAME,"ai-modernization-kan15-callback-capture")
         self.assertEqual(module.IMAGE,"ai-modernization-kan15-callback-capture:candidate")
+        module=self.load_candidate("kan24-malformed-inputs")
+        self.assertEqual(module.WORK,module.ROOT/".work/kan24-malformed-inputs/candidate-runtime")
+        self.assertEqual(module.NAME,"ai-modernization-kan24-malformed-inputs")
+        self.assertEqual(module.IMAGE,"ai-modernization-kan24-malformed-inputs:candidate")
     def test_invalid_namespace_fails_closed(self):
         with self.assertRaises(ValueError):self.load_candidate("../../kan18")
 
