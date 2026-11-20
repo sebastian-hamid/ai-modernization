@@ -31,6 +31,14 @@ public class DefaultHandlingEventService implements HandlingEventService {
     public void registerHandlingEvent(Date completionTime,
             TrackingId trackingId, VoyageNumber voyageNumber, UnLocode unLocode,
             HandlingEvent.Type type) throws CannotCreateHandlingEventException {
+        // Use persisted event history rather than cargo's asynchronously derived delivery snapshot.
+        if (type == HandlingEvent.Type.LOAD
+                && handlingEventRepository.lookupHandlingHistoryOfCargo(trackingId)
+                        .getAllHandlingEvents().stream()
+                        .anyMatch(event -> event.getType() == HandlingEvent.Type.CLAIM)) {
+            throw new CannotCreateHandlingEventException();
+        }
+
         Date registrationTime = new Date();
         /* Using a factory to create a HandlingEvent (aggregate). This is where
          it is determined wether the incoming data, the attempt, actually is capable

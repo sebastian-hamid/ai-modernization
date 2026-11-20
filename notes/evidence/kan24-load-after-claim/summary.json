@@ -1,0 +1,342 @@
+{
+  "jira_issue": "KAN-24",
+  "fixture": "ai-modernization-kan24-load-after-claim-3",
+  "runtime_status": "PASS",
+  "runtime_checks": 795,
+  "runtime_failed_checks": [],
+  "candidate_domain_tests": {
+    "tests": 58,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0,
+    "empty_legacy_todo_retained": true
+  },
+  "load_after_claim": {
+    "tracking_id": "D4B58CB3",
+    "prior_cargo": {
+      "transportStatus": "CLAIMED",
+      "lastKnownLocationCode": "FIHEL",
+      "routingStatus": "NOT_ROUTED",
+      "misdirected": false,
+      "atDestination": false,
+      "updatedAt": 1795214732245
+    },
+    "after_rejected_load": {
+      "transportStatus": "CLAIMED",
+      "lastKnownLocationCode": "FIHEL",
+      "routingStatus": "NOT_ROUTED",
+      "misdirected": false,
+      "atDestination": false,
+      "updatedAt": 1795214732245
+    },
+    "database_unchanged": true,
+    "cargo_state_unchanged": true,
+    "rejection_disposition": {
+      "queue_counter_deltas": {
+        "jms.queue.HandlingEventRegistrationAttemptQueue": {
+          "AcknowledgeAttempts": 4,
+          "MessagesAdded": 1,
+          "MessagesKilled": 1
+        },
+        "jms.queue.RejectedRegistrationAttemptsQueue": {
+          "AcknowledgeAttempts": 1,
+          "MessagesAcknowledged": 1,
+          "MessagesAdded": 1
+        }
+      },
+      "expected_queue_counter_deltas": {
+        "jms.queue.HandlingEventRegistrationAttemptQueue": {
+          "MessagesAdded": 1,
+          "MessagesKilled": 1,
+          "AcknowledgeAttempts": 4
+        },
+        "jms.queue.RejectedRegistrationAttemptsQueue": {
+          "MessagesAdded": 1,
+          "MessagesAcknowledged": 1,
+          "AcknowledgeAttempts": 1
+        }
+      },
+      "business_invocation_deltas": {
+        "net.java.cargotracker.infrastructure.messaging.jms.HandlingWorkerAudit#recordConsumedAttempt": 3,
+        "net.java.cargotracker.infrastructure.messaging.jms.NotificationWorkerAudit#recordConsumed": 1,
+        "net.java.cargotracker.infrastructure.messaging.jms.HandlingEventRegistrationAttemptProducer#publish": 1,
+        "net.java.cargotracker.infrastructure.messaging.jms.HandlingEventRegistrationAttemptConsumer#onMessage": 3,
+        "net.java.cargotracker.interfaces.handling.rest.HandlingReportService#submitReport": 1,
+        "net.java.cargotracker.application.internal.DefaultHandlingEventService#registerHandlingEvent": 3,
+        "net.java.cargotracker.infrastructure.messaging.jms.RejectedRegistrationAttemptsConsumer#onMessage": 1
+      },
+      "expected_business_invocation_deltas": {
+        "net.java.cargotracker.application.internal.DefaultHandlingEventService#registerHandlingEvent": 3,
+        "net.java.cargotracker.infrastructure.messaging.jms.HandlingEventRegistrationAttemptConsumer#onMessage": 3,
+        "net.java.cargotracker.infrastructure.messaging.jms.HandlingWorkerAudit#recordConsumedAttempt": 3,
+        "net.java.cargotracker.infrastructure.messaging.jms.RejectedRegistrationAttemptsConsumer#onMessage": 1,
+        "net.java.cargotracker.infrastructure.messaging.jms.NotificationWorkerAudit#recordConsumed": 1,
+        "net.java.cargotracker.infrastructure.messaging.jms.HandlingEventRegistrationAttemptProducer#publish": 1,
+        "net.java.cargotracker.interfaces.handling.rest.HandlingReportService#submitReport": 1
+      },
+      "all_queue_and_invocation_deltas_bounded": true
+    },
+    "before": {
+      "settled": true,
+      "fixture_id": "ed7dded69b06c6063df953e8a54c7122512040f4ba7c4cc9d3fe5b551b37c25a",
+      "before_fixture": "ed7dded69b06c6063df953e8a54c7122512040f4ba7c4cc9d3fe5b551b37c25a",
+      "after_fixture": "ed7dded69b06c6063df953e8a54c7122512040f4ba7c4cc9d3fe5b551b37c25a",
+      "before": {
+        "database": {
+          "CARGO": {
+            "rows": 10,
+            "sha256": "ea90c5a24d22a616bd6253db2fd14efd074aa593f98b5a54f15fb0bd31ca7c02"
+          },
+          "CARRIER_MOVEMENT": {
+            "rows": 13,
+            "sha256": "86b7da0efb7d43bd7ea5a29095e4b80695c5a4bdab592855fce50c88d3e06e76"
+          },
+          "HANDLING_EVENT": {
+            "rows": 18,
+            "sha256": "d9c291a226353acd65f9cfdef6cd3d371e985f485f9f983c0d6b905a15d36cd1"
+          },
+          "LEG": {
+            "rows": 22,
+            "sha256": "e41137849699dc28762164c8d82c0a886927c292cfe46a57c125e0b3c1008863"
+          },
+          "LOCATION": {
+            "rows": 13,
+            "sha256": "5631b21c70a39a0e7e713beba81df653bddc1708df7af9f9167cb9c8a0bbc642"
+          },
+          "VOYAGE": {
+            "rows": 5,
+            "sha256": "235407c6709f265b34d31d633c31800a4b09a1fa0693a0e76546488c2ebd7157"
+          }
+        },
+        "queue": {
+          "jms.queue.CargoHandledQueue": {
+            "MessageCount": 0,
+            "DeliveringCount": 0,
+            "ScheduledCount": 0,
+            "MessagesAdded": 6,
+            "MessagesAcknowledged": 6,
+            "MessagesExpired": 0,
+            "MessagesKilled": 0,
+            "AcknowledgeAttempts": 6
+          },
+          "jms.queue.DLQ": {
+            "MessageCount": 0,
+            "DeliveringCount": 0,
+            "ScheduledCount": 0,
+            "MessagesAdded": 0,
+            "MessagesAcknowledged": 0,
+            "MessagesExpired": 0,
+            "MessagesKilled": 0,
+            "AcknowledgeAttempts": 0
+          },
+          "jms.queue.DeliveredCargoQueue": {
+            "MessageCount": 0,
+            "DeliveringCount": 0,
+            "ScheduledCount": 0,
+            "MessagesAdded": 0,
+            "MessagesAcknowledged": 0,
+            "MessagesExpired": 0,
+            "MessagesKilled": 0,
+            "AcknowledgeAttempts": 0
+          },
+          "jms.queue.ExpiryQueue": {
+            "MessageCount": 0,
+            "DeliveringCount": 0,
+            "ScheduledCount": 0,
+            "MessagesAdded": 0,
+            "MessagesAcknowledged": 0,
+            "MessagesExpired": 0,
+            "MessagesKilled": 0,
+            "AcknowledgeAttempts": 0
+          },
+          "jms.queue.HandlingEventRegistrationAttemptQueue": {
+            "MessageCount": 0,
+            "DeliveringCount": 0,
+            "ScheduledCount": 0,
+            "MessagesAdded": 7,
+            "MessagesAcknowledged": 6,
+            "MessagesExpired": 0,
+            "MessagesKilled": 1,
+            "AcknowledgeAttempts": 10
+          },
+          "jms.queue.MisdirectedCargoQueue": {
+            "MessageCount": 0,
+            "DeliveringCount": 0,
+            "ScheduledCount": 0,
+            "MessagesAdded": 0,
+            "MessagesAcknowledged": 0,
+            "MessagesExpired": 0,
+            "MessagesKilled": 0,
+            "AcknowledgeAttempts": 0
+          },
+          "jms.queue.RejectedRegistrationAttemptsQueue": {
+            "MessageCount": 0,
+            "DeliveringCount": 0,
+            "ScheduledCount": 0,
+            "MessagesAdded": 1,
+            "MessagesAcknowledged": 1,
+            "MessagesExpired": 0,
+            "MessagesKilled": 0,
+            "AcknowledgeAttempts": 1
+          }
+        },
+        "business_audit": {
+          "net.java.cargotracker.application.internal.DefaultBookingService#assignCargoToRoute": 6,
+          "net.java.cargotracker.application.internal.DefaultBookingService#bookNewCargo": 6,
+          "net.java.cargotracker.application.internal.DefaultBookingService#changeDestination": 4,
+          "net.java.cargotracker.application.internal.DefaultBookingService#requestPossibleRoutesForCargo": 24,
+          "net.java.cargotracker.application.internal.DefaultCargoInspectionService#inspectCargo": 6,
+          "net.java.cargotracker.application.internal.DefaultHandlingEventService#registerHandlingEvent": 9,
+          "net.java.cargotracker.infrastructure.messaging.jms.CargoHandledConsumer#onMessage": 6,
+          "net.java.cargotracker.infrastructure.messaging.jms.HandlingEventRegistrationAttemptConsumer#onMessage": 9,
+          "net.java.cargotracker.infrastructure.messaging.jms.HandlingEventRegistrationAttemptProducer#publish": 6,
+          "net.java.cargotracker.infrastructure.messaging.jms.HandlingWorkerAudit#recordConsumedAttempt": 9,
+          "net.java.cargotracker.infrastructure.messaging.jms.InspectionWorkerAudit#recordConsumedAttempt": 6,
+          "net.java.cargotracker.infrastructure.messaging.jms.NotificationWorkerAudit#recordConsumed": 1,
+          "net.java.cargotracker.infrastructure.messaging.jms.RejectedRegistrationAttemptsConsumer#onMessage": 1,
+          "net.java.cargotracker.infrastructure.routing.ExternalRoutingService#fetchRoutesForSpecification": 27,
+          "net.java.cargotracker.interfaces.booking.rest.CargoMonitoringService#getAllCargo": 52,
+          "net.java.cargotracker.interfaces.booking.socket.RealtimeCargoTrackingService#onCargoInspected": 6,
+          "net.java.cargotracker.interfaces.handling.file.BatchImportLauncher#start": 4,
+          "net.java.cargotracker.interfaces.handling.file.BatchImportRequestService#issueNonce": 9,
+          "net.java.cargotracker.interfaces.handling.file.BatchImportRequestService#start": 7,
+          "net.java.cargotracker.interfaces.handling.file.BatchWorkerAudit#jobFinished": 2,
+          "net.java.cargotracker.interfaces.handling.file.BatchWorkerAudit#jobStarted": 2,
+          "net.java.cargotracker.interfaces.handling.rest.HandlingReportService#submitReport": 9,
+          "net.java.pathfinder.api.GraphTraversalService#findShortestPath": 32
+        }
+      },
+      "after": {
+        "database": {
+          "CARGO": {
+            "rows": 10,
+            "sha256": "ea90c5a24d22a616bd6253db2fd14efd074aa593f98b5a54f15fb0bd31ca7c02"
+          },
+          "CARRIER_MOVEMENT": {
+            "rows": 13,
+            "sha256": "86b7da0efb7d43bd7ea5a29095e4b80695c5a4bdab592855fce50c88d3e06e76"
+          },
+          "HANDLING_EVENT": {
+            "rows": 18,
+            "sha256": "d9c291a226353acd65f9cfdef6cd3d371e985f485f9f983c0d6b905a15d36cd1"
+          },
+          "LEG": {
+            "rows": 22,
+            "sha256": "e41137849699dc28762164c8d82c0a886927c292cfe46a57c125e0b3c1008863"
+          },
+          "LOCATION": {
+            "rows": 13,
+            "sha256": "5631b21c70a39a0e7e713beba81df653bddc1708df7af9f9167cb9c8a0bbc642"
+          },
+          "VOYAGE": {
+            "rows": 5,
+            "sha256": "235407c6709f265b34d31d633c31800a4b09a1fa0693a0e76546488c2ebd7157"
+          }
+        },
+        "queue": {
+          "jms.queue.CargoHandledQueue": {
+            "MessageCount": 0,
+            "DeliveringCount": 0,
+            "ScheduledCount": 0,
+            "MessagesAdded": 6,
+            "MessagesAcknowledged": 6,
+            "MessagesExpired": 0,
+            "MessagesKilled": 0,
+            "AcknowledgeAttempts": 6
+          },
+          "jms.queue.DLQ": {
+            "MessageCount": 0,
+            "DeliveringCount": 0,
+            "ScheduledCount": 0,
+            "MessagesAdded": 0,
+            "MessagesAcknowledged": 0,
+            "MessagesExpired": 0,
+            "MessagesKilled": 0,
+            "AcknowledgeAttempts": 0
+          },
+          "jms.queue.DeliveredCargoQueue": {
+            "MessageCount": 0,
+            "DeliveringCount": 0,
+            "ScheduledCount": 0,
+            "MessagesAdded": 0,
+            "MessagesAcknowledged": 0,
+            "MessagesExpired": 0,
+            "MessagesKilled": 0,
+            "AcknowledgeAttempts": 0
+          },
+          "jms.queue.ExpiryQueue": {
+            "MessageCount": 0,
+            "DeliveringCount": 0,
+            "ScheduledCount": 0,
+            "MessagesAdded": 0,
+            "MessagesAcknowledged": 0,
+            "MessagesExpired": 0,
+            "MessagesKilled": 0,
+            "AcknowledgeAttempts": 0
+          },
+          "jms.queue.HandlingEventRegistrationAttemptQueue": {
+            "MessageCount": 0,
+            "DeliveringCount": 0,
+            "ScheduledCount": 0,
+            "MessagesAdded": 8,
+            "MessagesAcknowledged": 6,
+            "MessagesExpired": 0,
+            "MessagesKilled": 2,
+            "AcknowledgeAttempts": 14
+          },
+          "jms.queue.MisdirectedCargoQueue": {
+            "MessageCount": 0,
+            "DeliveringCount": 0,
+            "ScheduledCount": 0,
+            "MessagesAdded": 0,
+            "MessagesAcknowledged": 0,
+            "MessagesExpired": 0,
+            "MessagesKilled": 0,
+            "AcknowledgeAttempts": 0
+          },
+          "jms.queue.RejectedRegistrationAttemptsQueue": {
+            "MessageCount": 0,
+            "DeliveringCount": 0,
+            "ScheduledCount": 0,
+            "MessagesAdded": 2,
+            "MessagesAcknowledged": 2,
+            "MessagesExpired": 0,
+            "MessagesKilled": 0,
+            "AcknowledgeAttempts": 2
+          }
+        },
+        "business_audit": {
+          "net.java.cargotracker.application.internal.DefaultBookingService#assignCargoToRoute": 6,
+          "net.java.cargotracker.application.internal.DefaultBookingService#bookNewCargo": 6,
+          "net.java.cargotracker.application.internal.DefaultBookingService#changeDestination": 4,
+          "net.java.cargotracker.application.internal.DefaultBookingService#requestPossibleRoutesForCargo": 24,
+          "net.java.cargotracker.application.internal.DefaultCargoInspectionService#inspectCargo": 6,
+          "net.java.cargotracker.application.internal.DefaultHandlingEventService#registerHandlingEvent": 12,
+          "net.java.cargotracker.infrastructure.messaging.jms.CargoHandledConsumer#onMessage": 6,
+          "net.java.cargotracker.infrastructure.messaging.jms.HandlingEventRegistrationAttemptConsumer#onMessage": 12,
+          "net.java.cargotracker.infrastructure.messaging.jms.HandlingEventRegistrationAttemptProducer#publish": 7,
+          "net.java.cargotracker.infrastructure.messaging.jms.HandlingWorkerAudit#recordConsumedAttempt": 12,
+          "net.java.cargotracker.infrastructure.messaging.jms.InspectionWorkerAudit#recordConsumedAttempt": 6,
+          "net.java.cargotracker.infrastructure.messaging.jms.NotificationWorkerAudit#recordConsumed": 2,
+          "net.java.cargotracker.infrastructure.messaging.jms.RejectedRegistrationAttemptsConsumer#onMessage": 2,
+          "net.java.cargotracker.infrastructure.routing.ExternalRoutingService#fetchRoutesForSpecification": 27,
+          "net.java.cargotracker.interfaces.booking.rest.CargoMonitoringService#getAllCargo": 52,
+          "net.java.cargotracker.interfaces.booking.socket.RealtimeCargoTrackingService#onCargoInspected": 6,
+          "net.java.cargotracker.interfaces.handling.file.BatchImportLauncher#start": 4,
+          "net.java.cargotracker.interfaces.handling.file.BatchImportRequestService#issueNonce": 9,
+          "net.java.cargotracker.interfaces.handling.file.BatchImportRequestService#start": 7,
+          "net.java.cargotracker.interfaces.handling.file.BatchWorkerAudit#jobFinished": 2,
+          "net.java.cargotracker.interfaces.handling.file.BatchWorkerAudit#jobStarted": 2,
+          "net.java.cargotracker.interfaces.handling.rest.HandlingReportService#submitReport": 10,
+          "net.java.pathfinder.api.GraphTraversalService#findShortestPath": 32
+        }
+      }
+    }
+  },
+  "cleanup": {
+    "owned_container_removed": true,
+    "private_files_removed": true,
+    "errors": []
+  },
+  "shared_services": "The independent progress monitor observed KAN-18 and Jenkins unchanged."
+}

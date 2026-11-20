@@ -529,7 +529,7 @@ def main(after_checks=None):
             suites=[ET.parse(path).getroot() for path in Path(temporary).rglob("TEST-*.xml")]
             report["domain_tests"]={key:sum(int(suite.get(key,"0")) for suite in suites) for key in ["tests","failures","errors","skipped"]}
             report["domain_tests"]["empty_legacy_todo_retained"]=True
-            check("56 candidate domain tests execute",report["domain_tests"]["tests"]==56 and all(report["domain_tests"][key]==0 for key in ["failures","errors","skipped"]))
+            check("58 candidate domain tests execute",report["domain_tests"]["tests"]==58 and all(report["domain_tests"][key]==0 for key in ["failures","errors","skipped"]))
         port=int(command("docker","port",container,"8080/tcp").rsplit(":",1)[1])
         base=f"http://127.0.0.1:{port}/cargo-tracker/"
         deadline=time.monotonic()+150
@@ -2398,6 +2398,78 @@ def main(after_checks=None):
                 report["access_observations"]["ACTION-41::"+actor+"::expired"]=handling_denial(saved,lifecycle_handling,who,"expired")
             report["lifecycle_effects"][who+"_expired"]={"before":baseline,"after":after_sample,"idle_wait_seconds_minimum":75}
         if after_checks:after_checks(container,base,credentials,report)
+
+        # KAN-24: CLAIM is terminal for later LOAD reports. Keep the test after
+        # browser checks so it cannot alter their selected cargo fixture.
+        _,claim_operator,claim_token=login("operator")
+        claim_tracking_id=report["page_fixture_tracking_id"]
+        claimed_before=next(c for c in cargos(claim_operator) if c["trackingId"]==claim_tracking_id)
+        claim_body=json.dumps({"trackingId":claim_tracking_id,"eventType":"CLAIM",
+            "unLocode":"FIHEL","completionTime":"2030-01-05 10:00"}).encode()
+        check("CLAIM test event accepted for terminal-state fixture",handling_as(claim_operator,claim_token,claim_body)==204)
+        deadline=time.monotonic()+30
+        claimed=None
+        while time.monotonic()<deadline:
+            claimed=next(c for c in cargos(claim_operator) if c["trackingId"]==claim_tracking_id)
+            if claimed["transportStatus"]=="CLAIMED":break
+            time.sleep(.25)
+        check("CLAIM positive control reaches persisted cargo projection",
+            claimed is not None and claimed["transportStatus"]=="CLAIMED")
+        before_claimed_load=settled()
+        invalid_load_body=json.dumps({"trackingId":claim_tracking_id,"eventType":"LOAD",
+            "unLocode":"FIHEL","completionTime":"2030-01-06 10:00",
+            "voyageNumber":"0100S"}).encode()
+        check("LOAD after CLAIM is accepted only for asynchronous rejection",
+            handling_as(claim_operator,claim_token,invalid_load_body)==204)
+        rejected_after_claim=None
+        rejection_deadline=time.monotonic()+45
+        input_name="jms.queue.HandlingEventRegistrationAttemptQueue"
+        rejected_name="jms.queue.RejectedRegistrationAttemptsQueue"
+        while time.monotonic()<rejection_deadline:
+            sample=effects()
+            input_queue=sample["queues"][input_name]
+            rejected_queue=sample["queues"][rejected_name]
+            consumer_delta=(sample["business_invocations"].get(
+                "net.java.cargotracker.infrastructure.messaging.jms.HandlingEventRegistrationAttemptConsumer#onMessage",0)
+                - before_claimed_load["business_invocations"].get(
+                "net.java.cargotracker.infrastructure.messaging.jms.HandlingEventRegistrationAttemptConsumer#onMessage",0))
+            rejected_delta=(sample["business_invocations"].get(
+                "net.java.cargotracker.infrastructure.messaging.jms.RejectedRegistrationAttemptsConsumer#onMessage",0)
+                - before_claimed_load["business_invocations"].get(
+                "net.java.cargotracker.infrastructure.messaging.jms.RejectedRegistrationAttemptsConsumer#onMessage",0))
+            if (input_queue["MessageCount"]==0 and rejected_queue["MessageCount"]==0
+                    and input_queue["MessagesAdded"]-before_claimed_load["queues"][input_name]["MessagesAdded"]==1
+                    and rejected_queue["MessagesAdded"]-before_claimed_load["queues"][rejected_name]["MessagesAdded"]==1
+                    and consumer_delta==3 and rejected_delta==1):
+                rejected_after_claim=settled()
+                break
+            time.sleep(.5)
+        if rejected_after_claim is None:rejected_after_claim=effects()
+        rejection_comparison=compare_rejection_effect_deltas(
+            before_claimed_load,rejected_after_claim,input_name,rejected_name)
+        expected_rejection_invocations=dict(rejection_comparison["expected_business_invocation_deltas"])
+        expected_rejection_invocations[
+            "net.java.cargotracker.infrastructure.messaging.jms.HandlingEventRegistrationAttemptProducer#publish"]=1
+        expected_rejection_invocations[
+            "net.java.cargotracker.interfaces.handling.rest.HandlingReportService#submitReport"]=1
+        rejection_comparison["expected_business_invocation_deltas"]=expected_rejection_invocations
+        rejection_comparison["all_queue_and_invocation_deltas_bounded"]=(
+            rejection_comparison["queue_counter_deltas"]==rejection_comparison["expected_queue_counter_deltas"]
+            and rejection_comparison["business_invocation_deltas"]==expected_rejection_invocations)
+        claimed_after_load=next(c for c in cargos(claim_operator) if c["trackingId"]==claim_tracking_id)
+        cargo_state_unchanged=all(claimed.get(key)==claimed_after_load.get(key)
+            for key in ["transportStatus","lastKnownLocationCode","routingStatus","misdirected","atDestination","updatedAt"])
+        no_handling_row=before_claimed_load["tables"]==rejected_after_claim["tables"]
+        report["load_after_claim"]={"tracking_id":claim_tracking_id,
+            "prior_cargo":{"transportStatus":claimed.get("transportStatus"),"lastKnownLocationCode":claimed.get("lastKnownLocationCode"),"routingStatus":claimed.get("routingStatus"),"misdirected":claimed.get("misdirected"),"atDestination":claimed.get("atDestination"),"updatedAt":claimed.get("updatedAt")},
+            "after_rejected_load":{"transportStatus":claimed_after_load.get("transportStatus"),"lastKnownLocationCode":claimed_after_load.get("lastKnownLocationCode"),"routingStatus":claimed_after_load.get("routingStatus"),"misdirected":claimed_after_load.get("misdirected"),"atDestination":claimed_after_load.get("atDestination"),"updatedAt":claimed_after_load.get("updatedAt")},
+            "database_unchanged":no_handling_row,"cargo_state_unchanged":cargo_state_unchanged,
+            "rejection_disposition":rejection_comparison,
+            "before":effects_receipt(before_claimed_load,rejected_after_claim)}
+        check("Post-CLAIM LOAD is not stored and cargo state remains CLAIMED",
+            no_handling_row and cargo_state_unchanged and claimed_after_load.get("transportStatus")=="CLAIMED")
+        check("Post-CLAIM LOAD follows bounded rejection queue disposition",
+            rejection_comparison["all_queue_and_invocation_deltas_bounded"])
         report["status"]="PASS"
     except Exception as error:
         report["error_type"]=type(error).__name__

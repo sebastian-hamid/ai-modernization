@@ -1,0 +1,6 @@
+{
+  "candidate/cargotracker/src/main/java/net/java/cargotracker/application/internal/DefaultHandlingEventService.java": "9af5f193be0438591d1135a85ff9f7c68e9ead8d1db2c5630718fb542658a298",
+  "candidate/cargotracker/src/test/java/net/java/cargotracker/characterization/HandlingEventServiceClaimTest.java": "8cf83b606d56cf58466dde3429c6f239308a1969ca3b4a6d05a1c064006c8786",
+  "tests/candidate-runtime/run_candidate.py": "c32c783776e75e9698bd968ed2ac1d873a7b84138fce4d76e2ffc53668e76037",
+  "tests/candidate-runtime/test_harness.py": "7a06f610195a51a8053d131bb4091d9f8e7b6c8c8e0219ca204ad7b9a11044c6"
+}
