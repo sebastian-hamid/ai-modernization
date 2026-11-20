@@ -368,6 +368,12 @@ Added a characterization test that distinct handling events with identical compl
 
 Added negative booking-service cases for syntactically valid but unknown origin and destination codes. Both currently fail with the corresponding `NullPointerException` from `RouteSpecification` validation before repository storage; no cargo is stored. Focused `BookingServiceFailureCharacterizationTest` passed 5 tests (0 failures/errors/skips) in the pinned Maven/Temurin 25 container. This records current service behavior, not an accepted API error contract; controlled handling is a KAN-24 concern. Updated the disposable-runtime domain-test count guard to 56.
 
+## 20 November 2026 — KAN-23 final fresh runtime gate
+
+Fresh disposable candidate run at `bc2e3fd` passed 777/777 runtime checks and 56 domain/characterization tests (0 failures/errors/skips). The full run verified the batch job processed and archived a valid row and consumed a malformed row into failed output without business processing. Cleanup removed the owned container and private files with no errors; shared KAN-18/Jenkins were unchanged. Evidence: `notes/evidence/kan23-final-validation/`. This validates the updated count guard and existing batch-path assertions; replay/idempotency policy, transactional rollback on forced failure, and JMS recovery remain unproven or separate scope.
+
+Independent aggregate review approved KAN-23 for user acceptance review with no findings; KAN-23 is not being closed until the user accepts the remaining scope limits. Review: `notes/agent-reviews/2026-11-20-kan23-final-coverage-review.md`.
+
 
 ## 17 November 2026 — KAN-23 batch CSV row parsing
 

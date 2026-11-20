@@ -1,0 +1,41 @@
+{
+  "ticket": "KAN-23",
+  "run_id": "kan15-kan23-final-20261120",
+  "source_revision": "bc2e3fd",
+  "status": "PASS",
+  "runtime_checks": {
+    "passed": 777,
+    "failed": 0
+  },
+  "domain_and_characterization_tests": {
+    "tests": 56,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0,
+    "empty_legacy_todo_retained": true
+  },
+  "batch_file_behavior": {
+    "valid_event_persisted": true,
+    "valid_event_archived_under_generated_in_root_name": true,
+    "malformed_input_consumed": true,
+    "malformed_row_isolated_in_failed_output": true,
+    "malformed_row_caused_no_business_processing": true,
+    "business_and_queue_effects_bounded": true
+  },
+  "cleanup": {
+    "owned_container_removed": true,
+    "private_files_removed": true,
+    "errors": []
+  },
+  "shared_services": {
+    "kan18_candidate_unchanged": true,
+    "jenkins_unchanged": true,
+    "independent_monitor_verified_identity_and_ports": true
+  },
+  "scope_limits": [
+    "Replay tests characterize repeated persistence and processing; desired idempotency policy remains unspecified.",
+    "The run does not establish exactly-once delivery or impact to connected clients.",
+    "Database transaction rollback under a forced persistence failure was not tested.",
+    "JMS failure/recovery verification remains KAN-25 scope."
+  ]
+}
