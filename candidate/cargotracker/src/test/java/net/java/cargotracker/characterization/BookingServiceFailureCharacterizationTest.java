@@ -14,7 +14,9 @@ import net.java.cargotracker.domain.model.cargo.Itinerary;
 import net.java.cargotracker.domain.model.cargo.RoutingStatus;
 import net.java.cargotracker.domain.model.cargo.RouteSpecification;
 import net.java.cargotracker.domain.model.cargo.TrackingId;
+import net.java.cargotracker.domain.model.location.LocationRepository;
 import net.java.cargotracker.domain.model.location.SampleLocations;
+import net.java.cargotracker.domain.model.location.UnLocode;
 import net.java.cargotracker.domain.service.RoutingService;
 import org.junit.Before;
 import org.junit.Test;
@@ -100,6 +102,61 @@ public class BookingServiceFailureCharacterizationTest {
             return;
         }
         throw new AssertionError("A route that misses the cargo endpoints must be rejected");
+    }
+
+    @Test
+    public void bookingWithUnknownOriginIsRejectedBeforeStore() throws Exception {
+        assertUnknownLocationBookingRejected("QZABC", "FIHEL",
+                "Origin is required");
+    }
+
+    @Test
+    public void bookingWithUnknownDestinationIsRejectedBeforeStore() throws Exception {
+        assertUnknownLocationBookingRejected("CNHKG", "QZABC",
+                "Destination is required");
+    }
+
+    private void assertUnknownLocationBookingRejected(String origin,
+            String destination, String expectedMessage) throws Exception {
+        TrackingId generatedId = new TrackingId("BOOKING1");
+        CargoRepository cargoRepository = proxy(CargoRepository.class,
+                (method, args) -> {
+                    if ("nextTrackingId".equals(method)) {
+                        return generatedId;
+                    }
+                    if ("store".equals(method)) {
+                        storeCalls++;
+                        return null;
+                    }
+                    throw new UnsupportedOperationException(method);
+                });
+        LocationRepository locationRepository = proxy(LocationRepository.class,
+                (method, args) -> {
+                    if ("find".equals(method)) {
+                        UnLocode code = (UnLocode) args[0];
+                        if ("QZABC".equals(code.getIdString())) {
+                            return null;
+                        }
+                        if ("CNHKG".equals(code.getIdString())) {
+                            return SampleLocations.HONGKONG;
+                        }
+                        if ("FIHEL".equals(code.getIdString())) {
+                            return SampleLocations.HELSINKI;
+                        }
+                    }
+                    throw new UnsupportedOperationException(method);
+                });
+        inject("cargoRepository", cargoRepository);
+        inject("locationRepository", locationRepository);
+
+        try {
+            service.bookNewCargo(new UnLocode(origin), new UnLocode(destination),
+                    new Date(Long.MAX_VALUE));
+            throw new AssertionError("Unknown endpoint must be rejected");
+        } catch (NullPointerException expected) {
+            assertEquals(expectedMessage, expected.getMessage());
+            assertEquals(0, storeCalls);
+        }
     }
 
     private void inject(String fieldName, Object value) throws Exception {

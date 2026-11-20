@@ -364,6 +364,10 @@ Five concurrent identical CUSTOMS REST submissions for one run-created cargo wer
 
 Added a characterization test that distinct handling events with identical completion timestamps are both retained in the history result without asserting an order for the tie. Focused `HandlingHistoryTest` passed 3 tests; the full candidate domain/characterization suite passed 54 tests (0 failures/errors/skips) in the pinned Maven/Temurin 25 container. Updated the full disposable-runtime domain-test count guard to 54. This does not define which tied event should determine delivery state; that ordering rule remains unspecified.
 
+## 20 November 2026 — KAN-23 unknown-location booking outcomes
+
+Added negative booking-service cases for syntactically valid but unknown origin and destination codes. Both currently fail with the corresponding `NullPointerException` from `RouteSpecification` validation before repository storage; no cargo is stored. Focused `BookingServiceFailureCharacterizationTest` passed 5 tests (0 failures/errors/skips) in the pinned Maven/Temurin 25 container. This records current service behavior, not an accepted API error contract; controlled handling is a KAN-24 concern. Updated the disposable-runtime domain-test count guard to 56.
+
 
 ## 17 November 2026 — KAN-23 batch CSV row parsing
 
