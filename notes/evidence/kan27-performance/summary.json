@@ -1,0 +1,149 @@
+{
+  "ticket": "KAN-27",
+  "measurement_date": "2026-11-21",
+  "status": "evidence captured; thresholds require explicit agreement",
+  "environment": {
+    "host": "WSL2 Ubuntu 24.04",
+    "kernel": "6.18.58.1-microsoft-standard-WSL2",
+    "docker_engine": "29.9.1",
+    "docker_compose": "5.6.0",
+    "reported_cpus": 12,
+    "container_memory_available_gib": 15.55,
+    "cpu_memory_limits_configured": false
+  },
+  "workload": {
+    "synthetic_tracking_ids": [
+      "ABC123",
+      "DEF789",
+      "JKL567",
+      "MNO456"
+    ],
+    "warmups_per_journey": 20,
+    "samples_sequential_per_journey": 100,
+    "samples_concurrency_5_per_journey": 100,
+    "journeys": [
+      "GET /rest/cargo",
+      "public tracking form GET plus POST lookup for ABC123"
+    ],
+    "percentile_method": "nearest rank",
+    "catalogue_auth": {
+      "legacy": "anonymous",
+      "candidate": "Operator session established before timing"
+    }
+  },
+  "startup_seconds": {
+    "legacy_fresh_container_to_catalogue_http_200": [
+      25.27,
+      22.35,
+      23.39
+    ],
+    "legacy_mean": 23.67,
+    "candidate_app_only_after_database_migrations_to_protected_api_http_401": [
+      18.166,
+      16.189,
+      16.75,
+      17.181
+    ],
+    "candidate_full_stack": null,
+    "legacy_workload_run_additional": 22.578,
+    "legacy_workload_run_details": "Separate workload run; fresh container, catalogue HTTP 200 and four synthetic IDs verified",
+    "candidate_sample_details": "First app-only measurement plus three fresh candidate-app container recreations; PostgreSQL already healthy and migrations already applied"
+  },
+  "latency_ms": {
+    "legacy_glassfish_derby": {
+      "catalogue_anonymous": {
+        "sequential": {
+          "count": 100,
+          "min": 10.98,
+          "p50": 14.9,
+          "p95": 20.65,
+          "max": 29.44,
+          "mean": 15.47
+        },
+        "concurrency_5": {
+          "count": 100,
+          "min": 15.17,
+          "p50": 27.34,
+          "p95": 40.4,
+          "max": 50.63,
+          "mean": 28.21
+        }
+      },
+      "tracking_form_get_post": {
+        "sequential": {
+          "count": 100,
+          "min": 45.42,
+          "p50": 56.39,
+          "p95": 81.51,
+          "max": 100.56,
+          "mean": 60.72
+        },
+        "concurrency_5": {
+          "count": 100,
+          "min": 58.15,
+          "p50": 108.25,
+          "p95": 142.2,
+          "max": 151.96,
+          "mean": 109.97
+        }
+      }
+    },
+    "candidate_wildfly_postgresql": {
+      "catalogue_operator_session": {
+        "sequential": {
+          "count": 100,
+          "min": 9.89,
+          "p50": 13.65,
+          "p95": 16.41,
+          "max": 28.82,
+          "mean": 13.7
+        },
+        "concurrency_5": {
+          "count": 100,
+          "min": 13.34,
+          "p50": 17.62,
+          "p95": 32.78,
+          "max": 61.62,
+          "mean": 20.37
+        }
+      },
+      "tracking_form_get_post": {
+        "sequential": {
+          "count": 100,
+          "min": 35.61,
+          "p50": 39.63,
+          "p95": 52.61,
+          "max": 63.94,
+          "mean": 41.05
+        },
+        "concurrency_5": {
+          "count": 100,
+          "min": 37.29,
+          "p50": 81.37,
+          "p95": 100.06,
+          "max": 121.53,
+          "mean": 80.92
+        }
+      }
+    }
+  },
+  "resource_observations_mib": {
+    "legacy_container_before": 698.2,
+    "legacy_container_after": 763.5,
+    "candidate_app_before": 760.7,
+    "candidate_app_max_observed": 795.9,
+    "candidate_postgresql_before": 51.13,
+    "candidate_postgresql_max_observed": 80.36,
+    "sampling_interval_seconds": 0.5,
+    "warning": "Only 1-6 snapshots per workload window; memory is coarse and CPU readings are instantaneous, not peak capacity measurements."
+  },
+  "limits": [
+    "single WSL2 host and small synthetic dataset",
+    "four candidate app-only startup samples after PostgreSQL and migrations were ready; candidate full-stack startup remains unmeasured",
+    "legacy and candidate catalogue access differs because candidate auth is established before timed requests",
+    "no approved regression thresholds",
+    "resource sampling is too sparse for capacity claims",
+    "candidate full-stack startup including PostgreSQL boot and migrations is unmeasured",
+    "runner, raw per-request samples, and temporary image build context remain in ignored task workspace; committed files are not a self-contained reproduction package"
+  ]
+}
