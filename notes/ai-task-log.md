@@ -416,3 +416,8 @@ The user approved retaining the configured 30-second (30,000 ms) handling-attemp
 ## 21 November 2026 - KAN-25 bounded quarantine decision
 
 The user approved bounded quarantine for expired or exhausted messages, with restricted operator review and controlled manual replay; automatic replay is not approved. Evidence shows one expired message entering WildFly's ExpiryQueue, but does not establish downstream retention, access controls, replay tooling, capacity behavior, or eventual disposal. This is policy only; no runtime behavior changed. Retention duration/capacity, submission idempotency, and eventual-disposal loss policy remain open. See `notes/evidence/kan25-expiry-backlog/README.md` and `summary.json`.
+
+
+## 21 November 2026 - KAN-25 quarantine retention decision
+
+The user approved a maximum quarantine retention period of 7 days before disposal. This is policy only; no runtime configuration or application behavior changed. Capacity bounds, submission idempotency, and behavior when capacity is reached or messages are disposed remain open. See notes/evidence/kan25-expiry-backlog/README.md and summary.json.

@@ -34,3 +34,13 @@
 - Findings: No remaining findings. The approved bounded-quarantine policy is distinguished from unverified runtime implementation; evidence limits and open duration/capacity/idempotency/disposal questions are clear.
 - Verdict: Approved.
 - Reviewer changes/tests: No files changed; no tests run.
+
+## Independent review of 7-day retention decision
+
+- Reviewed revision: working tree based on 65dfbe0
+- Reviewer: /root/review_kan25_evidence (separate agent)
+- Review date: 2026-11-21
+- Inputs: updated README, summary.json, task-log entry, prior runtime results/checkpoint, and Jira comment 10157.
+- Findings: No remaining findings. The approved 7-day policy duration is distinguished from unimplemented/unverified runtime retention and disposal; capacity bounds remain open.
+- Verdict: Approved.
+- Reviewer changes/tests: No files changed; no tests run.
