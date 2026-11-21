@@ -2,13 +2,13 @@
 
 ## Current KAN-15 close-readiness — 21 November 2026
 
-Jira KAN-15 is **In Review**. Under the user-approved current-capability acceptance decision, the effective gate is **470 PASS / 76 RETIRED / 0 BLOCKED** (exit 0). RETIRED entries remain separate from PASS. ACTION-23 tracking discovery was already independently reviewed and retired in commit `705f062`; ACTION-43's old page hook was independently reviewed, approved, and retired in `ce96df2`. No further retirement item is listed as blocked in the effective replay.
+Jira KAN-15 is **Done** after the independent review record was published in commit ae879b2 and linked in Jira comment 10145. Under the user-approved current-capability acceptance decision, the effective gate is **470 PASS / 76 RETIRED / 0 BLOCKED** (exit 0). RETIRED entries remain separate from PASS. ACTION-23 tracking discovery was already independently reviewed and retired in commit `705f062`; ACTION-43's old page hook was independently reviewed, approved, and retired in `ce96df2`. No further retirement item is listed as blocked in the effective replay.
 
 The preserved 502-case historical audit remains **317 PASS / 7 FAIL / 178 BLOCKED** (exit 1). It is retained as historical evidence separately from the approved current-capability gate; this does not claim the old callbacks executed or that the application was production-tested. See `notes/evidence/kan-15-action43-hook/current-capability-replay.json` and the decision at `notes/decisions/2026-11-02-current-ui-acceptance.md`.
 
 The Jira credential-exclusion criterion was checked against the Git history reachable from repository refs and the exact candidate image used for the reviewed KAN-15 run. The scoped results and provenance are in `notes/evidence/kan-15-acceptance-reconciliation/credential-exclusion-check.json`. Runtime credentials are generated per fixture outside the build context and mounted read-only when the disposable container starts. No credential values are recorded in this evidence.
 
-The independent close-readiness review confirmed the current capability/retirement acceptance and credential-exclusion evidence under the approved basis; it found no material defects or additional user decision. Its record is notes/agent-reviews/2026-11-21-kan15-acceptance-reconciliation-review.md. Jira KAN-15 remains In Review until this review record is linked there; the historical limitation remains explicit.
+The independent close-readiness review confirmed the current capability/retirement acceptance and credential-exclusion evidence under the approved basis; it found no material defects or additional user decision. Its record is notes/agent-reviews/2026-11-21-kan15-acceptance-reconciliation-review.md. The review record was linked on Jira comment 10145, after which KAN-15 transitioned to Done. The historical limitation remains explicit.
 
 The later dated checkpoints below preserve the work history. Their interim counts and “next” actions are historical; use this current checkpoint for KAN-15 status.
 
