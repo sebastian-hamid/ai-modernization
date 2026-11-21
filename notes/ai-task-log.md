@@ -421,3 +421,8 @@ The user approved bounded quarantine for expired or exhausted messages, with res
 ## 21 November 2026 - KAN-25 quarantine retention decision
 
 The user approved a maximum quarantine retention period of 7 days before disposal. This is policy only; no runtime configuration or application behavior changed. Capacity bounds, submission idempotency, and behavior when capacity is reached or messages are disposed remain open. See notes/evidence/kan25-expiry-backlog/README.md and summary.json.
+
+
+## 21 November 2026 - KAN-25 quarantine capacity decision
+
+The user approved a 1 GiB capacity limit for the bounded quarantine. This is policy only; no runtime configuration or application behavior changed. The behavior when the cap is reached remains undecided and unverified. See notes/evidence/kan25-expiry-backlog/README.md and summary.json.

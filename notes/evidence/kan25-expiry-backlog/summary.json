@@ -60,9 +60,9 @@
     "Uses syntactically valid LOAD attempts for tracking IDs with no matching cargo, so the expected worker outcome is rejection and business tables must remain unchanged.",
     "The expiry observation establishes behavior for one 30-second-TTL message aged in a paused queue and inspected after resume; it does not measure high-volume expiry, broker restart durability, or expiry-queue downstream handling.",
     "The backlog observation establishes recovery for one message resumed after one second and the existing three-delivery rejection path; it is not a load or extended worker-outage test.",
-    "The probe verifies observed runtime behavior only. The user later approved bounded quarantine with restricted operator review, controlled manual replay, and a maximum 7-day retention window; capacity, downstream access and processing, submission idempotency, and behavior at capacity or after disposal remain unverified or undecided. No exactly-once behavior is claimed."
+    "The probe verifies observed runtime behavior only. The user later approved bounded quarantine with restricted operator review, controlled manual replay, a maximum 7-day retention window, and a 1 GiB capacity limit; enforcement, behavior at capacity, downstream access and processing, submission idempotency, and disposal behavior remain unverified or undecided. No exactly-once behavior is claimed."
   ],
-  "policy_decision": "PARTIAL: user approved 30-second TTL and bounded quarantine with restricted operator review, controlled manual replay only, and maximum 7-day retention; capacity bounds, submission idempotency, and behavior at capacity or disposal remain pending",
+  "policy_decision": "PARTIAL: user approved 30-second TTL and bounded quarantine with restricted operator review, controlled manual replay only, max 7-day retention, and 1 GiB capacity limit; behavior at capacity, submission idempotency, and disposal behavior remain pending",
   "user_ttl_decision": {
     "date": "2026-11-21",
     "decision": "Keep configured TTL at 30000 ms",
@@ -75,7 +75,9 @@
     "operator_review": "Restricted operator review",
     "replay": "Controlled manual replay only; automatic replay not approved",
     "runtime_configuration_changed": false,
-    "implementation_status": "Not implemented; capacity limits remain unspecified",
-    "retention_period": "Maximum 7 days before disposal"
+    "implementation_status": "Policy bounds approved (7 days and 1 GiB); runtime enforcement and behavior at capacity are not implemented or verified",
+    "retention_period": "Maximum 7 days before disposal",
+    "capacity_limit": "1 GiB",
+    "capacity_full_behavior": "Pending user decision and runtime verification"
   }
 }

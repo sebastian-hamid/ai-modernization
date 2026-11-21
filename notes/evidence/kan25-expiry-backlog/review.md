@@ -44,3 +44,13 @@
 - Findings: No remaining findings. The approved 7-day policy duration is distinguished from unimplemented/unverified runtime retention and disposal; capacity bounds remain open.
 - Verdict: Approved.
 - Reviewer changes/tests: No files changed; no tests run.
+
+## Independent review of 1 GiB capacity decision
+
+- Reviewed revision: working tree based on 32d45e6f721126b6b1c8012bfa9a3c67f5f183c3
+- Reviewer: /root/review_kan25_evidence (separate agent)
+- Review date: 2026-11-21
+- Inputs: updated README, summary.json, task-log entry, prior runtime results/checkpoint, and Jira comment 10159.
+- Findings: No remaining findings. The 1 GiB limit is recorded as policy only; runtime enforcement and full-cap behavior remain unverified and undecided, consistent with the evidence.
+- Verdict: Approved.
+- Reviewer changes/tests: No files changed; no tests run.
