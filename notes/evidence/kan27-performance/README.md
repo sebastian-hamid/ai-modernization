@@ -1,6 +1,6 @@
 # KAN-27 local performance baseline
 
-**Status:** evidence captured; regression thresholds await explicit agreement.  
+**Status:** initial latency p95 review triggers agreed; exact reproduction package and startup/resource thresholds remain open.  
 **Measured:** 2026-11-21 (Europe/Bratislava local date).  
 **Scope:** disposable local runtimes only; no production-like load claim.
 
@@ -31,7 +31,18 @@ Times in milliseconds; catalogue and tracking journeys should be interpreted sep
 | Legacy GlassFish / Derby | Public tracking GET + POST | 100 each | 56.39 / 81.51 | 108.25 / 142.20 |
 | Candidate WildFly / PostgreSQL | Public tracking GET + POST | 100 each | 39.63 / 52.61 | 81.37 / 100.06 |
 
-Full descriptive statistics and coarse container-stat snapshots are in [`summary.json`](summary.json). Raw samples are retained only in the ignored task workspace `.work/kan27-performance/` and are not committed.
+### Approved initial regression review policy
+
+The user approved this four-record synthetic workload as an initial local regression check and approved a review trigger when a candidate journey's p95 exceeds its recorded candidate baseline by more than 20%. Apply each threshold to the matching journey and concurrency mode, using the same 20 warm-ups, 100 timed samples, five workers for the concurrent run, and the same local runtime setup. Crossing a threshold triggers investigation and review; it is not an automatic release failure or a service-level objective.
+
+| Candidate journey | Mode | Baseline p95 | Review trigger above 120% |
+|---|---|---:|---:|
+| Catalogue GET (Operator session already established) | Sequential | 16.410 ms | >19.692 ms |
+| Catalogue GET (Operator session already established) | Five workers | 32.780 ms | >39.336 ms |
+| Public tracking form GET + POST | Sequential | 52.610 ms | >63.132 ms |
+| Public tracking form GET + POST | Five workers | 100.060 ms | >120.072 ms |
+
+These limits cover only latency p95 for this initial workload. No startup or resource regression thresholds were approved. Full descriptive statistics and coarse container-stat snapshots are in [`summary.json`](summary.json). Raw request samples are retained only in the ignored task workspace `.work/kan27-performance/` and are not committed.
 
 ## Resource observations
 
@@ -43,8 +54,8 @@ Container memory was about 698 MiB before the legacy workload and 761 MiB after 
 - The candidate and legacy are distinct stacks, so the measurements show observed behavior of these tested versions; they do not isolate the effect of a single modernization change.
 - Candidate catalogue measurements exclude authentication establishment time, while legacy catalogue access is anonymous. Do not infer equivalent authorization behavior from latency.
 - Candidate startup coverage is four app-only readiness samples after PostgreSQL migrations. A candidate full-stack startup remains unmeasured.
-- No regression thresholds have been approved. Recommend keeping these figures as an initial evidence baseline and agreeing workload representativeness and thresholds before encoding a pass/fail gate.
+- The user approved the initial four-record workload and the latency p95 review triggers below. Startup and resource thresholds remain unapproved. These triggers call for investigation, not an automatic pass/fail decision.
 
 ## Cleanup and safety
 
-The legacy throwaway containers were removed after measurement. The candidate app and PostgreSQL ran in the unique `kan27performance20261121` Compose project with its own task-only data volume and private fixture credentials. Cleanup of that project, volume, credentials and temporary image is pending after independent review has checked the evidence. No files under `sources/` or `experiments/legacy-cargotracker/` were edited.
+The legacy throwaway containers were removed after measurement. The candidate app and PostgreSQL ran in the unique `kan27performance20261121` Compose project with its own task-only data volume and private fixture credentials. The project, volume, private fixture credentials and temporary image were removed after review. No files under `sources/` or `experiments/legacy-cargotracker/` were edited.
