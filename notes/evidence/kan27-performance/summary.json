@@ -1,7 +1,7 @@
 {
   "ticket": "KAN-27",
   "measurement_date": "2026-11-21",
-  "status": "initial p95 latency review triggers agreed; exact reproduction package and startup/resource thresholds remain open",
+  "status": "initial p95 latency review triggers agreed; reproduction package checked in; startup/resource thresholds remain unapproved",
   "environment": {
     "host": "WSL2 Ubuntu 24.04",
     "kernel": "6.18.58.1-microsoft-standard-WSL2",
@@ -44,10 +44,21 @@
       16.75,
       17.181
     ],
-    "candidate_full_stack": null,
+    "candidate_full_stack": 29.788,
     "legacy_workload_run_additional": 22.578,
     "legacy_workload_run_details": "Separate workload run; fresh container, catalogue HTTP 200 and four synthetic IDs verified",
-    "candidate_sample_details": "First app-only measurement plus three fresh candidate-app container recreations; PostgreSQL already healthy and migrations already applied"
+    "candidate_sample_details": "First app-only measurement plus three fresh candidate-app container recreations; PostgreSQL already healthy and migrations already applied",
+    "candidate_full_stack_details": {
+      "postgres_to_healthy_seconds": 5.748,
+      "migration_command_seconds": 5.925,
+      "candidate_app_to_ready_seconds": 16.656,
+      "readiness_http": 401,
+      "includes_image_build": false,
+      "volume_is_new": true,
+      "candidate_compose_up_command_seconds": 1.459,
+      "includes_compose_command_overhead": true
+    },
+    "candidate_app_only_details": "One initial observation 18.166s; three fresh app-container recreations 16.189s, 16.750s and 17.181s timed from Compose command return to readiness; app-only interval excludes PostgreSQL boot/migrations, repeated samples also exclude Compose app-up command overhead"
   },
   "latency_ms": {
     "legacy_glassfish_derby": {
@@ -140,15 +151,14 @@
   "limits": [
     "single WSL2 host and small synthetic dataset",
     "legacy and candidate catalogue access differs because candidate auth is established before timed requests",
-    "startup and resource review thresholds remain unapproved",
     "resource sampling is too sparse for capacity claims",
-    "runner, raw per-request samples, and temporary image build context remain in ignored task workspace; committed files are not a self-contained reproduction package",
-    "four candidate app-only startup samples after PostgreSQL and migrations were ready; candidate full-stack startup remains unmeasured"
+    "full-stack startup was measured once; startup variability is not characterized",
+    "startup and resource regression thresholds remain unapproved"
   ],
   "approved_regression_policy": {
     "decision": "User approved 2026-11-21",
     "workload": "Initial local regression check using the four synthetic cargo IDs ABC123, DEF789, JKL567, MNO456",
-    "rule": "Review is triggered when measured p95 is greater than 1.20 times the matching candidate baseline; compare only the same journey and concurrency mode using 20 warm-ups, 100 samples, five concurrent workers, and the same environment",
+    "rule": "Review is triggered when measured p95 is greater than 1.20 times the matching candidate baseline; compare only the same journey and concurrency mode using 20 sequential warm-ups per journey before timing, 100 timed samples per mode, five concurrent workers, and the same environment",
     "thresholds_are": "review triggers, not automatic release failures or service-level objectives",
     "other_metrics": "No startup or resource thresholds approved",
     "thresholds_ms": {
@@ -157,5 +167,18 @@
       "tracking_form_sequential": 63.132,
       "tracking_form_concurrency_5": 120.072
     }
+  },
+  "reproduction_rerun": {
+    "runner": "measure.py",
+    "candidate_results": "candidate-rerun-20261121.json",
+    "legacy_results": "legacy-rerun-20261121.json",
+    "raw_request_samples_included": true,
+    "candidate_p95_ms": {
+      "catalogue_sequential": 16.95,
+      "catalogue_concurrency_5": 34.55,
+      "tracking_sequential": 57.17,
+      "tracking_concurrency_5": 103.85
+    },
+    "candidate_baseline_trigger_exceeded": false
   }
 }

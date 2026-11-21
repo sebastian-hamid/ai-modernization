@@ -1,0 +1,12 @@
+{
+  "project": "kan27final20261121",
+  "readiness_url": "http://127.0.0.1:8082/cargo-tracker/rest/cargo",
+  "readiness_http": 401,
+  "postgres_to_healthy_seconds": 5.748,
+  "migration_command_seconds": 5.925,
+  "candidate_app_to_ready_seconds": 16.656,
+  "candidate_compose_up_command_seconds": 1.459,
+  "full_stack_to_ready_seconds": 29.788,
+  "includes_image_build": false,
+  "volume_is_new": true
+}
