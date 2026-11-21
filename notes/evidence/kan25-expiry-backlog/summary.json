@@ -60,13 +60,21 @@
     "Uses syntactically valid LOAD attempts for tracking IDs with no matching cargo, so the expected worker outcome is rejection and business tables must remain unchanged.",
     "The expiry observation establishes behavior for one 30-second-TTL message aged in a paused queue and inspected after resume; it does not measure high-volume expiry, broker restart durability, or expiry-queue downstream handling.",
     "The backlog observation establishes recovery for one message resumed after one second and the existing three-delivery rejection path; it is not a load or extended worker-outage test.",
-    "This verifies observed runtime behavior only. It does not decide the product policy for expired or exhausted payload retention/replay, submission idempotency, or acceptable loss."
+    "The probe verifies observed runtime behavior only. The user later approved bounded quarantine with restricted operator review and controlled manual replay; retention duration, capacity, downstream access and processing, submission idempotency, and eventual-disposal loss policy remain unverified or undecided. No exactly-once behavior is claimed."
   ],
-  "policy_decision": "PARTIAL: user approved the existing 30-second TTL; retention/replay, submission idempotency, and acceptable-loss policy remain pending",
+  "policy_decision": "PARTIAL: user approved 30-second TTL and bounded quarantine with restricted operator review and controlled manual replay; no automatic replay; retention/capacity bounds, submission idempotency, and eventual-disposal loss policy remain pending",
   "user_ttl_decision": {
     "date": "2026-11-21",
     "decision": "Keep configured TTL at 30000 ms",
     "jira_description_corrected": true,
     "runtime_configuration_changed": false
+  },
+  "user_quarantine_decision": {
+    "date": "2026-11-21",
+    "decision": "Bounded quarantine for expired/exhausted messages",
+    "operator_review": "Restricted operator review",
+    "replay": "Controlled manual replay only; automatic replay not approved",
+    "runtime_configuration_changed": false,
+    "implementation_status": "Not implemented; retention duration and capacity limits remain unspecified"
   }
 }

@@ -14,7 +14,7 @@ The queue was paused again, a second report entered it, and the queue resumed af
 
 The final disposable run passed 20 bootstrap assertions and all 58 candidate domain tests (zero failures, errors, or skips). Its app container and private credential files were removed with no cleanup errors. The probe source was temporary and no application code, runtime configuration, or permanent test was changed for this observation. Earlier harness attempts exposed two harness issues (a non-runtime queue address and an observer snapshot error); the final run used WildFly's runtime-queue address and completed both observations. The failed attempts also cleaned up their containers and credentials.
 
-This evidence does not establish high-volume behavior, broker restart durability, or downstream retention/replay for expired messages. It does not resolve whether expired or exhausted payloads should be retained for operator review, whether a stable submission ID should suppress transport-level duplicate posts, or what loss policy the product accepts. Those policy choices remain pending. Existing duplicate replay evidence shows repeated submissions create repeated work; this observation does not claim exactly-once processing.
+This evidence does not establish high-volume behavior, broker restart durability, or downstream retention/replay for expired messages. The user subsequently approved bounded quarantine with restricted operator review and controlled manual replay, but the implementation and its retention/capacity limits are unverified. Whether a stable submission ID should suppress transport-level duplicate posts and what loss policy applies after quarantine disposal remain pending. Existing duplicate replay evidence shows repeated submissions create repeated work; this observation does not claim exactly-once processing.
 
 See [summary.json](summary.json) for the measured counters, run identifier, image digest, and cleanup receipt.
 
@@ -22,4 +22,9 @@ See [summary.json](summary.json) for the measured counters, run identifier, imag
 
 On 21 November 2026, the user approved keeping the candidate handling-attempt TTL at 30 seconds. The earlier 1-second value in Jira was stale; Jira was corrected to match the configured value. No runtime configuration or application behavior changed for this decision.
 
-Still awaiting a separate decision: whether expired/exhausted messages should be retained for operator review or replay, whether a stable request/submission identifier should suppress transport retries, and what loss policy is acceptable. The single-message probe does not establish downstream expiry-queue retention or processing.
+At the time of the probe, policy choices were pending. The subsequent bounded-quarantine decision and remaining operational questions are recorded below. The single-message probe does not establish downstream expiry-queue retention or processing.
+
+
+## Bounded quarantine decision
+
+On 21 November 2026, the user approved bounded quarantine for expired or exhausted messages. The intended disposition is restricted operator review and explicitly controlled manual replay; automatic replay is not approved. The single-message observation proves that one expired message entered the broker ExpiryQueue, but does not verify downstream retention, access controls, replay tooling, capacity behavior, or eventual disposal. This is a policy decision only: no runtime configuration or application behavior changed. Retention duration and capacity bounds remain to be specified before implementation; submission idempotency and acceptable-loss policy also remain open.

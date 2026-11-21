@@ -24,3 +24,13 @@
 - Findings: No actionable findings. The user-approved 30-second decision matches Jira and measured runtime configuration; no runtime change is claimed. Probe limits and remaining policy decisions remain explicit.
 - Verdict: Approved.
 - Reviewer changes/tests: No files changed; no tests run.
+
+## Independent review of bounded-quarantine decision
+
+- Reviewed revision: working tree based on c81008698fc1e416bb92dca71e109ac909e4d6b7
+- Reviewer: /root/review_kan25_evidence (separate agent)
+- Review date: 2026-11-21
+- Inputs: updated README, summary.json, task-log entry, prior runtime results/checkpoint, and Jira comment 10155.
+- Findings: No remaining findings. The approved bounded-quarantine policy is distinguished from unverified runtime implementation; evidence limits and open duration/capacity/idempotency/disposal questions are clear.
+- Verdict: Approved.
+- Reviewer changes/tests: No files changed; no tests run.

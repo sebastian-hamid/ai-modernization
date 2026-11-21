@@ -411,3 +411,8 @@ The first two runs passed the claimed-state and no-database-change proofs but ex
 ## 21 November 2026 — KAN-25 TTL decision
 
 The user approved retaining the configured 30-second (30,000 ms) handling-attempt TTL. The earlier 1,000-ms Jira description was stale and has been corrected; no runtime setting or application behavior was changed. This resolves only the TTL mismatch. Expired/exhausted payload disposition, request/submission idempotency, and acceptable-loss policy remain open. See `notes/evidence/kan25-expiry-backlog/README.md` and `summary.json`.
+
+
+## 21 November 2026 - KAN-25 bounded quarantine decision
+
+The user approved bounded quarantine for expired or exhausted messages, with restricted operator review and controlled manual replay; automatic replay is not approved. Evidence shows one expired message entering WildFly's ExpiryQueue, but does not establish downstream retention, access controls, replay tooling, capacity behavior, or eventual disposal. This is policy only; no runtime behavior changed. Retention duration/capacity, submission idempotency, and eventual-disposal loss policy remain open. See `notes/evidence/kan25-expiry-backlog/README.md` and `summary.json`.
