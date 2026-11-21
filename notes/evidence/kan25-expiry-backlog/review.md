@@ -10,3 +10,17 @@
 - Verdict: Reviewed with no remaining material findings.
 - Remaining user decision: The retention/replay, idempotency, and acceptable-loss policy is still pending; this review does not resolve it.
 - Reviewer changes/tests: No files changed; no tests run by reviewer.
+## Subsequent TTL decision
+
+- On 21 November 2026, the user approved retaining the configured 30,000-ms TTL; the prior 1,000-ms Jira text was stale and was corrected. No runtime code/configuration changed.
+- This decision resolves only the TTL mismatch. The independently reviewed expiry/backlog evidence still does not decide retention/replay, request idempotency, or acceptable loss. Review of the decision documentation is pending.
+
+## Independent review of TTL decision update
+
+- Reviewed revision: working tree based on a0b99467ed45d0a61687a93a78dcf24ffc3021b6
+- Reviewer: /root/review_kan25_evidence (separate agent)
+- Review date: 2026-11-21
+- Inputs: updated README, summary.json, this review record, task-log entry, prior run results/checkpoint, and live Jira KAN-25.
+- Findings: No actionable findings. The user-approved 30-second decision matches Jira and measured runtime configuration; no runtime change is claimed. Probe limits and remaining policy decisions remain explicit.
+- Verdict: Approved.
+- Reviewer changes/tests: No files changed; no tests run.

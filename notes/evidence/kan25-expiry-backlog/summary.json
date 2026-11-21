@@ -62,5 +62,11 @@
     "The backlog observation establishes recovery for one message resumed after one second and the existing three-delivery rejection path; it is not a load or extended worker-outage test.",
     "This verifies observed runtime behavior only. It does not decide the product policy for expired or exhausted payload retention/replay, submission idempotency, or acceptable loss."
   ],
-  "policy_decision": "PENDING_USER"
+  "policy_decision": "PARTIAL: user approved the existing 30-second TTL; retention/replay, submission idempotency, and acceptable-loss policy remain pending",
+  "user_ttl_decision": {
+    "date": "2026-11-21",
+    "decision": "Keep configured TTL at 30000 ms",
+    "jira_description_corrected": true,
+    "runtime_configuration_changed": false
+  }
 }
