@@ -1,0 +1,66 @@
+{
+  "jira_issue": "KAN-25",
+  "task": "Observe handling-attempt expiry and backlog recovery",
+  "date": "2026-11-21",
+  "fixture": {
+    "run_id": "kan25-expiry-backlog-observation",
+    "candidate_image_id": "sha256:3363109d7cfd049100b0ecfed4e03c4dc0a34edfc88443a0dfdf411ba28d9c74",
+    "runtime_status": "PASS",
+    "bootstrap_checks": 20,
+    "candidate_domain_tests": {
+      "tests": 58,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "empty_legacy_todo_retained": true
+    },
+    "owned_container_removed": true,
+    "private_files_removed": true,
+    "cleanup_errors": []
+  },
+  "expiry_observation": {
+    "request_status": 204,
+    "paused_before_send": true,
+    "queued_message_count": 1,
+    "input_messages_added_delta": 1,
+    "attempt_id_was_known_missing_cargo": true,
+    "before_resume": {
+      "message_count": 1,
+      "messages_expired_delta": 0,
+      "expiry_queue_count": 0,
+      "consumer_invocation_delta": 0
+    },
+    "after_resume": {
+      "message_count": 0,
+      "messages_expired_delta": 1,
+      "expired_queue_added_delta": 1,
+      "expiry_queue_count": 1,
+      "rejected_queue_added_delta": 0,
+      "consumer_invocation_delta": 0,
+      "rejection_consumer_invocation_delta": 0,
+      "business_tables_unchanged": true
+    }
+  },
+  "backlog_recovery_observation": {
+    "request_status": 204,
+    "paused_for_seconds_before_resume": 1,
+    "message_count_before_resume": 1,
+    "attempt_messages_added_delta": 1,
+    "attempt_messages_expired_delta": 0,
+    "attempt_messages_killed_delta": 1,
+    "attempt_consumer_invocation_delta": 3,
+    "rejected_messages_added_delta": 1,
+    "rejected_messages_acknowledged_delta": 1,
+    "rejection_consumer_invocation_delta": 1,
+    "attempt_queue_count_after": 0,
+    "rejected_queue_count_after": 0,
+    "business_tables_unchanged": true
+  },
+  "limitations": [
+    "Uses syntactically valid LOAD attempts for tracking IDs with no matching cargo, so the expected worker outcome is rejection and business tables must remain unchanged.",
+    "The expiry observation establishes behavior for one 30-second-TTL message aged in a paused queue and inspected after resume; it does not measure high-volume expiry, broker restart durability, or expiry-queue downstream handling.",
+    "The backlog observation establishes recovery for one message resumed after one second and the existing three-delivery rejection path; it is not a load or extended worker-outage test.",
+    "This verifies observed runtime behavior only. It does not decide the product policy for expired or exhausted payload retention/replay, submission idempotency, or acceptable loss."
+  ],
+  "policy_decision": "PENDING_USER"
+}
