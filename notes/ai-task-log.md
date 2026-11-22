@@ -441,3 +441,8 @@ The user approved stable request-ID idempotency for transport retries: same ID a
 ## 22 November 2026 - KAN-25 Administrator-only quarantine access
 
 The user selected the existing Administrator role as the only role allowed to review and manually replay quarantined messages. Reader, Operator, and service roles receive no such access; no new role is created. This is policy only; runtime access control and denied-access behavior remain unimplemented and unverified. See notes/evidence/kan25-expiry-backlog/README.md and summary.json.
+
+
+## 22 November 2026 - KAN-31 full-quarantine incoming-message decision
+
+The user approved retaining an incoming expired message durably as pending work when the 1 GiB quarantine is full, then retrying its transfer when capacity frees. At capacity, new quarantine acceptance stops and an operator is alerted; already-quarantined messages remain retained through the 7-day window. This is policy only; broker expiry-routing/retry behavior is unimplemented and must be verified without silent loss. See KAN-31 and notes/evidence/kan25-expiry-backlog/README.md and summary.json.

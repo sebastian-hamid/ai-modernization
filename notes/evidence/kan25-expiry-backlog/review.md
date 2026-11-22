@@ -74,3 +74,13 @@
 - Findings: No remaining findings. Same-ID retry rules and Administrator-only access are recorded as approved policy; runtime idempotency, concurrency, access enforcement, and denial behavior remain explicitly unverified. Existing role declaration is confirmed; no new role is claimed.
 - Verdict: Approved.
 - Reviewer changes/tests: No files changed; no tests run.
+
+## Independent review of incoming-message-at-cap decision
+
+- Reviewed revision: working tree based on 76faba7
+- Reviewer: /root/review_kan25_evidence (separate agent)
+- Review date: 2026-11-22
+- Inputs: updated README, summary.json, task-log entry, and Jira KAN-31/comment 10204.
+- Findings: No remaining findings. The approved policy keeps an incoming expired message durably pending while quarantine is full, retries transfer when capacity frees, alerts the operator, and preserves existing entries. Runtime behavior is clearly unverified; test-only retention/capacity overrides and committed defaults are separated.
+- Verdict: Approved.
+- Reviewer changes/tests: No files changed; no tests run.
