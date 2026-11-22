@@ -2615,12 +2615,25 @@ def main(after_checks=None):
             report["lifecycle_effects"][who+"_expired"]={"before":baseline,"after":after_sample,"idle_wait_seconds_minimum":75}
         if after_checks:after_checks(container,base,credentials,report)
 
-        # KAN-24: CLAIM is terminal for later LOAD reports. Keep the test after
-        # browser checks so it cannot alter their selected cargo fixture.
+        # KAN-24: CLAIM is terminal for later LOAD reports. Book a separate
+        # cargo after browser checks so those workflows cannot pre-seed its
+        # handling history or alter its route.
         _,claim_operator,claim_token=login("operator")
-        claim_tracking_id=report["page_fixture_tracking_id"]
+        claim_booking_page_status,claim_booking_page,_=request(claim_operator,"admin/book.xhtml")
+        check("CLAIM fixture booking form available after browser workflows",
+            claim_booking_page_status==200)
+        claim_booking_form=booking_form(claim_booking_page,claim_token)
+        claim_booking_before=settled()
+        claim_booking_status,_,claim_booking_headers=request(
+            claim_operator,"admin/book.xhtml",claim_booking_form)
+        claim_tracking_id=booking_tracking_id(
+            base,claim_booking_status,claim_booking_headers.get("Location",""))
         claimed_before=next(c for c in cargos(claim_operator) if c["trackingId"]==claim_tracking_id)
-        claim_initial_effects=settled()
+        claim_booking_after=settled()
+        check("CLAIM fixture booking is fresh and isolated from browser workflows",
+            claim_tracking_id!=report["page_fixture_tracking_id"]
+            and booking_positive(claim_booking_before,claim_booking_after,claimed_before,claim_tracking_id))
+        claim_initial_effects=claim_booking_after
         receive_body=json.dumps({"trackingId":claim_tracking_id,"eventType":"RECEIVE",
             "unLocode":"CNHKG","completionTime":"2030-01-03 10:00"}).encode()
         receive_status=handling_as(claim_operator,claim_token,receive_body)

@@ -410,7 +410,7 @@ def action32_render_evidence():
     hashes={key:hashlib.sha256(path.read_bytes()).hexdigest() for key,path in files.items()}
     obs=record.get("observation",{});markup=obs.get("button_markup","")
     if (record.get("task")!="KAN-15 ACTION-32 legacy rendered command identity"
-            or record.get("source_hashes")!=hashes or obs.get("component_id")!="j_idt29:j_idt37"
+            or not handling_capture.captured_source_hashes_match(record.get("source_hashes"),hashes) or obs.get("component_id")!="j_idt29:j_idt37"
             or obs.get("submitted_parameter")!="j_idt29:j_idt37" or obs.get("form_id")!="j_idt29"
             or obs.get("destination_view")!="/cargo-tracker/booking/booking-destination.xhtml"
             or obs.get("render_status")!=200 or obs.get("viewstate_flow_context_error") is not False
@@ -421,7 +421,7 @@ def action32_render_evidence():
     servlet=files["legacy_navigation_servlet_sha256"].read_text();routes=files["candidate_access_routes_sha256"].read_text()
     if ('<p:commandButton value="Next" action="booking-date" />' not in old
             or '"/booking/booking-destination.xhtml","/admin/book.xhtml"' not in servlet
-            or "protected void doPost" in servlet or "/booking/booking-destination.xhtml\tOperator,Administrator" not in routes):
+            or "protected void doPost" in servlet or not handling_capture.route_has_exact_role(routes,"/booking/booking-destination.xhtml","Operator,Administrator") or not handling_capture.route_has_exact_role(routes,"/admin/book.xhtml","Operator,Administrator")):
         raise AssertionError("ACTION-32 source/candidate POST boundary changed")
     return {"component_id":obs["component_id"],"button_markup_sha256":obs["button_markup_sha256"],"source_hashes":hashes}
 
@@ -441,7 +441,7 @@ def action273034_render_evidence():
               "ACTION-30":("/cargo-tracker/booking/booking-destination.xhtml","booking","j_idt29:j_idt35","j_idt29"),
               "ACTION-34":("/cargo-tracker/booking/booking.xhtml","booking-destination","j_idt29:j_idt36","j_idt29")}
     if (record.get("task")!="KAN-15 ACTION-27/30/34 legacy rendered booking wizard action identities"
-            or record.get("source_hashes")!=hashes or "protected void doPost" in servlet):
+            or not handling_capture.captured_source_hashes_match(record.get("source_hashes"),hashes) or "protected void doPost" in servlet):
         raise AssertionError("ACTION-27/30/34 source evidence is stale or unsupported")
     actions={}
     for action,(source,expression,component,form) in expected.items():
@@ -451,7 +451,7 @@ def action273034_render_evidence():
                 or obs.get("component_id")!=component or obs.get("submitted_parameter")!=component
                 or obs.get("form_id")!=form or obs.get("render_status")!=200 or obs.get("flow_post_status")!=200
                 or not re.search(r'<p:commandButton[^>]*action="'+re.escape(expression)+r'"',page)
-                or source.replace("/cargo-tracker","")+"\tOperator,Administrator" not in routes
+                or not handling_capture.route_has_exact_role(routes,source.replace("/cargo-tracker",""),"Operator,Administrator") or not handling_capture.route_has_exact_role(routes,"/admin/book.xhtml","Operator,Administrator")
                 or '"'+source.replace("/cargo-tracker","")+'","/admin/book.xhtml"' not in servlet):
             raise AssertionError("ACTION-27/30/34 rendered component or protected route mismatch: "+action)
         actions[action]={"legacy_id":action,"source_path":source,"component_id":component,"form_id":form,
@@ -474,7 +474,7 @@ def action283133_render_evidence():
               "ACTION-31":("/cargo-tracker/booking/booking-destination.xhtml","j_idt29:j_idt36","j_idt29"),
               "ACTION-33":("/cargo-tracker/booking/booking.xhtml","j_idt29:j_idt35","j_idt29")}
     if (record.get("task")!="KAN-15 ACTION-28/31/33 legacy rendered and executed booking cancel actions"
-            or record.get("source_hashes")!=hashes or record.get("capture",{}).get("fixture_cleanup_verified") is not True
+            or not handling_capture.captured_source_hashes_match(record.get("source_hashes"),hashes) or record.get("capture",{}).get("fixture_cleanup_verified") is not True
             or record.get("capture",{}).get("method") is None or "protected void doPost" in servlet):
         raise AssertionError("ACTION-28/31/33 rendered evidence is stale or unsupported")
     actions={}
@@ -490,7 +490,7 @@ def action283133_render_evidence():
                 or obs.get("cancel_returns_to_dashboard") is not True
                 or hashlib.sha256(markup.encode()).hexdigest()!=obs.get("button_markup_sha256")
                 or not re.search(r'<p:commandButton[^>]*value="Cancel"\s+action="/admin/dashboard"',page)
-                or source.replace("/cargo-tracker","")+"\tOperator,Administrator" not in routes
+                or not handling_capture.route_has_exact_role(routes,source.replace("/cargo-tracker",""),"Operator,Administrator") or not handling_capture.route_has_exact_role(routes,"/admin/book.xhtml","Operator,Administrator")
                 or '"'+source.replace("/cargo-tracker","")+'","/admin/book.xhtml"' not in servlet):
             raise AssertionError("ACTION-28/31/33 rendered Cancel source mismatch: "+action)
         actions[action]={"legacy_id":action,"source_path":source,"component_id":component,"form_id":form,

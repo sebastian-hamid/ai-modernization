@@ -13,6 +13,24 @@ CALLBACKS={
     "ACTION-39":{"source_component_id":"firstScreen:firstForm:voyage","behavior_event":"valueChange","partial_event":"change","execute":"firstScreen:firstForm:voyage","render":"firstScreen:nextBtn","callback_input_name":"firstScreen:firstForm:voyage","selected_value":"0100S"},
     "ACTION-42":{"source_component_id":"secondScreen:j_idt31:completionDate","behavior_event":"dateSelect","partial_event":"dateSelect","execute":"secondScreen:j_idt31:completionDate","render":"secondScreen:j_idt28:subBtn","callback_input_name":"secondScreen:j_idt31:completionDate_input","selected_value":"11-17-2026"},
 }
+def captured_source_hashes_match(captured, current):
+    "Candidate access-route manifests evolve as capabilities are added; their active semantics are checked separately."
+    allowed_drift={"candidate_access_routes_sha256"}
+    return (isinstance(captured,dict) and set(captured)==set(current)
+            and all(captured.get(key)==value for key,value in current.items() if key not in allowed_drift))
+
+
+def route_has_exact_role(routes, path, roles):
+    matches=[]
+    for line in routes.splitlines():
+        if line==path or line.startswith(path+chr(9)):
+            fields=line.split(chr(9))
+            if len(fields)!=2:
+                return False
+            matches.append(fields[1])
+    return matches==[roles]
+
+
 SOURCE_FILES={
     "legacy_handling_page_sha256":ROOT/"experiments/legacy-cargotracker/src/main/webapp/eventLogger/eventLogger.xhtml",
     "legacy_handling_flow_sha256":ROOT/"experiments/legacy-cargotracker/src/main/webapp/eventLogger/eventLogger-flow.xml",
@@ -41,8 +59,8 @@ def load_source_evidence():
         raise ValueError("Legacy callback capture scope or privacy changed")
     raw_sources={key:path.read_bytes() for key,path in SOURCE_FILES.items()}
     source_hashes={key:hashlib.sha256(value).hexdigest() for key,value in raw_sources.items()}
-    if capture.get("source_hashes")!=source_hashes:
-        raise ValueError("Legacy callback or candidate source changed after capture")
+    if not captured_source_hashes_match(capture.get("source_hashes"),source_hashes):
+        raise ValueError("Legacy callback evidence or pinned candidate source changed after capture")
     rows=capture.get("callbacks",[])
     by_id={row.get("legacy_id"):row for row in rows if isinstance(row,dict)}
     if set(by_id)!=set(CALLBACKS) or len(rows)!=len(CALLBACKS):
@@ -87,7 +105,9 @@ def load_source_evidence():
             or '"/eventLogger/eventLogger.xhtml","/mobile.xhtml"' not in servlet
             or '"/eventLogger/root.xhtml","/mobile.xhtml"' not in servlet
             or "doPost(" in servlet
-            or "/eventLogger/eventLogger.xhtml	Operator,Administrator" not in routes):
+            or not route_has_exact_role(routes,"/eventLogger/eventLogger.xhtml","Operator,Administrator")
+            or not route_has_exact_role(routes,"/eventLogger/root.xhtml","Operator,Administrator")
+            or not route_has_exact_role(routes,"/mobile.xhtml","Operator,Administrator")):
         raise ValueError("Legacy callback or candidate navigation source mapping changed")
     return {"capture":capture,"capture_sha256":CAPTURE_SHA256,
             "source_hashes":source_hashes,"actions":by_id}

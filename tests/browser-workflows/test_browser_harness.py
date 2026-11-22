@@ -21,6 +21,35 @@ class BrowserRunNamespaceTests(unittest.TestCase):
     def test_invalid_browser_namespace_fails_closed(self):
         with self.assertRaises(ValueError):self.load_browser("../../kan18")
 
+class EvolvingAccessManifestEvidenceTests(unittest.TestCase):
+    def test_only_access_manifest_hash_may_evolve(self):
+        evidence=harness.handling_capture.load_source_evidence()
+        captured=evidence["capture"]["source_hashes"]
+        current=evidence["source_hashes"]
+        match=harness.handling_capture.captured_source_hashes_match
+        self.assertTrue(match(captured,current))
+        changed=dict(captured)
+        changed["legacy_handling_page_sha256"]="0"*64
+        self.assertFalse(match(changed,current))
+        missing=dict(captured)
+        missing.pop("candidate_navigation_servlet_sha256")
+        self.assertFalse(match(missing,current))
+
+    def test_retired_aliases_and_booking_wizard_routes_require_exact_unique_roles(self):
+        routes=(harness.ROOT/"candidate/cargotracker/src/main/webapp/WEB-INF/access-routes.tsv").read_text()
+        route_check=harness.handling_capture.route_has_exact_role
+        paths=("/eventLogger/eventLogger.xhtml","/eventLogger/root.xhtml","/mobile.xhtml",
+               "/booking/booking.xhtml","/booking/booking-date.xhtml",
+               "/booking/booking-destination.xhtml","/admin/book.xhtml")
+        for path in paths:
+            with self.subTest(path=path):
+                self.assertTrue(route_check(routes,path,"Operator,Administrator"))
+                public=routes.replace(path+chr(9)+"Operator,Administrator",path+chr(9)+"PUBLIC")
+                self.assertFalse(route_check(public,path,"Operator,Administrator"))
+                duplicate=routes+path+chr(9)+"Operator,Administrator"+chr(10)
+                self.assertFalse(route_check(duplicate,path,"Operator,Administrator"))
+
+
 class HandlingCsrfProofTests(unittest.TestCase):
     def fixture(self):
         proofs={}
