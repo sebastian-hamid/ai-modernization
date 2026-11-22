@@ -12,6 +12,12 @@ import jakarta.inject.Inject;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
 import jakarta.ws.rs.BadRequestException;
+import jakarta.ws.rs.HeaderParam;
+import jakarta.ws.rs.WebApplicationException;
+import jakarta.ws.rs.core.Response;
+import java.util.UUID;
+import java.util.regex.Pattern;
+import net.java.cargotracker.infrastructure.quarantine.HandlingRequestIdConflictException;
 import jakarta.ws.rs.Consumes;
 import jakarta.ws.rs.POST;
 import jakarta.ws.rs.Path;
@@ -36,6 +42,7 @@ import net.java.cargotracker.interfaces.handling.HandlingEventRegistrationAttemp
 public class HandlingReportService {
 
     public static final String ISO_8601_FORMAT = "uuuu-MM-dd HH:mm";
+    private static final Pattern REQUEST_ID_PATTERN = Pattern.compile("[A-Za-z0-9._:-]{1,128}");
     private static final DateTimeFormatter COMPLETION_TIME_FORMAT =
             DateTimeFormatter.ofPattern(ISO_8601_FORMAT, Locale.ROOT)
                     .withResolverStyle(ResolverStyle.STRICT);
@@ -44,11 +51,17 @@ public class HandlingReportService {
 
     public HandlingReportService() {}
 
+    /** Backward-compatible entry point for the mobile form; it receives a fresh request identity. */
+    public void submitReport(HandlingReport handlingReport) {
+        submitReport(handlingReport, null);
+    }
+
     @POST
     @Path("/reports")
     @Consumes(MediaType.APPLICATION_JSON)
     // TODO Better exception handling.
-    public void submitReport(@NotNull @Valid HandlingReport handlingReport) {
+    public void submitReport(@NotNull @Valid HandlingReport handlingReport,
+            @HeaderParam("Idempotency-Key") String requestId) {
         final Date completionTime;
         final HandlingEvent.Type type;
         final UnLocode unLocode;
@@ -71,9 +84,19 @@ public class HandlingReportService {
             throw new BadRequestException("Invalid handling report");
         }
 
+        if (requestId == null) requestId = UUID.randomUUID().toString();
+        else if (!REQUEST_ID_PATTERN.matcher(requestId).matches()) {
+            throw new BadRequestException("Invalid Idempotency-Key");
+        }
+
         Date registrationTime = new Date();
         HandlingEventRegistrationAttempt attempt = new HandlingEventRegistrationAttempt(
                 registrationTime, completionTime, trackingId, voyageNumber, type, unLocode);
-        applicationEvents.receivedHandlingEventRegistrationAttempt(attempt);
+        try {
+            applicationEvents.receivedHandlingEventRegistrationAttempt(attempt, requestId);
+        } catch (HandlingRequestIdConflictException conflict) {
+            throw new WebApplicationException("Idempotency-Key was already used with a different payload",
+                    Response.Status.CONFLICT);
+        }
     }
 }

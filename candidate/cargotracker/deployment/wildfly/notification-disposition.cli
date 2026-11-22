@@ -1,9 +1,13 @@
 embed-server --server-config=standalone-full.xml --std-out=discard
 /system-property=cargo.handling.attempt.ttl.ms:add(value="${env.CARGO_HANDLING_ATTEMPT_TTL_MS:30000}")
-/subsystem=messaging-activemq/server=default/address-setting=jms.queue.HandlingEventRegistrationAttemptQueue:write-attribute(name=dead-letter-address,value="jms.queue.RejectedRegistrationAttemptsQueue")
+/system-property=cargo.handling.quarantine.max.bytes:add(value="${env.CARGO_HANDLING_QUARANTINE_MAX_BYTES:1073741824}")
+/system-property=cargo.handling.quarantine.retention.seconds:add(value="${env.CARGO_HANDLING_QUARANTINE_RETENTION_SECONDS:604800}")
+/system-property=cargo.handling.quarantine.redelivery.delay.ms:add(value="${env.CARGO_HANDLING_QUARANTINE_REDELIVERY_DELAY_MS:30000}")
+/subsystem=messaging-activemq/server=default/address-setting=jms.queue.HandlingEventRegistrationAttemptQueue:add(expiry-address="jms.queue.HandlingAttemptQuarantineIntakeQueue",dead-letter-address="jms.queue.HandlingAttemptQuarantineIntakeQueue",max-delivery-attempts=3,redelivery-delay=250)
+/subsystem=messaging-activemq/server=default/address-setting=jms.queue.HandlingAttemptQuarantineIntakeQueue:add(max-delivery-attempts=-1,redelivery-delay="${env.CARGO_HANDLING_QUARANTINE_REDELIVERY_DELAY_MS:30000}")
+/subsystem=messaging-activemq/server=default/security-setting=jms.queue.HandlingAttemptQuarantineIntakeQueue:add
+/subsystem=messaging-activemq/server=default/security-setting=jms.queue.HandlingAttemptQuarantineIntakeQueue/role=HandlingQuarantineWorker:add(consume=true)
 /subsystem=messaging-activemq/server=default/address-setting=jms.queue.RejectedRegistrationAttemptsQueue:add(dead-letter-address="jms.queue.DLQ",max-delivery-attempts=3)
-/subsystem=messaging-activemq/server=default/address-setting=jms.queue.HandlingEventRegistrationAttemptQueue:write-attribute(name=max-delivery-attempts,value=3)
-/subsystem=messaging-activemq/server=default/address-setting=jms.queue.HandlingEventRegistrationAttemptQueue:write-attribute(name=redelivery-delay,value=250)
 /subsystem=messaging-activemq/server=default/security-setting="#":remove
 /subsystem=messaging-activemq/server=default/security-setting="#":add
 /subsystem=messaging-activemq/server=default/security-setting=jms.queue.HandlingEventRegistrationAttemptQueue:add

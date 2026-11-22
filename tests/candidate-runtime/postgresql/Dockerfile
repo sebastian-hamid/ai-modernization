@@ -11,7 +11,7 @@ FROM quay.io/wildfly/wildfly@sha256:3fc71f6c4fe1075ac942dbb652799840ecd5424458de
 COPY --from=build /opt/java/openjdk /opt/java/openjdk
 COPY --from=build /build/candidate/target/cargo-tracker.war /opt/jboss/wildfly/standalone/deployments/
 USER root
-RUN mkdir -p /opt/jboss/wildfly/modules/org/postgresql/main
+RUN mkdir -p /opt/jboss/wildfly/modules/org/postgresql/main /opt/jboss/wildfly/standalone/data/activemq && chown -R jboss:root /opt/jboss/wildfly/standalone/data
 ADD https://repo.maven.apache.org/maven2/org/postgresql/postgresql/42.7.14/postgresql-42.7.14.jar /opt/jboss/wildfly/modules/org/postgresql/main/postgresql-42.7.14.jar
 RUN echo "73914527305a40cce504b0d3d90b23caf565136912d607ae8ae7c5895512332c  /opt/jboss/wildfly/modules/org/postgresql/main/postgresql-42.7.14.jar" | sha256sum -c -
 COPY tests/candidate-runtime/postgresql/module.xml /opt/jboss/wildfly/modules/org/postgresql/main/module.xml

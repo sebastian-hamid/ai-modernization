@@ -1,0 +1,36 @@
+{
+  "run": "kan31q-da9cd525",
+  "status": "PASS",
+  "runtimeChecksPassed": 46,
+  "runtimeChecksTotal": 46,
+  "mavenTests": {
+    "count": 63,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0,
+    "build": "BUILD SUCCESS",
+    "freshUncachedDockerBuild": true
+  },
+  "candidateOverrides": {
+    "handlingTtlMilliseconds": 5000,
+    "quarantineCapacityBytes": 100,
+    "quarantineRetentionSeconds": 600
+  },
+  "cleanup": {
+    "serverLogCaptured": true,
+    "composeDown": true,
+    "noProjectResourcesRemain": true,
+    "containers": [],
+    "networks": [],
+    "volumes": [],
+    "imageRemoved": true,
+    "privateCredentialsRemoved": true
+  },
+  "sharedServicesModified": false,
+  "implementedSafeguards": [
+    "per-message pending markers remain until every blocked item transfers",
+    "capacity callback serializes with request state and ignores callbacks after transfer",
+    "legacy fallback identity remains stable across redelivery and distinguishes registration times"
+  ],
+  "implementedSafeguardsBasis": "Code review and Java characterization tests; the 46 runtime assertions exercise multi-message alert recovery but do not deterministically force the asynchronous callback ordering race."
+}

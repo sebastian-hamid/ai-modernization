@@ -77,7 +77,13 @@ public class JmsApplicationEvents implements ApplicationEvents, Serializable {
     @Override
     public void receivedHandlingEventRegistrationAttempt(
             HandlingEventRegistrationAttempt attempt) {
+        receivedHandlingEventRegistrationAttempt(attempt, UUID.randomUUID().toString());
+    }
+
+    @Override
+    public void receivedHandlingEventRegistrationAttempt(
+            HandlingEventRegistrationAttempt attempt, String requestId) {
         logger.log(Level.INFO, "Handling event registration attempt received.");
-        handlingAttemptProducer.publish(attempt);
+        handlingAttemptProducer.publish(attempt, requestId);
     }
 }

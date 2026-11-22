@@ -8,6 +8,8 @@ import jakarta.jms.JMSException;
 import jakarta.jms.Message;
 import jakarta.jms.MessageListener;
 import jakarta.jms.ObjectMessage;
+import net.java.cargotracker.infrastructure.quarantine.HandlingQuarantineMessageKey;
+import net.java.cargotracker.infrastructure.quarantine.HandlingRequestIdempotencyService;
 import net.java.cargotracker.application.HandlingEventService;
 import net.java.cargotracker.domain.model.handling.CannotCreateHandlingEventException;
 import net.java.cargotracker.interfaces.handling.HandlingEventRegistrationAttempt;
@@ -29,6 +31,8 @@ public class HandlingEventRegistrationAttemptConsumer implements MessageListener
     private HandlingEventService handlingEventService;
     @EJB
     private HandlingWorkerAudit workerAudit;
+    @EJB
+    private HandlingRequestIdempotencyService idempotencyService;
 //    private static final Logger logger = Logger.getLogger(
 //            HandlingEventRegistrationAttemptConsumer.class.getName());
 
@@ -39,6 +43,13 @@ public class HandlingEventRegistrationAttemptConsumer implements MessageListener
             ObjectMessage objectMessage = (ObjectMessage) message;
             HandlingEventRegistrationAttempt attempt
                     = (HandlingEventRegistrationAttempt) objectMessage.getObject();
+            String requestId = message.getStringProperty("handlingRequestId");
+            if (requestId == null) {
+                // Compatibility for durable messages produced before request IDs were added.
+                requestId = HandlingQuarantineMessageKey.legacyRequestId(message.getJMSMessageID(), attempt);
+                idempotencyService.reserve(requestId, attempt);
+            }
+            if (!idempotencyService.beginProcessing(requestId, attempt)) return;
             workerAudit.recordConsumedAttempt();
             handlingEventService.registerHandlingEvent(
                     attempt.getCompletionTime(),
@@ -46,6 +57,7 @@ public class HandlingEventRegistrationAttemptConsumer implements MessageListener
                     attempt.getVoyageNumber(),
                     attempt.getUnLocode(),
                     attempt.getType());
+            idempotencyService.markProcessed(requestId);
         } catch (CannotCreateHandlingEventException rejected) {
             // The broker routes bounded repeated failures to the sanitized rejection queue.
             // Do not attach the rejected DTO or nested validation text to server logs.

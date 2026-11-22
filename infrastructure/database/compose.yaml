@@ -58,11 +58,13 @@ services:
       postgres:
         condition: service_healthy
     ports:
-      - "127.0.0.1:8082:8080"
+      - "127.0.0.1:${KAN22_CANDIDATE_BIND_PORT:-8082}:8080"
     secrets:
       - app_password
       - application_users
       - application_roles
+    volumes:
+      - candidate_broker_data:/opt/jboss/wildfly/standalone/data/activemq
     networks: [database, candidate-host-access]
     restart: "no"
 
@@ -80,6 +82,7 @@ secrets:
 
 volumes:
   postgres_data:
+  candidate_broker_data:
 
 networks:
   database:

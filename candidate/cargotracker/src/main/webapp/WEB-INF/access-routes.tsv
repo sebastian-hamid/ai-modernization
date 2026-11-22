@@ -4,6 +4,8 @@
 /public/about.xhtml	PUBLIC
 /rest/cargo	Reader,Operator,Administrator
 /rest/handling/reports	Operator,Administrator
+/rest/handling/quarantine	Administrator
+/rest/handling/quarantine/replay	Administrator
 /logout	Reader,Operator,Administrator
 /session	Reader,Operator,Administrator
 /admin/dashboard.xhtml	Reader,Operator,Administrator

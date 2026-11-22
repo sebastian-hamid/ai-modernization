@@ -19,4 +19,6 @@ public interface ApplicationEvents {
     void cargoHasArrived(Cargo cargo);
 
     void receivedHandlingEventRegistrationAttempt(HandlingEventRegistrationAttempt attempt);
+
+    void receivedHandlingEventRegistrationAttempt(HandlingEventRegistrationAttempt attempt, String requestId);
 }
