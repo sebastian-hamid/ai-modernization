@@ -1,0 +1,34 @@
+{
+  "task": "KAN-31 configurable handling-attempt TTL",
+  "run_id": "kan31-ttl-policy",
+  "source_base_revision": "d21809d",
+  "status": "PASS",
+  "checks": {
+    "total": 796,
+    "passed": 796,
+    "failed": 0
+  },
+  "domain_tests": {
+    "tests": 61,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0,
+    "empty_legacy_todo_retained": true
+  },
+  "handling_attempt_ttl": {
+    "property": "cargo.handling.attempt.ttl.ms",
+    "expected_ms": "45000",
+    "observed_ms": "45000"
+  },
+  "fixture_image_id": "sha256:ee0753fe6c0b943725bbcab520b47e7bbc3e57e5e75fbc081c85261f86839144",
+  "cleanup": {
+    "owned_container_removed": true,
+    "private_files_removed": true,
+    "cleanup_errors": []
+  },
+  "full_local_receipt": {
+    "path": ".work/kan31-ttl-policy/candidate-runtime/results.json",
+    "sha256": "5625f371a3c73205f1c8c16197abd562c922f5f6851c4eb145432207eb69e7ef",
+    "tracked": false
+  }
+}

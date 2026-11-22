@@ -1,6 +1,19 @@
 # Setup status
 Verified 23 October 2026 (Europe/Bratislava). Checks ran on the actual WSL host, not the synced ChatGPT sources.
 
+## Current recheck - 22 November 2026
+
+| Area | Verified state |
+| --- | --- |
+| WSL and Java | Ubuntu 24.04.5 LTS; OpenJDK and javac 21.0.13.1. The Codex-launched Bash login shell initially returned an empty JAVA_HOME. Created /home/yasinrdp/.bash_profile to load the existing .profile; verified JAVA_HOME=/usr/lib/jvm/java-21-openjdk-amd64 in WSL login shells with and without --cd and in an interactive shell. |
+| Maven | Ubuntu Maven 3.8.7 at /usr/share/maven, running on Java 21.0.13.1. The candidate targets Java 25, so host Maven cannot build it; the pinned Java 25 Docker build is the supported candidate path. A fresh isolated candidate build passed 61 domain/characterization tests. |
+| Git and GitHub | WSL Git 2.43.0. At the start of KAN-31, local main and GitHub origin/main both pointed to d21809d. KAN-31 implementation changes are currently local and uncommitted. |
+| Docker | Docker client/engine 29.9.1; Compose 5.6.0. The KAN-31 disposable runtime passed 796 checks and was removed. Its private credentials and temporary images were cleaned up. |
+| Jenkins | ai-modernization-jenkins remained up; http://localhost:8080/login returned HTTP 200. No Jenkins state or job was changed. |
+| Historical application | http://localhost:8081/cargo-tracker/ did not respond during this check. No attempt was made to start or alter it. |
+
+The KAN-31 runtime verified the 45,000-ms environment override reached the WildFly JVM. It did not measure message expiry at that override. Quarantine retention/capacity, full-capacity pending/retry, alerting, Administrator review/replay and request-ID idempotency remain open; see [handling-message-quarantine.md](../docs/candidate/handling-message-quarantine.md).
+
 ## Working
 | Area | Evidence |
 | --- | --- |

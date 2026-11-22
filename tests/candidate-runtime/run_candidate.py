@@ -7,7 +7,7 @@ from concurrent.futures import ThreadPoolExecutor
 from datetime import datetime
 ROOT=Path(__file__).resolve().parents[2]
 LIVE_RUN_ID=os.environ.get("AI_MODERNIZATION_LIVE_RUN_ID","")
-if LIVE_RUN_ID and not re.fullmatch(r"kan(?:15|24)-[a-z0-9-]{1,40}",LIVE_RUN_ID):
+if LIVE_RUN_ID and not re.fullmatch(r"kan(?:15|24|31)-[a-z0-9-]{1,40}",LIVE_RUN_ID):
     raise ValueError("Invalid AI modernization live-run identifier")
 WORK=(ROOT/".work"/LIVE_RUN_ID/"candidate-runtime") if LIVE_RUN_ID else ROOT/".work/kan18"
 NAME=("ai-modernization-"+LIVE_RUN_ID) if LIVE_RUN_ID else "ai-modernization-kan18"
@@ -15,6 +15,21 @@ IMAGE=("ai-modernization-"+LIVE_RUN_ID+":candidate") if LIVE_RUN_ID else "ai-mod
 class NoRedirect(urllib.request.HTTPRedirectHandler):
     def redirect_request(self,*args,**kwargs):return None
 def command(*args,timeout=30):return subprocess.check_output(args,stderr=subprocess.STDOUT,text=True,timeout=timeout).strip()
+def read_server_system_property(container, property_name, timeout=30):
+    """Read a single configuration value from the owned candidate JVM."""
+    processes=command("docker","exec",container,"jcmd","-l",timeout=timeout).splitlines()
+    candidates=[line.split()[0] for line in processes
+        if "org.jboss.as.standalone" in line or "jboss-modules.jar" in line]
+    if len(candidates)!=1:
+        raise RuntimeError("Cannot identify unique app JVM")
+    output=command("docker","exec",container,"jcmd",candidates[0],
+        "VM.system_properties",timeout=timeout)
+    matches=[line.split("=",1)[1] for line in output.splitlines()
+        if line.startswith(property_name+"=")]
+    if len(matches)!=1:
+        raise RuntimeError("Expected exactly one configured JVM property")
+    return matches[0]
+
 def capture_effects(container,timeout=30):
     """Read the existing lab observer from the one owned application JVM."""
     deadline = time.monotonic() + min(timeout,30)
@@ -523,13 +538,13 @@ def main(after_checks=None):
         guard=subprocess.run(["docker","run","--rm",IMAGE],capture_output=True,text=True)
         check("Disposable image refuses absent opt-in",guard.returncode==2 and "Disposable lab opt-in required" in guard.stderr)
         task_label=("KAN-"+LIVE_RUN_ID[3:LIVE_RUN_ID.index("-")]) if LIVE_RUN_ID else "KAN-18"
-        container=command("docker","run","-d","--name",NAME,"--label","ai-modernization.task="+task_label,"--init","-e","DISPOSABLE_CANDIDATE_LAB=true","-e","LAB_IMPORT_ENABLED=true","-e","LAB_CANDIDATE_HOSTNAME="+NAME,"-p","127.0.0.1::8080","--mount",f"type=bind,src={private},dst=/run/kan18,readonly",IMAGE)
+        container=command("docker","run","-d","--name",NAME,"--label","ai-modernization.task="+task_label,"--init","-e","DISPOSABLE_CANDIDATE_LAB=true","-e","LAB_IMPORT_ENABLED=true","-e","LAB_CANDIDATE_HOSTNAME="+NAME,"-e","CARGO_HANDLING_ATTEMPT_TTL_MS="+os.environ.get("CARGO_HANDLING_ATTEMPT_TTL_MS","30000"),"-p","127.0.0.1::8080","--mount",f"type=bind,src={private},dst=/run/kan18,readonly",IMAGE)
         with tempfile.TemporaryDirectory(prefix="domain-reports-",dir=WORK) as temporary:
             command("docker","cp",container+":/opt/jboss/lab-evidence/surefire",temporary+"/surefire")
             suites=[ET.parse(path).getroot() for path in Path(temporary).rglob("TEST-*.xml")]
             report["domain_tests"]={key:sum(int(suite.get(key,"0")) for suite in suites) for key in ["tests","failures","errors","skipped"]}
             report["domain_tests"]["empty_legacy_todo_retained"]=True
-            check("58 candidate domain tests execute",report["domain_tests"]["tests"]==58 and all(report["domain_tests"][key]==0 for key in ["failures","errors","skipped"]))
+            check("61 candidate domain tests execute",report["domain_tests"]["tests"]==61 and all(report["domain_tests"][key]==0 for key in ["failures","errors","skipped"]))
         port=int(command("docker","port",container,"8080/tcp").rsplit(":",1)[1])
         base=f"http://127.0.0.1:{port}/cargo-tracker/"
         deadline=time.monotonic()+150
@@ -540,6 +555,15 @@ def main(after_checks=None):
             except OSError:pass
             time.sleep(1)
         else:raise RuntimeError("Fixture deployment not ready")
+        if LIVE_RUN_ID.startswith("kan31-"):
+            expected_ttl=os.environ.get("CARGO_HANDLING_ATTEMPT_TTL_MS","30000")
+            observed_ttl=read_server_system_property(
+                container,"cargo.handling.attempt.ttl.ms")
+            report["handling_attempt_ttl"]={
+                "property":"cargo.handling.attempt.ttl.ms",
+                "expected_ms":expected_ttl,"observed_ms":observed_ttl}
+            check("KAN-31 handling-attempt TTL override is applied in WildFly",
+                observed_ttl==expected_ttl)
         check("Anonymous monitoring denied",request(anonymous,"rest/cargo")[0]==401)
         check("Anonymous handling denied",request(anonymous,"rest/handling/reports",b"{}")[0]==401)
         check("Anonymous operational page navigates to login",request(anonymous,"admin/dashboard.xhtml")[0]==303)

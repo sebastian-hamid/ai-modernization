@@ -24,7 +24,7 @@ public class HandlingEventRegistrationAttemptProducer {
                 .setPriority(0)
                 .setDisableMessageID(true)
                 .setDisableMessageTimestamp(true)
-                .setTimeToLive(30000)
+                .setTimeToLive(HandlingAttemptConfiguration.timeToLiveMillis())
                 .send(handlingEventQueue, attempt);
     }
 }

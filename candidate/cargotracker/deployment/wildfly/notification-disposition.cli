@@ -1,4 +1,5 @@
 embed-server --server-config=standalone-full.xml --std-out=discard
+/system-property=cargo.handling.attempt.ttl.ms:add(value="${env.CARGO_HANDLING_ATTEMPT_TTL_MS:30000}")
 /subsystem=messaging-activemq/server=default/address-setting=jms.queue.HandlingEventRegistrationAttemptQueue:write-attribute(name=dead-letter-address,value="jms.queue.RejectedRegistrationAttemptsQueue")
 /subsystem=messaging-activemq/server=default/address-setting=jms.queue.RejectedRegistrationAttemptsQueue:add(dead-letter-address="jms.queue.DLQ",max-delivery-attempts=3)
 /subsystem=messaging-activemq/server=default/address-setting=jms.queue.HandlingEventRegistrationAttemptQueue:write-attribute(name=max-delivery-attempts,value=3)

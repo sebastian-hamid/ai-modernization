@@ -446,3 +446,13 @@ The user selected the existing Administrator role as the only role allowed to re
 ## 22 November 2026 - KAN-31 full-quarantine incoming-message decision
 
 The user approved retaining an incoming expired message durably as pending work when the 1 GiB quarantine is full, then retrying its transfer when capacity frees. At capacity, new quarantine acceptance stops and an operator is alerted; already-quarantined messages remain retained through the 7-day window. This is policy only; broker expiry-routing/retry behavior is unimplemented and must be verified without silent loss. See KAN-31 and notes/evidence/kan25-expiry-backlog/README.md and summary.json.
+
+## 22 November 2026 - KAN-31 configurable handling-attempt TTL
+
+Replaced the literal 30,000-ms producer TTL with cargo.handling.attempt.ttl.ms, defaulting to 30 seconds. The versioned WildFly messaging CLI maps CARGO_HANDLING_ATTEMPT_TTL_MS to the JVM property. Added tests for the default, a valid override, and malformed/nonpositive values, and extended the disposable runner's namespace and startup check for KAN-31.
+
+Fresh isolated Java 25/WildFly run kan31-ttl-policy used a 45,000-ms environment override; WildFly's live JVM property readback matched it. All 61 candidate domain/characterization tests and 796 runtime checks passed. The owned container, private credentials and task-owned build images were removed; cleanup errors were zero. Shared KAN-18 and Jenkins remained running. This proves configuration propagation and the reader, not actual 45-second JMS expiry timing. The rest of KAN-31's quarantine, idempotency, access and full-capacity behavior remains unimplemented/unverified. Evidence: notes/evidence/kan31-ttl-config/; current policy and status: docs/candidate/handling-message-quarantine.md.
+
+## 22 November 2026 - setup recheck
+
+Rechecked WSL Ubuntu 24.04.5, OpenJDK 21.0.13.1, Maven 3.8.7, Git 2.43.0, Docker Engine 29.9.1 and Compose 5.6.0. Jenkins returned HTTP 200 and its container remained up. The historical application at localhost:8081 did not respond and was left untouched. The Codex-launched Bash login session did not load JAVA_HOME; adding /home/yasinrdp/.bash_profile to delegate to the existing .profile fixed it. Login shells with and without wsl --cd, and an interactive shell, now expose /usr/lib/jvm/java-21-openjdk-amd64. See notes/setup-status.md.
