@@ -2,7 +2,8 @@
 set -euo pipefail
 umask 077
 test "${DISPOSABLE_CANDIDATE_LAB:-}" = "true" || { echo "Disposable lab opt-in required" >&2; exit 2; }
-# Generated per-run application-realm credentials are mounted read-only, never baked in.
+# Generated per-run database and application credentials are mounted read-only, never baked in.
+export CARGO_APP_PASSWORD="$(cat /run/kan18/app_password)"
 cp /run/kan18/application-users.properties "$JBOSS_HOME/standalone/configuration/application-users.properties"
 cp /run/kan18/application-roles.properties "$JBOSS_HOME/standalone/configuration/application-roles.properties"
 # The import roots are private to the server OS identity; no web upload API writes here.
@@ -13,6 +14,7 @@ for directory in "$IMPORT_ROOT/incoming" "$IMPORT_ROOT/archive" "$IMPORT_ROOT/fa
 done
 # Restrict BatchPermission to the explicit worker identity and use that identity for JBeret jobs.
 "$JBOSS_HOME/bin/jboss-cli.sh" --file=/opt/jboss/configure-batch-security.cli
+"$JBOSS_HOME/bin/jboss-cli.sh" --file=/opt/jboss/configure-postgresql-datasource.cli
 "$JBOSS_HOME/bin/jboss-cli.sh" --file=/opt/jboss/notification-disposition.cli
 candidate_hostname="${LAB_CANDIDATE_HOSTNAME:-ai-modernization-kan18}"
 exec "$JBOSS_HOME/bin/standalone.sh" -Dlab.candidate.disposable=true -Dlab.import.enabled="${LAB_IMPORT_ENABLED:-false}" -Dcargo.websocket.allowed-origins="http://${candidate_hostname}:8080" -Dcargo.routing.credentials=/run/kan18/routing-client.properties -c standalone-full.xml -b 0.0.0.0

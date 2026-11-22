@@ -126,7 +126,9 @@ public final class RemoteJmsProducerProbe {
     }
 
     public static void main(String[] args) throws Exception {
-        if (args.length != 1) throw new IllegalArgumentException("private credentials file required");
+        if (args.length != 2 || !("authorization".equals(args[1]) || "trusted-attempt".equals(args[1])))
+            throw new IllegalArgumentException("private credentials file and supported probe mode required");
+        String mode=args[1];
         Properties credentials = new Properties();
         try (FileInputStream input = new FileInputStream(args[0])) { credentials.load(input); }
         String producer = credentials.getProperty("producer.user");
@@ -135,6 +137,19 @@ public final class RemoteJmsProducerProbe {
         InitialContext trustedLookup = lookupContext(producer, producerPassword);
         factory = (ConnectionFactory) trustedLookup.lookup(FACTORY);
         trustedLookup.close();
+
+        if ("trusted-attempt".equals(mode)) {
+            try (JMSContext context = factory.createContext(producer, producerPassword, JMSContext.AUTO_ACKNOWLEDGE)) {
+                Queue queue = context.createQueue(ATTEMPT);
+                Date now = new Date();
+                HandlingEventRegistrationAttempt attempt = new HandlingEventRegistrationAttempt(
+                        now, now, new TrackingId("NOCARGO1"), null, HandlingEvent.Type.RECEIVE,
+                        new UnLocode("USCHI"));
+                context.createProducer().send(queue, context.createObjectMessage(attempt));
+            }
+            System.out.println("{\"trustedAllowed\":true}");
+            return;
+        }
 
         String[] humanUsers = {"reader", "operator", "admin"};
         boolean[] humanAuthenticated = new boolean[humanUsers.length];
@@ -222,19 +237,11 @@ public final class RemoteJmsProducerProbe {
             context.rollback();
         }
 
-        boolean trustedAllowed;
+        boolean producerAuthenticated;
         InitialContext producerLookup = lookupContext(producer, producerPassword);
         producerLookup.lookup(FACTORY);
         producerLookup.close();
-        try (JMSContext context = factory.createContext(producer, producerPassword, JMSContext.AUTO_ACKNOWLEDGE)) {
-            Queue queue = context.createQueue(ATTEMPT);
-            Date now = new Date();
-            HandlingEventRegistrationAttempt attempt = new HandlingEventRegistrationAttempt(
-                    now, now, new TrackingId("NOCARGO1"), null, HandlingEvent.Type.RECEIVE,
-                    new UnLocode("USCHI"));
-            context.createProducer().send(queue, context.createObjectMessage(attempt));
-            trustedAllowed = true;
-        }
+        producerAuthenticated=true;
         boolean rejectedQueueDenied = deniedSend(factory,producer,producerPassword,REJECTED);
         boolean deliveredQueueDenied = deniedSend(factory,producer,producerPassword,DELIVERED);
         System.out.println("{\"anonymousDenied\":" + anonymousDenied
@@ -243,7 +250,7 @@ public final class RemoteJmsProducerProbe {
                 + ",\"machinePrincipals\":[\"batch-worker\",\"handling-worker\",\"inspection-worker\",\"notification-worker\"]"
                 + ",\"machineAuthenticated\":[" + machineAuthenticated[0] + "," + machineAuthenticated[1] + "," + machineAuthenticated[2] + "," + machineAuthenticated[3] + "]"
                 + ",\"machineSendDenied\":[" + machineSendDenied[0] + "," + machineSendDenied[1] + "," + machineSendDenied[2] + "," + machineSendDenied[3] + "]"
-                + ",\"trustedAllowed\":" + trustedAllowed
+                + ",\"producerAuthenticated\":" + producerAuthenticated
                 + ",\"cargoHandledAnonymousDenied\":" + cargoHandledAnonymousDenied
                 + ",\"cargoHandledHumanAuthenticated\":" + array(cargoHandledHumanAuthenticated)
                 + ",\"cargoHandledHumanSendDenied\":" + array(cargoHandledHumanSendDenied)
@@ -254,7 +261,7 @@ public final class RemoteJmsProducerProbe {
                 + ",\"cargoHandledTrustedAllowed\":" + cargoHandledTrustedAllowed
                 + ",\"rejectedQueueDenied\":" + rejectedQueueDenied
                 + ",\"deliveredQueueDenied\":" + deliveredQueueDenied + "}");
-        if (!anonymousDenied || !trustedAllowed || !rejectedQueueDenied || !deliveredQueueDenied) System.exit(2);
+        if (!anonymousDenied || !producerAuthenticated || !rejectedQueueDenied || !deliveredQueueDenied) System.exit(2);
         for (int i = 0; i < humanUsers.length; i++) {
             if (!humanAuthenticated[i] || !humanSendDenied[i]) System.exit(3);
         }

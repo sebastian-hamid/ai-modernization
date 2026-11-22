@@ -7,14 +7,46 @@ from concurrent.futures import ThreadPoolExecutor
 from datetime import datetime
 ROOT=Path(__file__).resolve().parents[2]
 LIVE_RUN_ID=os.environ.get("AI_MODERNIZATION_LIVE_RUN_ID","")
-if LIVE_RUN_ID and not re.fullmatch(r"kan(?:15|24|31)-[a-z0-9-]{1,40}",LIVE_RUN_ID):
+if LIVE_RUN_ID and not re.fullmatch(r"kan(?:15|18|24|31)-[a-z0-9-]{1,40}",LIVE_RUN_ID):
     raise ValueError("Invalid AI modernization live-run identifier")
 WORK=(ROOT/".work"/LIVE_RUN_ID/"candidate-runtime") if LIVE_RUN_ID else ROOT/".work/kan18"
 NAME=("ai-modernization-"+LIVE_RUN_ID) if LIVE_RUN_ID else "ai-modernization-kan18"
 IMAGE=("ai-modernization-"+LIVE_RUN_ID+":candidate") if LIVE_RUN_ID else "ai-modernization-kan18:candidate"
+PROJECT=("kan18p-"+LIVE_RUN_ID) if LIVE_RUN_ID else "kan18p-"+secrets.token_hex(4)
+COMPOSE_FILE=ROOT/"infrastructure/database/compose.yaml"
+HOST_ACCESS_NETWORK=PROJECT+"_candidate-host-access"
+MIGRATIONS=WORK/"migrations"
+COMPOSE_LOG=WORK/"compose.log"
+ENV=os.environ.copy()
+ENV.update({"KAN22_SECRET_DIR":"","KAN22_MIGRATIONS_DIR":"","KAN18_APP_IMAGE":IMAGE})
 class NoRedirect(urllib.request.HTTPRedirectHandler):
     def redirect_request(self,*args,**kwargs):return None
 def command(*args,timeout=30):return subprocess.check_output(args,stderr=subprocess.STDOUT,text=True,timeout=timeout).strip()
+def redact_private_diagnostic(output,paths):
+    for path in paths:
+        try:
+            content=path.read_text(encoding="utf-8")
+        except (OSError,UnicodeError):
+            continue
+        for line in content.splitlines():
+            if line.strip():output=output.replace(line.strip(),"[REDACTED]")
+            if "=" in line:
+                value=line.split("=",1)[1].strip()
+                if value:output=output.replace(value,"[REDACTED]")
+    return output
+def appended_log_text(before,after):
+    """Return only newly appended container logs, or None if the prefix changed."""
+    if not isinstance(before,str) or not isinstance(after,str) or not after.startswith(before):return None
+    return after[len(before):]
+def compose(*args,timeout=120):
+    result=subprocess.run(["docker","compose","-p",PROJECT,"-f",str(COMPOSE_FILE),*args],
+        cwd=ROOT,env=ENV,text=True,stdout=subprocess.PIPE,stderr=subprocess.STDOUT,timeout=timeout)
+    with COMPOSE_LOG.open("a",encoding="utf-8") as log:
+        log.write("\n$ docker compose "+" ".join(args)+"\n")
+        log.write(result.stdout[-12000:])
+    if result.returncode:
+        raise RuntimeError("Docker Compose failed: "+" ".join(args)+"\n"+result.stdout[-4000:])
+    return result.stdout.strip()
 def read_server_system_property(container, property_name, timeout=30):
     """Read a single configuration value from the owned candidate JVM."""
     processes=command("docker","exec",container,"jcmd","-l",timeout=timeout).splitlines()
@@ -44,7 +76,8 @@ def capture_effects(container,timeout=30):
     if len(candidates) != 1:
         raise RuntimeError("Cannot identify unique app JVM")
     text = command("docker", "exec", container, "java", "-cp",
-                   "/opt/jboss/observer-client", "ReadEffects", candidates[0], timeout=budget())
+                   "/opt/jboss/observer-client:/opt/jboss/wildfly/modules/org/postgresql/main/postgresql-42.7.14.jar",
+                   "ReadEffects", candidates[0], timeout=budget())
     return json.loads(text)
 
 def table_key(tables, logical_name):
@@ -61,8 +94,8 @@ def batch_finished_line(log_text,run_id):
     return next((line for line in log_text.splitlines()
         if marker in line and run_marker in line),None)
 
-def compare_rejection_effect_deltas(before, after, input_name, rejected_name):
-    """Require only the exact broker and audit deltas expected for one rejected message."""
+def compare_quarantine_effect_deltas(before, after, input_name, intake_name, invocation_adjustments=None):
+    """Require the exact retry-to-quarantine flow without changing cargo business tables."""
     queue_counter_names=sorted(QUEUE_ATTRIBUTES)
     observed_queue_deltas={}
     same_queue_inventory=(set(before["queues"])==set(after["queues"]))
@@ -78,7 +111,7 @@ def compare_rejection_effect_deltas(before, after, input_name, rejected_name):
             observed_queue_deltas[queue_name]=changed
     expected_queue_deltas={
         input_name:{"MessagesAdded":1,"MessagesKilled":1,"AcknowledgeAttempts":4},
-        rejected_name:{"MessagesAdded":1,"MessagesAcknowledged":1,"AcknowledgeAttempts":1}}
+        intake_name:{"MessagesAdded":1,"MessagesAcknowledged":1,"AcknowledgeAttempts":1}}
     invocation_names=set(before["business_invocations"]) | set(after["business_invocations"])
     observed_invocation_deltas={
         name:after["business_invocations"].get(name,0)-before["business_invocations"].get(name,0)
@@ -88,19 +121,34 @@ def compare_rejection_effect_deltas(before, after, input_name, rejected_name):
         "net.java.cargotracker.application.internal.DefaultHandlingEventService#registerHandlingEvent":3,
         "net.java.cargotracker.infrastructure.messaging.jms.HandlingEventRegistrationAttemptConsumer#onMessage":3,
         "net.java.cargotracker.infrastructure.messaging.jms.HandlingWorkerAudit#recordConsumedAttempt":3,
-        "net.java.cargotracker.infrastructure.messaging.jms.RejectedRegistrationAttemptsConsumer#onMessage":1,
-        "net.java.cargotracker.infrastructure.messaging.jms.NotificationWorkerAudit#recordConsumed":1}
+        "net.java.cargotracker.infrastructure.quarantine.HandlingRequestIdempotencyService#markQuarantined":1,
+        "net.java.cargotracker.infrastructure.quarantine.HandlingRequestIdempotencyService#reserve":4,
+        "net.java.cargotracker.infrastructure.quarantine.HandlingQuarantineCapacityAlert#pendingResolved":1,
+        "net.java.cargotracker.infrastructure.quarantine.HandlingAttemptQuarantineService#registerLegacyRequest":1,
+        "net.java.cargotracker.infrastructure.quarantine.HandlingAttemptQuarantineService#store":1,
+        "net.java.cargotracker.infrastructure.quarantine.HandlingAttemptQuarantineConsumer#onMessage":1,
+        "net.java.cargotracker.infrastructure.quarantine.HandlingRequestIdempotencyService#beginProcessing":3,
+        "net.java.cargotracker.infrastructure.quarantine.HandlingRequestIdempotencyService#eligibleForQuarantine":1}
+    for name,value in (invocation_adjustments or {}).items():
+        if value is None:expected_invocation_deltas.pop(name,None)
+        else:expected_invocation_deltas[name]=value
+    unchanged_business_tables={"location","voyage","cargo","leg","handling_event","carrier_movement"}
+    before_tables={name.lower():value for name,value in before["tables"].items()}
+    after_tables={name.lower():value for name,value in after["tables"].items()}
+    business_tables_unchanged=(all(name in before_tables and name in after_tables
+        and before_tables[name]==after_tables[name] for name in unchanged_business_tables))
     return {
         "queue_counter_deltas":observed_queue_deltas,
         "expected_queue_counter_deltas":expected_queue_deltas,
         "business_invocation_deltas":observed_invocation_deltas,
         "expected_business_invocation_deltas":expected_invocation_deltas,
+        "business_tables_unchanged":business_tables_unchanged,
         "all_queue_and_invocation_deltas_bounded":(
             same_queue_inventory
             and observed_queue_deltas==expected_queue_deltas
             and observed_invocation_deltas==expected_invocation_deltas)}
 
-def remote_producer_boundary_verified(observation, unauthorized_effects_unchanged):
+def remote_producer_boundary_verified(observation, unauthorized_effects_unchanged, trusted_allowed):
     """Require the intended producer to work and every tested non-producer to be denied."""
     return (isinstance(observation,dict)
         and observation.get("anonymousDenied") is True
@@ -109,7 +157,8 @@ def remote_producer_boundary_verified(observation, unauthorized_effects_unchange
         and observation.get("machinePrincipals")==["batch-worker","handling-worker","inspection-worker","notification-worker"]
         and observation.get("machineAuthenticated")==[True,True,True,True]
         and observation.get("machineSendDenied")==[True,True,True,True]
-        and observation.get("trustedAllowed") is True
+        and observation.get("producerAuthenticated") is True
+        and trusted_allowed is True
         and observation.get("rejectedQueueDenied") is True
         and observation.get("deliveredQueueDenied") is True
         and unauthorized_effects_unchanged is True)
@@ -137,6 +186,54 @@ def finalize(container,paths,report):
         except Exception as error:
             report["owned_container_removed"]=False
             errors.append("remove:"+type(error).__name__)
+    if report.get("compose_started"):
+        try:
+            result=subprocess.run(["docker","compose","-p",PROJECT,"-f",str(COMPOSE_FILE),
+                "down","-v","--remove-orphans"],cwd=ROOT,env=ENV,text=True,
+                stdout=subprocess.PIPE,stderr=subprocess.STDOUT,timeout=120)
+            with COMPOSE_LOG.open("a",encoding="utf-8") as log:
+                log.write("\n## compose down exit="+str(result.returncode)+"\n")
+                log.write(result.stdout[-12000:])
+            report["postgres_compose_down"]=result.returncode==0
+            if result.returncode:errors.append("compose-down")
+        except Exception as error:
+            report["postgres_compose_down"]=False
+            errors.append("compose-down:"+type(error).__name__)
+    else:
+        report["postgres_compose_down"]=True
+    if report.get("host_access_network_created"):
+        try:
+            inspect=subprocess.run(["docker","network","inspect",HOST_ACCESS_NETWORK],
+                cwd=ROOT,env=ENV,text=True,stdout=subprocess.PIPE,stderr=subprocess.PIPE,timeout=30)
+            if inspect.returncode==0:
+                remove=subprocess.run(["docker","network","rm",HOST_ACCESS_NETWORK],
+                    cwd=ROOT,env=ENV,text=True,stdout=subprocess.PIPE,stderr=subprocess.PIPE,timeout=30)
+                report["host_access_network_removed"]=remove.returncode==0
+                if remove.returncode:errors.append("host-access-network-remove")
+            elif "not found" in inspect.stderr.lower():
+                report["host_access_network_removed"]=True
+            else:
+                report["host_access_network_removed"]=False
+                errors.append("host-access-network-inspect")
+        except Exception as error:
+            report["host_access_network_removed"]=False
+            errors.append("host-access-network-cleanup:"+type(error).__name__)
+    else:
+        report["host_access_network_removed"]=True
+    if LIVE_RUN_ID and report.get("image_id"):
+        try:
+            inspect=subprocess.run(["docker","image","inspect","--format","{{.Id}}",IMAGE],
+                cwd=ROOT,env=ENV,text=True,stdout=subprocess.PIPE,stderr=subprocess.PIPE,timeout=30)
+            if inspect.returncode==0:
+                command("docker","image","rm",IMAGE,timeout=30)
+            elif "No such image" not in inspect.stderr:
+                errors.append("image-inspect")
+            report["owned_image_removed"]=inspect.returncode==0 or "No such image" in inspect.stderr
+        except Exception as error:
+            report["owned_image_removed"]=False
+            errors.append("image-cleanup:"+type(error).__name__)
+    else:
+        report["owned_image_removed"]=True
     for path in paths:
         try:
             if path.exists():path.unlink()
@@ -146,11 +243,14 @@ def finalize(container,paths,report):
     if errors:report["status"]="FAIL"
     report["count"]=len(report["checks"])
     (WORK/"results.json").write_text(json.dumps(report,indent=2)+"\n")
-    print(json.dumps({"status":report["status"],"checks":report["count"],"private_files_removed":report["private_files_removed"]}))
+    print(json.dumps({"status":report["status"],"checks":report["count"],
+        "private_files_removed":report["private_files_removed"],
+        "postgres_compose_down":report.get("postgres_compose_down"),
+        "owned_image_removed":report.get("owned_image_removed")}))
     return not errors
 
 QUEUE_ATTRIBUTES={"MessageCount","DeliveringCount","ScheduledCount","MessagesAdded","MessagesAcknowledged","MessagesExpired","MessagesKilled","AcknowledgeAttempts"}
-REQUIRED_QUEUES={"jms.queue."+name for name in ["HandlingEventRegistrationAttemptQueue","CargoHandledQueue","MisdirectedCargoQueue","DeliveredCargoQueue","RejectedRegistrationAttemptsQueue","DLQ","ExpiryQueue"]}
+REQUIRED_QUEUES={"jms.queue."+name for name in ["HandlingEventRegistrationAttemptQueue","HandlingAttemptQuarantineIntakeQueue","CargoHandledQueue","MisdirectedCargoQueue","DeliveredCargoQueue","RejectedRegistrationAttemptsQueue","DLQ","ExpiryQueue"]}
 def validate_effects(snapshot):
     if not isinstance(snapshot,dict):raise RuntimeError("Invalid effects observation")
     tables=snapshot.get("tables");queues=snapshot.get("queues");calls=snapshot.get("business_invocations")
@@ -171,6 +271,21 @@ def settle_effects(capture,timeout=15,clock=time.monotonic,pause=time.sleep):
         if equal>=2:return current
         previous=current;pause(.5)
     raise RuntimeError("Independent observers did not settle")
+
+def effects_unchanged(before,after):
+    return (before["tables"]==after["tables"] and before["queues"]==after["queues"]
+        and before["business_invocations"]==after["business_invocations"])
+
+def remote_producer_unauthorized_effects_unchanged(before,after,observation):
+    return (effects_unchanged(before,after) and isinstance(observation,dict)
+        and observation.get("anonymousDenied") is True
+        and observation.get("producerAuthenticated") is True
+        and observation.get("humanAuthenticated")==[True,True,True]
+        and observation.get("humanSendDenied")==[True,True,True]
+        and observation.get("machineAuthenticated")==[True,True,True,True]
+        and observation.get("machineSendDenied")==[True,True,True,True]
+        and observation.get("rejectedQueueDenied") is True
+        and observation.get("deliveredQueueDenied") is True)
 
 def route_date(value):
     # JSON-B in the pinned lab serializes java.util.Date with a UTC region suffix.
@@ -456,14 +571,18 @@ def main(after_checks=None):
     WORK.mkdir(parents=True,exist_ok=True)
     private=WORK/"secrets";private.mkdir(exist_ok=True,mode=0o700);private.chmod(0o700)
     users=private/"application-users.properties";roles=private/"application-roles.properties";routing=private/"routing-client.properties";producer_client=private/"producer-client.properties"
-    if any(path.exists() for path in (users,roles,routing,producer_client)):raise RuntimeError("Private files exist; inspect before reuse")
+    bootstrap=private/"bootstrap_password";app_password_file=private/"app_password";migrator=private/"migrator_password"
+    private_paths=(users,roles,routing,producer_client,bootstrap,app_password_file,migrator)
+    if any(path.exists() for path in private_paths):raise RuntimeError("Private files exist; inspect before reuse")
+    if LIVE_RUN_ID and IMAGE=="ai-modernization-kan18:candidate":raise RuntimeError("Isolated run must use a unique image name")
+    ENV.update({"KAN22_SECRET_DIR":str(private),"KAN22_MIGRATIONS_DIR":str(MIGRATIONS),"KAN18_APP_IMAGE":IMAGE})
     if subprocess.run(["docker","inspect",NAME],stdout=subprocess.DEVNULL,stderr=subprocess.DEVNULL).returncode==0:raise RuntimeError("Task container already exists")
     credentials={who:secrets.token_urlsafe(28) for who in ["reader","operator","admin"]}
     machine_credentials={who:secrets.token_urlsafe(28) for who in ["batch-worker","handling-worker","inspection-worker","notification-worker"]}
     attempt_producer_password=secrets.token_urlsafe(28)
     routing_password=secrets.token_urlsafe(28)
     container=None;checks=[]
-    report={"task":"KAN-"+LIVE_RUN_ID[3:LIVE_RUN_ID.index("-")] if LIVE_RUN_ID else "KAN-18","scope":"Real Cargo Tracker candidate: monitoring/handling/session plus Faces list/booking/details/destination routes","checks":checks,"status":"FAIL","identities":{},"access_observations":{}}
+    report={"task":"KAN-"+LIVE_RUN_ID[3:LIVE_RUN_ID.index("-")] if LIVE_RUN_ID else "KAN-18","scope":"Real Cargo Tracker candidate: monitoring/handling/session plus Faces list/booking/details/destination routes on disposable PostgreSQL/Flyway","checks":checks,"status":"FAIL","identities":{},"access_observations":{},"compose_started":False}
     def check(name,condition):
         checks.append({"name":name,"passed":bool(condition)})
         if not condition:raise AssertionError(name)
@@ -499,6 +618,10 @@ def main(after_checks=None):
         roles.write_text("reader=Reader\noperator=Operator\nadmin=Administrator\nrouting=RoutingService\nbatch-worker=BatchWorker\nhandling-worker=HandlingWorker\ninspection-worker=InspectionWorker\nnotification-worker=NotificationWorker\nhandling-attempt-producer=HandlingAttemptProducer\n")
         routing.write_text("username=routing\npassword="+routing_password+"\n")
         producer_client.write_text("producer.user=handling-attempt-producer\nproducer.password="+attempt_producer_password+"\n"+"".join(who+".user="+who+"\n"+who+".password="+pw+"\n" for who,pw in {**credentials,**machine_credentials}.items()))
+        db_passwords={"bootstrap_password":secrets.token_urlsafe(30),"app_password":secrets.token_urlsafe(30),"migrator_password":secrets.token_urlsafe(30)}
+        for path in (bootstrap,app_password_file,migrator):
+            path.write_text(db_passwords[path.name]+"\n")
+            path.chmod(0o444)
         users.chmod(0o600);roles.chmod(0o600);routing.chmod(0o600);producer_client.chmod(0o600)
         context=Path(tempfile.mkdtemp(prefix="context-",dir=WORK))
         for relative in ["candidate/security","candidate/cargotracker","tests/candidate-runtime"]:
@@ -537,24 +660,69 @@ def main(after_checks=None):
         report["image_id"]=command("docker","image","inspect","--format","{{.Id}}",IMAGE)
         guard=subprocess.run(["docker","run","--rm",IMAGE],capture_output=True,text=True)
         check("Disposable image refuses absent opt-in",guard.returncode==2 and "Disposable lab opt-in required" in guard.stderr)
+        ENV.update({"KAN22_SECRET_DIR":str(private),"KAN22_MIGRATIONS_DIR":str(MIGRATIONS),"KAN18_APP_IMAGE":IMAGE})
+        shutil.copytree(ROOT/"infrastructure/database/migrations",MIGRATIONS)
+        report["compose_started"]=True
+        compose("up","-d","--wait","--wait-timeout","120","postgres",timeout=180)
+        compose("--profile","migrate","run","--rm","migrate",timeout=180)
+        migration_version=compose("exec","-T","postgres","psql","-U","db_bootstrap","-d","cargotracker","-Atqc","SELECT version FROM cargo.flyway_schema_history WHERE success ORDER BY installed_rank DESC LIMIT 1")
+        report["flyway_schema_version"]=migration_version
+        check("PostgreSQL Flyway V6 schema is ready",migration_version=="6")
         task_label=("KAN-"+LIVE_RUN_ID[3:LIVE_RUN_ID.index("-")]) if LIVE_RUN_ID else "KAN-18"
-        container=command("docker","run","-d","--name",NAME,"--label","ai-modernization.task="+task_label,"--init","-e","DISPOSABLE_CANDIDATE_LAB=true","-e","LAB_IMPORT_ENABLED=true","-e","LAB_CANDIDATE_HOSTNAME="+NAME,"-e","CARGO_HANDLING_ATTEMPT_TTL_MS="+os.environ.get("CARGO_HANDLING_ATTEMPT_TTL_MS","30000"),"-p","127.0.0.1::8080","--mount",f"type=bind,src={private},dst=/run/kan18,readonly",IMAGE)
+        database_network=PROJECT+"_database"
+        command("docker","network","create","--label","com.docker.compose.project="+PROJECT,
+            "--label","com.docker.compose.network=candidate-host-access",HOST_ACCESS_NETWORK,timeout=30)
+        report["host_access_network_created"]=True
+        check("Candidate host-access bridge is non-internal",
+            command("docker","network","inspect","--format","{{.Internal}}",HOST_ACCESS_NETWORK)=="false")
+        container=command("docker","create","--name",NAME,"--label","com.docker.compose.project="+PROJECT,"--label","ai-modernization.task="+task_label,"--init","--network",HOST_ACCESS_NETWORK,"--network-alias",NAME,"-e","DISPOSABLE_CANDIDATE_LAB=true","-e","LAB_IMPORT_ENABLED=true","-e","LAB_CANDIDATE_HOSTNAME="+NAME,"-e","CARGO_HANDLING_ATTEMPT_TTL_MS="+os.environ.get("CARGO_HANDLING_ATTEMPT_TTL_MS","30000"),"-p","127.0.0.1::8080","--mount",f"type=bind,src={private},dst=/run/kan18,readonly",IMAGE)
+        command("docker","network","connect","--alias",NAME,database_network,container,timeout=30)
+        command("docker","start",container,timeout=30)
+        candidate_networks=json.loads(command("docker","inspect","--format","{{json .NetworkSettings.Networks}}",container))
+        report["candidate_networks"]=sorted(candidate_networks)
+        database_network_is_internal=command("docker","network","inspect","--format","{{.Internal}}",database_network)=="true"
+        check("Candidate runtime uses isolated database and host-access networks",
+            set(candidate_networks)=={database_network,HOST_ACCESS_NETWORK} and database_network_is_internal)
         with tempfile.TemporaryDirectory(prefix="domain-reports-",dir=WORK) as temporary:
             command("docker","cp",container+":/opt/jboss/lab-evidence/surefire",temporary+"/surefire")
             suites=[ET.parse(path).getroot() for path in Path(temporary).rglob("TEST-*.xml")]
             report["domain_tests"]={key:sum(int(suite.get(key,"0")) for suite in suites) for key in ["tests","failures","errors","skipped"]}
             report["domain_tests"]["empty_legacy_todo_retained"]=True
-            check("61 candidate domain tests execute",report["domain_tests"]["tests"]==61 and all(report["domain_tests"][key]==0 for key in ["failures","errors","skipped"]))
-        port=int(command("docker","port",container,"8080/tcp").rsplit(":",1)[1])
+            check("63 candidate domain tests execute",report["domain_tests"]["tests"]==63 and all(report["domain_tests"][key]==0 for key in ["failures","errors","skipped"]))
+        container_inspect=json.loads(command("docker","inspect",container))[0]
+        state=container_inspect.get("State",{})
+        port_bindings=((container_inspect.get("NetworkSettings",{}).get("Ports") or {}).get("8080/tcp") or [])
+        port_process=subprocess.run(["docker","port",container,"8080/tcp"],capture_output=True,text=True,timeout=30)
+        report["container_state_before_http"]={key:state.get(key) for key in ["Status","Running","ExitCode"]}
+        report["published_http_bindings"]=port_bindings
+        report["docker_port_lookup"]={"exit_code":port_process.returncode,
+            "stdout":port_process.stdout.strip(),"stderr":port_process.stderr.strip()}
+        if not state.get("Running"):
+            raise RuntimeError("Candidate container exited before HTTP readiness")
+        published=(len(port_bindings)==1 and port_bindings[0].get("HostIp")=="127.0.0.1"
+            and str(port_bindings[0].get("HostPort","")).isdigit())
+        check("Candidate HTTP port is published only on loopback",published and port_process.returncode==0)
+        port=int(port_bindings[0]["HostPort"])
         base=f"http://127.0.0.1:{port}/cargo-tracker/"
         deadline=time.monotonic()+150
         anonymous=client()[1]
+        last_http_error=None
         while time.monotonic()<deadline:
             try:
                 if request(anonymous,"login")[0]==200:break
-            except OSError:pass
+            except OSError as error:
+                last_http_error=type(error).__name__
+                running=json.loads(command("docker","inspect","--format","{{.State.Running}}",container))
+                if not running:
+                    final_state=json.loads(command("docker","inspect",container))[0].get("State",{})
+                    report["container_state_at_http_failure"]={key:final_state.get(key) for key in ["Status","Running","ExitCode"]}
+                    raise RuntimeError("Candidate container exited before HTTP readiness") from error
             time.sleep(1)
-        else:raise RuntimeError("Fixture deployment not ready")
+        else:
+            report["last_http_connection_error"]=last_http_error
+            final_state=json.loads(command("docker","inspect",container))[0].get("State",{})
+            report["container_state_at_http_failure"]={key:final_state.get(key) for key in ["Status","Running","ExitCode"]}
+            raise RuntimeError("Fixture deployment not ready")
         if LIVE_RUN_ID.startswith("kan31-"):
             expected_ttl=os.environ.get("CARGO_HANDLING_ATTEMPT_TTL_MS","30000")
             observed_ttl=read_server_system_property(
@@ -714,9 +882,6 @@ def main(after_checks=None):
         # BG-01: the protected page rejects other roles, fixed-root validation
         # rejects adversarial staged entries, and a valid empty file proves the
         # actual JBeret execution identity without changing cargo business data.
-        def effects_unchanged(before,after):
-            return (before["tables"]==after["tables"] and before["queues"]==after["queues"]
-                and before["business_invocations"]==after["business_invocations"])
         def effects_receipt(before,after):
             return {"settled":True,"fixture_id":container,"before_fixture":container,"after_fixture":container,
                 "before":{"database":before["tables"],"queue":before["queues"],"business_audit":before["business_invocations"]},
@@ -1047,7 +1212,7 @@ def main(after_checks=None):
             "INSPECTION_WORKER_AUDIT event=consumed principal=inspection-worker role=InspectionWorker")
         producer_process=subprocess.run(["docker","exec",container,"java","-cp",
             "/opt/jboss/remote-producer-classes:/opt/jboss/remote-producer-classes/WEB-INF/classes:/opt/jboss/remote-producer-classes/WEB-INF/lib/*:/opt/jboss/wildfly/bin/client/jboss-client.jar",
-            "lab.fixture.RemoteJmsProducerProbe","/run/kan18/producer-client.properties"],
+            "lab.fixture.RemoteJmsProducerProbe","/run/kan18/producer-client.properties","authorization"],
             capture_output=True,text=True,timeout=30)
         if producer_process.returncode:
             report["remote_producer_diagnostic"]=(producer_process.stdout+producer_process.stderr)[-4000:]
@@ -1067,28 +1232,18 @@ def main(after_checks=None):
         report["cargo_handled_producer_raw_observation"]={key:value for key,value in producer_observation.items()
             if key.startswith("cargoHandled")}
         report["cargo_handled_producer_effects_unchanged"]=cargo_handled_effects_unchanged
-        unauthorized_unchanged=(producer_after["tables"]==producer_attempt["tables"]
-            and producer_observation.get("anonymousDenied") is True
-            and producer_observation.get("humanSendDenied")==[True,True,True]
-            and producer_observation.get("machineAuthenticated")==[True,True,True,True]
-            and producer_observation.get("machineSendDenied")==[True,True,True,True]
-            and producer_observation.get("rejectedQueueDenied") is True
-            and producer_observation.get("deliveredQueueDenied") is True)
+        unauthorized_unchanged=remote_producer_unauthorized_effects_unchanged(
+            producer_attempt,producer_after,producer_observation)
         report["remote_producer_raw_observation"]=producer_observation
         report["remote_producer_unauthorized_effects_unchanged"]=unauthorized_unchanged
-        producer_boundary_verified=remote_producer_boundary_verified(
-            producer_observation,unauthorized_unchanged)
         check("Remote JMS authenticated users cannot send to handling-attempt queue",
             producer_observation.get("anonymousDenied") is True
+            and producer_observation.get("producerAuthenticated") is True
             and producer_observation.get("humanAuthenticated")==[True,True,True]
             and producer_observation.get("humanSendDenied")==[True,True,True]
             and producer_observation.get("machineAuthenticated")==[True,True,True,True]
             and producer_observation.get("machineSendDenied")==[True,True,True,True]
             and unauthorized_unchanged)
-        check("Trusted remote producer can send only to handling-attempt queue",
-            producer_observation.get("trustedAllowed") is True
-            and producer_observation.get("rejectedQueueDenied") is True
-            and producer_observation.get("deliveredQueueDenied") is True)
         cargo_handled_producer_boundary_verified=(
             producer_observation.get("cargoHandledAnonymousDenied") is True
             and producer_observation.get("cargoHandledHumanAuthenticated")==[True,True,True]
@@ -1103,11 +1258,26 @@ def main(after_checks=None):
             cargo_handled_producer_boundary_verified)
         check("CargoHandledQueue authorization probe leaves application effects unchanged",
             cargo_handled_effects_unchanged)
-        rejection_before=producer_attempt
-        poison_status=202
+        rejection_before=producer_after
+        trusted_process=subprocess.run(["docker","exec",container,"java","-cp",
+            "/opt/jboss/remote-producer-classes:/opt/jboss/remote-producer-classes/WEB-INF/classes:/opt/jboss/remote-producer-classes/WEB-INF/lib/*:/opt/jboss/wildfly/bin/client/jboss-client.jar",
+            "lab.fixture.RemoteJmsProducerProbe","/run/kan18/producer-client.properties","trusted-attempt"],
+            capture_output=True,text=True,timeout=30)
+        if trusted_process.returncode:
+            report["trusted_attempt_diagnostic"]=(trusted_process.stdout+trusted_process.stderr)[-4000:]
+            raise RuntimeError("Trusted remote JMS probe failed; see trusted_attempt_diagnostic")
+        trusted_attempt_observation=json.loads(trusted_process.stdout.strip().splitlines()[-1])
+        report["trusted_attempt_raw_observation"]=trusted_attempt_observation
+        check("Trusted remote producer can send only to handling-attempt queue",
+            trusted_attempt_observation.get("trustedAllowed") is True
+            and producer_observation.get("rejectedQueueDenied") is True
+            and producer_observation.get("deliveredQueueDenied") is True)
+        producer_boundary_verified=remote_producer_boundary_verified(
+            producer_observation,unauthorized_unchanged,trusted_attempt_observation.get("trustedAllowed"))
         report["handling_attempt_producer_observation"]={
             "driver":"remote-jms-producer-v1","supported":True,
-            "identity_verified":producer_observation.get("trustedAllowed") is True,
+            "identity_verified":producer_observation.get("producerAuthenticated") is True
+                and trusted_attempt_observation.get("trustedAllowed") is True,
             "principal":"handling-attempt-producer","roles":["HandlingAttemptProducer"],
             "anonymous_denied":producer_observation.get("anonymousDenied") is True,
             "human_users_authenticated":producer_observation.get("humanAuthenticated"),
@@ -1118,22 +1288,22 @@ def main(after_checks=None):
             "unauthorized_effects_unchanged":unauthorized_unchanged,
             "transport":"remote+http WildFly JMS connection from a separate JVM"}
         check("Trusted remote producer publishes one invalid attempt for broker disposition",
-            producer_observation.get("trustedAllowed") is True)
+            trusted_attempt_observation.get("trustedAllowed") is True)
         rejection_wait_deadline=time.monotonic()+45
         rejection_after=None
         while time.monotonic()<rejection_wait_deadline:
             snapshot=effects()
             input_queue=snapshot["queues"]["jms.queue.HandlingEventRegistrationAttemptQueue"]
-            rejected_queue=snapshot["queues"]["jms.queue.RejectedRegistrationAttemptsQueue"]
+            intake_queue=snapshot["queues"]["jms.queue.HandlingAttemptQuarantineIntakeQueue"]
             input_calls=snapshot["business_invocations"].get(
                 "net.java.cargotracker.infrastructure.messaging.jms.HandlingEventRegistrationAttemptConsumer#onMessage",0)
-            reject_calls=snapshot["business_invocations"].get(
-                "net.java.cargotracker.infrastructure.messaging.jms.RejectedRegistrationAttemptsConsumer#onMessage",0)
-            if (input_queue["MessageCount"]==0 and rejected_queue["MessageCount"]==0
+            quarantine_calls=snapshot["business_invocations"].get(
+                "net.java.cargotracker.infrastructure.quarantine.HandlingAttemptQuarantineConsumer#onMessage",0)
+            if (input_queue["MessageCount"]==0 and intake_queue["MessageCount"]==0
                     and input_queue["MessagesAdded"]-rejection_before["queues"]["jms.queue.HandlingEventRegistrationAttemptQueue"]["MessagesAdded"]==1
-                    and rejected_queue["MessagesAdded"]-rejection_before["queues"]["jms.queue.RejectedRegistrationAttemptsQueue"]["MessagesAdded"]==1
-                    and reject_calls-rejection_before["business_invocations"].get(
-                        "net.java.cargotracker.infrastructure.messaging.jms.RejectedRegistrationAttemptsConsumer#onMessage",0)==1
+                    and intake_queue["MessagesAdded"]-rejection_before["queues"]["jms.queue.HandlingAttemptQuarantineIntakeQueue"]["MessagesAdded"]==1
+                    and quarantine_calls-rejection_before["business_invocations"].get(
+                        "net.java.cargotracker.infrastructure.quarantine.HandlingAttemptQuarantineConsumer#onMessage",0)==1
                     and input_calls-rejection_before["business_invocations"].get(
                         "net.java.cargotracker.infrastructure.messaging.jms.HandlingEventRegistrationAttemptConsumer#onMessage",0)==3):
                 rejection_after=settled()
@@ -1142,9 +1312,8 @@ def main(after_checks=None):
         if rejection_after is None:
             rejection_after=effects()
         input_name="jms.queue.HandlingEventRegistrationAttemptQueue"
-        rejected_name="jms.queue.RejectedRegistrationAttemptsQueue"
-        rejected_audit_logs=command("docker","logs",container)
-        rejected_audit_line="NOTIFICATION_WORKER_AUDIT event=consumed consumer=rejected-registration principal=notification-worker role=NotificationWorker"
+        intake_name="jms.queue.HandlingAttemptQuarantineIntakeQueue"
+        quarantine_logs=command("docker","logs",container)
         handling_attempt_delta=(rejection_after["business_invocations"].get(
             "net.java.cargotracker.infrastructure.messaging.jms.HandlingEventRegistrationAttemptConsumer#onMessage",0)
             - rejection_before["business_invocations"].get(
@@ -1153,51 +1322,60 @@ def main(after_checks=None):
             "net.java.cargotracker.infrastructure.messaging.jms.HandlingWorkerAudit#recordConsumedAttempt",0)
             - rejection_before["business_invocations"].get(
             "net.java.cargotracker.infrastructure.messaging.jms.HandlingWorkerAudit#recordConsumedAttempt",0))
-        rejected_consumer_delta=(rejection_after["business_invocations"].get(
-            "net.java.cargotracker.infrastructure.messaging.jms.RejectedRegistrationAttemptsConsumer#onMessage",0)
+        quarantine_consumer_delta=(rejection_after["business_invocations"].get(
+            "net.java.cargotracker.infrastructure.quarantine.HandlingAttemptQuarantineConsumer#onMessage",0)
             - rejection_before["business_invocations"].get(
-            "net.java.cargotracker.infrastructure.messaging.jms.RejectedRegistrationAttemptsConsumer#onMessage",0))
-        rejected_audit_delta=(rejection_after["business_invocations"].get(
-            "net.java.cargotracker.infrastructure.messaging.jms.NotificationWorkerAudit#recordConsumed",0)
+            "net.java.cargotracker.infrastructure.quarantine.HandlingAttemptQuarantineConsumer#onMessage",0))
+        quarantine_store_delta=(rejection_after["business_invocations"].get(
+            "net.java.cargotracker.infrastructure.quarantine.HandlingAttemptQuarantineService#store",0)
             - rejection_before["business_invocations"].get(
-            "net.java.cargotracker.infrastructure.messaging.jms.NotificationWorkerAudit#recordConsumed",0))
+            "net.java.cargotracker.infrastructure.quarantine.HandlingAttemptQuarantineService#store",0))
         rejection_message=(
             rejection_after["queues"][input_name]["MessagesAdded"]-
                 rejection_before["queues"][input_name]["MessagesAdded"]==1
             and rejection_after["queues"][input_name]["MessagesKilled"]-
                 rejection_before["queues"][input_name]["MessagesKilled"]==1
-            and rejection_after["queues"][rejected_name]["MessagesAdded"]-
-                rejection_before["queues"][rejected_name]["MessagesAdded"]==1
-            and rejection_after["queues"][rejected_name]["MessagesAcknowledged"]-
-                rejection_before["queues"][rejected_name]["MessagesAcknowledged"]==1
+            and rejection_after["queues"][intake_name]["MessagesAdded"]-
+                rejection_before["queues"][intake_name]["MessagesAdded"]==1
+            and rejection_after["queues"][intake_name]["MessagesAcknowledged"]-
+                rejection_before["queues"][intake_name]["MessagesAcknowledged"]==1
             and rejection_after["queues"][input_name]["MessageCount"]==0
-            and rejection_after["queues"][rejected_name]["MessageCount"]==0)
-        rejection_effect_comparison=compare_rejection_effect_deltas(
-            rejection_before,rejection_after,input_name,rejected_name)
-        rejection_no_business_effects=(
-            rejection_after["tables"]==rejection_before["tables"]
+            and rejection_after["queues"][intake_name]["MessageCount"]==0)
+        rejection_effect_comparison=compare_quarantine_effect_deltas(
+            rejection_before,rejection_after,input_name,intake_name)
+        quarantine_status,quarantine_body,_=request(admin_opener,"rest/handling/quarantine")
+        quarantine_snapshot=json.loads(quarantine_body) if quarantine_status==200 else {}
+        quarantine_entries=[entry for entry in quarantine_snapshot.get("entries",[])
+            if entry.get("trackingId")=="NOCARGO1"]
+        quarantine_row_verified=(len(quarantine_entries)==1
+            and quarantine_entries[0].get("eventType")=="RECEIVE"
+            and quarantine_entries[0].get("unLocode")=="USCHI"
+            and bool(quarantine_entries[0].get("requestId")))
+        rejection_log_sanitized="NOCARGO1" not in quarantine_logs
+        rejection_no_business_effects=(rejection_effect_comparison["business_tables_unchanged"]
             and rejection_effect_comparison["all_queue_and_invocation_deltas_bounded"])
-        rejection_log_sanitized=(rejected_audit_logs.count(rejected_audit_line)==1
-            and "NOCARGO1" not in rejected_audit_logs)
         report["rejection_disposition_diagnostics"]={
             **rejection_effect_comparison,
-            "tables_unchanged":rejection_after["tables"]==rejection_before["tables"],
+            "quarantine_api_status":quarantine_status,
+            "quarantine_entry_verified":quarantine_row_verified,
+            "quarantine_entry_count_for_probe":len(quarantine_entries),
             "log_sanitized":rejection_log_sanitized}
-        check("Invalid handling attempts receive three bounded deliveries then broker dead-letter disposition",
-            poison_status==202 and rejection_message and handling_attempt_delta==3)
-        check("Rejected-attempt consumer acknowledges one identifier-free server-worker audit",
-            rejected_consumer_delta==1 and rejected_audit_delta==1 and rejection_log_sanitized)
-        check("Rejected attempts leave cargo and handling business tables unchanged",
-            rejection_no_business_effects)
+        check("Invalid handling attempts receive three bounded deliveries then durable quarantine intake",
+            trusted_attempt_observation.get("trustedAllowed") is True
+            and rejection_message and handling_attempt_delta==3)
+        check("Quarantine consumer persists one invalid attempt for administrator review",
+            quarantine_consumer_delta==1 and quarantine_store_delta==1
+            and quarantine_status==200 and quarantine_row_verified)
+        check("Quarantined attempts leave cargo and handling business tables unchanged",
+            rejection_no_business_effects and rejection_log_sanitized)
         report["rejection_disposition_observation"]={
-            "driver":"native-notification-worker-v1","supported":True,
-            "trusted_broker_dead_letter_verified":rejection_message and handling_attempt_delta==3,
+            "driver":"native-quarantine-consumer-v1","supported":True,
+            "broker_transfer_verified":rejection_message and handling_attempt_delta==3,
             "delivery_attempts":handling_attempt_delta,
-            "rejection_consumer_invocations":rejected_consumer_delta,
-            "notification_worker_audit_invocations":rejected_audit_delta,
-            "rejected_effects_unchanged":rejection_after["tables"]==rejection_before["tables"],
-            "final_disposition_verified":rejection_message and rejected_consumer_delta==1,
-            "sanitized_rejection_audit_verified":rejection_log_sanitized,
+            "quarantine_consumer_invocations":quarantine_consumer_delta,
+            "quarantine_store_invocations":quarantine_store_delta,
+            "quarantine_row_verified":quarantine_row_verified,
+            "sanitized_runtime_log_verified":rejection_log_sanitized,
             "business_side_effects_unchanged":rejection_no_business_effects,
             "producer_boundary_verified":producer_boundary_verified,
             "producer_boundary_note":"Separate-JVM remote+http JMS authorization verified",
@@ -1512,14 +1690,25 @@ def main(after_checks=None):
         table_before=before_valid["tables"];table_after=valid_after["tables"]
         handling_table=table_key(table_before,"handling_event")
         cargo_table=table_key(table_before,"cargo")
+        request_identity_table=table_key(table_before,"handling_request_idempotency")
         valid_tables=(set(table_before)==set(table_after)
             and handling_table in table_after and cargo_table in table_after
+            and request_identity_table in table_after
             and table_after[handling_table]["rows"]-table_before[handling_table]["rows"]==1
             and table_after[cargo_table]["rows"]==table_before[cargo_table]["rows"]
             and table_after[cargo_table]["sha256"]!=table_before[cargo_table]["sha256"]
+            and table_after[request_identity_table]["rows"]-table_before[request_identity_table]["rows"]==1
+            and table_after[request_identity_table]["sha256"]!=table_before[request_identity_table]["sha256"]
             and all(table_after[name]==table_before[name]
-                for name in table_before if name not in {handling_table,cargo_table}))
-        check("Valid file event changes only cargo and handling tables",valid_tables)
+                for name in table_before if name not in {handling_table,cargo_table,request_identity_table}))
+        report["valid_file_table_deltas"]={
+            "cargo_rows":table_after[cargo_table]["rows"]-table_before[cargo_table]["rows"],
+            "handling_event_rows":table_after[handling_table]["rows"]-table_before[handling_table]["rows"],
+            "request_identity_rows":table_after[request_identity_table]["rows"]-table_before[request_identity_table]["rows"],
+            "unchanged_tables":[name for name in table_before
+                if name not in {handling_table,cargo_table,request_identity_table}
+                and table_after.get(name)==table_before[name]]}
+        check("Valid file event changes cargo, handling and one request identity",valid_tables)
         valid_deltas={
             "net.java.cargotracker.interfaces.handling.file.BatchImportRequestService#issueNonce":1,
             "net.java.cargotracker.interfaces.handling.file.BatchImportRequestService#start":1,
@@ -1527,7 +1716,10 @@ def main(after_checks=None):
             "net.java.cargotracker.interfaces.handling.file.BatchWorkerAudit#jobStarted":1,
             "net.java.cargotracker.interfaces.handling.file.BatchWorkerAudit#jobFinished":1,
             "net.java.cargotracker.infrastructure.messaging.jms.HandlingEventRegistrationAttemptProducer#publish":1,
+            "net.java.cargotracker.infrastructure.quarantine.HandlingRequestIdempotencyService#reserve":1,
             "net.java.cargotracker.infrastructure.messaging.jms.HandlingEventRegistrationAttemptConsumer#onMessage":1,
+            "net.java.cargotracker.infrastructure.quarantine.HandlingRequestIdempotencyService#beginProcessing":1,
+            "net.java.cargotracker.infrastructure.quarantine.HandlingRequestIdempotencyService#markProcessed":1,
             "net.java.cargotracker.infrastructure.messaging.jms.HandlingWorkerAudit#recordConsumedAttempt":1,
             "net.java.cargotracker.application.internal.DefaultHandlingEventService#registerHandlingEvent":1,
             "net.java.cargotracker.infrastructure.messaging.jms.CargoHandledConsumer#onMessage":1,
@@ -2428,78 +2620,144 @@ def main(after_checks=None):
         _,claim_operator,claim_token=login("operator")
         claim_tracking_id=report["page_fixture_tracking_id"]
         claimed_before=next(c for c in cargos(claim_operator) if c["trackingId"]==claim_tracking_id)
+        claim_initial_effects=settled()
+        receive_body=json.dumps({"trackingId":claim_tracking_id,"eventType":"RECEIVE",
+            "unLocode":"CNHKG","completionTime":"2030-01-03 10:00"}).encode()
+        receive_status=handling_as(claim_operator,claim_token,receive_body)
+        check("Claim fixture RECEIVE is accepted",receive_status==204)
+        deadline=time.monotonic()+30
+        received=None
+        while time.monotonic()<deadline:
+            received=next(c for c in cargos(claim_operator) if c["trackingId"]==claim_tracking_id)
+            if received["transportStatus"]=="IN_PORT" and received["lastKnownLocationCode"]=="CNHKG":break
+            time.sleep(.25)
+        receive_effects=settled()
+        claim_event_table=table_key(receive_effects["tables"],"handling_event")
+        initial_event_table=table_key(claim_initial_effects["tables"],"handling_event")
+        report["claim_fixture_receive"]={
+            "tracking_id":claim_tracking_id,"submission_status":receive_status,
+            "initial_transport_status":claimed_before.get("transportStatus"),
+            "initial_location":claimed_before.get("lastKnownLocationCode"),
+            "after_transport_status":received.get("transportStatus") if received else None,
+            "after_location":received.get("lastKnownLocationCode") if received else None,
+            "handling_event_rows_delta":receive_effects["tables"][claim_event_table]["rows"]
+                -claim_initial_effects["tables"][initial_event_table]["rows"],
+            "consumer_invocations_delta":receive_effects["business_invocations"].get(
+                "net.java.cargotracker.infrastructure.messaging.jms.HandlingEventRegistrationAttemptConsumer#onMessage",0)
+                -claim_initial_effects["business_invocations"].get(
+                "net.java.cargotracker.infrastructure.messaging.jms.HandlingEventRegistrationAttemptConsumer#onMessage",0)}
+        check("Claim fixture RECEIVE persists at its origin",
+            received is not None and received["transportStatus"]=="IN_PORT"
+            and received["lastKnownLocationCode"]=="CNHKG"
+            and report["claim_fixture_receive"]["handling_event_rows_delta"]==1
+            and report["claim_fixture_receive"]["consumer_invocations_delta"]==1)
         claim_body=json.dumps({"trackingId":claim_tracking_id,"eventType":"CLAIM",
             "unLocode":"FIHEL","completionTime":"2030-01-05 10:00"}).encode()
-        check("CLAIM test event accepted for terminal-state fixture",handling_as(claim_operator,claim_token,claim_body)==204)
+        claim_status=handling_as(claim_operator,claim_token,claim_body)
+        check("CLAIM test event accepted for terminal-state fixture",claim_status==204)
         deadline=time.monotonic()+30
         claimed=None
         while time.monotonic()<deadline:
             claimed=next(c for c in cargos(claim_operator) if c["trackingId"]==claim_tracking_id)
             if claimed["transportStatus"]=="CLAIMED":break
             time.sleep(.25)
+        claim_effects=settled()
+        claim_event_table=table_key(claim_effects["tables"],"handling_event")
+        receive_event_table=table_key(receive_effects["tables"],"handling_event")
+        report["claim_fixture_claim"]={
+            "tracking_id":claim_tracking_id,
+            "submission_status":claim_status,
+            "after_receive_transport_status":received.get("transportStatus") if received else None,
+            "after_receive_location":received.get("lastKnownLocationCode") if received else None,
+            "after_claim_transport_status":claimed.get("transportStatus") if claimed else None,
+            "after_claim_location":claimed.get("lastKnownLocationCode") if claimed else None,
+            "handling_event_rows_delta":claim_effects["tables"][claim_event_table]["rows"]
+                -receive_effects["tables"][receive_event_table]["rows"],
+            "consumer_invocations_delta":claim_effects["business_invocations"].get(
+                "net.java.cargotracker.infrastructure.messaging.jms.HandlingEventRegistrationAttemptConsumer#onMessage",0)
+                -receive_effects["business_invocations"].get(
+                "net.java.cargotracker.infrastructure.messaging.jms.HandlingEventRegistrationAttemptConsumer#onMessage",0)}
         check("CLAIM positive control reaches persisted cargo projection",
-            claimed is not None and claimed["transportStatus"]=="CLAIMED")
+            claimed is not None and claimed["transportStatus"]=="CLAIMED"
+            and report["claim_fixture_claim"]["handling_event_rows_delta"]==1
+            and report["claim_fixture_claim"]["consumer_invocations_delta"]==1)
         before_claimed_load=settled()
         invalid_load_body=json.dumps({"trackingId":claim_tracking_id,"eventType":"LOAD",
             "unLocode":"FIHEL","completionTime":"2030-01-06 10:00",
             "voyageNumber":"0100S"}).encode()
-        check("LOAD after CLAIM is accepted only for asynchronous rejection",
+        load_logs_before=command("docker","logs",container)
+        check("LOAD after CLAIM is accepted only for asynchronous quarantine",
             handling_as(claim_operator,claim_token,invalid_load_body)==204)
         rejected_after_claim=None
         rejection_deadline=time.monotonic()+45
         input_name="jms.queue.HandlingEventRegistrationAttemptQueue"
-        rejected_name="jms.queue.RejectedRegistrationAttemptsQueue"
+        intake_name="jms.queue.HandlingAttemptQuarantineIntakeQueue"
         while time.monotonic()<rejection_deadline:
             sample=effects()
             input_queue=sample["queues"][input_name]
-            rejected_queue=sample["queues"][rejected_name]
+            intake_queue=sample["queues"][intake_name]
             consumer_delta=(sample["business_invocations"].get(
                 "net.java.cargotracker.infrastructure.messaging.jms.HandlingEventRegistrationAttemptConsumer#onMessage",0)
                 - before_claimed_load["business_invocations"].get(
                 "net.java.cargotracker.infrastructure.messaging.jms.HandlingEventRegistrationAttemptConsumer#onMessage",0))
-            rejected_delta=(sample["business_invocations"].get(
-                "net.java.cargotracker.infrastructure.messaging.jms.RejectedRegistrationAttemptsConsumer#onMessage",0)
+            quarantine_delta=(sample["business_invocations"].get(
+                "net.java.cargotracker.infrastructure.quarantine.HandlingAttemptQuarantineConsumer#onMessage",0)
                 - before_claimed_load["business_invocations"].get(
-                "net.java.cargotracker.infrastructure.messaging.jms.RejectedRegistrationAttemptsConsumer#onMessage",0))
-            if (input_queue["MessageCount"]==0 and rejected_queue["MessageCount"]==0
+                "net.java.cargotracker.infrastructure.quarantine.HandlingAttemptQuarantineConsumer#onMessage",0))
+            if (input_queue["MessageCount"]==0 and intake_queue["MessageCount"]==0
                     and input_queue["MessagesAdded"]-before_claimed_load["queues"][input_name]["MessagesAdded"]==1
-                    and rejected_queue["MessagesAdded"]-before_claimed_load["queues"][rejected_name]["MessagesAdded"]==1
-                    and consumer_delta==3 and rejected_delta==1):
+                    and intake_queue["MessagesAdded"]-before_claimed_load["queues"][intake_name]["MessagesAdded"]==1
+                    and consumer_delta==3 and quarantine_delta==1):
                 rejected_after_claim=settled()
                 break
             time.sleep(.5)
         if rejected_after_claim is None:rejected_after_claim=effects()
-        rejection_comparison=compare_rejection_effect_deltas(
-            before_claimed_load,rejected_after_claim,input_name,rejected_name)
-        expected_rejection_invocations=dict(rejection_comparison["expected_business_invocation_deltas"])
-        expected_rejection_invocations[
-            "net.java.cargotracker.infrastructure.messaging.jms.HandlingEventRegistrationAttemptProducer#publish"]=1
-        expected_rejection_invocations[
-            "net.java.cargotracker.interfaces.handling.rest.HandlingReportService#submitReport"]=1
-        rejection_comparison["expected_business_invocation_deltas"]=expected_rejection_invocations
-        rejection_comparison["all_queue_and_invocation_deltas_bounded"]=(
-            rejection_comparison["queue_counter_deltas"]==rejection_comparison["expected_queue_counter_deltas"]
-            and rejection_comparison["business_invocation_deltas"]==expected_rejection_invocations)
+        rejection_comparison=compare_quarantine_effect_deltas(
+            before_claimed_load,rejected_after_claim,input_name,intake_name,{
+                "net.java.cargotracker.infrastructure.quarantine.HandlingRequestIdempotencyService#reserve":1,
+                "net.java.cargotracker.infrastructure.quarantine.HandlingAttemptQuarantineService#registerLegacyRequest":None,
+                "net.java.cargotracker.infrastructure.messaging.jms.HandlingEventRegistrationAttemptProducer#publish":1,
+                "net.java.cargotracker.interfaces.handling.rest.HandlingReportService#submitReport":1})
+        _,quarantine_admin_opener,_=login("admin")
+        quarantine_status,quarantine_body,_=request(quarantine_admin_opener,"rest/handling/quarantine")
+        quarantine_snapshot=json.loads(quarantine_body) if quarantine_status==200 else {}
+        quarantined_loads=[entry for entry in quarantine_snapshot.get("entries",[])
+            if entry.get("trackingId")==claim_tracking_id]
+        quarantined_load_verified=(len(quarantined_loads)==1
+            and quarantined_loads[0].get("eventType")=="LOAD"
+            and quarantined_loads[0].get("unLocode")=="FIHEL"
+            and quarantined_loads[0].get("voyageNumber")=="0100S"
+            and bool(quarantined_loads[0].get("requestId")))
+        quarantine_logs=appended_log_text(load_logs_before,command("docker","logs",container))
+        load_logs_sanitized=(quarantine_logs is not None and claim_tracking_id not in quarantine_logs)
         claimed_after_load=next(c for c in cargos(claim_operator) if c["trackingId"]==claim_tracking_id)
         cargo_state_unchanged=all(claimed.get(key)==claimed_after_load.get(key)
             for key in ["transportStatus","lastKnownLocationCode","routingStatus","misdirected","atDestination","updatedAt"])
-        no_handling_row=before_claimed_load["tables"]==rejected_after_claim["tables"]
+        no_handling_row=rejection_comparison["business_tables_unchanged"]
         report["load_after_claim"]={"tracking_id":claim_tracking_id,
             "prior_cargo":{"transportStatus":claimed.get("transportStatus"),"lastKnownLocationCode":claimed.get("lastKnownLocationCode"),"routingStatus":claimed.get("routingStatus"),"misdirected":claimed.get("misdirected"),"atDestination":claimed.get("atDestination"),"updatedAt":claimed.get("updatedAt")},
             "after_rejected_load":{"transportStatus":claimed_after_load.get("transportStatus"),"lastKnownLocationCode":claimed_after_load.get("lastKnownLocationCode"),"routingStatus":claimed_after_load.get("routingStatus"),"misdirected":claimed_after_load.get("misdirected"),"atDestination":claimed_after_load.get("atDestination"),"updatedAt":claimed_after_load.get("updatedAt")},
             "database_unchanged":no_handling_row,"cargo_state_unchanged":cargo_state_unchanged,
+            "quarantine_api_status":quarantine_status,"quarantine_entry_verified":quarantined_load_verified,
+            "sanitized_runtime_log_verified":load_logs_sanitized,
             "rejection_disposition":rejection_comparison,
             "before":effects_receipt(before_claimed_load,rejected_after_claim)}
         check("Post-CLAIM LOAD is not stored and cargo state remains CLAIMED",
             no_handling_row and cargo_state_unchanged and claimed_after_load.get("transportStatus")=="CLAIMED")
-        check("Post-CLAIM LOAD follows bounded rejection queue disposition",
-            rejection_comparison["all_queue_and_invocation_deltas_bounded"])
+        check("Post-CLAIM LOAD follows bounded quarantine disposition",
+            rejection_comparison["all_queue_and_invocation_deltas_bounded"]
+            and quarantine_status==200 and quarantined_load_verified
+            and load_logs_sanitized)
         report["status"]="PASS"
     except Exception as error:
         report["error_type"]=type(error).__name__
+        if isinstance(error,subprocess.CalledProcessError):
+            report["error_exit_code"]=error.returncode
+            if isinstance(error.output,str) and error.output:
+                report["error_diagnostic"]=redact_private_diagnostic(error.output,private_paths)[-4000:]
         raise
     finally:
-        if not finalize(container,[users,roles,routing,producer_client],report):
+        if not finalize(container,private_paths,report):
             raise RuntimeError("Fixture cleanup incomplete; inspect sanitized results")
 
     return report

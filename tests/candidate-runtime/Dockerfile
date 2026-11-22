@@ -23,6 +23,12 @@ COPY --from=build --chown=jboss:root /build/candidate/target/cargo-tracker.war /
 COPY --chown=jboss:root tests/candidate-runtime/start.sh /opt/jboss/start-kan18.sh
 COPY --chown=jboss:root tests/candidate-runtime/configure-batch-security.cli /opt/jboss/configure-batch-security.cli
 COPY --chown=jboss:root candidate/cargotracker/deployment/wildfly/notification-disposition.cli /opt/jboss/notification-disposition.cli
+COPY --chown=jboss:root tests/candidate-runtime/postgresql/module.xml /opt/jboss/wildfly/modules/org/postgresql/main/module.xml
+COPY --chown=jboss:root tests/candidate-runtime/postgresql/configure-datasource.cli /opt/jboss/configure-postgresql-datasource.cli
+USER root
+RUN mkdir -p /opt/jboss/wildfly/modules/org/postgresql/main && chown -R jboss:root /opt/jboss/wildfly/modules/org/postgresql
+ADD https://repo.maven.apache.org/maven2/org/postgresql/postgresql/42.7.14/postgresql-42.7.14.jar /opt/jboss/wildfly/modules/org/postgresql/main/postgresql-42.7.14.jar
+RUN chmod 0644 /opt/jboss/wildfly/modules/org/postgresql/main/postgresql-42.7.14.jar && echo "73914527305a40cce504b0d3d90b23caf565136912d607ae8ae7c5895512332c  /opt/jboss/wildfly/modules/org/postgresql/main/postgresql-42.7.14.jar" | sha256sum -c - && chown jboss:root /opt/jboss/wildfly/modules/org/postgresql/main/postgresql-42.7.14.jar
 COPY --from=build /tmp/observer-client /opt/jboss/observer-client
 COPY tests/candidate-runtime/RemoteJmsProducerProbe.java /opt/jboss/RemoteJmsProducerProbe.java
 USER root

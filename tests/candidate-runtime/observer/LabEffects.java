@@ -4,8 +4,12 @@ import javax.sql.DataSource;import javax.management.*;import java.lang.managemen
 import java.sql.*;import java.security.*;import java.nio.charset.StandardCharsets;import java.util.*;
 @Singleton @Startup @ExcludeDefaultInterceptors
 public class LabEffects implements LabEffectsMBean {
- @Resource(lookup="java:/jboss/datasources/ExampleDS") DataSource dataSource;
+ @Resource(lookup="java:jboss/datasources/CargoTrackerDS") DataSource dataSource;
  private final MBeanServer server=ManagementFactory.getPlatformMBeanServer();
+ private static final String DATABASE_SCHEMA="cargo";
+ private static final Set<String> OBSERVED_TABLES=Set.of("location","voyage","cargo","leg","handling_event","carrier_movement",
+  "handling_attempt_quarantine","handling_quarantine_state","handling_quarantine_replay_audit",
+  "handling_request_idempotency","handling_quarantine_pending");
  private static final String[] ATTRIBUTES={"MessageCount","DeliveringCount","ScheduledCount","MessagesAdded","MessagesAcknowledged","MessagesExpired","MessagesKilled","AcknowledgeAttempts"};
  @PostConstruct void start()throws Exception {
   if(!Boolean.getBoolean("lab.candidate.disposable"))throw new IllegalStateException("Lab observer refuses non-disposable runtime");
@@ -37,15 +41,16 @@ public class LabEffects implements LabEffectsMBean {
   return Json.createObjectBuilder().add("row_count",count).add("matches",matches).build().toString();
  }
  @Override public String getSnapshot()throws Exception {
-  JsonObjectBuilder tables=Json.createObjectBuilder();
+  JsonObjectBuilder tables=Json.createObjectBuilder();Set<String> observedTables=new HashSet<>();
   int tableCount=0;long records=0;
   try(Connection c=dataSource.getConnection()){
    c.setReadOnly(true);
-   try(ResultSet names=c.getMetaData().getTables(null,"PUBLIC","%",new String[]{"TABLE"})){
+   try(ResultSet names=c.getMetaData().getTables(null,DATABASE_SCHEMA,"%",new String[]{"TABLE"})){
     while(names.next()){
-     String name=names.getString("TABLE_NAME");List<String> rows=new ArrayList<>();
+     String name=names.getString("TABLE_NAME");if(!OBSERVED_TABLES.contains(name.toLowerCase(Locale.ROOT)))continue;
+     List<String> rows=new ArrayList<>();
      // Database metadata names are quoted, never supplied by a caller.
-     try(Statement query=c.createStatement();ResultSet data=query.executeQuery("SELECT * FROM \"PUBLIC\".\""+name.replace("\"","\"\"")+"\"")){
+     try(Statement query=c.createStatement();ResultSet data=query.executeQuery("SELECT * FROM \""+DATABASE_SCHEMA+"\".\""+name.replace("\"","\"\"")+"\"")){
       int columns=data.getMetaData().getColumnCount();
       while(data.next()){
        JsonArrayBuilder row=Json.createArrayBuilder();
@@ -53,12 +58,13 @@ public class LabEffects implements LabEffectsMBean {
        rows.add(row.build().toString());
       }
      }
-     Collections.sort(rows);records+=rows.size();tableCount++;
+     Collections.sort(rows);records+=rows.size();tableCount++;observedTables.add(name.toLowerCase(Locale.ROOT));
      tables.add(name,Json.createObjectBuilder().add("rows",rows.size()).add("sha256",hash(String.join("\n",rows))));
     }
    }
   }
   if(tableCount==0 || records==0)throw new IllegalStateException("Empty database observer");
+  if(!observedTables.equals(OBSERVED_TABLES))throw new IllegalStateException("Incomplete application database observer");
   JsonObjectBuilder queues=Json.createObjectBuilder();Set<String> found=new HashSet<>();
   for(ObjectName name:new TreeSet<>(server.queryNames(new ObjectName("org.apache.activemq.artemis:*"),null))){
    if(!"queues".equals(name.getKeyProperty("subcomponent")))continue;
@@ -68,7 +74,7 @@ public class LabEffects implements LabEffectsMBean {
    for(String attribute:ATTRIBUTES)counts.add(attribute,((Number)server.getAttribute(name,attribute)).longValue());
    queues.add(q,counts);
   }
-  for(String required:List.of("HandlingEventRegistrationAttemptQueue","CargoHandledQueue","MisdirectedCargoQueue","DeliveredCargoQueue","RejectedRegistrationAttemptsQueue","DLQ","ExpiryQueue")){
+  for(String required:List.of("HandlingEventRegistrationAttemptQueue","HandlingAttemptQuarantineIntakeQueue","CargoHandledQueue","MisdirectedCargoQueue","DeliveredCargoQueue","RejectedRegistrationAttemptsQueue","DLQ","ExpiryQueue")){
    if(found.stream().noneMatch(q->q.endsWith(required)))throw new IllegalStateException("Missing queue observer: "+required);
   }
   JsonObjectBuilder calls=Json.createObjectBuilder();new TreeMap<>(InvocationAudit.COUNTS).forEach((key,value)->calls.add(key,value.get()));
