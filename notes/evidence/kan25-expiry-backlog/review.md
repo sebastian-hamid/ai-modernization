@@ -54,3 +54,13 @@
 - Findings: No remaining findings. The 1 GiB limit is recorded as policy only; runtime enforcement and full-cap behavior remain unverified and undecided, consistent with the evidence.
 - Verdict: Approved.
 - Reviewer changes/tests: No files changed; no tests run.
+
+## Independent review of full-capacity decision
+
+- Reviewed revision: working tree based on 4e2bb22787dd2098c0c44319f8cde4dd21844431
+- Reviewer: /root/review_kan25_evidence (separate agent)
+- Review date: 2026-11-22
+- Inputs: updated README, summary.json, task-log entry, prior runtime results/checkpoint, and Jira comment 10178.
+- Findings: No remaining findings after correcting"È›y¯ßy‹full-addres{ßuÁ‚ùÁ] to"È›y¯ßy‹full-capacity∫w^~)ﬁu in the summary. The approved stop-accepting-and-alert behavior is distinguished from unverified broker behavior at the capacity limit.
+- Verdict: Approved.
+- Reviewer changes/tests: No files changed; no tests run.
