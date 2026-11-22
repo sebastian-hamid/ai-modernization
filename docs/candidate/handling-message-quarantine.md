@@ -20,7 +20,7 @@ The KAN-25 observation established that one expired message reached WildFly's de
 
 - A durable quarantine with 7-day disposal and a configurable retention setting.
 - A 1 GiB broker-accounted capacity limit with a configurable cap and clear size metric.
-- At-capacity alerting, preservation of existing entries, durable pending storage of the incoming expired message, and retry after capacity frees.
+- At-capacity alerting and strict bounded quarantine behavior. A disposable KAN-31 probe confirmed that `FAIL` preserves the original quarantine entry and leaves the incoming expired message on its source queue, including across restart, but that message did not transfer after capacity was freed during a 45-second observation. Artemis `BLOCK` allowed the second test message into the one-byte-limited quarantine, so it is not a proven strict-capacity solution. See [expiry-capacity probe evidence](../../notes/evidence/kan31-expiry-capacity-probe.md).
 - Administrator-only review, explicit audited manual replay, and direct-API denial for every other role.
 - Durable request-ID idempotency under concurrent same-ID submissions, changed-payload rejection, and distinct-ID behavior.
 
