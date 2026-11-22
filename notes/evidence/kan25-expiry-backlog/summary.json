@@ -60,9 +60,9 @@
     "Uses syntactically valid LOAD attempts for tracking IDs with no matching cargo, so the expected worker outcome is rejection and business tables must remain unchanged.",
     "The expiry observation establishes behavior for one 30-second-TTL message aged in a paused queue and inspected after resume; it does not measure high-volume expiry, broker restart durability, or expiry-queue downstream handling.",
     "The backlog observation establishes recovery for one message resumed after one second and the existing three-delivery rejection path; it is not a load or extended worker-outage test.",
-    "The probe verifies observed runtime behavior only. The user approved bounded quarantine with restricted operator review, controlled manual replay, a maximum 7-day retention window, and a 1 GiB capacity limit; at capacity, stop accepting new quarantine messages and alert the operator. Enforcement, full-capacity routing behavior, downstream access and processing, submission idempotency, and disposal behavior remain unverified or undecided. No exactly-once behavior is claimed."
+    "The probe verifies observed runtime behavior only. The user approved bounded quarantine (Administrator-only review/replay, manual replay, max 7-day retention, 1 GiB capacity, stop accepting and alert at capacity) and stable request-ID idempotency. These are policy decisions only; runtime access control, enforcement, full-capacity expiry routing, request-ID persistence/concurrency, and disposal behavior remain unverified. No exactly-once behavior is claimed."
   ],
-  "policy_decision": "PARTIAL: user approved 30-second TTL and bounded quarantine with restricted operator review, controlled manual replay only, max 7-day retention, 1 GiB capacity limit, and stop-accepting-plus-alert behavior at capacity; runtime enforcement, submission idempotency, and disposal behavior remain pending",
+  "policy_decision": "PARTIAL: user approved 30-second TTL, Administrator-only quarantine review/replay, bounded retention (7 days), 1 GiB capacity, stop-accepting-plus-alert at capacity, and stable request-ID idempotency; runtime enforcement/access control and broker behavior remain unverified",
   "user_ttl_decision": {
     "date": "2026-11-21",
     "decision": "Keep configured TTL at 30000 ms",
@@ -80,6 +80,24 @@
     "capacity_limit": "1 GiB",
     "capacity_full_behavior": "Stop accepting additional quarantine messages and alert the operator; preserve existing quarantined messages through retention",
     "capacity_full_behavior_approved_date": "2026-11-22",
-    "capacity_full_runtime_status": "Not implemented or verified; broker expiry routing at capacity must be tested for safe behavior"
+    "capacity_full_runtime_status": "Not implemented or verified; broker expiry routing at capacity must be tested for safe behavior",
+    "review_replay_role": "Administrator only",
+    "other_roles_granted_review_or_replay": [],
+    "role_runtime_status": "Not implemented or verified"
+  },
+  "user_idempotency_decision": {
+    "date": "2026-11-22",
+    "same_id_same_payload": "Process at most once; suppress transport retries",
+    "same_id_different_payload": "Reject request-ID reuse with changed payload",
+    "different_ids_same_payload": "Treat as distinct submissions",
+    "runtime_configuration_changed": false,
+    "implementation_status": "Approved policy; implementation and concurrent/replay behavior not yet verified"
+  },
+  "user_access_decision": {
+    "date": "2026-11-22",
+    "capability": "Review and manually replay quarantined messages",
+    "authorized_role": "Administrator only",
+    "new_role_created": false,
+    "implementation_status": "Policy approved; runtime access control and denials not verified"
   }
 }

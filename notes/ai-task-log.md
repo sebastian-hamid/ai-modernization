@@ -431,3 +431,13 @@ The user approved a 1 GiB capacity limit for the bounded quarantine. This is pol
 ## 22 November 2026 - KAN-25 full-capacity policy decision
 
 The user approved stopping acceptance of new quarantine messages and alerting the operator when the 1 GiB limit is reached, while preserving messages already quarantined through their approved retention period. This is policy only; runtime behavior is not implemented or verified. The broker's behavior when expiration routing targets a full quarantine must be tested, including preservation of existing entries and handling of the incoming expired message. Submission idempotency remains undecided. See notes/evidence/kan25-expiry-backlog/README.md and summary.json.
+
+
+## 22 November 2026 - KAN-25 request-ID idempotency decision
+
+The user approved stable request-ID idempotency for transport retries: same ID and same payload is processed only once; reusing an ID with a different payload is rejected; distinct IDs remain separate submissions even when event data is identical. This is policy only; no runtime behavior changed, and no exactly-once guarantee is claimed. Implementation design and concurrency/runtime verification remain outstanding. See notes/evidence/kan25-expiry-backlog/README.md and summary.json.
+
+
+## 22 November 2026 - KAN-25 Administrator-only quarantine access
+
+The user selected the existing Administrator role as the only role allowed to review and manually replay quarantined messages. Reader, Operator, and service roles receive no such access; no new role is created. This is policy only; runtime access control and denied-access behavior remain unimplemented and unverified. See notes/evidence/kan25-expiry-backlog/README.md and summary.json.

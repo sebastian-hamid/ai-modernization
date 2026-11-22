@@ -64,3 +64,13 @@
 - Findings: No remaining findings after correcting"È›y¯ßy‹full-addres{ßuÁ‚ùÁ] to"È›y¯ßy‹full-capacity∫w^~)ﬁu in the summary. The approved stop-accepting-and-alert behavior is distinguished from unverified broker behavior at the capacity limit.
 - Verdict: Approved.
 - Reviewer changes/tests: No files changed; no tests run.
+
+## Independent review of request-ID and access-role decisions
+
+- Reviewed revision: working tree based on 7a01089001a992317c4d1c6efe72f08f58419463
+- Reviewer: /root/review_kan25_evidence (separate agent)
+- Review date: 2026-11-22
+- Inputs: updated README, summary.json, task-log entries, candidate WEB-INF/web.xml role declarations, prior runtime evidence, and Jira comment 10200.
+- Findings: No remaining findings. Same-ID retry rules and Administrator-only access are recorded as approved policy; runtime idempotency, concurrency, access enforcement, and denial behavior remain explicitly unverified. Existing role declaration is confirmed; no new role is claimed.
+- Verdict: Approved.
+- Reviewer changes/tests: No files changed; no tests run.
