@@ -2,8 +2,8 @@
   "schema_version": 1,
   "task": "KAN-15 BG-06",
   "driver": "fresh-disposable-bg06-scoped-gate-v1",
-  "started_at_utc": "2026-11-23T00:20:20.688790+00:00",
-  "completed_at_utc": "2026-11-23T00:22:19.170798+00:00",
+  "started_at_utc": "2026-11-23T12:42:16.518950+00:00",
+  "completed_at_utc": "2026-11-23T12:44:36.466748+00:00",
   "outcome": "PASS",
   "gate_exit": 0,
   "cases": [
@@ -49,18 +49,18 @@
     "blocked": 0
   },
   "reasons": [],
-  "runtime_receipt_sha256": "405a16da18072bbdc1a3346c4257e1d20976a371a193b195b5dec2fd22ad8f80",
+  "runtime_receipt_sha256": "cd29565e866f083ba634eecd9a4e875c0bf132fd9134f2afb429d786841c15b4",
   "gate_adapter_sha256": "ea70c54464939615712bd256fe820741b7f724d865be15d13db16e98f547048c",
   "runtime_exit_code": 0,
   "evidence": {
-    "run_id": "kan18pg-09dda23881",
+    "run_id": "kan18pg-7553d25961",
     "runtime_status": "PASS",
     "checks": {
       "bg06_static_source_inventory": {
         "passed": true,
         "driver": "tests/security/test_bg06_startup_boundary.py",
         "exit_code": 0,
-        "summary": "........\n----------------------------------------------------------------------\nRan 8 tests in 0.382s\n\nOK"
+        "summary": "........\n----------------------------------------------------------------------\nRan 8 tests in 0.430s\n\nOK"
       },
       "bg06_human_boundary": {
         "passed": true,
@@ -182,19 +182,19 @@
               "session_user": "schema_migrator",
               "current_user": "schema_migrator",
               "current_role": "schema_migrator",
-              "observed_at": "2026-11-23 00:20:35.355762+00"
+              "observed_at": "2026-11-23 12:42:49.672102+00"
             },
             {
               "session_user": "schema_migrator",
               "current_user": "schema_migrator",
               "current_role": "schema_migrator",
-              "observed_at": "2026-11-23 00:20:48.47709+00"
+              "observed_at": "2026-11-23 12:43:03.014893+00"
             },
             {
               "session_user": "schema_migrator",
               "current_user": "schema_migrator",
               "current_role": "schema_migrator",
-              "observed_at": "2026-11-23 00:20:58.085365+00"
+              "observed_at": "2026-11-23 12:43:12.986+00"
             }
           ],
           "migrations_only": true,
@@ -238,7 +238,7 @@
           "rows": {
             "location": {
               "count": 3,
-              "digest": "4c200b61f7f9da262521fc070b5364c1"
+              "digest": "d0a89313162b9ac2e41c06014803789c"
             },
             "voyage": {
               "count": 1,
@@ -1570,7 +1570,7 @@
           "rows": {
             "location": {
               "count": 3,
-              "digest": "4c200b61f7f9da262521fc070b5364c1"
+              "digest": "d0a89313162b9ac2e41c06014803789c"
             },
             "voyage": {
               "count": 1,
@@ -2905,7 +2905,7 @@
           "rows": {
             "location": {
               "count": 3,
-              "digest": "4c200b61f7f9da262521fc070b5364c1"
+              "digest": "d0a89313162b9ac2e41c06014803789c"
             },
             "voyage": {
               "count": 1,
@@ -4237,7 +4237,7 @@
           "rows": {
             "location": {
               "count": 3,
-              "digest": "4c200b61f7f9da262521fc070b5364c1"
+              "digest": "d0a89313162b9ac2e41c06014803789c"
             },
             "voyage": {
               "count": 1,
@@ -5573,7 +5573,7 @@
           "rows": {
             "location": {
               "count": 3,
-              "digest": "4c200b61f7f9da262521fc070b5364c1"
+              "digest": "d0a89313162b9ac2e41c06014803789c"
             },
             "voyage": {
               "count": 1,
@@ -7078,19 +7078,19 @@
             "session_user": "schema_migrator",
             "current_user": "schema_migrator",
             "current_role": "schema_migrator",
-            "observed_at": "2026-11-23 00:20:35.355762+00"
+            "observed_at": "2026-11-23 12:42:49.672102+00"
           },
           {
             "session_user": "schema_migrator",
             "current_user": "schema_migrator",
             "current_role": "schema_migrator",
-            "observed_at": "2026-11-23 00:20:48.47709+00"
+            "observed_at": "2026-11-23 12:43:03.014893+00"
           },
           {
             "session_user": "schema_migrator",
             "current_user": "schema_migrator",
             "current_role": "schema_migrator",
-            "observed_at": "2026-11-23 00:20:58.085365+00"
+            "observed_at": "2026-11-23 12:43:12.986+00"
           }
         ],
         "migrations_only": true,
@@ -7166,13 +7166,13 @@
             "session_user": "schema_migrator",
             "current_user": "schema_migrator",
             "current_role": "schema_migrator",
-            "observed_at": "2026-11-23 00:20:35.355762+00"
+            "observed_at": "2026-11-23 12:42:49.672102+00"
           },
           {
             "session_user": "schema_migrator",
             "current_user": "schema_migrator",
             "current_role": "schema_migrator",
-            "observed_at": "2026-11-23 00:20:48.47709+00"
+            "observed_at": "2026-11-23 12:43:03.014893+00"
           }
         ],
         "high_water_branch": "legacy_sequence_state (entity-id maximum branch separately covered by KAN-22)"
@@ -7213,19 +7213,19 @@
             "session_user": "schema_migrator",
             "current_user": "schema_migrator",
             "current_role": "schema_migrator",
-            "observed_at": "2026-11-23 00:20:35.355762+00"
+            "observed_at": "2026-11-23 12:42:49.672102+00"
           },
           {
             "session_user": "schema_migrator",
             "current_user": "schema_migrator",
             "current_role": "schema_migrator",
-            "observed_at": "2026-11-23 00:20:48.47709+00"
+            "observed_at": "2026-11-23 12:43:03.014893+00"
           },
           {
             "session_user": "schema_migrator",
             "current_user": "schema_migrator",
             "current_role": "schema_migrator",
-            "observed_at": "2026-11-23 00:20:58.085365+00"
+            "observed_at": "2026-11-23 12:43:12.986+00"
           }
         ],
         "data_preserved": true,
@@ -7487,10 +7487,10 @@
       "candidate/cargotracker/src/main/java/net/java/cargotracker/domain/model/cargo/TrackingId.java": "dbf2eda1884b1c6e51306ff9c7b38af5361723c62ad2c446035c8982f4f6d0d8",
       "candidate/cargotracker/src/main/java/net/java/cargotracker/domain/model/cargo/TransportStatus.java": "94e09357ff716bbb9afa085e06cd2acbc3beaadc802f70a3f3243a42e97bb23c",
       "candidate/cargotracker/src/main/java/net/java/cargotracker/domain/model/handling/CannotCreateHandlingEventException.java": "34ea7e47625d8b0f9a81f61a47197fadcc67d3b39aecc19eb766ee712e9b8e60",
-      "candidate/cargotracker/src/main/java/net/java/cargotracker/domain/model/handling/HandlingEvent.java": "0a58f4d55cc99d8fef469ff2659fc90232a16322503b18d335fe7eff936c9e48",
+      "candidate/cargotracker/src/main/java/net/java/cargotracker/domain/model/handling/HandlingEvent.java": "9d9c1b8eace1610eebf09961bdf25f45cebbd04295e673c888359025f0fd5f2b",
       "candidate/cargotracker/src/main/java/net/java/cargotracker/domain/model/handling/HandlingEventFactory.java": "dc1887214c40ddc2f2f849d4e8949fe115ed5f7f20bc6099ef4291f2cd1eb16c",
       "candidate/cargotracker/src/main/java/net/java/cargotracker/domain/model/handling/HandlingEventRepository.java": "74e2e03b69355bbc4d0aff621b8866743053a0c74501e3d2bec4f795b3f2a834",
-      "candidate/cargotracker/src/main/java/net/java/cargotracker/domain/model/handling/HandlingHistory.java": "5f2313bfae05bb97f11071e8a6e100d70e771df4ec1dba48ddcd058324dc9d28",
+      "candidate/cargotracker/src/main/java/net/java/cargotracker/domain/model/handling/HandlingHistory.java": "b4f5218e03aeabe1b21d87423b7de709351ae51732dcaa095a701140209b975d",
       "candidate/cargotracker/src/main/java/net/java/cargotracker/domain/model/handling/UnknownCargoException.java": "de83f417af7c6d1d6b32d44e27a3ebdf303c585a14b70718e1756ad4fc272b00",
       "candidate/cargotracker/src/main/java/net/java/cargotracker/domain/model/handling/UnknownLocationException.java": "f86f6927df83c938a2142f5288e438c0d15e489e520ac765fee2e92522234fe4",
       "candidate/cargotracker/src/main/java/net/java/cargotracker/domain/model/handling/UnknownVoyageException.java": "926b247853afe4bd8aaddbb70cee57c2bf8e4be820ce9c4dd15bf9c35e1731cc",
