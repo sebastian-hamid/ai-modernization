@@ -1,0 +1,35 @@
+{
+  "ticket": "KAN-18",
+  "run_id": "kan18-kan23-history-20261123",
+  "source_revision": "a20c212",
+  "scope": "Real Cargo Tracker candidate: monitoring/handling/session plus Faces list/booking/details/destination routes on disposable PostgreSQL/Flyway",
+  "status": "PASS",
+  "runtime_checks": {
+    "passed": 808,
+    "failed": 0
+  },
+  "domain_tests": {
+    "tests": 64,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0,
+    "empty_legacy_todo_retained": true
+  },
+  "flyway_schema_version": "6",
+  "cleanup": {
+    "owned_container_removed": true,
+    "postgres_compose_down": true,
+    "owned_image_removed": true,
+    "private_files_removed": true,
+    "cleanup_errors": [],
+    "host_access_network_removed": true
+  },
+  "task_owned_networks": [
+    "kan18p-kan18-kan23-history-20261123_candidate-host-access",
+    "kan18p-kan18-kan23-history-20261123_database"
+  ],
+  "raw_receipt_path": ".work/kan18-kan23-history-20261123/candidate-runtime/results.json",
+  "raw_receipt_sha256": "617a1bd9504f972aeccb8cbb73b41f26ec28dd98ea1e003e60ff8774f2ba09dd",
+  "shared_services": "Independent monitor confirmed shared ai-modernization-kan18 and Jenkins retained their starting container IDs and start times and remained running. The run used a unique image, Compose project, container names, and networks.",
+  "scope_limit": "This is the candidate-runtime regression gate, not the independent Chromium browser suite. It verifies normal runtime workflows with the new source; equal-completion tie ordering itself is asserted by HandlingHistoryTest."
+}
