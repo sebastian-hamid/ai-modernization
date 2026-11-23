@@ -1,4 +1,4 @@
-import copy,json,subprocess,sys,tempfile,unittest
+import copy,json,shutil,subprocess,sys,tempfile,unittest
 from pathlib import Path
 from unittest.mock import patch
 sys.path.insert(0,str(Path(__file__).parent))
@@ -38,6 +38,37 @@ class CurrentCapabilityTests(unittest.TestCase):
         self.assertEqual(sum(x["outcome"]=="RETIRED" for x in retire),72)
         self.assertEqual(sum(x["outcome"]=="BLOCKED" for x in retire),4)
         self.assertFalse(any(x["outcome"]=="PASS" for x in retire))
+    def test_booking_retirement_source_proofs_reject_public_admin_target(self):
+        relative_files = (
+            "experiments/legacy-cargotracker/src/main/webapp/booking/booking.xhtml",
+            "experiments/legacy-cargotracker/src/main/webapp/booking/booking-destination.xhtml",
+            "experiments/legacy-cargotracker/src/main/webapp/booking/booking-date.xhtml",
+            "experiments/legacy-cargotracker/src/main/java/net/java/cargotracker/domain/model/cargo/BookingBackingBean.java",
+            "candidate/cargotracker/src/main/webapp/admin/book.xhtml",
+            "candidate/cargotracker/src/main/java/net/java/cargotracker/interfaces/booking/web/LegacyNavigationServlet.java",
+            "candidate/cargotracker/src/main/webapp/WEB-INF/access-routes.tsv",
+        )
+        checks = (c.action273034_source_hashes, c.action283133_source_hashes,
+                  c.action26_source_hashes, c.action32_source_hashes)
+        with tempfile.TemporaryDirectory() as temporary:
+            test_root = Path(temporary)
+            for relative in relative_files:
+                target = test_root / relative
+                target.parent.mkdir(parents=True, exist_ok=True)
+                shutil.copyfile(c.ROOT / relative, target)
+            route_file = test_root / relative_files[-1]
+            routes = route_file.read_text()
+            self.assertIn("/admin/book.xhtml\tOperator,Administrator", routes)
+            with patch.object(c, "ROOT", test_root):
+                for check in checks:
+                    check()
+                route_file.write_text(routes.replace(
+                    "/admin/book.xhtml\tOperator,Administrator",
+                    "/admin/book.xhtml\tPUBLIC"))
+                for check in checks:
+                    with self.subTest(check=check.__name__), self.assertRaises(UnsupportedCase):
+                        check()
+
     def test_reviewed_bg06_scope_receipt_is_source_bound_and_exact(self):
         promotions,provenance=c.reviewed_bg06_scope()
         expected={"CURRENT::BG-06::"+actor+"::active" for actor in c.ACTORS}
@@ -53,7 +84,8 @@ class CurrentCapabilityTests(unittest.TestCase):
         for expected in (".dockerignore","infrastructure/database",
                 "notes/evidence/kan-15-bg06-scope/validation.json",
                 "notes/evidence/kan-15-handling-callback-retirement",
-                "notes/agent-reviews/2026-11-11-kan15-bg06-scope-review.md"):
+                "notes/agent-reviews/2026-11-11-kan15-bg06-scope-review.md",
+                "notes/agent-reviews/2026-11-23-kan15-bg06-scope-refresh-review.md"):
             self.assertIn(expected,paths)
     def test_bg06_scope_promotes_only_five_blocked_rows_with_separate_provenance(self):
         adapter=c.CurrentAdapter()

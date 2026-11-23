@@ -10,7 +10,11 @@ import run_candidate_contracts as legacy
 from staged_returns import return_observation
 from replacements import SUPPORTED_REPLACEMENTS, replacement_observation
 from replay_bg06_scoped_gate import validate_scope as validate_bg06_scope
-from handling_retirement_evidence import load_source_evidence as load_handling_callback_source_evidence
+from handling_retirement_evidence import (
+    captured_source_hashes_match,
+    load_source_evidence as load_handling_callback_source_evidence,
+    route_has_exact_role,
+)
 from handling_page_redirects import is_safe_handling_redirect
 MANIFEST=ROOT/"specifications/current-capability-mapping-v2.json"
 INVENTORY=ROOT/"specifications/access-policy-inventory.json"
@@ -784,7 +788,7 @@ def reviewed_action26_retirement_receipt():
                 or review.get("approved_outcome")!="RETIRED" or review.get("pass_outcome_allowed") is not False
                 or review.get("review_record")!="notes/agent-reviews/2026-11-15-kan15-action26-retirement-review.md"
                 or review.get("review_record_sha256")!=ACTION26_RETIREMENT_REVIEW_SHA256
-                or basis.get("source_hashes")!=action26_source_hashes()):return False
+                or not captured_source_hashes_match(basis.get("source_hashes"),action26_source_hashes())):return False
         proof_map=evidence.get("retirement_observations",{});rows=receipt.get("actor_observations",[])
         by_actor={row.get("actor"):row for row in rows if isinstance(row,dict)}
         if set(by_actor)!=set(ACTORS) or len(rows)!=4:return False
@@ -801,7 +805,7 @@ def reviewed_action26_retirement_receipt():
                     or proof.get("source_path")!="/cargo-tracker/booking/booking-date.xhtml"
                     or proof.get("historical_source_component_id")!="dateForm:deadline"
                     or proof.get("historical_source_parameter")!="javax.faces.source"
-                    or proof.get("source_hashes")!=action26_source_hashes()
+                    or not captured_source_hashes_match(proof.get("source_hashes"),action26_source_hashes())
                     or proof.get("current_post_handler_absent") is not True
                     or proof.get("post_target_verified") is not True
                     or proof.get("callback_response_absent") is not True
@@ -859,7 +863,7 @@ def reviewed_action32_retirement_receipt():
                 or review.get("approved_outcome")!="RETIRED" or review.get("pass_outcome_allowed") is not False
                 or review.get("review_record")!="notes/agent-reviews/2026-11-15-kan15-action32-retirement-review.md"
                 or review.get("review_record_sha256")!=ACTION32_RETIREMENT_REVIEW_SHA256
-                or basis.get("source_hashes")!=action32_source_hashes()):return False
+                or not captured_source_hashes_match(basis.get("source_hashes"),action32_source_hashes())):return False
         proof_map=evidence.get("retirement_observations",{});rows=receipt.get("actor_observations",[])
         by_actor={row.get("actor"):row for row in rows if isinstance(row,dict)}
         if set(by_actor)!=set(ACTORS) or len(rows)!=4:return False
@@ -879,7 +883,7 @@ def reviewed_action32_retirement_receipt():
                     or proof.get("historical_source_parameter")!="javax.faces.source"
                     or proof.get("historical_render_evidence_verified") is not True
                     or proof.get("historical_button_markup_sha256")!=rendered["button_markup_sha256"]
-                    or proof.get("source_hashes")!=action32_source_hashes()
+                    or not captured_source_hashes_match(proof.get("source_hashes"),action32_source_hashes())
                     or proof.get("current_post_handler_absent") is not True or proof.get("post_target_verified") is not True
                     or proof.get("callback_response_absent") is not True or proof.get("protected_payload_absent") is not True
                     or proof.get("independent_effects_unchanged") is not True
@@ -909,7 +913,13 @@ def action273034_source_hashes():
            "candidate_booking_page_sha256":ROOT/"candidate/cargotracker/src/main/webapp/admin/book.xhtml",
            "legacy_navigation_servlet_sha256":ROOT/"candidate/cargotracker/src/main/java/net/java/cargotracker/interfaces/booking/web/LegacyNavigationServlet.java",
            "candidate_access_routes_sha256":ROOT/"candidate/cargotracker/src/main/webapp/WEB-INF/access-routes.tsv"}
-    return {key:hashlib.sha256(path.read_bytes()).hexdigest() for key,path in paths.items()}
+    raw={key:path.read_bytes() for key,path in paths.items()}
+    routes=raw["candidate_access_routes_sha256"].decode("utf-8")
+    if (not route_has_exact_role(routes,"/admin/book.xhtml","Operator,Administrator")
+            or any(not route_has_exact_role(routes,path,"Operator,Administrator") for path in
+                ("/booking/booking.xhtml","/booking/booking-destination.xhtml","/booking/booking-date.xhtml"))):
+        raise UnsupportedCase()
+    return {key:hashlib.sha256(value).hexdigest() for key,value in raw.items()}
 
 def reviewed_action273034_retirement_receipt():
     try:
@@ -945,7 +955,7 @@ def reviewed_action273034_retirement_receipt():
                 or evidence.get("provenance",{}).get("legacy_fixture_cleanup_verified") is not True
                 or evidence.get("current_counts")!={"PASS":470}
                 or evidence.get("retirement_counts")!={"RETIRED":20,"BLOCKED":56}
-                or evidence.get("gate_exit")!=2 or render.get("source_hashes")!=action273034_source_hashes()):
+                or evidence.get("gate_exit")!=2 or not captured_source_hashes_match(render.get("source_hashes"),action273034_source_hashes())):
             return False
         checks=browser.get("checks",[])
         if len(checks)!=872 or any(row.get("passed") is not True for row in checks):return False
@@ -1005,7 +1015,13 @@ def action283133_source_hashes():
            "candidate_booking_page_sha256":ROOT/"candidate/cargotracker/src/main/webapp/admin/book.xhtml",
            "legacy_navigation_servlet_sha256":ROOT/"candidate/cargotracker/src/main/java/net/java/cargotracker/interfaces/booking/web/LegacyNavigationServlet.java",
            "candidate_access_routes_sha256":ROOT/"candidate/cargotracker/src/main/webapp/WEB-INF/access-routes.tsv"}
-    return {key:hashlib.sha256(path.read_bytes()).hexdigest() for key,path in paths.items()}
+    raw={key:path.read_bytes() for key,path in paths.items()}
+    routes=raw["candidate_access_routes_sha256"].decode("utf-8")
+    if (not route_has_exact_role(routes,"/admin/book.xhtml","Operator,Administrator")
+            or any(not route_has_exact_role(routes,path,"Operator,Administrator") for path in
+                ("/booking/booking.xhtml","/booking/booking-destination.xhtml","/booking/booking-date.xhtml"))):
+        raise UnsupportedCase()
+    return {key:hashlib.sha256(value).hexdigest() for key,value in raw.items()}
 
 def reviewed_action283133_retirement_receipt():
     try:
@@ -1041,7 +1057,7 @@ def reviewed_action283133_retirement_receipt():
                 or evidence.get("provenance",{}).get("legacy_fixture_cleanup_verified") is not True
                 or evidence.get("current_counts")!={"PASS":470}
                 or evidence.get("retirement_counts")!={"RETIRED":32,"BLOCKED":44}
-                or evidence.get("gate_exit")!=2 or render.get("source_hashes")!=action283133_source_hashes()):
+                or evidence.get("gate_exit")!=2 or not captured_source_hashes_match(render.get("source_hashes"),action283133_source_hashes())):
             return False
         observations=render.get("observations",{})
         if set(observations)!={"ACTION-28","ACTION-31","ACTION-33"} or any(
@@ -1228,7 +1244,8 @@ def action26_source_hashes():
             or 'id="deadline"' not in current or "deadlineUpdated" in current
             or '"/booking/booking-date.xhtml","/admin/book.xhtml"' not in servlet
             or "protected void doPost" in servlet
-            or "/booking/booking-date.xhtml\tOperator,Administrator" not in access):
+            or not route_has_exact_role(access,"/booking/booking-date.xhtml","Operator,Administrator")
+            or not route_has_exact_role(access,"/admin/book.xhtml","Operator,Administrator")):
         raise UnsupportedCase()
     return {key:hashlib.sha256(value).hexdigest() for key,value in raw.items()}
 
@@ -1240,7 +1257,9 @@ def action32_source_hashes():
     raw={key:path.read_bytes() for key,path in paths.items()}; old=raw["legacy_booking_destination_page_sha256"].decode(); servlet=raw["legacy_navigation_servlet_sha256"].decode(); routes=raw["candidate_access_routes_sha256"].decode()
     if ('<p:commandButton value="Next" action="booking-date" />' not in old
             or '"/booking/booking-destination.xhtml","/admin/book.xhtml"' not in servlet
-            or "protected void doPost" in servlet or "/booking/booking-destination.xhtml\tOperator,Administrator" not in routes):raise UnsupportedCase()
+            or "protected void doPost" in servlet
+            or not route_has_exact_role(routes,"/booking/booking-destination.xhtml","Operator,Administrator")
+            or not route_has_exact_role(routes,"/admin/book.xhtml","Operator,Administrator")):raise UnsupportedCase()
     return {key:hashlib.sha256(value).hexdigest() for key,value in raw.items()}
 
 def action32_render_record():
@@ -1248,7 +1267,7 @@ def action32_render_record():
     if hashlib.sha256(render_bytes).hexdigest()!=ACTION32_RENDER_EVIDENCE_SHA256:raise UnsupportedCase()
     record=json.loads(render_bytes);obs=record.get("observation",{});markup=obs.get("button_markup","")
     if (record.get("task")!="KAN-15 ACTION-32 legacy rendered command identity"
-            or record.get("source_hashes")!=action32_source_hashes()
+            or not captured_source_hashes_match(record.get("source_hashes"),action32_source_hashes())
             or obs.get("component_id")!="j_idt29:j_idt37" or obs.get("submitted_parameter")!="j_idt29:j_idt37"
             or obs.get("form_id")!="j_idt29" or obs.get("destination_view")!="/cargo-tracker/booking/booking-destination.xhtml"
             or obs.get("render_status")!=200 or obs.get("viewstate_flow_context_error") is not False
@@ -1433,7 +1452,7 @@ def build_current(model,inventory):
     return cases
 
 def source_fingerprint():
-    paths=subprocess.check_output(["git","ls-files","-co","--exclude-standard","--",".dockerignore","candidate","infrastructure/database","tests/candidate-runtime","tests/browser-workflows","tests/security","specifications/access-policy-inventory.json","specifications/current-capability-mapping-v2.json","notes/decisions/2026-11-02-current-ui-acceptance.md","notes/evidence/kan-15-bg06-scope/validation.json","notes/agent-reviews/2026-11-11-kan15-bg06-scope-review.md","notes/agent-reviews/2026-11-15-kan15-bg06-scope-refresh-review.md","notes/agent-reviews/2026-11-14-kan15-action08-retirement-review.md","notes/evidence/kan-15-action32-retirement/legacy-rendered-entry.json","notes/evidence/kan-15-action273034-retirement/legacy-rendered-actions.json","notes/evidence/kan-15-action283133-retirement/legacy-rendered-actions.json","notes/evidence/kan-15-handling-callback-retirement","notes/agent-reviews/2026-11-17-kan15-handling-callback-promotion-review.md"],cwd=ROOT,text=True).splitlines()
+    paths=subprocess.check_output(["git","ls-files","-co","--exclude-standard","--",".dockerignore","candidate","infrastructure/database","tests/candidate-runtime","tests/browser-workflows","tests/security","specifications/access-policy-inventory.json","specifications/current-capability-mapping-v2.json","notes/decisions/2026-11-02-current-ui-acceptance.md","notes/evidence/kan-15-bg06-scope/validation.json","notes/agent-reviews/2026-11-11-kan15-bg06-scope-review.md","notes/agent-reviews/2026-11-15-kan15-bg06-scope-refresh-review.md","notes/agent-reviews/2026-11-14-kan15-action08-retirement-review.md","notes/evidence/kan-15-action32-retirement/legacy-rendered-entry.json","notes/evidence/kan-15-action273034-retirement/legacy-rendered-actions.json","notes/evidence/kan-15-action283133-retirement/legacy-rendered-actions.json","notes/evidence/kan-15-handling-callback-retirement","notes/agent-reviews/2026-11-17-kan15-handling-callback-promotion-review.md","notes/agent-reviews/2026-11-23-kan15-bg06-scope-refresh-review.md"],cwd=ROOT,text=True).splitlines()
     digest=hashlib.sha256()
     for name in sorted(set(paths)):
         path=ROOT/name
@@ -1497,7 +1516,9 @@ def handling_page_retirement_source_evidence():
         actions[action]={"outcome":"pm:secondScreen?transition=flip" if action=="ACTION-35" else "pm:firstScreen?transition=flip",
             "legacy_control_sha256":hashlib.sha256(match.group(0).encode()).hexdigest()}
     if ('"/eventLogger/eventLogger.xhtml","/mobile.xhtml"' not in servlet
-            or "/eventLogger/eventLogger.xhtml\tOperator,Administrator" not in routes
+            or not route_has_exact_role(routes,"/eventLogger/eventLogger.xhtml","Operator,Administrator")
+            or not route_has_exact_role(routes,"/eventLogger/root.xhtml","Operator,Administrator")
+            or not route_has_exact_role(routes,"/mobile.xhtml","Operator,Administrator")
             or 'id="handling"' not in current or "Report handling" not in current or "Event Logger" in current
             or 'outcome="pm:secondScreen?transition=flip"' in current or 'outcome="pm:firstScreen?transition=flip"' in current):
         raise UnsupportedCase()
@@ -1514,7 +1535,7 @@ def verify_handling_page_retirement_proof(legacy_id,actor,proof):
             or proof.get("source_path")!="/cargo-tracker/eventLogger/eventLogger.xhtml"
             or proof.get("legacy_outcome")!=source["outcome"]
             or proof.get("legacy_control_sha256")!=source["legacy_control_sha256"]
-            or proof.get("source_hashes")!=evidence["source_hashes"]
+            or not captured_source_hashes_match(proof.get("source_hashes"),evidence["source_hashes"])
             or proof.get("source_control_identity_verified") is not True
             or proof.get("candidate_legacy_page_redirect_verified") is not True
             or not is_safe_handling_redirect(proof,expected_redirect)
@@ -1562,7 +1583,7 @@ def verify_handling_callback_retirement_proof(legacy_id,actor,proof):
             or proof.get("historical_render")!=rendered["render"]
             or proof.get("historical_render_evidence_verified") is not True
             or proof.get("source_capture_sha256")!=evidence["capture_sha256"]
-            or proof.get("source_hashes")!=evidence["source_hashes"]
+            or not captured_source_hashes_match(proof.get("source_hashes"),evidence["source_hashes"])
             or proof.get("legacy_parameter_names")!=rendered["parameter_names"]
             or proof.get("historical_callback_input_name")!=rendered["callback_input_name"]
             or proof.get("submitted_callback_value")!=rendered["selected_value"]
@@ -1908,7 +1929,7 @@ class CurrentAdapter:
                     or proof.get("source_path")!="/cargo-tracker/booking/booking-date.xhtml"
                     or proof.get("historical_source_component_id")!="dateForm:deadline"
                     or proof.get("historical_source_parameter")!="javax.faces.source"
-                    or proof.get("source_hashes")!=source_hashes or proof.get("current_post_handler_absent") is not True
+                    or not captured_source_hashes_match(proof.get("source_hashes"),source_hashes) or proof.get("current_post_handler_absent") is not True
                     or proof.get("post_target_verified") is not True
                     or proof.get("callback_response_absent") is not True or proof.get("protected_payload_absent") is not True
                     or proof.get("independent_effects_unchanged") is not True
@@ -1940,7 +1961,7 @@ class CurrentAdapter:
                        "legacy_navigation_servlet_sha256":ROOT/"candidate/cargotracker/src/main/java/net/java/cargotracker/interfaces/booking/web/LegacyNavigationServlet.java",
                        "candidate_access_routes_sha256":ROOT/"candidate/cargotracker/src/main/webapp/WEB-INF/access-routes.tsv"}
                 actual={key:hashlib.sha256(path.read_bytes()).hexdigest() for key,path in paths.items()}
-                if actual!=source_hashes:raise UnsupportedCase()
+                if not captured_source_hashes_match(source_hashes,actual):raise UnsupportedCase()
             except (OSError,KeyError,ValueError):raise UnsupportedCase()
             if (proof.get("driver")!="browser-retired-booking-wizard-v1" or proof.get("legacy_id")!=legacy_id
                     or proof.get("actor")!=actor or proof.get("method")!="POST" or proof.get("source_path")!=obs.get("source_path")
@@ -1980,7 +2001,7 @@ class CurrentAdapter:
                        "legacy_navigation_servlet_sha256":ROOT/"candidate/cargotracker/src/main/java/net/java/cargotracker/interfaces/booking/web/LegacyNavigationServlet.java",
                        "candidate_access_routes_sha256":ROOT/"candidate/cargotracker/src/main/webapp/WEB-INF/access-routes.tsv"}
                 actual={key:hashlib.sha256(path.read_bytes()).hexdigest() for key,path in paths.items()}
-                if actual!=source_hashes:raise UnsupportedCase()
+                if not captured_source_hashes_match(source_hashes,actual):raise UnsupportedCase()
             except (OSError,KeyError,ValueError):raise UnsupportedCase()
             if (proof.get("driver")!="browser-retired-booking-wizard-v1" or proof.get("legacy_id")!=legacy_id
                     or proof.get("actor")!=actor or proof.get("method")!="POST"
@@ -2018,7 +2039,7 @@ class CurrentAdapter:
                     or proof.get("historical_source_parameter")!="javax.faces.source"
                     or proof.get("historical_render_evidence_verified") is not True
                     or proof.get("historical_button_markup_sha256")!=rendered["button_markup_sha256"]
-                    or proof.get("source_hashes")!=source_hashes or proof.get("current_post_handler_absent") is not True
+                    or not captured_source_hashes_match(proof.get("source_hashes"),source_hashes) or proof.get("current_post_handler_absent") is not True
                     or proof.get("post_target_verified") is not True or proof.get("callback_response_absent") is not True
                     or proof.get("protected_payload_absent") is not True or proof.get("independent_effects_unchanged") is not True
                     or re.fullmatch(r"[0-9a-f]{64}",str(proof.get("cargo_snapshot_sha256"))) is None

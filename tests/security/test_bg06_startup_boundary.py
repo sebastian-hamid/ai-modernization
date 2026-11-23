@@ -81,6 +81,7 @@ class Bg06StartupBoundaryTests(unittest.TestCase):
         self.assertEqual(rest_path_map, {
             "CargoMonitoringService.java": {"/cargo"},
             "HandlingReportService.java": {"/handling", "/reports"},
+            "HandlingAttemptQuarantineResource.java": {"/handling/quarantine", "/replay"},
             "GraphTraversalService.java": {"/graph-traversal", "/shortest-path"},
         })
         servlet_mappings = {}
@@ -123,14 +124,18 @@ class Bg06StartupBoundaryTests(unittest.TestCase):
         self.assertEqual(mdb_names, {
             "CargoHandledConsumer", "DeliveredCargoConsumer",
             "HandlingEventRegistrationAttemptConsumer", "MisdirectedCargoConsumer",
-            "RejectedRegistrationAttemptsConsumer",
+            "RejectedRegistrationAttemptsConsumer", "HandlingAttemptQuarantineConsumer",
         })
         startup_names = {re.search(r"public class (\w+)", p.read_text()).group(1)
                          for p in sources if "@Startup" in p.read_text()}
-        self.assertEqual(startup_names, {"SampleDataGenerator", "BatchImportRequestService"})
+        self.assertEqual(startup_names, {"SampleDataGenerator", "BatchImportRequestService", "HandlingQuarantineRetentionJob"})
         self.assertFalse(any("@Remote" in p.read_text() for p in sources))
-        self.assertFalse(any(re.search(r"@(Schedule|Schedules|Timeout)\b", p.read_text())
-                             for p in sources))
+        scheduled_sources = {p.name: re.findall(r"@(Schedule|Schedules|Timeout)\b", p.read_text())
+                            for p in sources if re.search(r"@(Schedule|Schedules|Timeout)\b", p.read_text())}
+        self.assertEqual(scheduled_sources, {"HandlingQuarantineRetentionJob.java": ["Schedule"]})
+        retention = (JAVA / "net/java/cargotracker/infrastructure/quarantine/HandlingQuarantineRetentionJob.java").read_text()
+        self.assertIn('@Schedule(hour = "*", minute = "*", second = "*", persistent = false)', retention)
+        self.assertIn("quarantineService.purgeExpired()", retention)
 
     def test_admin_staged_import_is_separate_from_bg06_startup_and_migration(self):
         page = (WEBAPP / "admin/import.xhtml").read_text()
@@ -162,6 +167,7 @@ class Bg06StartupBoundaryTests(unittest.TestCase):
             "java:app/jms/DeliveredCargoQueue": ("DeliveredCargoQueue", "DeliveredCargoConsumer", "NotificationWorker"),
             "java:app/jms/RejectedRegistrationAttemptsQueue": ("RejectedRegistrationAttemptsQueue", "RejectedRegistrationAttemptsConsumer", "NotificationWorker"),
             "java:app/jms/HandlingEventRegistrationAttemptQueue": ("HandlingEventRegistrationAttemptQueue", "HandlingEventRegistrationAttemptConsumer", "HandlingWorker"),
+            "java:app/jms/HandlingAttemptQuarantineIntakeQueue": ("HandlingAttemptQuarantineIntakeQueue", "HandlingAttemptQuarantineConsumer", "HandlingQuarantineWorker"),
         }
         self.assertEqual(destinations, {jndi: values[0] for jndi, values in expected.items()})
         consumers = {}
@@ -209,8 +215,9 @@ class Bg06StartupBoundaryTests(unittest.TestCase):
             "RejectedRegistrationAttemptsConsumer": "notification-worker",
         })
         disposition = (ROOT / "candidate/cargotracker/deployment/wildfly/notification-disposition.cli").read_text()
-        self.assertIn('dead-letter-address,value="jms.queue.RejectedRegistrationAttemptsQueue"', disposition)
         self.assertIn('address-setting=jms.queue.RejectedRegistrationAttemptsQueue:add(dead-letter-address="jms.queue.DLQ",max-delivery-attempts=3)', disposition)
+        self.assertIn('address-setting=jms.queue.HandlingEventRegistrationAttemptQueue:add(expiry-address="jms.queue.HandlingAttemptQuarantineIntakeQueue",dead-letter-address="jms.queue.HandlingAttemptQuarantineIntakeQueue",max-delivery-attempts=3,redelivery-delay=250)', disposition)
+        self.assertIn('address-setting=jms.queue.HandlingAttemptQuarantineIntakeQueue:add(max-delivery-attempts=-1,redelivery-delay="${env.CARGO_HANDLING_QUARANTINE_REDELIVERY_DELAY_MS:30000}")', disposition)
         all_candidate_text = "\n".join(path.read_text(errors="ignore") for path in ROOT.joinpath("candidate/cargotracker").rglob("*") if path.is_file())
         self.assertNotRegex(all_candidate_text, r"@Remote\b|<remote>")
         self.assertNotRegex(all_candidate_text, r"@WebService(?:Provider)?\b|webservices\.xml")
@@ -238,7 +245,7 @@ class Bg06StartupBoundaryTests(unittest.TestCase):
     def test_candidate_database_fixture_exposes_only_local_app_http_port(self):
         compose = (ROOT / "infrastructure/database/compose.yaml").read_text()
         self.assertEqual(compose_ports_blocks(compose), [
-            ("candidate-app", ['- "127.0.0.1:8082:8080"']),
+            ("candidate-app", ['- "127.0.0.1:${KAN22_CANDIDATE_BIND_PORT:-8082}:8080"']),
         ])
         self.assertNotIn("9990:", compose)
         self.assertNotIn("9993:", compose)

@@ -2,6 +2,7 @@
 from pathlib import Path
 import hashlib
 import json
+import re
 
 ROOT=Path(__file__).resolve().parents[2]
 CAPTURE=ROOT/"notes/evidence/kan-15-handling-callback-retirement/legacy-rendered-callbacks.json"
@@ -16,8 +17,16 @@ CALLBACKS={
 def captured_source_hashes_match(captured, current):
     "Candidate access-route manifests evolve as capabilities are added; their active semantics are checked separately."
     allowed_drift={"candidate_access_routes_sha256"}
-    return (isinstance(captured,dict) and set(captured)==set(current)
-            and all(captured.get(key)==value for key,value in current.items() if key not in allowed_drift))
+    if not isinstance(captured,dict) or not isinstance(current,dict) or set(captured)!=set(current):
+        return False
+    if "candidate_access_routes_sha256" in captured:
+        old_route_hash=captured["candidate_access_routes_sha256"]
+        current_route_hash=current["candidate_access_routes_sha256"]
+        if (not isinstance(old_route_hash,str) or re.fullmatch(r"[0-9a-f]{64}",old_route_hash) is None
+                or not isinstance(current_route_hash,str)
+                or re.fullmatch(r"[0-9a-f]{64}",current_route_hash) is None):
+            return False
+    return all(captured.get(key)==value for key,value in current.items() if key not in allowed_drift)
 
 
 def route_has_exact_role(routes, path, roles):
