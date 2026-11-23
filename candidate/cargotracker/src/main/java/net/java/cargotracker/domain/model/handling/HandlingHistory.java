@@ -28,7 +28,7 @@ public class HandlingHistory {
 
     /**
      * @return A distinct list (no duplicate registrations) of handling events,
-     * ordered by completion time.
+     * ordered by completion time, registration time, then persistence ID.
      */
     public List<HandlingEvent> getDistinctEventsByCompletionTime() {
         List<HandlingEvent> ordered = new ArrayList<>(new HashSet<>(
@@ -75,10 +75,9 @@ public class HandlingHistory {
         return handlingEvents.hashCode();
     }
 
-    private static final Comparator<HandlingEvent> BY_COMPLETION_TIME_COMPARATOR = new Comparator<HandlingEvent>() {
-        @Override
-        public int compare(HandlingEvent he1, HandlingEvent he2) {
-            return he1.getCompletionTime().compareTo(he2.getCompletionTime());
-        }
-    };
+    private static final Comparator<HandlingEvent> BY_COMPLETION_TIME_COMPARATOR =
+            Comparator.comparing(HandlingEvent::getCompletionTime)
+                    .thenComparing(HandlingEvent::getRegistrationTime)
+                    .thenComparing(HandlingEvent::getId,
+                            Comparator.nullsLast(Comparator.naturalOrder()));
 }

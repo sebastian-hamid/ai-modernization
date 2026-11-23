@@ -2,6 +2,7 @@ package net.java.cargotracker.domain.model.handling;
 
 import static org.junit.Assert.*;
 
+import java.lang.reflect.Field;
 import java.util.Arrays;
 import java.util.Date;
 
@@ -65,5 +66,33 @@ public class HandlingHistoryTest {
 		assertEquals(2, history.getDistinctEventsByCompletionTime().size());
 		assertTrue(history.getDistinctEventsByCompletionTime().contains(unload));
 		assertTrue(history.getDistinctEventsByCompletionTime().contains(customs));
+	}
+
+	@Test
+	public void testEqualCompletionTimesAreOrderedByRegistrationThenId() throws Exception {
+		Date completion = new Date(300);
+		HandlingEvent laterRegistration = new HandlingEvent(cargo, completion,
+				DateUtil.toDate("2009-03-06"), HandlingEvent.Type.UNLOAD,
+				SampleLocations.DALLAS, voyage);
+		HandlingEvent sameDayHigherId = new HandlingEvent(cargo, completion,
+				DateUtil.toDate("2009-03-05"), HandlingEvent.Type.CUSTOMS,
+				SampleLocations.DALLAS);
+		HandlingEvent sameDayLowerId = new HandlingEvent(cargo, completion,
+				DateUtil.toDate("2009-03-05"), HandlingEvent.Type.CLAIM,
+				SampleLocations.DALLAS);
+		setId(sameDayHigherId, 20L);
+		setId(sameDayLowerId, 10L);
+
+		HandlingHistory history = new HandlingHistory(Arrays.asList(
+				laterRegistration, sameDayHigherId, sameDayLowerId));
+
+		assertEquals(Arrays.asList(sameDayLowerId, sameDayHigherId,
+				laterRegistration), history.getDistinctEventsByCompletionTime());
+	}
+
+	private static void setId(HandlingEvent event, Long id) throws Exception {
+		Field field = HandlingEvent.class.getDeclaredField("id");
+		field.setAccessible(true);
+		field.set(event, id);
 	}
 }

@@ -202,6 +202,14 @@ public class HandlingEvent implements Serializable {
         return this.type;
     }
 
+    /**
+     * @return the generated persistence identifier, or {@code null} before
+     *         this event has been persisted
+     */
+    public Long getId() {
+        return id;
+    }
+
     public Voyage getVoyage() {
         return DomainObjectUtils.nullSafe(this.voyage, Voyage.NONE);
     }

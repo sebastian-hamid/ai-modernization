@@ -474,3 +474,8 @@ Fresh uncached disposable run `kan31q-da9cd525` passed **46/46 runtime checks** 
 
 
 Independent final review approved KAN-31 on 22 November 2026 with no blocking findings; review: `notes/agent-reviews/2026-11-22-kan31-postgres-quarantine-review.md`. The documented legacy fingerprint collision and unforced deterministic callback-ordering test are accepted limitations. KAN-31 is ready for commit/push; no production deployment.
+
+
+## 23 November 2026 — KAN-23 approved duplicate and equal-time policies
+
+Recorded the user's decision to keep request-ID idempotency (same key and payload is replay; a distinct or generated key is a new report) and to order handling history by completion date, registration date and event ID. Updated `HandlingHistory` with the deterministic comparator and persistence ID accessor, and added a same-completion regression test covering registration-date and ID tie-breaks. Updated the runtime test-count guard from 63 to 64. Focused pinned Java 25 Maven test passed 4 tests with no failures/errors/skips. The prior duplicate-report live observation shows that a no-key repeated report is processed again and repeats downstream work; a dedicated explicit-distinct-key live probe remains a gap. Full disposable runtime suite not rerun. Evidence and limits: `notes/evidence/kan23-policy-decisions/README.md`. Independent review is pending.

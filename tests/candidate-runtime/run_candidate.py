@@ -688,7 +688,7 @@ def main(after_checks=None):
             suites=[ET.parse(path).getroot() for path in Path(temporary).rglob("TEST-*.xml")]
             report["domain_tests"]={key:sum(int(suite.get(key,"0")) for suite in suites) for key in ["tests","failures","errors","skipped"]}
             report["domain_tests"]["empty_legacy_todo_retained"]=True
-            check("63 candidate domain tests execute",report["domain_tests"]["tests"]==63 and all(report["domain_tests"][key]==0 for key in ["failures","errors","skipped"]))
+            check("64 candidate domain tests execute",report["domain_tests"]["tests"]==64 and all(report["domain_tests"][key]==0 for key in ["failures","errors","skipped"]))
         container_inspect=json.loads(command("docker","inspect",container))[0]
         state=container_inspect.get("State",{})
         port_bindings=((container_inspect.get("NetworkSettings",{}).get("Ports") or {}).get("8080/tcp") or [])
