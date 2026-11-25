@@ -155,7 +155,7 @@ class CleanupTests(unittest.TestCase):
                     return subprocess.CompletedProcess(args,0,stdout="[]",stderr="")
                 return subprocess.CompletedProcess(args,0,stdout="removed",stderr="")
             report={"checks":[],"status":"PASS","compose_started":True,"host_access_network_created":True}
-            with patch.object(harness,"WORK",Path(temp)),patch.object(harness.subprocess,"run",side_effect=run),contextlib.redirect_stdout(io.StringIO()):
+            with patch.object(harness,"WORK",Path(temp)),patch.object(harness,"COMPOSE_LOG",Path(temp)/"compose.log"),patch.object(harness.subprocess,"run",side_effect=run),contextlib.redirect_stdout(io.StringIO()):
                 self.assertTrue(harness.finalize(None,[],report))
             self.assertTrue(report["postgres_compose_down"])
             self.assertTrue(report["host_access_network_removed"])

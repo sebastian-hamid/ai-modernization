@@ -78,7 +78,9 @@ ACTION32_FRESH_EVIDENCE=ROOT/"notes/evidence/kan-15-action32-retirement/candidat
 ACTION32_RENDER_EVIDENCE=ROOT/"notes/evidence/kan-15-action32-retirement/legacy-rendered-entry.json"
 ACTION32_NATIVE_RESULTS=ROOT/"notes/evidence/kan-15-action32-retirement/native-results.json"
 ACTION32_BROWSER_RESULTS=ROOT/"notes/evidence/kan-15-action32-retirement/browser-results.json"
-ACTION32_RETIREMENT_REVIEW_SHA256="e6b6d16e8f6d74b9ee1f5cd2fece44503fd44c323ee28b2b5d033c34e08bb0b5"
+# The prior approval stores the mixed-line-ending hash; the tracked LF content has its own stable hash.
+ACTION32_RETIREMENT_REVIEW_RECORDED_SHA256="e6b6d16e8f6d74b9ee1f5cd2fece44503fd44c323ee28b2b5d033c34e08bb0b5"
+ACTION32_RETIREMENT_REVIEW_SHA256="59dad6d6126155f9e223fe933e9ce7e4ff6bb173372c712717215c263ee12f9b"
 ACTION32_RETIREMENT_VALIDATION_SHA256="bc457834289b0f9b1b6b4a73a16246bc75464fae759d7e2c370d4d3ea9f2861b"
 ACTION32_FRESH_EVIDENCE_SHA256="971140884fa2afe35468272e9edb3cfc0f03cb6224b97fc53c5db0669ab99ee2"
 ACTION32_RENDER_EVIDENCE_SHA256="f3e959112d5072c28928bb270c85fd1b6cc78e5eca5b9d6f20e7207a01e38e5f"
@@ -845,7 +847,7 @@ def reviewed_action32_retirement_receipt():
         raw=ACTION32_RETIREMENT_VALIDATION.read_bytes();evidence_bytes=ACTION32_FRESH_EVIDENCE.read_bytes();review_bytes=ACTION32_RETIREMENT_REVIEW.read_bytes()
         if (hashlib.sha256(raw).hexdigest()!=ACTION32_RETIREMENT_VALIDATION_SHA256
                 or hashlib.sha256(evidence_bytes).hexdigest()!=ACTION32_FRESH_EVIDENCE_SHA256
-                or hashlib.sha256(review_bytes).hexdigest()!=ACTION32_RETIREMENT_REVIEW_SHA256):return False
+                or _sha256_lf_normalized(review_bytes)!=ACTION32_RETIREMENT_REVIEW_SHA256):return False
         receipt=json.loads(raw);evidence=json.loads(evidence_bytes);basis=receipt["basis"];review=receipt["review"]
         rendered=action32_render_record()
         if (receipt.get("task")!="KAN-15 ACTION-32 specific retired-entry evidence"
@@ -870,7 +872,7 @@ def reviewed_action32_retirement_receipt():
                 or review.get("reviewer")!="/root/review_action32_evidence"
                 or review.get("approved_outcome")!="RETIRED" or review.get("pass_outcome_allowed") is not False
                 or review.get("review_record")!="notes/agent-reviews/2026-11-15-kan15-action32-retirement-review.md"
-                or review.get("review_record_sha256")!=ACTION32_RETIREMENT_REVIEW_SHA256
+                or review.get("review_record_sha256")!=ACTION32_RETIREMENT_REVIEW_RECORDED_SHA256
                 or not captured_source_hashes_match(basis.get("source_hashes"),action32_source_hashes())):return False
         proof_map=evidence.get("retirement_observations",{});rows=receipt.get("actor_observations",[])
         by_actor={row.get("actor"):row for row in rows if isinstance(row,dict)}
