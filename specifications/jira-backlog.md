@@ -328,3 +328,7 @@ KAN-13 is Done: minimal standard WildFly42/Java25.0.5/JakartaEE11 WAR passed19 c
 
 ## KAN-13 publication checkpoint (1 November 2026)
 The user authorized commit/push of the independently reviewed spike and evidence. Included artifacts are listed in the KAN-13 README/ADR; earlier local/uncommitted statements above are historical. The published commit reference is recorded on KAN-13.
+
+## KAN-13 Java patch maintenance (25 November 2026)
+
+A separate maintenance reproduction after the November Temurin CSPU passed all 19 isolated capability checks on Temurin 25.0.5.1+2; cleanup passed. See the [maintenance evidence](../notes/evidence/kan-13-runtime/maintenance-2026-11-25/README.md). The original KAN-13 acceptance and 1 November receipt remain historical; this patch verification does not claim Cargo Tracker migration or formal Java 25 TCK certification. Independent review by /root/review_java25_patch_wsl found no material findings; see [review record](../notes/agent-reviews/2026-11-25-kan15-bg06-scope-patch-review.md).

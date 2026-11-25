@@ -1,7 +1,19 @@
 # Setup status
 Verified 23 October 2026 (Europe/Bratislava). Checks ran on the actual WSL host, not the synced ChatGPT sources.
 
-## Current recheck - 22 November 2026
+## Current recheck - 25 November 2026
+
+| Area | Verified state |
+| --- | --- |
+| WSL and Java | Ubuntu 24.04.5 LTS; OpenJDK/javac 21.0.13.1. JAVA_HOME=/usr/lib/jvm/java-21-openjdk-amd64 is exported in a fresh Bash login shell. |
+| Maven and candidate JDK | Host Maven 3.8.7 runs on Java 21.0.13.1. Pinned candidate images use Maven 3.10.0 with Temurin 25.0.5.1+2; disposable checks confirmed the build JDK and Java 21.0.13.1+2 remoting JDK. |
+| Jenkins | Controller now runs ai-modernization-jenkins:2.580.1-jdk21.0.13.1, image ID sha256:6211c7d84300d3a91a452fb84cb4b383ce7ec8f50897d7a8971aa3d21f3d3954. Jenkins core remains 2.580.1; runtime is Temurin 21.0.13.1+2; /login returns HTTP 200. The existing infrastructure_jenkins_home volume remains mounted. Queue and active-build checks were empty before restart. |
+| Candidate regression | Patched candidate passed 808/808 runtime checks, 64/64 Java domain/characterization tests, Flyway V6 and 970/970 Chromium checks. Owned resources were removed with no cleanup errors; shared KAN-18 remained up. |
+| BG-06 and security checks | Fresh BG-06 scoped run passed 5/5; supplemental gate now records 454 PASS / 16 BLOCKED overall. Full security unit suite passed 145/145. |
+
+The maintenance and regression runs are local/disposable evidence, not production deployment or formal Jakarta EE 11 TCK evidence. The 22 November setup snapshot and earlier working inventory below are historical observations.
+
+## Previous setup snapshot - 22 November 2026
 
 | Area | Verified state |
 | --- | --- |

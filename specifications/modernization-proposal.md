@@ -69,6 +69,8 @@ This diagram describes responsibilities, not a complete class/deployment map. Th
 
 **Agreed Java policy (28 October 2026):** use the latest LTS Java release supported by the selected framework and runtime, with current maintenance updates. Java 25 is the proposed concrete target at the decision date, subject to compatibility verification. Any fallback must document the blocker and receive agreement. This supersedes the original Java 21 target recommendation; historical baseline Java 8 and host Java 21 records remain unchanged.
 
+**Maintenance baseline (23 November 2026):** use patched Eclipse Temurin 25.0.5.1+2 for Java 25 LTS. This update addresses the November 2026 Java4Shell CSPU; it does not change the approved LTS/EE/runtime architecture.
+
 **Agreed backend platform (28 October 2026):** Jakarta EE 11, subject to Java 25 compatibility verification. Retain useful domain rules and enterprise integrations.
 
 **Agreed application server (28 October 2026):** standard WildFly, not WildFly Preview. WildFly 42 is the initial release-series target at the decision date; select and pin the appropriate maintenance release and image digest during implementation. Verify the application on Java 25 before accepting the runtime combination. Server selection does not establish application compatibility or commercial long-term support.

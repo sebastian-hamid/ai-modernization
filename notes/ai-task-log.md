@@ -491,3 +491,23 @@ Independent evidence review approved with no actionable findings; reviewer /root
 
 Clarified that the seven PAGE-25 FAILs in the live contract result preserve the original KAN-12 historical deny expectation, while the already approved current-capability model explicitly allows anonymous read-only typed tracking after logout/expiry. The current-capability regression asserts both views separately. The fresh isolated candidate runtime from a20c212 recorded 10 PAGE-25 observations with HTTP 200, typed semantics, protected fixture payloads absent, and revocation verified for six logged-out/expired sessions. Historical rows were not altered or relabeled. KAN-14 remains In Review; 178 unsupported adapter cases remain BLOCKED. Evidence: notes/evidence/kan-14-security/public-tracking-current-mapping-2026-11-23.md. Independent review pending.
 Independent review by /root/review_kan14_page25 approved with no material discrepancies; review record: notes/agent-reviews/2026-11-23-kan14-page25-reconciliation-review.md.
+
+## 23 November 2026 - KAN-18 browser regression after KAN-23
+
+A fresh integrated candidate/Chromium run after the KAN-23 ordering change passed 808/808 candidate checks, 64 Java 25 domain/characterization tests, and 970/970 browser checks on PostgreSQL/Flyway V6. Owned fixture resources and generated private files were removed with no cleanup errors; shared KAN-18 and Jenkins remained running. Sanitized evidence: notes/evidence/kan18-post-kan23-browser-regression/. The raw local receipts are SHA-256 pinned in summary.json and are not committed. This does not represent a production deployment or migration of retained data; the user confirmed no retained legacy dataset exists. KAN-18 remains open pending acceptance review.
+
+## 25 November 2026 - Java maintenance patch verification
+
+Validated patched Temurin 25.0.5.1+2 with a fresh isolated KAN-13 reproduction: all 19 capability checks passed, cleanup passed, and the harness partial-initialization regression passed. Disposable controller and candidate-agent images also built and reported the pinned Jenkins 2.580.1, Temurin 21.0.13.1+2 remoting JDK, Temurin 25.0.5.1+2 build JDK, and Maven 3.10.0. Shared Jenkins and KAN-18 containers were not restarted or modified. Evidence: notes/evidence/kan-13-runtime/maintenance-2026-11-25/.
+
+The 23 November integrated KAN-18 browser regression used the earlier Java 25 patch level and remains historical evidence. The new patched-image integrated run and dependent BG-06 refresh are now complete; independent review and strict BG-06 replay-pin refresh have also completed.
+
+## 25 November 2026 - patched candidate and BG-06 regression
+
+Fresh integrated candidate/Chromium run kan15-kan18-patchedjdk-browser-20261125 used Temurin 25.0.5.1+2 and Maven 3.10.0. Candidate gate passed 808/808 checks, Java domain/characterization passed 64 tests (zero failures/errors/skips), Flyway reached V6, and Chromium passed 970/970 checks. Cleanup passed with no errors; shared KAN-18 and Jenkins were preserved. Sanitized evidence and raw receipt hashes: notes/evidence/kan18-patchedjdk-browser-20261125/.
+
+Re-ran the scoped BG-06 fixture after its Dockerfile fingerprints changed. All five scoped cases passed, and cleanup reported no residual owned resources. Previous current validation is preserved at notes/evidence/kan-15-bg06-scope/validation-prepatch-2026-11-23.json; ignored raw prior receipt is preserved in .work. The independent review found no material findings; strict replay promoted only those five BG-06 rows (aggregate current gate 454 PASS / 16 BLOCKED; exit 2 reflects unrelated blocked rows). Focused replay tests passed 6/6 and the full security suite passed 145/145. Previous replay output is preserved as current-capability-replay-prepatch-2026-11-23.json. The final implementation and evidence passed independent review and the required checks; user-authorized publication follows the recorded commit.
+
+## 25 November 2026 - Jenkins controller maintenance applied
+
+Before restart, Jenkins had no queued items and no active job build markers. Recreated only the local controller from the independently reviewed pinned image ai-modernization-jenkins:2.580.1-jdk21.0.13.1. Jenkins 2.580.1 and the named infrastructure_jenkins_home volume were preserved; post-start /login returned HTTP 200 and Java reported Temurin 21.0.13.1+2. The shared KAN-18 container was not restarted.

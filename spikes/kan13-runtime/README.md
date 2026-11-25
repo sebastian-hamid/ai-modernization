@@ -7,7 +7,7 @@ This is an isolated capability WAR, **not migrated Cargo Tracker**. It contains 
 The recorded run passed 19 checks: Java 25 execution and class-file major version 69; non-root runtime; authenticated R/O/A reads; anonymous/bad-password denial; rendered Faces/CDI expression; Reader/anonymous write denial with unchanged row count; Operator and Administrator creation; actual JPA persistence, JMS consumer update and COMPLETED batch execution for both; exact authorized row count; 404 and unsupported-method handling. [Results](../../notes/evidence/kan-13-runtime/results.json) and [JUnit](../../notes/evidence/kan-13-runtime/TEST-kan13-runtime.xml).
 
 - Standard WildFly 42.0.0.Final full configuration, not Preview. Base image: `quay.io/wildfly/wildfly@sha256:3fc71f6c4fe1075ac942dbb652799840ecd5424458def6039f829bf3221a8daf`.
-- Build image: `maven@sha256:9d329e21adce7c0cc53f2fd21e73c127a247c73287b8503196136ec5cff52328`. Runtime JDK is copied from this pinned image to use Temurin 25.0.5+8; official WildFly base contained 25.0.4.1. This is an assembled test image, not an unchanged official WildFly image or a new vendor/TCK certification claim. Headless Linux capability checks pass; TLS/native/GUI and other workloads are not proven.
+- Initial build image: `maven@sha256:9d329e21adce7c0cc53f2fd21e73c127a247c73287b8503196136ec5cff52328`, with Temurin 25.0.5+8. That 1 November run is historical. The current reproduction Dockerfile uses patched Temurin 25.0.5.1+2 from maven@sha256:84bd96155bf37d1be2858433aee89320f487c2d21faf06406640e7dc2b82d686; the official WildFly base's older JDK is replaced from the builder. This is an assembled test image, not an unchanged official WildFly image or a new vendor/TCK certification claim.
 - Jakarta EE API 11.0.0 (provided), compiler plugin 3.16.0, WAR plugin 3.5.1; release bytecode 25. Compiler 4.x beta was not selected. Maven/tool output and artifact/source hashes are recorded in evidence; build plugins/API remain pinned rather than dynamically following latest at reproduction time.
 
 ## Reproduce from WSL
@@ -29,6 +29,10 @@ Image build inputs are under src/, pom.xml, Dockerfile and start.sh. Logs/cache/
 - A Faces view evaluates a CDI bean, rather than merely returning a static page. PrimeFaces/mobile/theme compatibility and all Cargo Tracker workflows remain unverified.
 - Internal ProbeService permits trusted in-process probe calls; no remote business endpoint/production service-security design is claimed. Broker/worker identities and audit propagation for Cargo Tracker are still KAN-15 design work.
 
+## Maintenance patch verification - 25 November 2026
+
+The current pinned reproduction passed all 19 capability checks with Temurin 25.0.5.1+2 and class-file major version 69. The runtime was non-root; role checks, Faces/CDI rendering, denied-write side effects, JPA, JMS, batch, 404 and unsupported-method checks all passed. Cleanup passed. The [maintenance run receipt](../../notes/evidence/kan-13-runtime/maintenance-2026-11-25/README.md) is separate from the unchanged 1 November receipts above. This validates only the isolated capability spike, not the Cargo Tracker application or a Jakarta EE 11 TCK claim.
+
 ## First-run finding
 
 Initial local authentication/read/Faces checks passed, but the Reader POST check did not produce the expected 403. Server logs showed EJBAccessException from the method-role interceptor surfacing through the default REST exception mapper. Added an explicit method/path HTTP constraint for POST /api/probe, retaining EJB role checks. The corrected run returns 403 and leaves row count unchanged. [Initial failed result](../../notes/evidence/kan-13-runtime/first-run/results.json) is retained; the original harness did not capture that response status and its JUnit failure used a generic completion case. The harness now records response statuses and attaches failures to their actual check, with robust cleanup/reporting.
@@ -43,7 +47,7 @@ The one harness regression check passes; a fresh disposable runtime rerun also p
 
 ## Decision and remaining work
 
-The minimal checks support continuing with Java 25.0.5/Jakarta EE 11/standard WildFly 42 as the candidate foundation. This is a compatibility-spike conclusion, not acceptance of the full migration or security remediation. WildFly recommends Java 25 but its published EE 11 compatibility claims cover Java 17/21; this spike does not change that distinction.
+The minimal checks support continuing with patched Java 25 LTS (currently Temurin 25.0.5.1+2)/Jakarta EE 11/standard WildFly 42 as the candidate foundation. This is a compatibility-spike conclusion, not acceptance of the full migration or security remediation. WildFly recommends Java 25 but its published EE 11 compatibility claims cover Java 17/21; this spike does not change that distinction.
 
 Next: implement desired access tests from KAN-12 (KAN-14), then actual candidate security/application migration work. Keep the historical GlassFish container, Java 8 build agent, existing Jenkins job and original source untouched.
 

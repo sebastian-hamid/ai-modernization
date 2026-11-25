@@ -1,0 +1,48 @@
+{
+  "ticket": "KAN-18",
+  "run_id": "kan15-kan18-post-kan23-browser-20261123",
+  "date": "2026-11-23",
+  "worktree_revision_at_run_start": "4d7ad6e",
+  "scope": "Fresh integrated Cargo Tracker candidate runtime and Chromium regression after the KAN-23 handling-history ordering change.",
+  "candidate_runtime": {
+    "status": "PASS",
+    "checks_passed": 808,
+    "checks_failed": 0,
+    "domain_tests": {
+      "tests": 64,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    "flyway_schema_version": "6"
+  },
+  "browser": {
+    "checks_passed": 970,
+    "checks_failed": 0
+  },
+  "cleanup": {
+    "candidate_container_removed": true,
+    "browser_container_removed": true,
+    "postgres_compose_down": true,
+    "owned_networks_removed": true,
+    "owned_images_removed": true,
+    "private_files_removed": true,
+    "cleanup_errors": [],
+    "shared_kan18_and_jenkins_services_preserved": true
+  },
+  "raw_receipts": {
+    "candidate_runtime": {
+      "path": ".work/kan15-kan18-post-kan23-browser-20261123/candidate-runtime/results.json",
+      "sha256": "885d885de619e0b2c2b40a493b6f672a83451251a6d35909db23c94987f01c1c"
+    },
+    "browser": {
+      "path": ".work/kan15-kan18-post-kan23-browser-20261123/browser/results.json",
+      "sha256": "8b1efa7033d07b21b2d236f4909c4de37e49e7973e24c9ff6f37e4d94f844f94"
+    }
+  },
+  "limits": [
+    "This is disposable local candidate/runtime and browser evidence, not production deployment evidence.",
+    "The generated-data migration rehearsal is separate; user confirmed no retained legacy dataset exists, so actual-data profiling and import are not applicable to the current scope.",
+    "This regression does not by itself close KAN-18."
+  ]
+}

@@ -86,7 +86,7 @@ def main():
         report["runtime_java"]=command(["docker","run","--rm",IMAGE,"java","-version"],text=True).strip()
         report["runtime_uid"]=command(["docker","run","--rm",IMAGE,"id","-u"],text=True).strip()
         check("Non-root runtime",report["runtime_uid"]!="0")
-        require('25.0.5' in report["runtime_java"],"Unexpected runtime Java maintenance version")
+        require('25.0.5.1' in report["runtime_java"],"Unexpected runtime Java maintenance version")
         container=command(["docker","run","-d","--name",NAME,"--label","ai-modernization.task=KAN-13","--init",
             "-p",f"127.0.0.1:{args.port}:8080","--mount",f"type=bind,src={private},dst=/run/kan13,readonly",IMAGE],text=True).strip()
         require(re.fullmatch(r"[0-9a-f]{64}",container) is not None,"Unexpected container identity")
@@ -101,7 +101,7 @@ def main():
         check("Anonymous API denied",request("api/status")[0]==401)
         check("Wrong password denied",request("api/status","reader",bad_password=True)[0]==401)
         for who in credentials:
-            observed=status(who);check(who+" permitted read on Java 25",observed["javaFeature"]==25 and observed["javaVersion"].startswith("25.0.5"),observed)
+            observed=status(who);check(who+" permitted read on Java 25",observed["javaFeature"]==25 and observed["javaVersion"].startswith("25.0.5.1"),observed)
         check("Anonymous Faces denied",request("faces.xhtml")[0]==401)
         code,html=request("faces.xhtml","reader")
         check("Faces/CDI expression rendered",code==200 and b"KAN13_FACES_OK" in html and b"#{facesProbe.message}" not in html,{"http_status":code})

@@ -6,7 +6,7 @@ Work in progress, 1 November 2026. The subsequent [browser workflow increment](.
 
 source-provenance.json records the original commit 57fc7b32d2597e43b5e0d454e707e0146de5258a and original file hashes from git archive of src/ and LICENSE. Candidate modifications are deliberate; original hashes are not current candidate hashes. Current execution input hashes are recorded under notes/evidence/kan-18-candidate/validation.json. The extra ten-case handling factory characterization test was copied from the repository's tests/java tree.
 
-Pinned foundation: Java 25.0.5 / Jakarta EE 11 / standard WildFly 42 and the same immutable Maven/runtime digests used by KAN-13. Application dependencies: PrimeFaces 16.0.1 (current stable artifact from Maven Central checked 1 November), commons-lang3 3.20.0, JUnit 4.13.2; compiler 3.16.0, WAR 3.5.1, Surefire 3.5.4. Normal build requires candidate/security installed first. The disposable harness builds both in pinned containers.
+Pinned foundation: Java 25.0.5.1+2 / Jakarta EE 11 / standard WildFly 42. The November 2026 Temurin CSPU update is pinned in the current Maven/build fixtures; the initial KAN-13 Java 25.0.5+8 receipts remain historical. Application dependencies: PrimeFaces 16.0.1 (current stable artifact from Maven Central checked 1 November), commons-lang3 3.20.0, JUnit 4.13.2; compiler 3.16.0, WAR 3.5.1, Surefire 3.5.4. Normal build requires candidate/security installed first. The disposable harness builds both in pinned containers.
 
 Portability changes:
 - Jakarta EE package migration; Java SE namespaces such as javax.naming retained.

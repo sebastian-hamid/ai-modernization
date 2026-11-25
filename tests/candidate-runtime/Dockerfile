@@ -1,4 +1,4 @@
-FROM maven@sha256:9d329e21adce7c0cc53f2fd21e73c127a247c73287b8503196136ec5cff52328 AS build
+FROM maven@sha256:84bd96155bf37d1be2858433aee89320f487c2d21faf06406640e7dc2b82d686 AS build
 WORKDIR /build/library
 COPY candidate/security/pom.xml .
 COPY candidate/security/src src
@@ -15,7 +15,7 @@ RUN mkdir -p src/main/java/lab/fixture && cp /tmp/observer/LabEffects*.java /tmp
 RUN mvn -B -ntp package -Dsession.timeout.minutes=1
 RUN mkdir /tmp/observer-client && javac -d /tmp/observer-client /tmp/observer/ReadEffects.java
 FROM quay.io/wildfly/wildfly@sha256:3fc71f6c4fe1075ac942dbb652799840ecd5424458def6039f829bf3221a8daf
-# Official WildFly base currently includes 25.0.4.1; use the pinned current JDK 25.0.5.
+# Official WildFly base currently includes 25.0.4.1; use patched Temurin JDK 25.0.5.1+2 from the refreshed Maven image.
 # The assembled runtime is tested by this spike; no EE-on-Java-25 TCK claim is made.
 COPY --from=build /opt/java/openjdk /opt/java/openjdk
 COPY --from=build /build/candidate/target/surefire-reports /opt/jboss/lab-evidence/surefire

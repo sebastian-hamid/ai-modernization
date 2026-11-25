@@ -1,6 +1,9 @@
 services:
   jenkins:
-    image: jenkins/jenkins:lts-jdk21
+    image: ai-modernization-jenkins:2.580.1-jdk21.0.13.1
+    build:
+      context: ..
+      dockerfile: infrastructure/jenkins/Dockerfile
     container_name: ai-modernization-jenkins
     restart: unless-stopped
     ports:

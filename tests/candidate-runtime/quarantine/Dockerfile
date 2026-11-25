@@ -1,4 +1,4 @@
-FROM maven@sha256:9d329e21adce7c0cc53f2fd21e73c127a247c73287b8503196136ec5cff52328 AS build
+FROM maven@sha256:84bd96155bf37d1be2858433aee89320f487c2d21faf06406640e7dc2b82d686 AS build
 WORKDIR /build/library
 COPY candidate/security/pom.xml .
 COPY candidate/security/src src

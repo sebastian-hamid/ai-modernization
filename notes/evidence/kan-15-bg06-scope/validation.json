@@ -2,8 +2,8 @@
   "schema_version": 1,
   "task": "KAN-15 BG-06",
   "driver": "fresh-disposable-bg06-scoped-gate-v1",
-  "started_at_utc": "2026-11-23T12:42:16.518950+00:00",
-  "completed_at_utc": "2026-11-23T12:44:36.466748+00:00",
+  "started_at_utc": "2026-11-25T18:45:15.895437+00:00",
+  "completed_at_utc": "2026-11-25T18:47:39.273760+00:00",
   "outcome": "PASS",
   "gate_exit": 0,
   "cases": [
@@ -49,18 +49,18 @@
     "blocked": 0
   },
   "reasons": [],
-  "runtime_receipt_sha256": "cd29565e866f083ba634eecd9a4e875c0bf132fd9134f2afb429d786841c15b4",
+  "runtime_receipt_sha256": "e6f064d37092ba297be82bc0a54835631d9d5e7ad48f6c0db59a69695257627f",
   "gate_adapter_sha256": "ea70c54464939615712bd256fe820741b7f724d865be15d13db16e98f547048c",
   "runtime_exit_code": 0,
   "evidence": {
-    "run_id": "kan18pg-7553d25961",
+    "run_id": "kan18pg-40971f1c82",
     "runtime_status": "PASS",
     "checks": {
       "bg06_static_source_inventory": {
         "passed": true,
         "driver": "tests/security/test_bg06_startup_boundary.py",
         "exit_code": 0,
-        "summary": "........\n----------------------------------------------------------------------\nRan 8 tests in 0.430s\n\nOK"
+        "summary": "........\n----------------------------------------------------------------------\nRan 8 tests in 0.565s\n\nOK"
       },
       "bg06_human_boundary": {
         "passed": true,
@@ -182,19 +182,19 @@
               "session_user": "schema_migrator",
               "current_user": "schema_migrator",
               "current_role": "schema_migrator",
-              "observed_at": "2026-11-23 12:42:49.672102+00"
+              "observed_at": "2026-11-25 18:45:53.158668+00"
             },
             {
               "session_user": "schema_migrator",
               "current_user": "schema_migrator",
               "current_role": "schema_migrator",
-              "observed_at": "2026-11-23 12:43:03.014893+00"
+              "observed_at": "2026-11-25 18:46:06.748856+00"
             },
             {
               "session_user": "schema_migrator",
               "current_user": "schema_migrator",
               "current_role": "schema_migrator",
-              "observed_at": "2026-11-23 12:43:12.986+00"
+              "observed_at": "2026-11-25 18:46:16.507763+00"
             }
           ],
           "migrations_only": true,
@@ -238,7 +238,7 @@
           "rows": {
             "location": {
               "count": 3,
-              "digest": "d0a89313162b9ac2e41c06014803789c"
+              "digest": "ea0431d6de1286682404d8b5e1972cf4"
             },
             "voyage": {
               "count": 1,
@@ -1570,7 +1570,7 @@
           "rows": {
             "location": {
               "count": 3,
-              "digest": "d0a89313162b9ac2e41c06014803789c"
+              "digest": "ea0431d6de1286682404d8b5e1972cf4"
             },
             "voyage": {
               "count": 1,
@@ -2905,7 +2905,7 @@
           "rows": {
             "location": {
               "count": 3,
-              "digest": "d0a89313162b9ac2e41c06014803789c"
+              "digest": "ea0431d6de1286682404d8b5e1972cf4"
             },
             "voyage": {
               "count": 1,
@@ -4237,7 +4237,7 @@
           "rows": {
             "location": {
               "count": 3,
-              "digest": "d0a89313162b9ac2e41c06014803789c"
+              "digest": "ea0431d6de1286682404d8b5e1972cf4"
             },
             "voyage": {
               "count": 1,
@@ -5573,7 +5573,7 @@
           "rows": {
             "location": {
               "count": 3,
-              "digest": "d0a89313162b9ac2e41c06014803789c"
+              "digest": "ea0431d6de1286682404d8b5e1972cf4"
             },
             "voyage": {
               "count": 1,
@@ -7078,19 +7078,19 @@
             "session_user": "schema_migrator",
             "current_user": "schema_migrator",
             "current_role": "schema_migrator",
-            "observed_at": "2026-11-23 12:42:49.672102+00"
+            "observed_at": "2026-11-25 18:45:53.158668+00"
           },
           {
             "session_user": "schema_migrator",
             "current_user": "schema_migrator",
             "current_role": "schema_migrator",
-            "observed_at": "2026-11-23 12:43:03.014893+00"
+            "observed_at": "2026-11-25 18:46:06.748856+00"
           },
           {
             "session_user": "schema_migrator",
             "current_user": "schema_migrator",
             "current_role": "schema_migrator",
-            "observed_at": "2026-11-23 12:43:12.986+00"
+            "observed_at": "2026-11-25 18:46:16.507763+00"
           }
         ],
         "migrations_only": true,
@@ -7166,13 +7166,13 @@
             "session_user": "schema_migrator",
             "current_user": "schema_migrator",
             "current_role": "schema_migrator",
-            "observed_at": "2026-11-23 12:42:49.672102+00"
+            "observed_at": "2026-11-25 18:45:53.158668+00"
           },
           {
             "session_user": "schema_migrator",
             "current_user": "schema_migrator",
             "current_role": "schema_migrator",
-            "observed_at": "2026-11-23 12:43:03.014893+00"
+            "observed_at": "2026-11-25 18:46:06.748856+00"
           }
         ],
         "high_water_branch": "legacy_sequence_state (entity-id maximum branch separately covered by KAN-22)"
@@ -7213,19 +7213,19 @@
             "session_user": "schema_migrator",
             "current_user": "schema_migrator",
             "current_role": "schema_migrator",
-            "observed_at": "2026-11-23 12:42:49.672102+00"
+            "observed_at": "2026-11-25 18:45:53.158668+00"
           },
           {
             "session_user": "schema_migrator",
             "current_user": "schema_migrator",
             "current_role": "schema_migrator",
-            "observed_at": "2026-11-23 12:43:03.014893+00"
+            "observed_at": "2026-11-25 18:46:06.748856+00"
           },
           {
             "session_user": "schema_migrator",
             "current_user": "schema_migrator",
             "current_role": "schema_migrator",
-            "observed_at": "2026-11-23 12:43:12.986+00"
+            "observed_at": "2026-11-25 18:46:16.507763+00"
           }
         ],
         "data_preserved": true,
@@ -7685,7 +7685,7 @@
     },
     "schema_sha256": {
       ".dockerignore": "0470eb69c6f13a37c5476289eb4b691f36a366278a602e0f8d8a475527a00e5c",
-      "tests/candidate-runtime/postgresql/Dockerfile": "1851f91f2edf11f50b6602f14037a05f1294c0f9b9ad79f856d23270595efc5f",
+      "tests/candidate-runtime/postgresql/Dockerfile": "567fcdcc30c4bc2d9b48d7988f21245cab17edc751d637e34a57fefe9024e412",
       "tests/candidate-runtime/postgresql/module.xml": "c6cf60d912ecaa7a4560b1288d478b7cc2bbc10f22316f6edb241093edb0aee1",
       "tests/candidate-runtime/postgresql/configure-datasource.cli": "02151083ddabbb082306ea34251707a8cc27d76ad3d6c99083b644226f4cae54",
       "tests/candidate-runtime/postgresql/start.sh": "09ec1f8e3481d2d9a9cda6556521078769b44b388f2e87da93626e6e52627bb0",

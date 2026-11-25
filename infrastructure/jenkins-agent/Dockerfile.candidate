@@ -1,8 +1,9 @@
 FROM jenkins/inbound-agent@sha256:c93e68c1b1a9e5c4cb8e459dfd0f7fc63b6dc86b47f12883b8231c85d2e4ca4d AS remoting
-FROM maven@sha256:9d329e21adce7c0cc53f2fd21e73c127a247c73287b8503196136ec5cff52328
+FROM eclipse-temurin:21.0.13.1_2-jdk-jammy@sha256:4b3d0998ee65462bd86ff060c87119b3575294cb3d0927372afa6f3708b0c8db AS patched-jdk21
+FROM maven@sha256:84bd96155bf37d1be2858433aee89320f487c2d21faf06406640e7dc2b82d686
 USER root
 RUN apt-get update && apt-get install -y --no-install-recommends git python3 && rm -rf /var/lib/apt/lists/*
-COPY --from=remoting /opt/java/openjdk /opt/java21
+COPY --from=patched-jdk21 /opt/java/openjdk /opt/java21
 COPY --from=remoting /usr/share/jenkins/agent.jar /usr/share/jenkins/agent.jar
 COPY start-candidate.sh /usr/local/bin/start-candidate-agent
 RUN mkdir -p /home/jenkins/agent && chown -R 1000:1000 /home/jenkins && chmod +x /usr/local/bin/start-candidate-agent
