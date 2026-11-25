@@ -27,6 +27,21 @@ pipeline {
                 }
             }
         }
+        stage('Load pinned read-only legacy source') {
+            steps {
+                sh '''set -eu
+                    source_dir=experiments/legacy-cargotracker
+                    source_revision=57fc7b32d2597e43b5e0d454e707e0146de5258a
+                    mkdir -p experiments
+                    git init "$source_dir"
+                    git -C "$source_dir" remote add origin https://github.com/javaee/cargotracker.git
+                    git -C "$source_dir" fetch --depth=1 origin "$source_revision"
+                    git -C "$source_dir" checkout --detach FETCH_HEAD
+                    test "$(git -C "$source_dir" rev-parse HEAD)" = "$source_revision"
+                    test -z "$(git -C "$source_dir" status --porcelain)"
+                '''
+            }
+        }
         stage('Verify toolchain') {
             steps {
                 sh 'java -version && mvn -version && python3 --version && git --version'
@@ -39,7 +54,7 @@ pipeline {
         }
         stage('Security contract and harness tests') {
             steps {
-                // Checkout-safe security unit suites; test_live_subset requires ignored legacy source.
+                // Load the pinned read-only legacy source above for legacy-bound evidence validators.
                 sh '''for suite in test_contract_engine.py test_current_capabilities.py test_replacements.py test_staged_returns.py; do
                     python3 -m unittest discover -s tests/security -p "$suite" -v || exit $?
                 done'''

@@ -10,8 +10,13 @@ Verified 23 October 2026 (Europe/Bratislava). Checks ran on the actual WSL host,
 | Jenkins | Controller now runs ai-modernization-jenkins:2.580.1-jdk21.0.13.1, image ID sha256:6211c7d84300d3a91a452fb84cb4b383ce7ec8f50897d7a8971aa3d21f3d3954. Jenkins core remains 2.580.1; runtime is Temurin 21.0.13.1+2; /login returns HTTP 200. The existing infrastructure_jenkins_home volume remains mounted. Queue and active-build checks were empty before restart. |
 | Candidate regression | Patched candidate passed 808/808 runtime checks, 64/64 Java domain/characterization tests, Flyway V6 and 970/970 Chromium checks. Owned resources were removed with no cleanup errors; shared KAN-18 remained up. |
 | BG-06 and security checks | Fresh BG-06 scoped run passed 5/5; supplemental gate now records 454 PASS / 16 BLOCKED overall. Full security unit suite passed 145/145. |
+| Candidate Jenkins agent | Rebuilt candidate agent is connected to Jenkins over WebSocket with zero restarts; its existing named workspace volume is mounted. Jenkins candidate build #9 failed before this portability fix; no build has yet verified these uncommitted changes. The baseline agent remains stopped (exit 127 since 9 November); its named volume is preserved. |
 
 The maintenance and regression runs are local/disposable evidence, not production deployment or formal Jakarta EE 11 TCK evidence. The 22 November setup snapshot and earlier working inventory below are historical observations.
+
+### Candidate CI recovery note — 25 November 2026
+
+Jenkins candidate build #9 checked out ad0a373 and failed in the security suite because the tests read the intentionally ignored experiments/legacy-cargotracker checkout, which an SCM-only Jenkins workspace does not contain. Two reviewed Markdown evidence hashes also depended on mixed local CRLF/LF bytes and did not match a clean LF checkout. The candidate pipeline now has local, uncommitted changes to fetch the exact upstream legacy revision 57fc7b32d2597e43b5e0d454e707e0146de5258a as a detached clean read-only checkout and to normalize line endings only when hashing the two affected review records. Focused local suites pass: 70 current-capability, 17 contract-engine, 13 replacement, 5 staged-return, 16 candidate harness and 3 security-runtime harness tests. The exact-revision fetch was verified in a disposable directory. Independent review is in progress; the candidate pipeline has not yet rerun on the fix, so CI recovery remains unverified.
 
 ## Previous setup snapshot - 22 November 2026
 

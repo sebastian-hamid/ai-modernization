@@ -511,3 +511,10 @@ Re-ran the scoped BG-06 fixture after its Dockerfile fingerprints changed. All f
 ## 25 November 2026 - Jenkins controller maintenance applied
 
 Before restart, Jenkins had no queued items and no active job build markers. Recreated only the local controller from the independently reviewed pinned image ai-modernization-jenkins:2.580.1-jdk21.0.13.1. Jenkins 2.580.1 and the named infrastructure_jenkins_home volume were preserved; post-start /login returned HTTP 200 and Java reported Temurin 21.0.13.1+2. The shared KAN-18 container was not restarted.
+
+
+## 25 November 2026 - KAN-18 candidate Jenkins SCM test recovery
+
+Rebuilt the candidate Jenkins agent from the patched image and verified it connected over WebSocket with zero restarts; its existing named workspace volume remained attached. Reconnection allowed SCM polling to start candidate build #9 against ad0a373, which failed because the checkout-safe security suite now validates source-bound retirement evidence but the Jenkins checkout did not contain the intentionally ignored legacy source tree. Raw review-record SHA checks also depended on mixed local line endings, while a clean Jenkins checkout uses LF.
+
+Prepared a candidate-pipeline stage to fetch upstream CargoTracker commit 57fc7b32d2597e43b5e0d454e707e0146de5258a as a detached, clean read-only checkout. Updated ACTION-08 and handling-page review checks to distinguish the historical hash recorded in the approval receipt from the stable LF-normalized content hash, and applied the normalized hash to handling-page replay. Verified the exact commit fetch and clean state, all three retirement receipts, and focused suites: 70 current-capability, 17 contract-engine, 13 replacement, 5 staged-return, 16 candidate-harness and 3 security-runtime-harness tests passed. Independent review is pending; the Jenkins candidate pipeline has not rerun against these local changes. The baseline agent remains stopped as before; its workspace volume and shared Jenkins/KAN-18 services are preserved.

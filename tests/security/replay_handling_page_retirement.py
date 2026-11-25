@@ -12,13 +12,14 @@ from current_capabilities import (
 )
 DEFAULT_OUTPUT=ROOT/"notes/evidence/kan-15-handling-page-retirement/current-capability-replay.json"
 def sha(data):return hashlib.sha256(data).hexdigest()
+def sha_review(data):return hashlib.sha256(data.replace(b"\r\n",b"\n")).hexdigest()
 def replay(output_path=DEFAULT_OUTPUT):
     model,_=load_model()
     if not reviewed_handling_page_retirement_receipt():raise ValueError("Handling page promotion receipt is invalid")
     raw=HANDLING_PAGE_GATE_EVIDENCE.read_bytes();evidence=json.loads(raw)
     if sha(raw)!=HANDLING_PAGE_GATE_SHA256:raise ValueError("Fresh gate evidence changed after review")
     validation=HANDLING_PAGE_PROMOTION_VALIDATION.read_bytes();review=HANDLING_PAGE_PROMOTION_REVIEW.read_bytes()
-    if sha(validation)!=HANDLING_PAGE_PROMOTION_VALIDATION_SHA256 or sha(review)!=HANDLING_PAGE_PROMOTION_REVIEW_SHA256:
+    if sha(validation)!=HANDLING_PAGE_PROMOTION_VALIDATION_SHA256 or sha_review(review)!=HANDLING_PAGE_PROMOTION_REVIEW_SHA256:
         raise ValueError("Promotion decision evidence changed after review")
     if evidence.get("current_counts")!={"PASS":470} or evidence.get("retirement_counts")!={"RETIRED":64,"BLOCKED":12} or evidence.get("gate_exit")!=2:
         raise ValueError("Fresh current-capability result differs from reviewed run")
@@ -44,7 +45,7 @@ def replay(output_path=DEFAULT_OUTPUT):
       "basis":"Offline replay of independent promotion approval against fresh owned-runtime evidence; no runtime/browser fixture launched.",
       "source_evidence":str(HANDLING_PAGE_GATE_EVIDENCE.relative_to(ROOT)),"source_evidence_sha256":sha(raw),
       "promotion_validation_sha256":sha(validation),"review_record":str(HANDLING_PAGE_PROMOTION_REVIEW.relative_to(ROOT)),
-      "review_record_sha256":sha(review),"inputs_fingerprint_from_fresh_run":evidence.get("provenance",{}).get("inputs_fingerprint"),
+      "review_record_sha256":sha_review(review),"inputs_fingerprint_from_fresh_run":evidence.get("provenance",{}).get("inputs_fingerprint"),
       "current_counts":evidence["current_counts"],"retirement_counts_before_review":evidence["retirement_counts"],
       "retirement_counts_after_review":counts,"changed_cases":["RETIREMENT::"+action+"::"+actor for action in actions for actor in ACTORS],
       "retirement_results":results,"legacy_audit":evidence["legacy_audit"],"gate_exit":2,"remaining_blocked_retirement_cases":4,

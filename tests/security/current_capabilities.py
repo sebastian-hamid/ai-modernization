@@ -30,7 +30,9 @@ APPROVED_MAPPED=frozenset("ACTION-"+i for i in ["01","02","03","04","05","06","0
 APPROVED_PENDING=frozenset()
 ACTION08_RETIREMENT_VALIDATION=ROOT/"notes/evidence/kan-15-action08-retirement/validation.json"
 ACTION08_RETIREMENT_REVIEW=ROOT/"notes/agent-reviews/2026-11-14-kan15-action08-retirement-review.md"
-ACTION08_RETIREMENT_REVIEW_SHA256="673381cf2fc8c4c36a20105be2ddc76decac3d1567ce7e4f5f1596ebc4ed44d6"
+# The original receipt records mixed CRLF/LF bytes; verify by stable LF-normalized content.
+ACTION08_RETIREMENT_REVIEW_RECORDED_SHA256="673381cf2fc8c4c36a20105be2ddc76decac3d1567ce7e4f5f1596ebc4ed44d6"
+ACTION08_RETIREMENT_REVIEW_SHA256="0c410eb80c3de19f0e3d37163de2b99ad46cf187f904f64f9a41deac5c7cbc4b"
 ACTION08_RETIREMENT_VALIDATION_SHA256="773e9538885bd03460afc3dd43b103569ea09271a5cd6192137aab8c6652262e"
 ACTION08_RAW_RESULTS_SHA256="d089a8b4f1ffbb63bea9870e05e8ba4e20f68b34cdc430a43ea6abe8c9bc7280"
 ACTION23_RETIREMENT_VALIDATION=ROOT/"notes/evidence/kan-15-action23-retirement/validation.json"
@@ -113,7 +115,9 @@ HANDLING_PAGE_GATE_EVIDENCE=ROOT/"notes/evidence/kan-15-handling-page-retirement
 HANDLING_PAGE_CANDIDATE_EVIDENCE=ROOT/"notes/evidence/kan-15-handling-page-retirement/candidate-runtime-results.json"
 HANDLING_PAGE_BROWSER_EVIDENCE=ROOT/"notes/evidence/kan-15-handling-page-retirement/browser-results.json"
 HANDLING_PAGE_PROMOTION_VALIDATION_SHA256="7a0446e36b4b2375b811cef1517ec0f4860f8c499d8d466019cf7925e3ac01e8"
-HANDLING_PAGE_PROMOTION_REVIEW_SHA256="f51613251278825ca4859f442f65e56c1b614603a2bc1a307f5b19aa6b8a0704"
+# Preserve the original receipt hash while verifying LF-normalized tracked content.
+HANDLING_PAGE_PROMOTION_REVIEW_RECORDED_SHA256="f51613251278825ca4859f442f65e56c1b614603a2bc1a307f5b19aa6b8a0704"
+HANDLING_PAGE_PROMOTION_REVIEW_SHA256="9a9028ce3f159a242dee4a8fb36fbed3775418cf3132b7dd59820012fcd423e8"
 HANDLING_PAGE_GATE_SHA256="96c59c67f207af4cd5d6fb8364e4a7a3471c1fac339abe0534737ca36f72a74e"
 HANDLING_PAGE_CANDIDATE_SHA256="637f8b53c5a52c5e799b99516ffa8136492cbbb39110ab63845f6e69bc3f8ff1"
 HANDLING_PAGE_BROWSER_SHA256="eac9cf910aa529352709d74952d6e068a7aa8c5044f96c5ddf0f2825543609f6"
@@ -462,6 +466,9 @@ def booking_facade_observation(case,raw):
         "operations":deepcopy(raw["operations"])}
 
 
+def _sha256_lf_normalized(raw):
+    return hashlib.sha256(raw.replace(b"\r\n",b"\n")).hexdigest()
+
 def load_model():
     raw=INVENTORY.read_bytes();inventory=json.loads(raw);model=json.loads(MANIFEST.read_text())
     validate_model(model,inventory,hashlib.sha256(raw).hexdigest())
@@ -476,7 +483,7 @@ def reviewed_handling_callback_retirement_receipt():
         candidate_bytes=HANDLING_CALLBACK_CANDIDATE_EVIDENCE.read_bytes()
         browser_bytes=HANDLING_CALLBACK_BROWSER_EVIDENCE.read_bytes()
         capture=load_handling_callback_source_evidence()
-        hashes=(hashlib.sha256(validation_bytes).hexdigest(),hashlib.sha256(review_bytes).hexdigest(),
+        hashes=(hashlib.sha256(validation_bytes).hexdigest(),_sha256_lf_normalized(review_bytes),
                 hashlib.sha256(gate_bytes).hexdigest(),hashlib.sha256(candidate_bytes).hexdigest(),
                 hashlib.sha256(browser_bytes).hexdigest())
         if hashes!=(HANDLING_CALLBACK_PROMOTION_VALIDATION_SHA256,HANDLING_CALLBACK_PROMOTION_REVIEW_SHA256,
@@ -541,7 +548,7 @@ def reviewed_handling_callback_retirement_receipt():
                         or replacement_rows.get("REPLACEMENT::"+HANDLING_CALLBACK_RETIREMENT_ACTIONS[action]+"::"+actor,{}).get("outcome")!="PASS"):
                     return False
                 verify_handling_callback_retirement_proof(action,actor,proof)
-        return hashlib.sha256(HANDLING_CALLBACK_PROMOTION_REVIEW.read_bytes()).hexdigest()==HANDLING_CALLBACK_PROMOTION_REVIEW_SHA256
+        return _sha256_lf_normalized(HANDLING_CALLBACK_PROMOTION_REVIEW.read_bytes())==HANDLING_CALLBACK_PROMOTION_REVIEW_SHA256
     except (OSError,KeyError,TypeError,ValueError,UnsupportedCase):
         return False
 
@@ -553,8 +560,9 @@ def reviewed_handling_page_retirement_receipt():
         gate_bytes=HANDLING_PAGE_GATE_EVIDENCE.read_bytes()
         candidate_bytes=HANDLING_PAGE_CANDIDATE_EVIDENCE.read_bytes()
         browser_bytes=HANDLING_PAGE_BROWSER_EVIDENCE.read_bytes()
-        hashes=tuple(hashlib.sha256(value).hexdigest() for value in
-            (validation_bytes,review_bytes,gate_bytes,candidate_bytes,browser_bytes))
+        hashes=(hashlib.sha256(validation_bytes).hexdigest(),_sha256_lf_normalized(review_bytes),
+                hashlib.sha256(gate_bytes).hexdigest(),hashlib.sha256(candidate_bytes).hexdigest(),
+                hashlib.sha256(browser_bytes).hexdigest())
         if hashes!=(HANDLING_PAGE_PROMOTION_VALIDATION_SHA256,HANDLING_PAGE_PROMOTION_REVIEW_SHA256,
                     HANDLING_PAGE_GATE_SHA256,HANDLING_PAGE_CANDIDATE_SHA256,HANDLING_PAGE_BROWSER_SHA256):return False
         receipt=json.loads(validation_bytes);review=review_bytes.decode();gate=json.loads(gate_bytes)
@@ -563,7 +571,7 @@ def reviewed_handling_page_retirement_receipt():
         if (receipt.get("task")!="KAN-15 handling page retirement promotion review receipt"
                 or receipt.get("status")!="APPROVED" or receipt.get("reviewer")!="/root/review_kan15_handling_page"
                 or receipt.get("review_record")!=str(HANDLING_PAGE_PROMOTION_REVIEW.relative_to(ROOT))
-                or receipt.get("review_record_sha256")!=HANDLING_PAGE_PROMOTION_REVIEW_SHA256
+                or receipt.get("review_record_sha256")!=HANDLING_PAGE_PROMOTION_REVIEW_RECORDED_SHA256
                 or receipt.get("gate_evidence_sha256")!=HANDLING_PAGE_GATE_SHA256
                 or receipt.get("candidate_report_sha256")!=HANDLING_PAGE_CANDIDATE_SHA256
                 or receipt.get("browser_report_sha256")!=HANDLING_PAGE_BROWSER_SHA256
@@ -601,7 +609,7 @@ def reviewed_handling_page_retirement_receipt():
                         or replacements.get("REPLACEMENT::"+HANDLING_PAGE_RETIREMENT_ACTIONS[action]+"::"+actor,{}).get("outcome")!="PASS"):
                     return False
                 verify_handling_page_retirement_proof(action,actor,proof)
-        review_hash=hashlib.sha256(HANDLING_PAGE_PROMOTION_REVIEW.read_bytes()).hexdigest()
+        review_hash=_sha256_lf_normalized(HANDLING_PAGE_PROMOTION_REVIEW.read_bytes())
         return review_hash==HANDLING_PAGE_PROMOTION_REVIEW_SHA256
     except (OSError,KeyError,TypeError,ValueError,UnsupportedCase):
         return False
@@ -622,8 +630,8 @@ def reviewed_action08_retirement_receipt():
                 or review.get("approved_outcome")!="RETIRED"
                 or review.get("pass_outcome_allowed") is not False
                 or review.get("review_record")!="notes/agent-reviews/2026-11-14-kan15-action08-retirement-review.md"
-                or review.get("review_record_sha256")!=ACTION08_RETIREMENT_REVIEW_SHA256
-                or hashlib.sha256(ACTION08_RETIREMENT_REVIEW.read_bytes()).hexdigest()!=ACTION08_RETIREMENT_REVIEW_SHA256):
+                or review.get("review_record_sha256")!=ACTION08_RETIREMENT_REVIEW_RECORDED_SHA256
+                or _sha256_lf_normalized(ACTION08_RETIREMENT_REVIEW.read_bytes())!=ACTION08_RETIREMENT_REVIEW_SHA256):
             return False
         basis=receipt.get("basis",{})
         cleanup=basis.get("cleanup",{})
