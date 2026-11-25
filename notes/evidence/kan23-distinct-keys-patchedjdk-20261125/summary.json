@@ -1,0 +1,71 @@
+{
+  "ticket": "KAN-23",
+  "related_runtime_ticket": "KAN-31",
+  "run_id": "kan31q-97100af9",
+  "date": "2026-11-25",
+  "source_revision": "185fdf6",
+  "scope": "Fresh disposable PostgreSQL/WildFly quarantine verifier on patched Temurin 25.0.5.1+2; explicit idempotency-key behavior and quarantine regression.",
+  "toolchain": {
+    "java": "Temurin 25.0.5.1+2",
+    "maven": "3.10.0",
+    "domain_tests": {
+      "tests": 64,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    "flyway_schema_version": "6"
+  },
+  "runtime": {
+    "status": "PASS",
+    "checks_passed": 46,
+    "checks_failed": 0
+  },
+  "distinct_explicit_keys": {
+    "event_fields": "Two identical LOAD report payloads for the same synthetic tracking ID",
+    "responses_http": [
+      204,
+      204
+    ],
+    "idempotency_ledger_rows_before": 4,
+    "idempotency_ledger_rows_after": 6,
+    "idempotency_ledger_rows_added": 2,
+    "registration_queue_before": {
+      "message-count": 0,
+      "scheduled-count": 0,
+      "delivering-count": 0,
+      "messages-added": 1
+    },
+    "registration_queue_after": {
+      "message-count": 2,
+      "scheduled-count": 0,
+      "delivering-count": 0,
+      "messages-added": 3
+    },
+    "registration_queue_messages_added": 2,
+    "source_queue_paused_during_assertion": true,
+    "downstream_effects_of_these_two_messages_verified": false
+  },
+  "cleanup": {
+    "server_log_captured": true,
+    "compose_down": true,
+    "no_project_resources_remain": true,
+    "residual_resources": {
+      "containers": [],
+      "networks": [],
+      "volumes": []
+    },
+    "image_removed": true,
+    "private_credentials_removed": true
+  },
+  "raw_receipt": {
+    "path": ".work/kan31-quarantine-97100af9/result.json",
+    "sha256": "f7bbcd95fdc16e4f426ec2c43d8349d07da0961ef52c39826162b46263c55933"
+  },
+  "test_source_sha256": "8beae217ac7ea10119dae92e5ace1a247519545284c3851b3801c398dd16ec5d",
+  "limits": [
+    "The check proves two identical payloads with different explicit keys are accepted and create separate durable idempotency entries and queue messages.",
+    "The source queue is intentionally paused during the assertion, so this run does not claim downstream processing of both explicit-key messages.",
+    "No production runtime or retained legacy dataset was involved."
+  ]
+}

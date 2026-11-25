@@ -395,7 +395,11 @@ def main(passwords):
         distinct_a[0] == 204 and distinct_b[0] == 204
         and after_distinct["messages-added"] - before_distinct["messages-added"] == 2
         and int(after_ledger) - int(before_ledger) == 2,
-        {"responses": [distinct_a[0], distinct_b[0]], "queue": after_distinct, "ledgerRows": after_ledger})
+        {"responses": [distinct_a[0], distinct_b[0]],
+         "queueBefore": before_distinct, "queueAfter": after_distinct,
+         "queueMessagesAdded": after_distinct["messages-added"] - before_distinct["messages-added"],
+         "ledgerRowsBefore": before_ledger, "ledgerRowsAfter": after_ledger,
+         "ledgerRowsAdded": int(after_ledger) - int(before_ledger)})
 
     sql("CREATE OR REPLACE FUNCTION cargo.kan31_delay_quarantine_delete() RETURNS trigger LANGUAGE plpgsql AS $$ "
         "BEGIN IF OLD.id=" + str(replayed_entry_id) + " THEN PERFORM pg_advisory_lock(987654321); "
