@@ -1,0 +1,108 @@
+{
+  "task": "KAN-18 candidate SCM build and CI recovery",
+  "date": "2026-11-25",
+  "job": "ai-modernization-candidate",
+  "build": {
+    "number": 11,
+    "result": "SUCCESS",
+    "duration_seconds": 64.905,
+    "controller": "http://localhost:8080",
+    "job_url": "http://localhost:8080/job/ai-modernization-candidate/11/",
+    "agent_node": "ai-modernization-candidate-secure",
+    "revision": "e153fe2873e3c68eb5215c62e8b14780487ac63c",
+    "workspace_revision_matches_scm_revision": true
+  },
+  "scm": {
+    "repository": "https://github.com/sebastian-hamid/ai-modernization.git",
+    "branch": "main",
+    "pipeline_file": "candidate/cargotracker/Jenkinsfile",
+    "legacy_source_repository": "https://github.com/javaee/cargotracker.git",
+    "legacy_source_revision": "57fc7b32d2597e43b5e0d454e707e0146de5258a",
+    "legacy_checkout": "detached; clean; read-only"
+  },
+  "toolchain": {
+    "java": "Temurin 25.0.5.1 (2026-11-17 LTS)",
+    "maven": "Apache Maven 3.10.0",
+    "python": "3.14.4",
+    "git": "2.53.0"
+  },
+  "checks": {
+    "setup_regression": {
+      "tests": 8,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    "security_contract_suites": {
+      "test_contract_engine.py": {
+        "tests": 17,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      "test_current_capabilities.py": {
+        "tests": 70,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      "test_replacements.py": {
+        "tests": 13,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      "test_staged_returns.py": {
+        "tests": 5,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      }
+    },
+    "runtime_harnesses": {
+      "candidate-runtime": {
+        "tests": 16,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      "security-runtime": {
+        "tests": 3,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      }
+    },
+    "maven_domain_and_characterization": {
+      "tests": 64,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    "total_reported_tests": 196,
+    "empty_inherited_todo_caveat": "One inherited ItineraryTest test remains an empty TODO and provides no behavioral assertion."
+  },
+  "artifacts": {
+    "candidate/cargotracker/target/cargo-tracker.war": {
+      "size_bytes": 6906589,
+      "sha256": "bdd09e5ae195ae24df689920b999e1782228d50fd892b3f288faf8f1199f67ca"
+    },
+    "candidate/security/target/candidate-security.jar": {
+      "size_bytes": 11005,
+      "sha256": "143fe10e2d185922c20ce4a252b3bb778a99df7e02cca3362b43e2427c068951"
+    },
+    "ci-results/candidate/revision.txt": {
+      "size_bytes": 41,
+      "sha256": "fd90fa96499b7ddd0c60f453dc04df0d474675c233b4fcf8b89638c86ef49903"
+    },
+    "surefire_reports": {
+      "count": 12,
+      "archived": true
+    }
+  },
+  "scope_limitations": [
+    "This is the candidate SCM compile/package and automated unit/security-contract pipeline; it did not deploy the WAR or run the disposable PostgreSQL/WildFly/Chromium runtime suite.",
+    "The build is local Jenkins verification, not production deployment.",
+    "KAN-18 remains In Progress pending its remaining acceptance review and integrated runtime evidence."
+  ]
+}
