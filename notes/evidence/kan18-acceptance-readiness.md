@@ -2,7 +2,7 @@
 
 Date: 27 November 2026
 Jira: KAN-18 — Modernize the application platform and dependencies
-Current status: In Progress
+Current Jira status: In Review (transitioned 27 November 2026 after independent readiness review).
 Recommendation: The technical acceptance evidence appears complete; move the issue to In Review for the owner's final acceptance. Do not mark Done until that review is accepted.
 
 ## Jira acceptance criteria
@@ -40,4 +40,4 @@ The separate reviewer concluded that the evidence supports moving KAN-18 to In R
 
 ## Review request
 
-The evidence supports moving KAN-18 to In Review. The issue is ready for In Review and owner acceptance. Do not mark Done until the owner accepts the stated scope and disclosed limits; otherwise, record the specific remaining acceptance gap and keep the ticket open.
+The evidence supports moving KAN-18 to In Review. Jira transition: In Review on 27 November 2026. Jira comment: [KAN-18 owner-acceptance handoff](https://ai-modernization.atlassian.net/browse/KAN-18?focusedCommentId=10226). Do not mark Done until the owner accepts the stated scope and disclosed limits; otherwise, record the specific remaining acceptance gap and keep the ticket open.
