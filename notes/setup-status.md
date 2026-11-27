@@ -22,7 +22,7 @@ The follow-up preserves the historical approval hash, validates stable LF review
 
 Jenkins build #11 on e153fe2873e3c68eb5215c62e8b14780487ac63c passed in 64.905 seconds. It fetched the pinned read-only legacy source and passed 8 setup, 17 contract-engine, 70 current-capability, 13 replacement, 5 staged-return, 16 candidate-harness and 3 security-runtime-harness tests, plus 64 Maven domain/characterization tests; failures, errors and skips were zero. The candidate WAR, security JAR, revision marker and 12 Surefire reports were archived. Build evidence and artifact hashes: [KAN-18 candidate SCM build 11](evidence/kan18-candidate-scm-build-11/README.md).
 
-This is Jenkins SCM build/package and unit/security-contract verification only. It did not deploy the WAR or rerun the separate disposable PostgreSQL/WildFly/Chromium runtime suite. KAN-18 remains In Progress pending remaining acceptance review and integrated runtime evidence.
+This is Jenkins SCM build/package and unit/security-contract verification only; it did not itself deploy the WAR or rerun the separate disposable PostgreSQL/WildFly/Chromium runtime suite. That integrated runtime and Chromium evidence is recorded in [the 25 November run](evidence/kan18-patchedjdk-browser-20261125/README.md). The separate security unit suite passed 145/145; that count is not a Jakarta EE TCK or a claim of exhaustive security acceptance. KAN-18 is ready for owner acceptance in Jira In Review; see [the acceptance-readiness map](evidence/kan18-acceptance-readiness.md).
 
 
 ## Previous setup snapshot - 22 November 2026
